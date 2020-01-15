@@ -6,7 +6,7 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 ## Overview
-Kotlin/JVM coroutine-based distributed lokks
+Kotlin/Java coroutine-based scrapers without full page rendering
 
 ## Distribution
 Library with modules are available only from `jitpack` so far:
