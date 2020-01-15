@@ -1,19 +1,11 @@
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.internal.consts.FETCH_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.SkraperChannel
-import ru.sokomishalov.skraper.model.SkraperPost
+import ru.sokomishalov.skraper.internal.dto.SkraperChannelDTO
+import ru.sokomishalov.skraper.internal.dto.SkraperPostDTO
+import ru.sokomishalov.skraper.internal.util.consts.FETCH_POSTS_DEFAULT_LIMIT
 
-/**
- * @author sokomishalov
- */
 
 interface Skraper {
-
-//    suspend fun getProviderLogoUrl(): String?
-
-    suspend fun getChannelLogoUrl(channel: SkraperChannel): String?
-
-    suspend fun getLatestPosts(channel: SkraperChannel, limit: Int = FETCH_POSTS_LIMIT): List<SkraperPost>
-
+    suspend fun getChannelLogoUrl(channel: SkraperChannelDTO): String?
+    suspend fun fetchPosts(channel: SkraperChannelDTO, limit: Int = FETCH_POSTS_DEFAULT_LIMIT): List<SkraperPostDTO>
 }

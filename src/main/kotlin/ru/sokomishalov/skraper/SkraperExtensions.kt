@@ -1,10 +1,10 @@
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.internal.http.fetchByteArray
-import ru.sokomishalov.skraper.model.SkraperChannel
+import ru.sokomishalov.skraper.internal.dto.SkraperChannelDTO
+import ru.sokomishalov.skraper.internal.util.http.fetchByteArray
 
 /**
  * @author sokomishalov
  */
 
-suspend fun Skraper.getLogoByteArray(channel: SkraperChannel): ByteArray? = getChannelLogoUrl(channel)?.let { fetchByteArray(it) }
+suspend fun Skraper.getChannelLogoByteArray(channel: SkraperChannelDTO): ByteArray? = getChannelLogoUrl(channel)?.let { fetchByteArray(it) }
