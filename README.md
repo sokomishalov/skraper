@@ -40,6 +40,15 @@ First of all you have to add dep:
 </dependency>
 ```
 
+Each scraper is a class which implements [Skraper](./src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
+```kotlin
+interface Skraper {
+    val client: SkraperHttpClient get() = DefaultBlockingHttpClient()
+    suspend fun getChannelLogoUrl(channel: ProviderChannel): String?
+    suspend fun getLatestPosts(channel: ProviderChannel, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+}
+```
+
 Then you you are able to use provider like this:
 ```kotlin
 fun main() = runBlocking {
@@ -52,13 +61,7 @@ fun main() = runBlocking {
 }
 ```
 
-## Description
-Each scraper is a class which implements [Skraper](./src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
-```kotlin
-interface Skraper {
-    suspend fun getChannelLogoUrl(channel: ProviderChannel): String?
-    suspend fun getLatestPosts(channel: ProviderChannel, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
-}
-```
-
-
+**Important moment:** it is not recommended to use [DefaultBlockingHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/DefaultBlockingHttpClient.kt).
+There are some more efficient, non-blocking and resource-friendly implementations for [SkraperHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/SkraperHttpClient.kt).
+To use them you need to have required dependencies in the classpath. Current implementation list is:
+- [ReactorNettyHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/ReactorNettyHttpClient.kt) - implementation built on [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) http-client
