@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.ninegag
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.model.ProviderChannel
 import ru.sokomishalov.skraper.provider.ProviderTck
 
 /**
@@ -24,5 +23,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class NinegagScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = NinegagSkraper(client = client)
-    override val channel: ProviderChannel = ProviderChannel(uri = "meme")
+    override val uri: String = "meme"
 }

@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.ifunny
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.model.ProviderChannel
 import ru.sokomishalov.skraper.provider.ProviderTck
 
 
@@ -25,5 +24,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class IFunnyScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = IFunnySkraper(client = client)
-    override val channel: ProviderChannel = ProviderChannel(uri = "memes")
+    override val uri: String = "memes"
 }

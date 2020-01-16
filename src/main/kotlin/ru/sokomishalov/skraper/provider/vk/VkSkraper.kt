@@ -31,7 +31,6 @@ import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 
 /**
@@ -45,8 +44,8 @@ class VkSkraper @JvmOverloads constructor(
         private const val VK_URL = "https://vk.com"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val posts = client.fetchDocument("$VK_URL/${channel.uri}")
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
+        val posts = client.fetchDocument("$VK_URL/${uri}")
                 ?.getSingleElementByClass("wall_posts")
                 ?.getElementsByClass("wall_item")
                 ?.take(limit)
@@ -62,8 +61,8 @@ class VkSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return client.fetchDocument("$VK_URL/${channel.uri}")
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        return client.fetchDocument("$VK_URL/${uri}")
                 ?.getSingleElementByClass("profile_panel")
                 ?.getSingleElementByTag("img")
                 ?.attr("src")

@@ -24,7 +24,6 @@ import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 import java.time.ZonedDateTime.parse as zonedDateTimeParse
 import java.util.Date.from as dateFrom
@@ -41,8 +40,8 @@ class NinegagSkraper @JvmOverloads constructor(
         private const val NINEGAG_URL = "https://9gag.com"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$NINEGAG_URL/${channel.uri}")
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
+        val webPage = client.fetchDocument("$NINEGAG_URL/${uri}")
 
         val latestPostsIds = webPage
                 ?.getElementById("jsid-latest-entries")
@@ -68,8 +67,8 @@ class NinegagSkraper @JvmOverloads constructor(
                 }
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return client.fetchDocument("$NINEGAG_URL/${channel.uri}")
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        return client.fetchDocument("$NINEGAG_URL/${uri}")
                 ?.head()
                 ?.getElementsByAttributeValueContaining("rel", "image_src")
                 ?.first()

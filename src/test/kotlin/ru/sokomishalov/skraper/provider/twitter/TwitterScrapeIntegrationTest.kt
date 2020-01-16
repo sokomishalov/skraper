@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.twitter
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.model.ProviderChannel
 import ru.sokomishalov.skraper.provider.ProviderTck
 
 /**
@@ -24,5 +23,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class TwitterScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = TwitterSkraper(client = client)
-    override val channel: ProviderChannel = ProviderChannel(uri = "russianmemesltd")
+    override val uri: String = "russianmemesltd"
 }

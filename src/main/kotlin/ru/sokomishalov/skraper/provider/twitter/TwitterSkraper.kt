@@ -25,7 +25,6 @@ import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 
 
@@ -40,8 +39,8 @@ class TwitterSkraper @JvmOverloads constructor(
         private const val TWITTER_URL = "https://twitter.com"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$TWITTER_URL/${channel.uri}")
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
+        val webPage = client.fetchDocument("$TWITTER_URL/${uri}")
 
         val posts = webPage
                 ?.body()
@@ -61,8 +60,8 @@ class TwitterSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return client.fetchDocument("$TWITTER_URL/${channel.uri}")
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        return client.fetchDocument("$TWITTER_URL/${uri}")
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")

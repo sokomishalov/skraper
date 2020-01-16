@@ -26,7 +26,6 @@ import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
 import java.time.ZonedDateTime.parse as zonedDateTimeParse
@@ -45,7 +44,7 @@ class PinterestSkraper @JvmOverloads constructor(
         private const val PINTEREST_URL = "https://www.pinterest.com"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: String, limit: Int): List<Post> {
         val infoJsonNode = parseInitJson(channel)
         val feedList = infoJsonNode
                 .get("resourceDataCache")
@@ -68,8 +67,8 @@ class PinterestSkraper @JvmOverloads constructor(
                 }
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        val infoJsonNode = parseInitJson(channel)
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        val infoJsonNode = parseInitJson(uri)
 
         return infoJsonNode["resourceDataCache"]
                 ?.first()
@@ -79,8 +78,8 @@ class PinterestSkraper @JvmOverloads constructor(
                 ?.asText()
     }
 
-    private suspend fun parseInitJson(channel: ProviderChannel): JsonNode {
-        val webPage = client.fetchDocument("$PINTEREST_URL/${channel.uri}")
+    private suspend fun parseInitJson(uri: String): JsonNode {
+        val webPage = client.fetchDocument("$PINTEREST_URL/${uri}")
         val infoJson = webPage?.getElementById("jsInit1")?.html()
         return withContext(IO) { SKRAPER_OBJECT_MAPPER.readTree(infoJson) }
     }

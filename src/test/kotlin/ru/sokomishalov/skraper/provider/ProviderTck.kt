@@ -27,7 +27,6 @@ import ru.sokomishalov.skraper.SkraperHttpClient
 import ru.sokomishalov.skraper.client.ReactorNettyHttpClient
 import ru.sokomishalov.skraper.getChannelLogoByteArray
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
-import ru.sokomishalov.skraper.model.ProviderChannel
 
 
 /**
@@ -39,14 +38,14 @@ abstract class ProviderTck {
         private val log: Logger = LoggerFactory.getLogger(ProviderTck::class.java)
     }
 
-    protected abstract val channel: ProviderChannel
     protected abstract val service: Skraper
+    protected abstract val uri: String
 
     protected val client: SkraperHttpClient by lazy { ReactorNettyHttpClient() }
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
-        val posts = service.getLatestPosts(channel)
+        val posts = service.getLatestPosts(uri)
 
         log.info(SKRAPER_OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 
@@ -63,7 +62,7 @@ abstract class ProviderTck {
 
     @Test
     fun `Check that channel logo has been fetched`() = runBlocking {
-        val image = service.getChannelLogoByteArray(channel) ?: ByteArray(0)
+        val image = service.getChannelLogoByteArray(uri) ?: ByteArray(0)
 
         assertNotEquals(0, image.size)
     }

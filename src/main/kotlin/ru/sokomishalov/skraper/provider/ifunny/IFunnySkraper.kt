@@ -25,7 +25,6 @@ import ru.sokomishalov.skraper.internal.util.time.mockDate
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 
 /**
  * @author sokomishalov
@@ -38,8 +37,8 @@ class IFunnySkraper @JvmOverloads constructor(
         private const val IFUNNY_URL = "https://ifunny.co"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val document = client.fetchDocument("${IFUNNY_URL}/${channel.uri}")
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
+        val document = client.fetchDocument("${IFUNNY_URL}/${uri}")
 
         val posts = document
                 ?.getSingleElementByClass("feed__list")
@@ -66,8 +65,8 @@ class IFunnySkraper @JvmOverloads constructor(
                 .filterNotNull()
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return client.fetchDocument("${IFUNNY_URL}/${channel.uri}")
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        return client.fetchDocument("${IFUNNY_URL}/${uri}")
                 ?.getElementsByTag("meta")
                 ?.find { it.attr("property") == "og:image" }
                 ?.attr("content")

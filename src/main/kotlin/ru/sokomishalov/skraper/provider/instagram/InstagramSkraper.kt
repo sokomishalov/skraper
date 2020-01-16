@@ -22,9 +22,9 @@ import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.util.time.mockDate
 import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType
+import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 
 
@@ -40,8 +40,8 @@ class InstagramSkraper @JvmOverloads constructor(
         private const val INSTAGRAM_URL = "https://www.instagram.com"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val postsNodes = getPosts(channel, limit)
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
+        val postsNodes = getPosts(uri, limit)
 
         return postsNodes.map {
             Post(
@@ -53,17 +53,17 @@ class InstagramSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        val account = getAccount(channel)
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        val account = getAccount(uri)
         return account["profile_pic_url"].asText()
     }
 
-    private suspend fun getAccount(channel: ProviderChannel): JsonNode {
-        return client.fetchJson("${INSTAGRAM_URL}/${channel.uri}/?__a=1")["graphql"]["user"]
+    private suspend fun getAccount(uri: String): JsonNode {
+        return client.fetchJson("${INSTAGRAM_URL}/${uri}/?__a=1")["graphql"]["user"]
     }
 
-    private suspend fun getPosts(channel: ProviderChannel, limit: Int): List<JsonNode> {
-        val account = getAccount(channel)
+    private suspend fun getPosts(uri: String, limit: Int): List<JsonNode> {
+        val account = getAccount(uri)
         return client.fetchJson("${INSTAGRAM_URL}/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
                 .get("data")
                 ?.get("user")
@@ -99,8 +99,8 @@ class InstagramSkraper @JvmOverloads constructor(
     private fun JsonNode.parseAttachment(): Attachment {
         return Attachment(
                 type = when {
-                    this["is_video"].asBoolean() -> AttachmentType.VIDEO
-                    else -> AttachmentType.IMAGE
+                    this["is_video"].asBoolean() -> VIDEO
+                    else -> IMAGE
                 },
                 url = this["video_url"]?.asText() ?: this["display_url"].asText()
         )

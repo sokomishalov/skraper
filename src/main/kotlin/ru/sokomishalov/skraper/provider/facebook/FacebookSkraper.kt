@@ -23,7 +23,6 @@ import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 import java.util.UUID.randomUUID
 
@@ -40,8 +39,8 @@ class FacebookSkraper @JvmOverloads constructor(
         private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$FACEBOOK_BASE_URL/${channel.uri}/posts")
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
+        val webPage = client.fetchDocument("$FACEBOOK_BASE_URL/${uri}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 
         return elements.map {
@@ -54,8 +53,8 @@ class FacebookSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return "$FACEBOOK_GRAPH_BASE_URL/${channel.uri}/picture?type=small"
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        return "$FACEBOOK_GRAPH_BASE_URL/${uri}/picture?type=small"
     }
 
     private fun getIdByUserContentWrapper(contentWrapper: Element): String {

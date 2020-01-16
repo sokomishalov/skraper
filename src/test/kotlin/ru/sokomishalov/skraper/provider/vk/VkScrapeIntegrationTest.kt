@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.vk
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.model.ProviderChannel
 import ru.sokomishalov.skraper.provider.ProviderTck
 
 
@@ -25,5 +24,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class VkScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = VkSkraper(client = client)
-    override val channel: ProviderChannel = ProviderChannel(uri = "komment")
+    override val uri: String = "komment"
 }

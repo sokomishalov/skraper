@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.pinterest
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.model.ProviderChannel
 import ru.sokomishalov.skraper.provider.ProviderTck
 
 /**
@@ -24,5 +23,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class PinterestScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = PinterestSkraper(client = client)
-    override val channel: ProviderChannel = ProviderChannel(uri = "celiatoler/pinterest-memes")
+    override val uri: String = "celiatoler/pinterest-memes"
 }

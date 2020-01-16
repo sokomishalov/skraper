@@ -15,12 +15,10 @@
  */
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.model.ProviderChannel
-
 /**
  * @author sokomishalov
  */
 
-suspend fun Skraper.getChannelLogoByteArray(channel: ProviderChannel): ByteArray? = getChannelLogoUrl(channel)?.let { client.fetch(it) }
+suspend fun Skraper.getChannelLogoByteArray(uri: String): ByteArray? = getPageLogoUrl(uri)?.let { client.fetch(it) }
 
 

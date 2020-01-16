@@ -18,15 +18,14 @@ package ru.sokomishalov.skraper
 import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.internal.util.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 
 
 interface Skraper {
 
     val client: SkraperHttpClient get() = DefaultBlockingHttpClient()
 
-    suspend fun getChannelLogoUrl(channel: ProviderChannel): String?
+    suspend fun getPageLogoUrl(uri: String): String?
 
-    suspend fun getLatestPosts(channel: ProviderChannel, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+    suspend fun getLatestPosts(uri: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
 
 }

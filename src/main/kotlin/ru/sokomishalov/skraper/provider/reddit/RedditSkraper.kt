@@ -24,7 +24,6 @@ import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderChannel
 import java.lang.System.currentTimeMillis
 import java.util.*
 
@@ -36,8 +35,8 @@ class RedditSkraper @JvmOverloads constructor(
         private const val REDDIT_BASE_URL = "https://www.reddit.com"
     }
 
-    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val response = client.fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/hot.json?limit=${limit}")
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
+        val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/hot.json?limit=${limit}")
 
         val posts = response["data"]["children"].elementsToList()
 
@@ -47,7 +46,8 @@ class RedditSkraper @JvmOverloads constructor(
                     Post(
                             id = it.getValue("id").orEmpty(),
                             caption = it.getValue("title"),
-                            publishDate = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000) ?: currentTimeMillis()),
+                            publishDate = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
+                                    ?: currentTimeMillis()),
                             attachments = listOf(Attachment(
                                     url = it.getValue("url").orEmpty(),
                                     type = when {
@@ -60,8 +60,8 @@ class RedditSkraper @JvmOverloads constructor(
                 }
     }
 
-    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        val response = client.fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/about.json")
+    override suspend fun getPageLogoUrl(uri: String): String? {
+        val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/about.json")
 
         val communityIcon = response["data"].getValue("community_icon")
         val imgIcon = response["data"].getValue("icon_img")
