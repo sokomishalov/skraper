@@ -17,13 +17,13 @@ package ru.sokomishalov.skraper.provider.ninegag
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.model.Attachment
-import ru.sokomishalov.skraper.internal.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.internal.model.Post
-import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
+import ru.sokomishalov.skraper.model.Attachment
+import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 import java.time.ZonedDateTime.parse as zonedDateTimeParse
 import java.util.Date.from as dateFrom

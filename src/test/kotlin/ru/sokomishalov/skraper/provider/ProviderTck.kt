@@ -22,7 +22,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.getChannelLogoByteArray
-import ru.sokomishalov.skraper.internal.model.ProviderChannel
+import ru.sokomishalov.skraper.model.ProviderChannel
 
 
 /**

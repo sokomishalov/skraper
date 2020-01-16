@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.internal.model
+package ru.sokomishalov.skraper.model
 
+import java.util.*
 
-/**
- * @author sokomishalov
- */
-data class ProviderChannel(
+data class Post(
         val id: String,
-        val name: String = "",
-        val uri: String,
-        val topics: List<String> = emptyList()
+        val caption: String? = "",
+        val publishedAt: Date = Date(),
+        val attachments: List<Attachment> = emptyList()
 )
-

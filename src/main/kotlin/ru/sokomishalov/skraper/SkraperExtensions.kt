@@ -15,8 +15,8 @@
  */
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.http.fetchByteArray
+import ru.sokomishalov.skraper.model.ProviderChannel
 
 /**
  * @author sokomishalov

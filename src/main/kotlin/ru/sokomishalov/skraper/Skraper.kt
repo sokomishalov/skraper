@@ -15,9 +15,9 @@
  */
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.internal.model.Post
-import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.consts.DEFAULT_POSTS_LIMIT
+import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.model.ProviderChannel
 
 
 interface Skraper {

@@ -17,14 +17,14 @@ package ru.sokomishalov.skraper.provider.twitter
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.model.Attachment
-import ru.sokomishalov.skraper.internal.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.internal.model.Post
-import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
+import ru.sokomishalov.skraper.model.Attachment
+import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 
 

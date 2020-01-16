@@ -16,7 +16,7 @@
 package ru.sokomishalov.skraper.provider.ninegag
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.model.ProviderChannel
+import ru.sokomishalov.skraper.model.ProviderChannel
 import ru.sokomishalov.skraper.provider.ProviderTck
 
 /**
