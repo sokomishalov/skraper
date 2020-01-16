@@ -102,8 +102,7 @@ class InstagramSkraper @JvmOverloads constructor(
                     this["is_video"].asBoolean() -> AttachmentType.VIDEO
                     else -> AttachmentType.IMAGE
                 },
-                url = this["video_url"]?.asText() ?: this["display_url"].asText(),
-                aspectRatio = this["dimensions"].let { d -> d["width"].asDouble() / d["height"].asDouble() }
+                url = this["video_url"]?.asText() ?: this["display_url"].asText()
         )
     }
 }

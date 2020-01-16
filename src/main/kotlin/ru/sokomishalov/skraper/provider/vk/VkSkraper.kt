@@ -22,7 +22,6 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
 import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.getImageBackgroundUrl
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
@@ -86,7 +85,7 @@ class VkSkraper @JvmOverloads constructor(
         return mockDate(i)
     }
 
-    private suspend fun Element.extractAttachments(): List<Attachment> {
+    private fun Element.extractAttachments(): List<Attachment> {
         return getElementsByClass("thumb_map_img")
                 .firstOrNull()
                 .let {
@@ -104,8 +103,7 @@ class VkSkraper @JvmOverloads constructor(
                                     type = when {
                                         isVideo -> VIDEO
                                         else -> IMAGE
-                                    },
-                                    aspectRatio = client.getImageAspectRatio(imageUrl)
+                                    }
                             ))
                         }
                     }

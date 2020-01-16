@@ -20,7 +20,6 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
 import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -63,11 +62,7 @@ class NinegagSkraper @JvmOverloads constructor(
                             id = it,
                             caption = fixCaption(gagInfoMap["headline"]),
                             publishDate = gagInfoMap.parsePublishedDate(),
-                            attachments = listOf(Attachment(
-                                    type = IMAGE,
-                                    url = gagInfoMap["image"].orEmpty(),
-                                    aspectRatio = client.getImageAspectRatio(gagInfoMap["image"].orEmpty())
-                            ))
+                            attachments = listOf(Attachment(type = IMAGE, url = gagInfoMap["image"].orEmpty()))
 
                     )
                 }

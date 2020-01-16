@@ -20,11 +20,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import ru.sokomishalov.skraper.internal.util.consts.DEFAULT_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
-import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
-import javax.imageio.ImageIO
 import kotlin.text.Charsets.UTF_8
 
 /**
@@ -39,16 +35,4 @@ suspend fun SkraperHttpClient.fetchJson(url: String): JsonNode {
 suspend fun SkraperHttpClient.fetchDocument(url: String): Document? {
     val ba = fetch(url)
     return withContext(IO) { Jsoup.parse(ba?.toString(UTF_8)) }
-}
-
-suspend fun SkraperHttpClient.getImageDimensions(url: String): Pair<Int, Int>? {
-    return runCatching { fetch(url)?.toBufferedImage()?.run { width to height } }.getOrNull()
-}
-
-suspend fun SkraperHttpClient.getImageAspectRatio(url: String): Double {
-    return getImageDimensions(url)?.let { it.first.toDouble() / it.second } ?: DEFAULT_ASPECT_RATIO
-}
-
-private fun ByteArray.toBufferedImage(): BufferedImage {
-    return ByteArrayInputStream(this).use { ImageIO.read(it) }
 }

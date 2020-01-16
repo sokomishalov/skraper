@@ -47,17 +47,13 @@ class RedditSkraper @JvmOverloads constructor(
                     Post(
                             id = it.getValue("id").orEmpty(),
                             caption = it.getValue("title"),
-                            publishDate = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
-                                    ?: currentTimeMillis()),
+                            publishDate = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000) ?: currentTimeMillis()),
                             attachments = listOf(Attachment(
                                     url = it.getValue("url").orEmpty(),
                                     type = when {
                                         it["media"].isEmpty.not() -> VIDEO
                                         it.getValue("url") != null -> IMAGE
                                         else -> IMAGE
-                                    },
-                                    aspectRatio = it.get("preview")?.get("images")?.elementsToList()?.firstOrNull()?.get("source")?.run {
-                                        getValue("width")?.toDouble()?.div(getValue("height")?.toDouble() ?: 1.0)
                                     }
                             ))
                     )

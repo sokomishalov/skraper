@@ -20,7 +20,6 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
 import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
@@ -86,18 +85,12 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?: Date(0)
     }
 
-    private suspend fun getAttachmentsByUserContentWrapper(contentWrapper: Element): List<Attachment> {
+    private fun getAttachmentsByUserContentWrapper(contentWrapper: Element): List<Attachment> {
         return contentWrapper
                 .getElementsByClass("scaledImageFitWidth")
                 ?.first()
                 ?.attr("src")
-                ?.let {
-                    listOf(Attachment(
-                            url = it,
-                            type = IMAGE,
-                            aspectRatio = client.getImageAspectRatio(it)
-                    ))
-                }
+                ?.let { listOf(Attachment(url = it, type = IMAGE)) }
                 ?: emptyList()
     }
 }

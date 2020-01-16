@@ -15,10 +15,7 @@
  */
 package ru.sokomishalov.skraper.model
 
-import ru.sokomishalov.skraper.internal.util.consts.DEFAULT_ASPECT_RATIO
-
 data class Attachment(
         val url: String,
-        val type: AttachmentType,
-        val aspectRatio: Double? = DEFAULT_ASPECT_RATIO
+        val type: AttachmentType
 )

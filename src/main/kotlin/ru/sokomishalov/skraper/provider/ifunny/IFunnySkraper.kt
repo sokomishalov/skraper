@@ -60,11 +60,7 @@ class IFunnySkraper @JvmOverloads constructor(
                     Post(
                             id = link.convertUriToId(),
                             publishDate = mockDate(i),
-                            attachments = listOf(Attachment(
-                                    url = img.attr("data-src"),
-                                    type = IMAGE,
-                                    aspectRatio = it.attr("data-ratio").toDoubleOrNull()?.let { 1.div(it) }
-                            ))
+                            attachments = listOf(Attachment(url = img.attr("data-src"), type = IMAGE))
                     )
                 }
                 .filterNotNull()
