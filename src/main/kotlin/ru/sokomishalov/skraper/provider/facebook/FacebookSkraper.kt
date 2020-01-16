@@ -45,10 +45,10 @@ class FacebookSkraper @JvmOverloads constructor(
 
         return elements.map {
             Post(
-                    id = getIdByUserContentWrapper(it),
-                    caption = getCaptionByUserContentWrapper(it),
-                    publishDate = getPublishedAtByUserContentWrapper(it),
-                    attachments = getAttachmentsByUserContentWrapper(it)
+                    id = it.getIdByUserContentWrapper(),
+                    caption = it.getCaptionByUserContentWrapper(),
+                    publishDate = it.getPublishedAtByUserContentWrapper(),
+                    attachments = it.getAttachmentsByUserContentWrapper()
             )
         }
     }
@@ -57,17 +57,15 @@ class FacebookSkraper @JvmOverloads constructor(
         return "$FACEBOOK_GRAPH_BASE_URL/${uri}/picture?type=small"
     }
 
-    private fun getIdByUserContentWrapper(contentWrapper: Element): String {
-        return contentWrapper
-                .getElementsByAttributeValueContaining("id", "feed_subtitle")
+    private fun Element.getIdByUserContentWrapper(): String {
+        return getElementsByAttributeValueContaining("id", "feed_subtitle")
                 ?.first()
                 ?.attr("id")
                 ?: randomUUID().toString()
     }
 
-    private fun getCaptionByUserContentWrapper(contentWrapper: Element): String? {
-        return contentWrapper
-                .getElementsByClass("userContent")
+    private fun Element.getCaptionByUserContentWrapper(): String? {
+        return getElementsByClass("userContent")
                 ?.first()
                 ?.getElementsByTag("p")
                 ?.first()
@@ -75,18 +73,16 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.toString()
     }
 
-    private fun getPublishedAtByUserContentWrapper(contentWrapper: Element): Date {
-        return contentWrapper
-                .getElementsByAttribute("data-utime")
+    private fun Element.getPublishedAtByUserContentWrapper(): Date {
+        return getElementsByAttribute("data-utime")
                 ?.first()
                 ?.attr("data-utime")
-                ?.run { Date(this.toLong().times(1000)) }
+                ?.let { Date(it.toLong().times(1000)) }
                 ?: Date(0)
     }
 
-    private fun getAttachmentsByUserContentWrapper(contentWrapper: Element): List<Attachment> {
-        return contentWrapper
-                .getElementsByClass("scaledImageFitWidth")
+    private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
+        return getElementsByClass("scaledImageFitWidth")
                 ?.first()
                 ?.attr("src")
                 ?.let { listOf(Attachment(url = it, type = IMAGE)) }

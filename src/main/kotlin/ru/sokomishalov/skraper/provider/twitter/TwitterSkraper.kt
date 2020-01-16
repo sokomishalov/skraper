@@ -22,6 +22,7 @@ import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
+import ru.sokomishalov.skraper.internal.util.time.mockDate
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
@@ -52,10 +53,10 @@ class TwitterSkraper @JvmOverloads constructor(
 
         return posts.map {
             Post(
-                    id = extractIdFromTweet(it),
-                    caption = extractCaptionFromTweet(it),
-                    publishDate = extractPublishedAtFromTweet(it),
-                    attachments = extractAttachmentsFromTweet(it)
+                    id = it.extractIdFromTweet(),
+                    caption = it.extractCaptionFromTweet(),
+                    publishDate = it.extractPublishedAtFromTweet(),
+                    attachments = it.extractAttachmentsFromTweet()
             )
         }
     }
@@ -67,31 +68,27 @@ class TwitterSkraper @JvmOverloads constructor(
                 ?.attr("src")
     }
 
-    private fun extractIdFromTweet(tweet: Element): String {
-        return tweet
-                .getSingleElementByClass("js-stream-tweet")
+    private fun Element.extractIdFromTweet(): String {
+        return getSingleElementByClass("js-stream-tweet")
                 .attr("data-tweet-id")
     }
 
-    private fun extractCaptionFromTweet(tweet: Element): String? {
-        return tweet
-                .getSingleElementByClass("tweet-text")
+    private fun Element.extractCaptionFromTweet(): String? {
+        return getSingleElementByClass("tweet-text")
                 .removeLinks()
     }
 
-    private fun extractPublishedAtFromTweet(tweet: Element): Date {
+    private fun Element.extractPublishedAtFromTweet(): Date {
         return runCatching {
-            tweet
-                    .getSingleElementByClass("js-short-timestamp")
+            getSingleElementByClass("js-short-timestamp")
                     .attr("data-time-ms")
                     .toLong()
                     .let { Date(it) }
-        }.getOrElse { Date(0) }
+        }.getOrElse { mockDate() }
     }
 
-    private fun extractAttachmentsFromTweet(tweet: Element): List<Attachment> {
-        return tweet
-                .getElementsByClass("AdaptiveMedia-photoContainer")
+    private fun Element.extractAttachmentsFromTweet(): List<Attachment> {
+        return getElementsByClass("AdaptiveMedia-photoContainer")
                 ?.map { element -> Attachment(url = element.attr("data-image-url"), type = IMAGE) }
                 ?: emptyList()
     }
