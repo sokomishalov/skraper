@@ -31,11 +31,9 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class TwitterSkraper : Skraper {
+object TwitterSkraper : Skraper {
 
-    companion object {
-        private const val TWITTER_URL = "https://twitter.com"
-    }
+    private const val TWITTER_URL = "https://twitter.com"
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$TWITTER_URL/${channel.uri}")

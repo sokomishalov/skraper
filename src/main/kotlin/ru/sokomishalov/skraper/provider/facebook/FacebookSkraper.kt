@@ -30,12 +30,10 @@ import java.util.UUID.randomUUID
 /**
  * @author sokomishalov
  */
-class FacebookSkraper : Skraper {
+object FacebookSkraper : Skraper {
 
-    companion object {
-        private const val FACEBOOK_BASE_URL = "https://www.facebook.com"
-        private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
-    }
+    private const val FACEBOOK_BASE_URL = "https://www.facebook.com"
+    private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$FACEBOOK_BASE_URL/${channel.uri}/posts")

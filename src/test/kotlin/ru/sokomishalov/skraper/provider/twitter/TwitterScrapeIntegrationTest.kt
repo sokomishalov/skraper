@@ -23,6 +23,6 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  * @author sokomishalov
  */
 class TwitterScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = TwitterSkraper()
+    override val service: Skraper = TwitterSkraper
     override val channel: ProviderChannel = ProviderChannel(uri = "russianmemesltd")
 }

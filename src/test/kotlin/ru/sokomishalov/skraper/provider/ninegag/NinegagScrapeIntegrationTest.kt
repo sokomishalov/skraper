@@ -23,6 +23,6 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  * @author sokomishalov
  */
 class NinegagScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = NinegagSkraper()
+    override val service: Skraper = NinegagSkraper
     override val channel: ProviderChannel = ProviderChannel(uri = "meme")
 }

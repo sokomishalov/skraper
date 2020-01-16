@@ -26,11 +26,9 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 import java.lang.System.currentTimeMillis
 import java.util.*
 
-class RedditSkraper : Skraper {
+object RedditSkraper : Skraper {
 
-    companion object {
-        private const val REDDIT_BASE_URL = "https://www.reddit.com"
-    }
+    private const val REDDIT_BASE_URL = "https://www.reddit.com"
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val response = fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/hot.json?limit=${limit}")

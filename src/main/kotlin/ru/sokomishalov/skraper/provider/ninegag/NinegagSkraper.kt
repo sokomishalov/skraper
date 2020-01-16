@@ -32,11 +32,9 @@ import java.util.Date.from as dateFrom
 /**
  * @author sokomishalov
  */
-class NinegagSkraper : Skraper {
+object NinegagSkraper : Skraper {
 
-    companion object {
-        private const val NINEGAG_URL = "https://9gag.com"
-    }
+    private const val NINEGAG_URL = "https://9gag.com"
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$NINEGAG_URL/${channel.uri}")

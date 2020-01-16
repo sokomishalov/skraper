@@ -30,11 +30,9 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 
 
-class VkSkraper : Skraper {
+object VkSkraper : Skraper {
 
-    companion object {
-        private const val VK_URL = "https://vk.com"
-    }
+    private const val VK_URL = "https://vk.com"
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val posts = fetchDocument("$VK_URL/${channel.uri}")

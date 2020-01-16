@@ -25,21 +25,19 @@ import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
 import ru.sokomishalov.skraper.model.ProviderChannel
+import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
 import java.time.ZonedDateTime.parse as zonedDateTimeParse
-import java.time.format.DateTimeFormatter.ofPattern as dateTimeFormatterOfPattern
 import java.util.Date.from as dateFrom
 
 
 /**
  * @author sokomishalov
  */
-class PinterestSkraper : Skraper {
+object PinterestSkraper : Skraper {
 
-    companion object {
-        private val DATE_FORMATTER = dateTimeFormatterOfPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)
-        private const val PINTEREST_URL = "https://www.pinterest.com"
-    }
+    private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)
+    private const val PINTEREST_URL = "https://www.pinterest.com"
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val infoJsonNode = parseInitJson(channel)

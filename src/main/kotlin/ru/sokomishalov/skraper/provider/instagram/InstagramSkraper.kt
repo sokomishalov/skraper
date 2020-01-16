@@ -29,12 +29,10 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class InstagramSkraper : Skraper {
+object InstagramSkraper : Skraper {
 
-    companion object {
-        private const val QUERY_ID = "17888483320059182"
-        private const val INSTAGRAM_URL = "https://www.instagram.com"
-    }
+    private const val QUERY_ID = "17888483320059182"
+    private const val INSTAGRAM_URL = "https://www.instagram.com"
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val postsNodes = getPosts(channel, limit)
