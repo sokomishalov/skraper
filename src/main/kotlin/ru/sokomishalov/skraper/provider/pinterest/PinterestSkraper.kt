@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
@@ -34,7 +36,9 @@ import java.util.Date.from as dateFrom
 /**
  * @author sokomishalov
  */
-class PinterestSkraper : Skraper {
+class PinterestSkraper(
+        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+) : Skraper {
 
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)

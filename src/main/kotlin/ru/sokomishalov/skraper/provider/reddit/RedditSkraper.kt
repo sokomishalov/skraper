@@ -17,6 +17,8 @@ package ru.sokomishalov.skraper.provider.reddit
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -26,7 +28,9 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 import java.lang.System.currentTimeMillis
 import java.util.*
 
-class RedditSkraper : Skraper {
+class RedditSkraper(
+        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+) : Skraper {
 
     companion object {
         private const val REDDIT_BASE_URL = "https://www.reddit.com"

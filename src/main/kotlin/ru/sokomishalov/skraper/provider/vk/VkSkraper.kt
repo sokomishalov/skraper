@@ -19,6 +19,8 @@ package ru.sokomishalov.skraper.provider.vk
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.getImageBackgroundUrl
@@ -36,7 +38,9 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class VkSkraper : Skraper {
+class VkSkraper(
+        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+) : Skraper {
 
     companion object {
         private const val VK_URL = "https://vk.com"

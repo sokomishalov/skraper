@@ -23,6 +23,6 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  * @author sokomishalov
  */
 class InstagramScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = InstagramSkraper()
+    override val service: Skraper = InstagramSkraper(client = client)
     override val channel: ProviderChannel = ProviderChannel(uri = "originaltrollfootball")
 }

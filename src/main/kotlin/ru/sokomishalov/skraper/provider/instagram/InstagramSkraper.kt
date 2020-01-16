@@ -17,6 +17,8 @@ package ru.sokomishalov.skraper.provider.instagram
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.util.time.mockDate
 import ru.sokomishalov.skraper.model.Attachment
@@ -29,7 +31,9 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class InstagramSkraper : Skraper {
+class InstagramSkraper(
+        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+) : Skraper {
 
     companion object {
         private const val QUERY_ID = "17888483320059182"

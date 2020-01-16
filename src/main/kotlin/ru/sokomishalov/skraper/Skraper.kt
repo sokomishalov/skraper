@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.client.ReactorNettyHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.internal.util.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.Post
 import ru.sokomishalov.skraper.model.ProviderChannel
@@ -23,7 +23,7 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 
 interface Skraper {
 
-    val client: SkraperHttpClient get() = ReactorNettyHttpClient()
+    val client: SkraperHttpClient get() = DefaultBlockingHttpClient()
 
     suspend fun getChannelLogoUrl(channel: ProviderChannel): String?
 

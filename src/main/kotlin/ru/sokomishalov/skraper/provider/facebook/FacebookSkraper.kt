@@ -17,6 +17,8 @@ package ru.sokomishalov.skraper.provider.facebook
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
@@ -30,7 +32,10 @@ import java.util.UUID.randomUUID
 /**
  * @author sokomishalov
  */
-class FacebookSkraper : Skraper {
+class FacebookSkraper(
+        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+) : Skraper {
+
     companion object {
         private const val FACEBOOK_BASE_URL = "https://www.facebook.com"
         private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"

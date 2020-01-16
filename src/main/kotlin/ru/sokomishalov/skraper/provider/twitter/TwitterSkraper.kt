@@ -17,6 +17,8 @@ package ru.sokomishalov.skraper.provider.twitter
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
@@ -31,7 +33,9 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class TwitterSkraper : Skraper {
+class TwitterSkraper(
+        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+) : Skraper {
 
     companion object {
         private const val TWITTER_URL = "https://twitter.com"

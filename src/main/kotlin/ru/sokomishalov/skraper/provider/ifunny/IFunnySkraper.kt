@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.ifunny
 
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
@@ -28,7 +30,9 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 /**
  * @author sokomishalov
  */
-class IFunnySkraper : Skraper {
+class IFunnySkraper(
+        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+) : Skraper {
 
     companion object {
         private const val IFUNNY_URL = "https://ifunny.co"

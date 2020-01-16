@@ -20,8 +20,13 @@ package ru.sokomishalov.skraper.provider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.client.ReactorNettyHttpClient
 import ru.sokomishalov.skraper.getChannelLogoByteArray
+import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.ProviderChannel
 
 
@@ -30,12 +35,20 @@ import ru.sokomishalov.skraper.model.ProviderChannel
  */
 abstract class ProviderTck {
 
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(ProviderTck::class.java)
+    }
+
     protected abstract val channel: ProviderChannel
     protected abstract val service: Skraper
+
+    protected val client: SkraperHttpClient by lazy { ReactorNettyHttpClient() }
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
         val posts = service.getLatestPosts(channel)
+
+        log.info(SKRAPER_OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 
         assertFalse(posts.isNullOrEmpty())
         posts.forEach {
