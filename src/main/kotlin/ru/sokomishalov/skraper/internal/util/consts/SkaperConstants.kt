@@ -19,4 +19,5 @@ package ru.sokomishalov.skraper.internal.util.consts
  * @author sokomishalov
  */
 
-internal const val DEFAULT_POSTS_LIMIT = 100
+internal const val DEFAULT_POSTS_LIMIT: Int = 100
+internal const val DEFAULT_ASPECT_RATIO: Double = 1.0

@@ -17,7 +17,7 @@ package ru.sokomishalov.skraper.provider.reddit
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.http.fetchJson
+import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -33,7 +33,7 @@ class RedditSkraper : Skraper {
     }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val response = fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/hot.json?limit=${limit}")
+        val response = client.fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/hot.json?limit=${limit}")
 
         val posts = response["data"]["children"].elementsToList()
 
@@ -61,7 +61,7 @@ class RedditSkraper : Skraper {
     }
 
     override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        val response = fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/about.json")
+        val response = client.fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/about.json")
 
         val communityIcon = response["data"].getValue("community_icon")
         val imgIcon = response["data"].getValue("icon_img")

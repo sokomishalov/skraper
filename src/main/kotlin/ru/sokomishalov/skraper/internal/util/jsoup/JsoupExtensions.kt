@@ -16,18 +16,7 @@
 package ru.sokomishalov.skraper.internal.util.jsoup
 
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import ru.sokomishalov.skraper.internal.util.http.fetchByteArray
-import kotlin.text.Charsets.UTF_8
-
-/**
- * @author sokomishalov
- */
-
-suspend fun fetchDocument(url: String): Document? {
-    return fetchByteArray(url)?.let { Jsoup.parse(it.toString(UTF_8)) }
-}
 
 internal fun Element.removeLinks(): String? {
     val titleDoc = Jsoup.parse(html())

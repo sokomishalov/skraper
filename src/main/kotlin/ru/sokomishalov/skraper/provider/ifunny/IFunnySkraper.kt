@@ -16,7 +16,7 @@
 package ru.sokomishalov.skraper.provider.ifunny
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
+import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.internal.util.time.mockDate
@@ -35,7 +35,7 @@ class IFunnySkraper : Skraper {
     }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val document = fetchDocument("${IFUNNY_URL}/${channel.uri}")
+        val document = client.fetchDocument("${IFUNNY_URL}/${channel.uri}")
 
         val posts = document
                 ?.getSingleElementByClass("feed__list")
@@ -67,7 +67,7 @@ class IFunnySkraper : Skraper {
     }
 
     override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return fetchDocument("${IFUNNY_URL}/${channel.uri}")
+        return client.fetchDocument("${IFUNNY_URL}/${channel.uri}")
                 ?.getElementsByTag("meta")
                 ?.find { it.attr("property") == "og:image" }
                 ?.attr("content")

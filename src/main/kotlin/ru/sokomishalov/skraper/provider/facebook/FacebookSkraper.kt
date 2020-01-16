@@ -17,8 +17,8 @@ package ru.sokomishalov.skraper.provider.facebook
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
-import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
+import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
@@ -37,7 +37,7 @@ class FacebookSkraper : Skraper {
     }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val webPage = fetchDocument("$FACEBOOK_BASE_URL/${channel.uri}/posts")
+        val webPage = client.fetchDocument("$FACEBOOK_BASE_URL/${channel.uri}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 
         return elements.map {
@@ -90,7 +90,7 @@ class FacebookSkraper : Skraper {
                     listOf(Attachment(
                             url = it,
                             type = IMAGE,
-                            aspectRatio = getImageAspectRatio(it)
+                            aspectRatio = client.getImageAspectRatio(it)
                     ))
                 }
                 ?: emptyList()

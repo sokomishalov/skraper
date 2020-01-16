@@ -19,8 +19,12 @@ package ru.sokomishalov.skraper.provider.vk
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
-import ru.sokomishalov.skraper.internal.util.jsoup.*
+import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.getImageAspectRatio
+import ru.sokomishalov.skraper.internal.util.jsoup.getImageBackgroundUrl
+import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
+import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
 import ru.sokomishalov.skraper.internal.util.time.mockDate
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -39,7 +43,7 @@ class VkSkraper : Skraper {
     }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val posts = fetchDocument("$VK_URL/${channel.uri}")
+        val posts = client.fetchDocument("$VK_URL/${channel.uri}")
                 ?.getSingleElementByClass("wall_posts")
                 ?.getElementsByClass("wall_item")
                 ?.take(limit)
@@ -56,7 +60,7 @@ class VkSkraper : Skraper {
     }
 
     override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return fetchDocument("$VK_URL/${channel.uri}")
+        return client.fetchDocument("$VK_URL/${channel.uri}")
                 ?.getSingleElementByClass("profile_panel")
                 ?.getSingleElementByTag("img")
                 ?.attr("src")
@@ -97,7 +101,7 @@ class VkSkraper : Skraper {
                                         isVideo -> VIDEO
                                         else -> IMAGE
                                     },
-                                    aspectRatio = getImageAspectRatio(imageUrl)
+                                    aspectRatio = client.getImageAspectRatio(imageUrl)
                             ))
                         }
                     }

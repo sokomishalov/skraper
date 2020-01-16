@@ -17,8 +17,8 @@ package ru.sokomishalov.skraper.provider.twitter
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
-import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
+import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
@@ -38,7 +38,7 @@ class TwitterSkraper : Skraper {
     }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val webPage = fetchDocument("$TWITTER_URL/${channel.uri}")
+        val webPage = client.fetchDocument("$TWITTER_URL/${channel.uri}")
 
         val posts = webPage
                 ?.body()
@@ -59,7 +59,7 @@ class TwitterSkraper : Skraper {
     }
 
     override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return fetchDocument("$TWITTER_URL/${channel.uri}")
+        return client.fetchDocument("$TWITTER_URL/${channel.uri}")
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")
@@ -95,7 +95,7 @@ class TwitterSkraper : Skraper {
                         Attachment(
                                 url = it,
                                 type = IMAGE,
-                                aspectRatio = getImageAspectRatio(it)
+                                aspectRatio = client.getImageAspectRatio(it)
                         )
                     }
                 }

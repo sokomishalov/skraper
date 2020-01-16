@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
+import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -80,7 +80,7 @@ class PinterestSkraper : Skraper {
     }
 
     private suspend fun parseInitJson(channel: ProviderChannel): JsonNode {
-        val webPage = fetchDocument("$PINTEREST_URL/${channel.uri}")
+        val webPage = client.fetchDocument("$PINTEREST_URL/${channel.uri}")
         val infoJson = webPage?.getElementById("jsInit1")?.html()
         return withContext(IO) { SKRAPER_OBJECT_MAPPER.readTree(infoJson) }
     }

@@ -17,8 +17,8 @@ package ru.sokomishalov.skraper.provider.ninegag
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
-import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
+import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -39,7 +39,7 @@ class NinegagSkraper : Skraper {
     }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
-        val webPage = fetchDocument("$NINEGAG_URL/${channel.uri}")
+        val webPage = client.fetchDocument("$NINEGAG_URL/${channel.uri}")
 
         val latestPostsIds = webPage
                 ?.getElementById("jsid-latest-entries")
@@ -51,7 +51,7 @@ class NinegagSkraper : Skraper {
 
         return latestPostsIds
                 .map {
-                    val gagDocument = fetchDocument("$NINEGAG_URL/gag/$it")
+                    val gagDocument = client.fetchDocument("$NINEGAG_URL/gag/$it")
                     val gagInfoJson = gagDocument?.getElementsByAttributeValueContaining("type", "application/ld+json")?.first()?.html().orEmpty()
                     val gagInfoMap = SKRAPER_OBJECT_MAPPER.readValue<Map<String, String>>(gagInfoJson)
 
@@ -62,7 +62,7 @@ class NinegagSkraper : Skraper {
                             attachments = listOf(Attachment(
                                     type = IMAGE,
                                     url = gagInfoMap["image"].orEmpty(),
-                                    aspectRatio = getImageAspectRatio(gagInfoMap["image"].orEmpty())
+                                    aspectRatio = client.getImageAspectRatio(gagInfoMap["image"].orEmpty())
                             ))
 
                     )
@@ -70,7 +70,7 @@ class NinegagSkraper : Skraper {
     }
 
     override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
-        return fetchDocument("$NINEGAG_URL/${channel.uri}")
+        return client.fetchDocument("$NINEGAG_URL/${channel.uri}")
                 ?.head()
                 ?.getElementsByAttributeValueContaining("rel", "image_src")
                 ?.first()

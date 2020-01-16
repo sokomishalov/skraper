@@ -17,7 +17,7 @@ package ru.sokomishalov.skraper.provider.instagram
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.util.http.fetchJson
+import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.util.time.mockDate
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType
@@ -55,12 +55,12 @@ class InstagramSkraper : Skraper {
     }
 
     private suspend fun getAccount(channel: ProviderChannel): JsonNode {
-        return fetchJson("${INSTAGRAM_URL}/${channel.uri}/?__a=1")["graphql"]["user"]
+        return client.fetchJson("${INSTAGRAM_URL}/${channel.uri}/?__a=1")["graphql"]["user"]
     }
 
     private suspend fun getPosts(channel: ProviderChannel, limit: Int): List<JsonNode> {
         val account = getAccount(channel)
-        return fetchJson("${INSTAGRAM_URL}/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
+        return client.fetchJson("${INSTAGRAM_URL}/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
                 .get("data")
                 ?.get("user")
                 ?.get("edge_owner_to_timeline_media")
