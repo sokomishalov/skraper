@@ -30,7 +30,7 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 /**
  * @author sokomishalov
  */
-class IFunnySkraper(
+class IFunnySkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 

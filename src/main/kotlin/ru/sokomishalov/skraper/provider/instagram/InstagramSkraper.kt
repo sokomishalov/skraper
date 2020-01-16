@@ -31,7 +31,7 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class InstagramSkraper(
+class InstagramSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 

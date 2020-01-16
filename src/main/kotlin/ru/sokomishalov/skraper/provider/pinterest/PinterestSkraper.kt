@@ -36,7 +36,7 @@ import java.util.Date.from as dateFrom
 /**
  * @author sokomishalov
  */
-class PinterestSkraper(
+class PinterestSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 

@@ -33,7 +33,7 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class TwitterSkraper(
+class TwitterSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 

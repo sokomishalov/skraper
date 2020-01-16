@@ -28,7 +28,7 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 import java.lang.System.currentTimeMillis
 import java.util.*
 
-class RedditSkraper(
+class RedditSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 

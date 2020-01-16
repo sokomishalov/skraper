@@ -34,7 +34,7 @@ import java.util.Date.from as dateFrom
 /**
  * @author sokomishalov
  */
-class NinegagSkraper(
+class NinegagSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 

@@ -38,7 +38,7 @@ import java.util.*
 /**
  * @author sokomishalov
  */
-class VkSkraper(
+class VkSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 

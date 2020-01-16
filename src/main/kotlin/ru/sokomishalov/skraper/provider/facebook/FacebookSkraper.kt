@@ -32,7 +32,7 @@ import java.util.UUID.randomUUID
 /**
  * @author sokomishalov
  */
-class FacebookSkraper(
+class FacebookSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
 ) : Skraper {
 
