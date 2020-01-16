@@ -29,10 +29,14 @@ import ru.sokomishalov.skraper.model.Post
 import ru.sokomishalov.skraper.model.ProviderChannel
 import java.util.*
 
+/**
+ * @author sokomishalov
+ */
+class VkSkraper : Skraper {
 
-object VkSkraper : Skraper {
-
-    private const val VK_URL = "https://vk.com"
+    companion object {
+        private const val VK_URL = "https://vk.com"
+    }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val posts = fetchDocument("$VK_URL/${channel.uri}")
@@ -82,7 +86,7 @@ object VkSkraper : Skraper {
                         null -> emptyList<Attachment>()
                         else -> {
                             val isVideo = it.attr("data-video").isNotBlank()
-                            val imageUrl = this@VkSkraper.runCatching { it.getImageBackgroundUrl() }.getOrNull().orEmpty()
+                            val imageUrl = runCatching { it.getImageBackgroundUrl() }.getOrNull().orEmpty()
 
                             listOf(Attachment(
                                     url = when {

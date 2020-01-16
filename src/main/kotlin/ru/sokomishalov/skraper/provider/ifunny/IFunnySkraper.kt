@@ -28,9 +28,11 @@ import ru.sokomishalov.skraper.model.ProviderChannel
 /**
  * @author sokomishalov
  */
-object IFunnySkraper : Skraper {
+class IFunnySkraper : Skraper {
 
-    private const val IFUNNY_URL = "https://ifunny.co"
+    companion object {
+        private const val IFUNNY_URL = "https://ifunny.co"
+    }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val document = fetchDocument("${IFUNNY_URL}/${channel.uri}")

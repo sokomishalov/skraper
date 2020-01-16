@@ -34,10 +34,12 @@ import java.util.Date.from as dateFrom
 /**
  * @author sokomishalov
  */
-object PinterestSkraper : Skraper {
+class PinterestSkraper : Skraper {
 
-    private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)
-    private const val PINTEREST_URL = "https://www.pinterest.com"
+    companion object {
+        private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)
+        private const val PINTEREST_URL = "https://www.pinterest.com"
+    }
 
     override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val infoJsonNode = parseInitJson(channel)

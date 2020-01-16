@@ -23,6 +23,6 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  * @author sokomishalov
  */
 class PinterestScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = PinterestSkraper
+    override val service: Skraper = PinterestSkraper()
     override val channel: ProviderChannel = ProviderChannel(uri = "celiatoler/pinterest-memes")
 }
