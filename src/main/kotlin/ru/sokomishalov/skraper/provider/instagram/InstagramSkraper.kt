@@ -1,13 +1,26 @@
+/**
+ * Copyright 2019-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ru.sokomishalov.skraper.provider.instagram
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentType
-import ru.sokomishalov.skraper.internal.dto.SkraperChannelDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperPostDTO
-import ru.sokomishalov.skraper.internal.util.consts.DELIMITER
-import ru.sokomishalov.skraper.internal.util.consts.INSTAGRAM_URL
+import ru.sokomishalov.skraper.internal.model.Attachment
+import ru.sokomishalov.skraper.internal.model.AttachmentType
+import ru.sokomishalov.skraper.internal.model.Post
+import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.http.fetchJson
 import ru.sokomishalov.skraper.internal.util.time.mockDate
 import java.util.*
@@ -19,15 +32,16 @@ import java.util.*
 class InstagramSkraper : Skraper {
 
     companion object {
-        const val QUERY_ID = "17888483320059182"
+        private const val QUERY_ID = "17888483320059182"
+        private const val INSTAGRAM_URL = "https://www.instagram.com"
     }
 
-    override suspend fun fetchPosts(channel: SkraperChannelDTO, limit: Int): List<SkraperPostDTO> {
+    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val postsNodes = getPosts(channel, limit)
 
         return postsNodes.map {
-            SkraperPostDTO(
-                    id = it.parseId(channel),
+            Post(
+                    id = it.parseId(),
                     caption = it.parseCaption(),
                     publishedAt = it.parsePublishedAt(),
                     attachments = listOf(it.parseAttachment())
@@ -35,16 +49,16 @@ class InstagramSkraper : Skraper {
         }
     }
 
-    override suspend fun getChannelLogoUrl(channel: SkraperChannelDTO): String? {
+    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
         val account = getAccount(channel)
         return account["profile_pic_url"].asText()
     }
 
-    private suspend fun getAccount(channel: SkraperChannelDTO): JsonNode {
+    private suspend fun getAccount(channel: ProviderChannel): JsonNode {
         return fetchJson("${INSTAGRAM_URL}/${channel.uri}/?__a=1")["graphql"]["user"]
     }
 
-    private suspend fun getPosts(channel: SkraperChannelDTO, limit: Int): List<JsonNode> {
+    private suspend fun getPosts(channel: ProviderChannel, limit: Int): List<JsonNode> {
         val account = getAccount(channel)
         return fetchJson("${INSTAGRAM_URL}/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
                 .get("data")
@@ -55,11 +69,10 @@ class InstagramSkraper : Skraper {
                 .orEmpty()
     }
 
-    private fun JsonNode.parseId(channel: SkraperChannelDTO): String {
+    private fun JsonNode.parseId(): String {
         return get("id")
                 ?.asText()
                 .orEmpty()
-                .let { id -> "${channel.id}$DELIMITER${id}" }
     }
 
     private fun JsonNode.parseCaption(): String {
@@ -79,11 +92,11 @@ class InstagramSkraper : Skraper {
                 ?: mockDate())
     }
 
-    private fun JsonNode.parseAttachment(): SkraperAttachmentDTO {
-        return SkraperAttachmentDTO(
+    private fun JsonNode.parseAttachment(): Attachment {
+        return Attachment(
                 type = when {
-                    this["is_video"].asBoolean() -> SkraperAttachmentType.VIDEO
-                    else -> SkraperAttachmentType.IMAGE
+                    this["is_video"].asBoolean() -> AttachmentType.VIDEO
+                    else -> AttachmentType.IMAGE
                 },
                 url = this["video_url"]?.asText() ?: this["display_url"].asText(),
                 aspectRatio = this["dimensions"].let { d -> d["width"].asDouble() / d["height"].asDouble() }

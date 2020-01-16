@@ -1,14 +1,26 @@
+/**
+ * Copyright 2019-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ru.sokomishalov.skraper.provider.facebook
 
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentType.IMAGE
-import ru.sokomishalov.skraper.internal.dto.SkraperChannelDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperPostDTO
-import ru.sokomishalov.skraper.internal.util.consts.DELIMITER
-import ru.sokomishalov.skraper.internal.util.consts.FACEBOOK_BASE_URL
-import ru.sokomishalov.skraper.internal.util.consts.FACEBOOK_GRAPH_BASE_URL
+import ru.sokomishalov.skraper.internal.model.Attachment
+import ru.sokomishalov.skraper.internal.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.internal.model.Post
+import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
 import java.util.*
@@ -20,13 +32,18 @@ import java.util.UUID.randomUUID
  */
 class FacebookSkraper : Skraper {
 
-    override suspend fun fetchPosts(channel: SkraperChannelDTO, limit: Int): List<SkraperPostDTO> {
+    companion object {
+        private const val FACEBOOK_BASE_URL = "https://www.facebook.com"
+        private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
+    }
+
+    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$FACEBOOK_BASE_URL/${channel.uri}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 
         return elements.map {
-            SkraperPostDTO(
-                    id = "${channel.id}$DELIMITER${getIdByUserContentWrapper(it)}",
+            Post(
+                    id = getIdByUserContentWrapper(it),
                     caption = getCaptionByUserContentWrapper(it),
                     publishedAt = getPublishedAtByUserContentWrapper(it),
                     attachments = getAttachmentsByUserContentWrapper(it)
@@ -34,7 +51,7 @@ class FacebookSkraper : Skraper {
         }
     }
 
-    override suspend fun getChannelLogoUrl(channel: SkraperChannelDTO): String? {
+    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
         return "$FACEBOOK_GRAPH_BASE_URL/${channel.uri}/picture?type=small"
     }
 
@@ -45,7 +62,6 @@ class FacebookSkraper : Skraper {
                 ?.attr("id")
                 ?: randomUUID().toString()
     }
-
 
     private fun getCaptionByUserContentWrapper(contentWrapper: Element): String? {
         return contentWrapper
@@ -66,13 +82,13 @@ class FacebookSkraper : Skraper {
                 ?: Date(0)
     }
 
-    private suspend fun getAttachmentsByUserContentWrapper(contentWrapper: Element): List<SkraperAttachmentDTO> {
+    private suspend fun getAttachmentsByUserContentWrapper(contentWrapper: Element): List<Attachment> {
         return contentWrapper
                 .getElementsByClass("scaledImageFitWidth")
                 ?.first()
                 ?.attr("src")
                 ?.let {
-                    listOf(SkraperAttachmentDTO(
+                    listOf(Attachment(
                             url = it,
                             type = IMAGE,
                             aspectRatio = getImageAspectRatio(it)

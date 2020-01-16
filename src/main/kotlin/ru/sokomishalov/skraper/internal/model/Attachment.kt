@@ -13,20 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.pinterest
+package ru.sokomishalov.skraper.internal.model
 
-import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.model.ProviderChannel
-import ru.sokomishalov.skraper.provider.ProviderTck
-
-/**
- * @author sokomishalov
- */
-class PinterestScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = PinterestSkraper()
-    override val channel: ProviderChannel = ProviderChannel(
-            id = "pinterest:celiatoler:pinterest-memes",
-            name = "some funny memes (pinterest)",
-            uri = "celiatoler/pinterest-memes"
-    )
-}
+data class Attachment(
+        val url: String,
+        val type: AttachmentType,
+        val aspectRatio: Double? = 1.0
+)

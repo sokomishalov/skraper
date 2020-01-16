@@ -101,7 +101,6 @@
                     <jvmTarget>1.8</jvmTarget>
                     <args>
                         <arg>-Xuse-experimental=kotlin.Experimental</arg>
-                        <arg>-Xallow-result-return-type</arg>
                     </args>
                 </configuration>
                 <executions>

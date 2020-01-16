@@ -1,13 +1,26 @@
+/**
+ * Copyright 2019-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ru.sokomishalov.skraper.provider.ninegag
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentType.IMAGE
-import ru.sokomishalov.skraper.internal.dto.SkraperChannelDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperPostDTO
-import ru.sokomishalov.skraper.internal.util.consts.DELIMITER
-import ru.sokomishalov.skraper.internal.util.consts.NINEGAG_URL
+import ru.sokomishalov.skraper.internal.model.Attachment
+import ru.sokomishalov.skraper.internal.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.internal.model.Post
+import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.http.getImageAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.fetchDocument
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
@@ -21,7 +34,11 @@ import java.util.Date.from as dateFrom
  */
 class NinegagSkraper : Skraper {
 
-    override suspend fun fetchPosts(channel: SkraperChannelDTO, limit: Int): List<SkraperPostDTO> {
+    companion object {
+        private const val NINEGAG_URL = "https://9gag.com"
+    }
+
+    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$NINEGAG_URL/${channel.uri}")
 
         val latestPostsIds = webPage
@@ -38,11 +55,11 @@ class NinegagSkraper : Skraper {
                     val gagInfoJson = gagDocument?.getElementsByAttributeValueContaining("type", "application/ld+json")?.first()?.html().orEmpty()
                     val gagInfoMap = SKRAPER_OBJECT_MAPPER.readValue<Map<String, String>>(gagInfoJson)
 
-                    SkraperPostDTO(
-                            id = "${channel.id}$DELIMITER$it",
+                    Post(
+                            id = it,
                             caption = fixCaption(gagInfoMap["headline"]),
                             publishedAt = gagInfoMap.parsePublishedDate(),
-                            attachments = listOf(SkraperAttachmentDTO(
+                            attachments = listOf(Attachment(
                                     type = IMAGE,
                                     url = gagInfoMap["image"].orEmpty(),
                                     aspectRatio = getImageAspectRatio(gagInfoMap["image"].orEmpty())
@@ -52,7 +69,7 @@ class NinegagSkraper : Skraper {
                 }
     }
 
-    override suspend fun getChannelLogoUrl(channel: SkraperChannelDTO): String? {
+    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
         return fetchDocument("$NINEGAG_URL/${channel.uri}")
                 ?.head()
                 ?.getElementsByAttributeValueContaining("rel", "image_src")

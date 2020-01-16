@@ -1,21 +1,38 @@
+/**
+ * Copyright 2019-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ru.sokomishalov.skraper.provider.reddit
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentType.IMAGE
-import ru.sokomishalov.skraper.internal.dto.SkraperAttachmentType.VIDEO
-import ru.sokomishalov.skraper.internal.dto.SkraperChannelDTO
-import ru.sokomishalov.skraper.internal.dto.SkraperPostDTO
-import ru.sokomishalov.skraper.internal.util.consts.DELIMITER
-import ru.sokomishalov.skraper.internal.util.consts.REDDIT_BASE_URL
+import ru.sokomishalov.skraper.internal.model.Attachment
+import ru.sokomishalov.skraper.internal.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.internal.model.AttachmentType.VIDEO
+import ru.sokomishalov.skraper.internal.model.Post
+import ru.sokomishalov.skraper.internal.model.ProviderChannel
 import ru.sokomishalov.skraper.internal.util.http.fetchJson
 import java.lang.System.currentTimeMillis
 import java.util.*
 
 class RedditSkraper : Skraper {
 
-    override suspend fun fetchPosts(channel: SkraperChannelDTO, limit: Int): List<SkraperPostDTO> {
+    companion object {
+        private const val REDDIT_BASE_URL = "https://www.reddit.com"
+    }
+
+    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val response = fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/hot.json?limit=${limit}")
 
         val posts = response["data"]["children"].elementsToList()
@@ -23,12 +40,12 @@ class RedditSkraper : Skraper {
         return posts
                 .mapNotNull { it["data"] }
                 .map {
-                    SkraperPostDTO(
-                            id = "${channel.id}$DELIMITER${it.getValue("id")}",
+                    Post(
+                            id = it.getValue("id").orEmpty(),
                             caption = it.getValue("title"),
                             publishedAt = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
                                     ?: currentTimeMillis()),
-                            attachments = listOf(SkraperAttachmentDTO(
+                            attachments = listOf(Attachment(
                                     url = it.getValue("url").orEmpty(),
                                     type = when {
                                         it["media"].isEmpty.not() -> VIDEO
@@ -43,7 +60,7 @@ class RedditSkraper : Skraper {
                 }
     }
 
-    override suspend fun getChannelLogoUrl(channel: SkraperChannelDTO): String? {
+    override suspend fun getChannelLogoUrl(channel: ProviderChannel): String? {
         val response = fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/about.json")
 
         val communityIcon = response["data"].getValue("community_icon")
