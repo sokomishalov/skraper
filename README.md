@@ -63,5 +63,11 @@ fun main() = runBlocking {
 
 **Important moment:** it is not recommended to use [DefaultBlockingHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/DefaultBlockingHttpClient.kt).
 There are some more efficient, non-blocking and resource-friendly implementations for [SkraperHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/SkraperHttpClient.kt).
-To use them you need to have required dependencies in the classpath. Current implementation list is:
+To use them you just need to have required dependencies in the classpath.
+After that usage as simple as is:
+```kotlin
+val skraper = FacebookSkraper(client = ReactorNettyHttpClient())
+``` 
+
+Current http-client implementation list:
 - [ReactorNettyHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/ReactorNettyHttpClient.kt) - implementation built on [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) http-client
