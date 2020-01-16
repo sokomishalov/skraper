@@ -24,9 +24,7 @@ import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import java.util.*
-import java.time.ZonedDateTime.parse as zonedDateTimeParse
-import java.util.Date.from as dateFrom
+import java.time.ZonedDateTime
 
 
 /**
@@ -60,7 +58,7 @@ class NinegagSkraper @JvmOverloads constructor(
                     Post(
                             id = it,
                             caption = fixCaption(gagInfoMap["headline"]),
-                            publishDate = gagInfoMap.parsePublishedDate(),
+                            publishTimestamp = gagInfoMap.parsePublishedDate(),
                             attachments = listOf(Attachment(type = IMAGE, url = gagInfoMap["image"].orEmpty()))
 
                     )
@@ -75,7 +73,7 @@ class NinegagSkraper @JvmOverloads constructor(
                 ?.attr("href")
     }
 
-    private fun Map<String, String>.parsePublishedDate(): Date = dateFrom(zonedDateTimeParse(this["datePublished"]).toInstant())
+    private fun Map<String, String>.parsePublishedDate(): Long = ZonedDateTime.parse(this["datePublished"]).toInstant().toEpochMilli()
 
     private fun fixCaption(caption: String?): String = caption?.replace(" - 9GAG", "") ?: ""
 }

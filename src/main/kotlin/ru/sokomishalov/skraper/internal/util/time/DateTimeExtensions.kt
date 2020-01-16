@@ -17,18 +17,14 @@
 
 package ru.sokomishalov.skraper.internal.util.time
 
+import java.lang.System.currentTimeMillis
 import java.time.Duration
-import java.util.*
 
 /**
  * @author sokomishalov
  */
 
 @PublishedApi
-internal inline fun mockDate(
-        itemIndex: Int = 0,
-        from: Date = Date(),
-        minusMultiply: Duration = Duration.ofMinutes(10)
-): Date {
-    return Date.from(from.toInstant() - (minusMultiply.multipliedBy(itemIndex.toLong())))
+internal inline fun mockTimestamp(index: Int = 0, from: Long = currentTimeMillis(), minusMultiply: Duration = Duration.ofHours(1)): Long {
+    return from - (minusMultiply.multipliedBy(index.toLong())).toMillis()
 }

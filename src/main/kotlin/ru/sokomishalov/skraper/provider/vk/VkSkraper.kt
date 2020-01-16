@@ -26,12 +26,11 @@ import ru.sokomishalov.skraper.internal.util.jsoup.getImageBackgroundUrl
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
-import ru.sokomishalov.skraper.internal.util.time.mockDate
+import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
-import java.util.*
 
 /**
  * @author sokomishalov
@@ -55,7 +54,7 @@ class VkSkraper @JvmOverloads constructor(
             Post(
                     id = it.extractId(),
                     caption = it.extractCaption(),
-                    publishDate = extractDate(i),
+                    publishTimestamp = mockTimestamp(i),
                     attachments = it.extractAttachments()
             )
         }
@@ -78,10 +77,6 @@ class VkSkraper @JvmOverloads constructor(
         return getElementsByClass("pi_text")
                 ?.firstOrNull()
                 ?.removeLinks()
-    }
-
-    private fun extractDate(i: Int): Date {
-        return mockDate(i)
     }
 
     private fun Element.extractAttachments(): List<Attachment> {

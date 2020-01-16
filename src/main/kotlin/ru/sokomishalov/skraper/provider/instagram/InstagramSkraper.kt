@@ -20,12 +20,11 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
 import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchJson
-import ru.sokomishalov.skraper.internal.util.time.mockDate
+import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
-import java.util.*
 
 
 /**
@@ -47,7 +46,7 @@ class InstagramSkraper @JvmOverloads constructor(
             Post(
                     id = it.parseId(),
                     caption = it.parseCaption(),
-                    publishDate = it.parsePublishedAt(),
+                    publishTimestamp = it.parsePublishedAt(),
                     attachments = listOf(it.parseAttachment())
             )
         }
@@ -89,11 +88,11 @@ class InstagramSkraper @JvmOverloads constructor(
                 .orEmpty()
     }
 
-    private fun JsonNode.parsePublishedAt(): Date {
+    private fun JsonNode.parsePublishedAt(): Long {
         return (get("taken_at_timestamp")
                 ?.asLong()
-                ?.let { ts -> Date(ts * 1000) }
-                ?: mockDate())
+                ?.times(1000)
+                ?: mockTimestamp())
     }
 
     private fun JsonNode.parseAttachment(): Attachment {

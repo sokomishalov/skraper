@@ -52,7 +52,7 @@ abstract class ProviderTck {
         assertFalse(posts.isNullOrEmpty())
         posts.forEach {
             assertNotNull(it.id)
-            assertNotNull(it.publishDate)
+            assertNotNull(it.publishTimestamp)
             it.attachments.forEach { a ->
                 assertNotNull(a.type)
                 assertTrue(a.url.isNotBlank())

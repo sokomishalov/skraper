@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.internal.util.time.mockDate
+import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
@@ -58,7 +58,7 @@ class IFunnySkraper @JvmOverloads constructor(
 
                     Post(
                             id = link.convertUriToId(),
-                            publishDate = mockDate(i),
+                            publishTimestamp = mockTimestamp(index = i),
                             attachments = listOf(Attachment(url = img.attr("data-src"), type = IMAGE))
                     )
                 }

@@ -26,10 +26,9 @@ import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
-import java.time.ZonedDateTime.parse as zonedDateTimeParse
-import java.util.Date.from as dateFrom
 
 
 /**
@@ -61,7 +60,7 @@ class PinterestSkraper @JvmOverloads constructor(
                     Post(
                             id = it["id"].asText().orEmpty(),
                             caption = it["description"]?.asText(),
-                            publishDate = dateFrom(zonedDateTimeParse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant()),
+                            publishTimestamp = ZonedDateTime.parse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant().toEpochMilli(),
                             attachments = listOf(Attachment(type = IMAGE, url = imageInfo["url"]?.asText().orEmpty()))
                     )
                 }

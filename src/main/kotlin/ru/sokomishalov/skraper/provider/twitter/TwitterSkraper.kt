@@ -22,11 +22,9 @@ import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
-import ru.sokomishalov.skraper.internal.util.time.mockDate
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import java.util.*
 
 
 /**
@@ -55,7 +53,7 @@ class TwitterSkraper @JvmOverloads constructor(
             Post(
                     id = it.extractIdFromTweet(),
                     caption = it.extractCaptionFromTweet(),
-                    publishDate = it.extractPublishedAtFromTweet(),
+                    publishTimestamp = it.extractPublishedAtFromTweet(),
                     attachments = it.extractAttachmentsFromTweet()
             )
         }
@@ -78,13 +76,10 @@ class TwitterSkraper @JvmOverloads constructor(
                 .removeLinks()
     }
 
-    private fun Element.extractPublishedAtFromTweet(): Date {
-        return runCatching {
-            getSingleElementByClass("js-short-timestamp")
-                    .attr("data-time-ms")
-                    .toLong()
-                    .let { Date(it) }
-        }.getOrElse { mockDate() }
+    private fun Element.extractPublishedAtFromTweet(): Long {
+        return getSingleElementByClass("js-short-timestamp")
+                .attr("data-time-ms")
+                .toLong()
     }
 
     private fun Element.extractAttachmentsFromTweet(): List<Attachment> {

@@ -20,12 +20,11 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
 import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchJson
+import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
-import java.lang.System.currentTimeMillis
-import java.util.*
 
 class RedditSkraper @JvmOverloads constructor(
         override val client: SkraperHttpClient = DefaultBlockingHttpClient()
@@ -38,16 +37,18 @@ class RedditSkraper @JvmOverloads constructor(
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/hot.json?limit=${limit}")
 
-        val posts = response["data"]["children"].elementsToList()
+        val posts = response
+                .get("data")
+                ?.get("children")
+                .elementsToList()
+                .mapNotNull { it["data"] }
 
         return posts
-                .mapNotNull { it["data"] }
                 .map {
                     Post(
                             id = it.getValue("id").orEmpty(),
                             caption = it.getValue("title"),
-                            publishDate = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
-                                    ?: currentTimeMillis()),
+                            publishTimestamp = it.extractDate(),
                             attachments = listOf(Attachment(
                                     url = it.getValue("url").orEmpty(),
                                     type = when {
@@ -79,5 +80,9 @@ class RedditSkraper @JvmOverloads constructor(
 
     private fun JsonNode?.elementsToList(): List<JsonNode> {
         return this?.elements()?.asSequence()?.toList() ?: emptyList()
+    }
+
+    private fun JsonNode.extractDate(): Long {
+        return (getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000) ?: mockTimestamp())
     }
 }

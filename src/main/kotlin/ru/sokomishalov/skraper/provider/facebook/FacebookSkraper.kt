@@ -20,10 +20,10 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
 import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
-import java.util.*
 import java.util.UUID.randomUUID
 
 
@@ -47,7 +47,7 @@ class FacebookSkraper @JvmOverloads constructor(
             Post(
                     id = it.getIdByUserContentWrapper(),
                     caption = it.getCaptionByUserContentWrapper(),
-                    publishDate = it.getPublishedAtByUserContentWrapper(),
+                    publishTimestamp = it.getPublishedAtByUserContentWrapper(),
                     attachments = it.getAttachmentsByUserContentWrapper()
             )
         }
@@ -73,12 +73,13 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.toString()
     }
 
-    private fun Element.getPublishedAtByUserContentWrapper(): Date {
+    private fun Element.getPublishedAtByUserContentWrapper(): Long {
         return getElementsByAttribute("data-utime")
                 ?.first()
                 ?.attr("data-utime")
-                ?.let { Date(it.toLong().times(1000)) }
-                ?: Date(0)
+                ?.toLongOrNull()
+                ?.times(1000)
+                ?: mockTimestamp()
     }
 
     private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
