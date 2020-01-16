@@ -34,11 +34,11 @@ abstract class ProviderTck {
     protected abstract val service: Skraper
 
     @Test
-    fun `Check that channel memes has been fetched`() = runBlocking {
-        val memes = service.fetchPosts(channel)
+    fun `Check that posts has been fetched`() = runBlocking {
+        val posts = service.getLatestPosts(channel)
 
-        assertFalse(memes.isNullOrEmpty())
-        memes.forEach {
+        assertFalse(posts.isNullOrEmpty())
+        posts.forEach {
             assertNotNull(it.id)
             assertNotNull(it.publishedAt)
             it.attachments.forEach { a ->

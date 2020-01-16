@@ -41,11 +41,16 @@ class PinterestSkraper : Skraper {
         private const val PINTEREST_URL = "https://www.pinterest.com"
     }
 
-    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val infoJsonNode = parseInitJson(channel)
-        val feedList = infoJsonNode["resourceDataCache"][1]["data"]["board_feed"]
-                .asIterable()
-                .take(limit)
+        val feedList = infoJsonNode
+                .get("resourceDataCache")
+                ?.get(1)
+                ?.get("data")
+                ?.get("board_feed")
+                ?.asIterable()
+                ?.take(limit)
+                .orEmpty()
 
         return feedList
                 .map {

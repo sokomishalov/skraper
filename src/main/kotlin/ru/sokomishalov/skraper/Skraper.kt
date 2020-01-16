@@ -24,6 +24,6 @@ interface Skraper {
 
     suspend fun getChannelLogoUrl(channel: ProviderChannel): String?
 
-    suspend fun fetchPosts(channel: ProviderChannel, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+    suspend fun getLatestPosts(channel: ProviderChannel, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
 
 }

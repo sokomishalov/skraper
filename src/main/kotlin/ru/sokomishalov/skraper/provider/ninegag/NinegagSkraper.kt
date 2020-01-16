@@ -38,7 +38,7 @@ class NinegagSkraper : Skraper {
         private const val NINEGAG_URL = "https://9gag.com"
     }
 
-    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$NINEGAG_URL/${channel.uri}")
 
         val latestPostsIds = webPage

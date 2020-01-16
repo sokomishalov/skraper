@@ -37,7 +37,7 @@ class TwitterSkraper : Skraper {
         private const val TWITTER_URL = "https://twitter.com"
     }
 
-    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$TWITTER_URL/${channel.uri}")
 
         val posts = webPage

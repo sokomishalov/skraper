@@ -36,7 +36,7 @@ class VkSkraper : Skraper {
         private const val VK_URL = "https://vk.com"
     }
 
-    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val posts = fetchDocument("$VK_URL/${channel.uri}")
                 ?.getSingleElementByClass("wall_posts")
                 ?.getElementsByClass("wall_item")

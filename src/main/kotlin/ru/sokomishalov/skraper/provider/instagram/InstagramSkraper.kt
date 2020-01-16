@@ -36,7 +36,7 @@ class InstagramSkraper : Skraper {
         private const val INSTAGRAM_URL = "https://www.instagram.com"
     }
 
-    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val postsNodes = getPosts(channel, limit)
 
         return postsNodes.map {

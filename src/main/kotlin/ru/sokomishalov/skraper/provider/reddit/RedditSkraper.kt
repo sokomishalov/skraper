@@ -32,7 +32,7 @@ class RedditSkraper : Skraper {
         private const val REDDIT_BASE_URL = "https://www.reddit.com"
     }
 
-    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val response = fetchJson("$REDDIT_BASE_URL/r/${channel.uri}/hot.json?limit=${limit}")
 
         val posts = response["data"]["children"].elementsToList()

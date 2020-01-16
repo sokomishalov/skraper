@@ -37,7 +37,7 @@ class FacebookSkraper : Skraper {
         private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
     }
 
-    override suspend fun fetchPosts(channel: ProviderChannel, limit: Int): List<Post> {
+    override suspend fun getLatestPosts(channel: ProviderChannel, limit: Int): List<Post> {
         val webPage = fetchDocument("$FACEBOOK_BASE_URL/${channel.uri}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 

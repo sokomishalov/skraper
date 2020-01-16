@@ -45,13 +45,6 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!--    TODO REMOVE!!!    -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>5.2.2.RELEASE</version>
-        </dependency>
-
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
