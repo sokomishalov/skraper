@@ -34,7 +34,7 @@ Library with modules are available only from `jitpack` so far:
 First of all you have to add dep:
 ```xml
 <dependency>
-    <groupId>ru.sokomishalov.skraper</groupId>
+    <groupId>com.github.sokomishalov.skraper</groupId>
     <artifactId>skraper</artifactId>
     <version>${skraper.version}</version>
 </dependency>
