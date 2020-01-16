@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.internal.util.serialization
 
-import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.DeserializationFeature.*
 import com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -50,5 +50,5 @@ internal val SKRAPER_OBJECT_MAPPER by lazy {
                     ADJUST_DATES_TO_CONTEXT_TIME_ZONE,
                     FAIL_ON_UNKNOWN_PROPERTIES
             )
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .setSerializationInclusion(NON_NULL)
 }
