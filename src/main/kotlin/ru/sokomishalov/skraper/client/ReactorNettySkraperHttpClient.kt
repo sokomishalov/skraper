@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("unused")
+
 package ru.sokomishalov.skraper.client
 
 import io.netty.handler.ssl.SslContextBuilder
@@ -24,7 +26,7 @@ import ru.sokomishalov.skraper.SkraperHttpClient
 /**
  * @author sokomishalov
  */
-class ReactorNettyHttpClient(
+class ReactorNettySkraperHttpClient(
         private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperHttpClient {
 

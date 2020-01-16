@@ -18,7 +18,7 @@ package ru.sokomishalov.skraper.provider.reddit
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
-import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingSkraperHttpClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
@@ -27,7 +27,7 @@ import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
 
 class RedditSkraper @JvmOverloads constructor(
-        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+        override val client: SkraperHttpClient = DefaultBlockingSkraperHttpClient()
 ) : Skraper {
 
     companion object {

@@ -24,7 +24,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
-import ru.sokomishalov.skraper.client.ReactorNettyHttpClient
+import ru.sokomishalov.skraper.client.ReactorNettySkraperHttpClient
 import ru.sokomishalov.skraper.getChannelLogoByteArray
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 
@@ -41,7 +41,7 @@ abstract class ProviderTck {
     protected abstract val service: Skraper
     protected abstract val uri: String
 
-    protected val client: SkraperHttpClient by lazy { ReactorNettyHttpClient() }
+    protected val client: SkraperHttpClient by lazy { ReactorNettySkraperHttpClient() }
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {

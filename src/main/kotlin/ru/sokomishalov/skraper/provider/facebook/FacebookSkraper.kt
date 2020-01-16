@@ -18,7 +18,7 @@ package ru.sokomishalov.skraper.provider.facebook
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
-import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingSkraperHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
@@ -31,7 +31,7 @@ import java.util.UUID.randomUUID
  * @author sokomishalov
  */
 class FacebookSkraper @JvmOverloads constructor(
-        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+        override val client: SkraperHttpClient = DefaultBlockingSkraperHttpClient()
 ) : Skraper {
 
     companion object {

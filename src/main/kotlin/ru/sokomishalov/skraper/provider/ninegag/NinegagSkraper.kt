@@ -18,7 +18,7 @@ package ru.sokomishalov.skraper.provider.ninegag
 import com.fasterxml.jackson.module.kotlin.readValue
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperHttpClient
-import ru.sokomishalov.skraper.client.DefaultBlockingHttpClient
+import ru.sokomishalov.skraper.client.DefaultBlockingSkraperHttpClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 import ru.sokomishalov.skraper.model.Attachment
@@ -31,7 +31,7 @@ import java.time.ZonedDateTime
  * @author sokomishalov
  */
 class NinegagSkraper @JvmOverloads constructor(
-        override val client: SkraperHttpClient = DefaultBlockingHttpClient()
+        override val client: SkraperHttpClient = DefaultBlockingSkraperHttpClient()
 ) : Skraper {
 
     companion object {

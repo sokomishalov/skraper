@@ -23,7 +23,7 @@ import java.net.URL
 /**
  * @author sokomishalov
  */
-class DefaultBlockingHttpClient : SkraperHttpClient {
+class DefaultBlockingSkraperHttpClient : SkraperHttpClient {
 
     override suspend fun fetch(url: String): ByteArray? {
         return withContext(IO) { URL(url).readBytes() }

@@ -66,8 +66,9 @@ There are some more efficient, non-blocking and resource-friendly implementation
 To use them you just need to have required dependencies in the classpath.
 After that usage as simple as is:
 ```kotlin
-val skraper = FacebookSkraper(client = ReactorNettyHttpClient())
+val skraper = FacebookSkraper(client = ReactorNettySkraperHttpClient())
 ``` 
 
 Current http-client implementation list:
-- [ReactorNettyHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/ReactorNettyHttpClient.kt) - implementation built on [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) http-client
+- [ReactorNettySkraperHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/ReactorNettySkraperHttpClient.kt) - built on [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty)
+- [OkSkraperHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/OkSkraperHttpClient.kt) - built on [okhttp](https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp)
