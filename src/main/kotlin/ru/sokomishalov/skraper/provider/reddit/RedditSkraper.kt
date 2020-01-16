@@ -43,7 +43,7 @@ class RedditSkraper : Skraper {
                     Post(
                             id = it.getValue("id").orEmpty(),
                             caption = it.getValue("title"),
-                            publishedAt = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
+                            publishDate = Date(it.getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
                                     ?: currentTimeMillis()),
                             attachments = listOf(Attachment(
                                     url = it.getValue("url").orEmpty(),

@@ -24,9 +24,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class FacebookScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = FacebookSkraper()
-    override val channel: ProviderChannel = ProviderChannel(
-            id = "facebook:originaltrollfootball",
-            name = "Troll Football (Facebook)",
-            uri = "originaltrollfootball"
-    )
+    override val channel: ProviderChannel = ProviderChannel(uri = "originaltrollfootball")
 }

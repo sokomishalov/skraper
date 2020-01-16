@@ -20,6 +20,6 @@ import java.util.*
 data class Post(
         val id: String,
         val caption: String? = "",
-        val publishedAt: Date = Date(),
+        val publishDate: Date = Date(),
         val attachments: List<Attachment> = emptyList()
 )

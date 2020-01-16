@@ -45,7 +45,7 @@ class FacebookSkraper : Skraper {
             Post(
                     id = getIdByUserContentWrapper(it),
                     caption = getCaptionByUserContentWrapper(it),
-                    publishedAt = getPublishedAtByUserContentWrapper(it),
+                    publishDate = getPublishedAtByUserContentWrapper(it),
                     attachments = getAttachmentsByUserContentWrapper(it)
             )
         }

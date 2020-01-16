@@ -47,7 +47,7 @@ class VkSkraper : Skraper {
             Post(
                     id = it.extractId(),
                     caption = it.extractCaption(),
-                    publishedAt = extractDate(i),
+                    publishDate = extractDate(i),
                     attachments = it.extractAttachments()
             )
         }

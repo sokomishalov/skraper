@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.sokomishalov.skraper</groupId>
-    <artifactId>skraper-parent</artifactId>
+    <artifactId>skraper</artifactId>
     <version>0.0.1</version>
     <packaging>jar</packaging>
 

@@ -43,7 +43,7 @@ class InstagramSkraper : Skraper {
             Post(
                     id = it.parseId(),
                     caption = it.parseCaption(),
-                    publishedAt = it.parsePublishedAt(),
+                    publishDate = it.parsePublishedAt(),
                     attachments = listOf(it.parseAttachment())
             )
         }

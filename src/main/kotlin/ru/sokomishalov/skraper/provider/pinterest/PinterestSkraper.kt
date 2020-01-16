@@ -58,7 +58,7 @@ class PinterestSkraper : Skraper {
                     Post(
                             id = it["id"].asText().orEmpty(),
                             caption = it["description"]?.asText(),
-                            publishedAt = dateFrom(zonedDateTimeParse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant()),
+                            publishDate = dateFrom(zonedDateTimeParse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant()),
                             attachments = listOf(Attachment(
                                     type = IMAGE,
                                     url = imageInfo["url"]?.asText().orEmpty(),

@@ -52,7 +52,7 @@ class TwitterSkraper : Skraper {
             Post(
                     id = extractIdFromTweet(it),
                     caption = extractCaptionFromTweet(it),
-                    publishedAt = extractPublishedAtFromTweet(it),
+                    publishDate = extractPublishedAtFromTweet(it),
                     attachments = extractAttachmentsFromTweet(it)
             )
         }

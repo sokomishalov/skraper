@@ -24,9 +24,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class RedditApiIntegrationTest : ProviderTck() {
     override val service: Skraper = RedditSkraper()
-    override val channel: ProviderChannel = ProviderChannel(
-            id = "reddit:memes",
-            name = "memes (Reddit)",
-            uri = "memes"
-    )
+    override val channel: ProviderChannel = ProviderChannel(uri = "memes")
 }

@@ -55,7 +55,7 @@ class IFunnySkraper : Skraper {
 
                     Post(
                             id = link.convertUriToId(),
-                            publishedAt = mockDate(i),
+                            publishDate = mockDate(i),
                             attachments = listOf(Attachment(
                                     url = img.attr("data-src"),
                                     type = IMAGE,

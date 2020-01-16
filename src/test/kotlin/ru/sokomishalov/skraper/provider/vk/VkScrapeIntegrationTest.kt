@@ -25,9 +25,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class VkScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = VkSkraper()
-    override val channel: ProviderChannel = ProviderChannel(
-            id = "vk:vgik",
-            name = "ВГИК (VK)",
-            uri = "komment"
-    )
+    override val channel: ProviderChannel = ProviderChannel(uri = "komment")
 }

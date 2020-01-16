@@ -58,7 +58,7 @@ class NinegagSkraper : Skraper {
                     Post(
                             id = it,
                             caption = fixCaption(gagInfoMap["headline"]),
-                            publishedAt = gagInfoMap.parsePublishedDate(),
+                            publishDate = gagInfoMap.parsePublishedDate(),
                             attachments = listOf(Attachment(
                                     type = IMAGE,
                                     url = gagInfoMap["image"].orEmpty(),

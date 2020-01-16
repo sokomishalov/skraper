@@ -19,10 +19,5 @@ package ru.sokomishalov.skraper.model
 /**
  * @author sokomishalov
  */
-data class ProviderChannel(
-        val id: String,
-        val name: String = "",
-        val uri: String,
-        val topics: List<String> = emptyList()
-)
+data class ProviderChannel(val uri: String)
 

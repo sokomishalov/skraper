@@ -25,9 +25,5 @@ import ru.sokomishalov.skraper.provider.ProviderTck
  */
 class IFunnyScrapeIntegrationTest : ProviderTck() {
     override val service: Skraper = IFunnySkraper()
-    override val channel: ProviderChannel = ProviderChannel(
-            id = "ifunny:user:memes",
-            name = "memes user (ifunny)",
-            uri = "memes"
-    )
+    override val channel: ProviderChannel = ProviderChannel(uri = "memes")
 }
