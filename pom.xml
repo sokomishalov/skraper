@@ -21,8 +21,9 @@
     </properties>
 
     <modules>
-        <module>skraper</module>
+        <module>skraper-core</module>
         <module>skraper-tck</module>
+        <module>skrapers</module>
     </modules>
 
     <repositories>

@@ -10,32 +10,37 @@
         <version>0.0.4</version>
     </parent>
 
-    <artifactId>skraper-tck</artifactId>
+    <artifactId>skrapers</artifactId>
     <version>0.0.4</version>
 
     <dependencies>
+
         <dependency>
             <groupId>ru.sokomishalov.skraper</groupId>
             <artifactId>skraper-core</artifactId>
             <version>0.0.4</version>
         </dependency>
 
+        <!-- TEST  -->
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test-junit</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>ru.sokomishalov.skraper</groupId>
+            <artifactId>skraper-tck</artifactId>
+            <version>0.0.4</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>${reactor-netty.version}</version>
+            <scope>test</scope>
         </dependency>
+
     </dependencies>
-
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>

@@ -35,12 +35,12 @@ First of all you have to add dep:
 ```xml
 <dependency>
     <groupId>com.github.sokomishalov.skraper</groupId>
-    <artifactId>skraper</artifactId>
+    <artifactId>skrapers</artifactId>
     <version>${skraper.version}</version>
 </dependency>
 ```
 
-Each scraper is a class which implements [Skraper](skraper/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
+Each scraper is a class which implements [Skraper](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
 ```kotlin
 interface Skraper {
     val client: SkraperHttpClient get() = DefaultBlockingHttpClient()
@@ -60,10 +60,10 @@ fun main() = runBlocking {
     println(logo)
 }
 ```
-You can see the full model structure for posts and others [here](skraper/src/main/kotlin/ru/sokomishalov/skraper/model)
+You can see the full model structure for posts and others [here](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/model)
 
-**Important moment:** it is not recommended to use [DefaultBlockingClient](skraper/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
-There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skraper/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
+**Important moment:** it is not recommended to use [DefaultBlockingClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
+There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
 To use them you just have to put required dependencies in the classpath.
 After that usage as simple as is:
 ```kotlin
@@ -71,5 +71,5 @@ val skraper = FacebookSkraper(client = ReactorNettySkraperClient())
 ``` 
 
 Current http-client implementation list:
-- [ReactorNettySkraperClient](skraper/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
-- [OkSkraperClient](skraper/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
+- [ReactorNettySkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
+- [OkSkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
