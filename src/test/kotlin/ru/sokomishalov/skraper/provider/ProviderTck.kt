@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
-import ru.sokomishalov.skraper.getChannelLogoByteArray
+import ru.sokomishalov.skraper.getPageLogoByteArray
 import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 
 
@@ -62,7 +62,7 @@ abstract class ProviderTck {
 
     @Test
     fun `Check that channel logo has been fetched`() = runBlocking {
-        val image = service.getChannelLogoByteArray(uri) ?: ByteArray(0)
+        val image = service.getPageLogoByteArray(uri) ?: ByteArray(0)
 
         assertNotEquals(0, image.size)
     }

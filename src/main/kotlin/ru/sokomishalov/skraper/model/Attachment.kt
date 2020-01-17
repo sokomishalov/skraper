@@ -17,5 +17,6 @@ package ru.sokomishalov.skraper.model
 
 data class Attachment(
         val url: String,
-        val type: AttachmentType
+        val type: AttachmentType,
+        val aspectRatio: Double? = null
 )

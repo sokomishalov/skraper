@@ -19,6 +19,6 @@ package ru.sokomishalov.skraper
  * @author sokomishalov
  */
 
-suspend fun Skraper.getChannelLogoByteArray(uri: String): ByteArray? = getPageLogoUrl(uri)?.let { client.fetch(it) }
+suspend fun Skraper.getPageLogoByteArray(uri: String): ByteArray? = getPageLogoUrl(uri)?.let { client.fetch(it) }
 
 
