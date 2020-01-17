@@ -22,11 +22,11 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.getImageBackgroundUrl
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
-import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -50,11 +50,10 @@ class VkSkraper @JvmOverloads constructor(
                 ?.take(limit)
                 .orEmpty()
 
-        return posts.mapIndexed { i, it ->
+        return posts.map {
             Post(
                     id = it.extractId(),
                     caption = it.extractCaption(),
-                    publishTimestamp = mockTimestamp(i),
                     attachments = it.extractAttachments()
             )
         }
@@ -79,7 +78,7 @@ class VkSkraper @JvmOverloads constructor(
                 ?.removeLinks()
     }
 
-    private fun Element.extractAttachments(): List<Attachment> {
+    private suspend fun Element.extractAttachments(): List<Attachment> {
         return getElementsByClass("thumb_map_img")
                 .firstOrNull()
                 .let {
@@ -97,7 +96,8 @@ class VkSkraper @JvmOverloads constructor(
                                     type = when {
                                         isVideo -> VIDEO
                                         else -> IMAGE
-                                    }
+                                    },
+                                    aspectRatio = client.getAspectRatio(imageUrl)
                             ))
                         }
                     }

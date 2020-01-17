@@ -20,7 +20,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
-import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
+import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -55,7 +55,23 @@ class RedditSkraper @JvmOverloads constructor(
                                         it["media"].isEmpty.not() -> VIDEO
                                         it.getValue("url") != null -> IMAGE
                                         else -> IMAGE
-                                    }
+                                    },
+                                    aspectRatio = it
+                                            .get("preview")
+                                            ?.get("images")
+                                            ?.elementsToList()
+                                            ?.firstOrNull()
+                                            ?.get("source")
+                                            ?.run {
+                                                val width = getValue("width")?.toDoubleOrNull()
+                                                val height = getValue("height")?.toDoubleOrNull()
+
+                                                when {
+                                                    width != null && height != null -> width / height
+                                                    else -> null
+                                                }
+                                            }
+                                            ?: client.getAspectRatio(it.getValue("url").orEmpty())
                             ))
                     )
                 }
@@ -82,7 +98,7 @@ class RedditSkraper @JvmOverloads constructor(
         return this?.elements()?.asSequence()?.toList() ?: emptyList()
     }
 
-    private fun JsonNode.extractDate(): Long {
-        return (getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000) ?: mockTimestamp())
+    private fun JsonNode.extractDate(): Long? {
+        return getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
     }
 }

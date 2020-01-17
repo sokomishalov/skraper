@@ -61,7 +61,11 @@ class PinterestSkraper @JvmOverloads constructor(
                             id = it["id"].asText().orEmpty(),
                             caption = it["description"]?.asText(),
                             publishTimestamp = ZonedDateTime.parse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant().toEpochMilli(),
-                            attachments = listOf(Attachment(type = IMAGE, url = imageInfo["url"]?.asText().orEmpty()))
+                            attachments = listOf(Attachment(
+                                    type = IMAGE,
+                                    url = imageInfo["url"]?.asText().orEmpty(),
+                                    aspectRatio = imageInfo["width"].asDouble() / imageInfo["height"].asDouble()
+                            ))
                     )
                 }
     }

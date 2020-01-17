@@ -20,7 +20,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
-import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
+import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -88,20 +88,22 @@ class InstagramSkraper @JvmOverloads constructor(
                 .orEmpty()
     }
 
-    private fun JsonNode.parsePublishedAt(): Long {
-        return (get("taken_at_timestamp")
+    private fun JsonNode.parsePublishedAt(): Long? {
+        return get("taken_at_timestamp")
                 ?.asLong()
                 ?.times(1000)
-                ?: mockTimestamp())
     }
 
-    private fun JsonNode.parseAttachment(): Attachment {
+    private suspend fun JsonNode.parseAttachment(): Attachment {
         return Attachment(
                 type = when {
                     this["is_video"].asBoolean() -> VIDEO
                     else -> IMAGE
                 },
-                url = this["video_url"]?.asText() ?: this["display_url"].asText()
+                url = this["video_url"]?.asText() ?: this["display_url"].asText(),
+                aspectRatio = this["dimensions"]
+                        ?.let { d -> d["width"].asDouble() / d["height"].asDouble() }
+                        ?: client.getAspectRatio(this["display_url"].asText().orEmpty())
         )
     }
 }

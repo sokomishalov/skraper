@@ -20,6 +20,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
@@ -82,9 +83,15 @@ class TwitterSkraper @JvmOverloads constructor(
                 .toLong()
     }
 
-    private fun Element.extractAttachmentsFromTweet(): List<Attachment> {
+    private suspend fun Element.extractAttachmentsFromTweet(): List<Attachment> {
         return getElementsByClass("AdaptiveMedia-photoContainer")
-                ?.map { element -> Attachment(url = element.attr("data-image-url"), type = IMAGE) }
+                ?.map { element ->
+                    Attachment(
+                            url = element.attr("data-image-url"),
+                            type = IMAGE,
+                            aspectRatio = client.getAspectRatio(element.attr("data-image-url"))
+                    )
+                }
                 ?: emptyList()
     }
 }

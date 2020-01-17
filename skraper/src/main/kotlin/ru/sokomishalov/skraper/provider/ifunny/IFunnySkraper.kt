@@ -19,9 +19,9 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
@@ -58,8 +58,15 @@ class IFunnySkraper @JvmOverloads constructor(
 
                     Post(
                             id = link.convertUriToId(),
-                            publishTimestamp = mockTimestamp(index = i),
-                            attachments = listOf(Attachment(url = img.attr("data-src"), type = IMAGE))
+                            attachments = listOf(Attachment(
+                                    url = img.attr("data-src"),
+                                    type = IMAGE,
+                                    aspectRatio = it
+                                            .attr("data-ratio")
+                                            .toDoubleOrNull()
+                                            ?.let { 1.div(it) }
+                                            ?: client.getAspectRatio(img.attr("data-src"))
+                            ))
                     )
                 }
                 .filterNotNull()

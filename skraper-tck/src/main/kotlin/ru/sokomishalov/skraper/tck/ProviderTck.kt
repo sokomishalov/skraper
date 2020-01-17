@@ -48,10 +48,10 @@ abstract class ProviderTck {
         assertTrue(posts.isNotEmpty())
         posts.forEach {
             assertNotNull(it.id)
-            assertNotNull(it.publishTimestamp)
             it.attachments.forEach { a ->
                 assertNotNull(a.type)
                 assertTrue(a.url.isNotBlank())
+                assertTrue(a.aspectRatio > 0.0001)
             }
         }
     }

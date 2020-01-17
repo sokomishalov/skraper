@@ -20,7 +20,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.util.time.mockTimestamp
+import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.Post
@@ -73,20 +73,24 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.toString()
     }
 
-    private fun Element.getPublishedAtByUserContentWrapper(): Long {
+    private fun Element.getPublishedAtByUserContentWrapper(): Long? {
         return getElementsByAttribute("data-utime")
                 ?.first()
                 ?.attr("data-utime")
                 ?.toLongOrNull()
                 ?.times(1000)
-                ?: mockTimestamp()
     }
 
-    private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
+    private suspend fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
         return getElementsByClass("scaledImageFitWidth")
                 ?.first()
                 ?.attr("src")
-                ?.let { listOf(Attachment(url = it, type = IMAGE)) }
+                ?.let {
+                    listOf(Attachment(
+                            url = it,
+                            type = IMAGE,
+                            aspectRatio = client.getAspectRatio(it)))
+                }
                 ?: emptyList()
     }
 }

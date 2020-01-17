@@ -15,11 +15,9 @@
  */
 package ru.sokomishalov.skraper.model
 
-import java.lang.System.currentTimeMillis
-
 data class Post(
         val id: String,
         val caption: String? = "",
-        val publishTimestamp: Long = currentTimeMillis(),
+        val publishTimestamp: Long? = null,
         val attachments: List<Attachment> = emptyList()
 )
