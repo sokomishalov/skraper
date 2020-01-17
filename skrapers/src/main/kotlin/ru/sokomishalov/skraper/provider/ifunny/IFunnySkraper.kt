@@ -47,14 +47,14 @@ class IFunnySkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return posts
-                .mapIndexed { i, it ->
+                .map {
                     val a = it.getSingleElementByTag("a")
 
                     val img = a.getSingleElementByTag("img")
                     val link = a.attr("href")
 
                     // videos and gifs cannot be scraped :(
-                    if ("video" in link || "gif" in link) return@mapIndexed null
+                    if ("video" in link || "gif" in link) return@map null
 
                     Post(
                             id = link.convertUriToId(),
