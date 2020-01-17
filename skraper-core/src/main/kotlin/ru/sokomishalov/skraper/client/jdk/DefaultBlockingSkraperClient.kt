@@ -18,15 +18,40 @@ package ru.sokomishalov.skraper.client.jdk
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.SkraperClient
+import java.net.HttpURLConnection
+import java.net.HttpURLConnection.*
 import java.net.URL
+
 
 /**
  * @author sokomishalov
+ *
+ * appreciation to mkyong
+ * @see <a href="https://mkyong.com/java/java-httpurlconnection-follow-redirect-example/">link</a>
  */
 class DefaultBlockingSkraperClient : SkraperClient {
 
     override suspend fun fetch(url: String): ByteArray? {
-        return withContext(IO) { URL(url).readBytes() }
+        return withContext(IO) {
+            val conn = URL(url).openConnection() as HttpURLConnection
+
+            conn.apply {
+                readTimeout = 5000
+            }
+
+            val status = conn.responseCode
+
+            if (status != HTTP_OK && status in listOf(HTTP_MOVED_TEMP, HTTP_MOVED_PERM, HTTP_SEE_OTHER)) {
+                val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
+                newConn.apply {
+                    setRequestProperty("Cookie", conn.getHeaderField("Set-Cookie"))
+                }
+                newConn.inputStream.readBytes()
+            } else {
+                conn.inputStream.readBytes()
+            }
+
+        }
     }
 
 }
