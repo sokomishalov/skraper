@@ -6,7 +6,7 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 ## Overview
-Kotlin/Java coroutine-based scrapers without full page rendering
+Kotlin/JVM coroutine-based scrapers without full page rendering
 
 ## Providers
 List of implemented scrapers looks like this so far:
