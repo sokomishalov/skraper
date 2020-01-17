@@ -60,10 +60,11 @@ fun main() = runBlocking {
     println(logo)
 }
 ```
+You can see the full model structure for posts and others [here](./src/main/kotlin/ru/sokomishalov/skraper/model)
 
 **Important moment:** it is not recommended to use [DefaultBlockingClient](./src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
 There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](./src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
-To use them you just need to have required dependencies in the classpath.
+To use them you just have to put required dependencies in the classpath.
 After that usage as simple as is:
 ```kotlin
 val skraper = FacebookSkraper(client = ReactorNettySkraperClient())

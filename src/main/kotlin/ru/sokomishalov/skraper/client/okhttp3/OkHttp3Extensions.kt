@@ -11,7 +11,7 @@ import kotlin.coroutines.resumeWithException
 /**
  * @author sokomishalov
  *
- * huge appreciate to my russian colleague
+ * huge appreciation to my russian colleague
  * @see <a href="https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/src/main/kotlin/ru/gildor/coroutines/okhttp/CallAwait.kt">link</a>
  */
 
