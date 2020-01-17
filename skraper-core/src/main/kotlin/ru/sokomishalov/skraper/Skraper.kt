@@ -16,16 +16,30 @@
 package ru.sokomishalov.skraper
 
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import ru.sokomishalov.skraper.model.GetLatestPostsOptions
+import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
 import ru.sokomishalov.skraper.model.Post
 
-
+/**
+ * @author sokomishalov
+ */
 interface Skraper {
 
+    /**
+     * http client for fetching web pages, images and json from network
+     */
     val client: SkraperClient get() = DefaultBlockingSkraperClient()
 
-    suspend fun getPageLogoUrl(uri: String): String?
+    /**
+     * @param options fetch options
+     * @return logo url
+     */
+    suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String?
 
-    suspend fun getLatestPosts(uri: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+    /**
+     * @param options fetch options
+     * @return list of posts
+     */
+    suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post>
 
 }

@@ -25,6 +25,8 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.GetLatestPostsOptions
+import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -39,14 +41,14 @@ class TwitterSkraper @JvmOverloads constructor(
         private const val TWITTER_URL = "https://twitter.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$TWITTER_URL/${uri}")
+    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
+        val webPage = client.fetchDocument("$TWITTER_URL/${options.uri}")
 
         val posts = webPage
                 ?.body()
                 ?.getElementById("stream-items-id")
                 ?.getElementsByClass("stream-item")
-                ?.take(limit)
+                ?.take(options.limit)
                 ?.map { it.getSingleElementByClass("tweet") }
                 .orEmpty()
 
@@ -55,13 +57,13 @@ class TwitterSkraper @JvmOverloads constructor(
                     id = it.extractIdFromTweet(),
                     caption = it.extractCaptionFromTweet(),
                     publishTimestamp = it.extractPublishedAtFromTweet(),
-                    attachments = it.extractAttachmentsFromTweet()
+                    attachments = it.extractAttachmentsFromTweet(fetchAspectRatio = options.fetchAspectRatio)
             )
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String): String? {
-        return client.fetchDocument("$TWITTER_URL/${uri}")
+    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
+        return client.fetchDocument("$TWITTER_URL/${options.uri}")
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")
@@ -83,13 +85,13 @@ class TwitterSkraper @JvmOverloads constructor(
                 .toLong()
     }
 
-    private suspend fun Element.extractAttachmentsFromTweet(): List<Attachment> {
+    private suspend fun Element.extractAttachmentsFromTweet(fetchAspectRatio: Boolean): List<Attachment> {
         return getElementsByClass("AdaptiveMedia-photoContainer")
                 ?.map { element ->
                     Attachment(
                             url = element.attr("data-image-url"),
                             type = IMAGE,
-                            aspectRatio = client.getAspectRatio(element.attr("data-image-url"))
+                            aspectRatio = client.getAspectRatio(element.attr("data-image-url"), fetchAspectRatio = fetchAspectRatio)
                     )
                 }
                 ?: emptyList()

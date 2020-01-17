@@ -23,6 +23,8 @@ import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.GetLatestPostsOptions
+import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
 import ru.sokomishalov.skraper.model.Post
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -42,15 +44,15 @@ class PinterestSkraper @JvmOverloads constructor(
         private const val PINTEREST_URL = "https://www.pinterest.com"
     }
 
-    override suspend fun getLatestPosts(channel: String, limit: Int): List<Post> {
-        val infoJsonNode = parseInitJson(channel)
+    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
+        val infoJsonNode = parseInitJson(options.uri)
         val feedList = infoJsonNode
                 .get("resourceDataCache")
                 ?.get(1)
                 ?.get("data")
                 ?.get("board_feed")
                 ?.asIterable()
-                ?.take(limit)
+                ?.take(options.limit)
                 .orEmpty()
 
         return feedList
@@ -69,8 +71,8 @@ class PinterestSkraper @JvmOverloads constructor(
                 }
     }
 
-    override suspend fun getPageLogoUrl(uri: String): String? {
-        val infoJsonNode = parseInitJson(uri)
+    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
+        val infoJsonNode = parseInitJson(options.uri)
 
         return infoJsonNode["resourceDataCache"]
                 ?.first()

@@ -24,6 +24,8 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.GetLatestPostsOptions
+import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
 import ru.sokomishalov.skraper.model.Post
 
 /**
@@ -37,13 +39,13 @@ class IFunnySkraper @JvmOverloads constructor(
         private const val IFUNNY_URL = "https://ifunny.co"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = client.fetchDocument("${IFUNNY_URL}/${uri}")
+    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
+        val document = client.fetchDocument("${IFUNNY_URL}/${options.uri}")
 
         val posts = document
                 ?.getSingleElementByClass("feed__list")
                 ?.getElementsByClass("stream__item")
-                ?.take(limit)
+                ?.take(options.limit)
                 .orEmpty()
 
         return posts
@@ -65,15 +67,15 @@ class IFunnySkraper @JvmOverloads constructor(
                                             .attr("data-ratio")
                                             .toDoubleOrNull()
                                             ?.let { 1.div(it) }
-                                            ?: client.getAspectRatio(img.attr("data-src"))
+                                            ?: client.getAspectRatio(url = img.attr("data-src"), fetchAspectRatio = options.fetchAspectRatio)
                             ))
                     )
                 }
                 .filterNotNull()
     }
 
-    override suspend fun getPageLogoUrl(uri: String): String? {
-        return client.fetchDocument("${IFUNNY_URL}/${uri}")
+    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
+        return client.fetchDocument("${IFUNNY_URL}/${options.uri}")
                 ?.getElementsByTag("meta")
                 ?.find { it.attr("property") == "og:image" }
                 ?.attr("content")

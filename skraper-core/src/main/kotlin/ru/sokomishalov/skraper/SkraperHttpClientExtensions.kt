@@ -42,9 +42,16 @@ suspend fun SkraperClient.fetchDocument(url: String): Document? {
 }
 
 // TODO rewrite without java.awt
-suspend fun SkraperClient.getAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO): Double {
-    val dimensions = runCatching { fetch(url)?.toBufferedImage()?.run { width to height } }.getOrNull()
-    return dimensions?.let { it.first.toDouble() / it.second } ?: orElse
+suspend fun SkraperClient.getAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO, fetchAspectRatio: Boolean = true): Double {
+    return when {
+        fetchAspectRatio -> {
+            val dimensions = runCatching { fetch(url)?.toBufferedImage()?.run { width to height } }.getOrNull()
+            dimensions?.let { it.first.toDouble() / it.second } ?: orElse
+        }
+        else -> {
+            DEFAULT_POSTS_ASPECT_RATIO
+        }
+    }
 }
 
 private fun ByteArray.toBufferedImage(): BufferedImage {

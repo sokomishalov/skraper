@@ -30,6 +30,8 @@ import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
+import ru.sokomishalov.skraper.model.GetLatestPostsOptions
+import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
 import ru.sokomishalov.skraper.model.Post
 
 /**
@@ -43,24 +45,24 @@ class VkSkraper @JvmOverloads constructor(
         private const val VK_URL = "https://vk.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val posts = client.fetchDocument("$VK_URL/${uri}")
+    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
+        val posts = client.fetchDocument("$VK_URL/${options.uri}")
                 ?.getSingleElementByClass("wall_posts")
                 ?.getElementsByClass("wall_item")
-                ?.take(limit)
+                ?.take(options.limit)
                 .orEmpty()
 
         return posts.map {
             Post(
                     id = it.extractId(),
                     caption = it.extractCaption(),
-                    attachments = it.extractAttachments()
+                    attachments = it.extractAttachments(fetchAspectRatio = options.fetchAspectRatio)
             )
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String): String? {
-        return client.fetchDocument("$VK_URL/${uri}")
+    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
+        return client.fetchDocument("$VK_URL/${options.uri}")
                 ?.getSingleElementByClass("profile_panel")
                 ?.getSingleElementByTag("img")
                 ?.attr("src")
@@ -78,7 +80,7 @@ class VkSkraper @JvmOverloads constructor(
                 ?.removeLinks()
     }
 
-    private suspend fun Element.extractAttachments(): List<Attachment> {
+    private suspend fun Element.extractAttachments(fetchAspectRatio: Boolean): List<Attachment> {
         return getElementsByClass("thumb_map_img")
                 .firstOrNull()
                 .let {
@@ -97,7 +99,7 @@ class VkSkraper @JvmOverloads constructor(
                                         isVideo -> VIDEO
                                         else -> IMAGE
                                     },
-                                    aspectRatio = client.getAspectRatio(imageUrl)
+                                    aspectRatio = client.getAspectRatio(url = imageUrl, fetchAspectRatio = fetchAspectRatio)
                             ))
                         }
                     }

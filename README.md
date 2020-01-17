@@ -43,9 +43,9 @@ First of all you have to add dep:
 Each scraper is a class which implements [Skraper](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
 ```kotlin
 interface Skraper {
-    val client: SkraperHttpClient get() = DefaultBlockingHttpClient()
-    suspend fun getChannelLogoUrl(channel: ProviderChannel): String?
-    suspend fun getLatestPosts(channel: ProviderChannel, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+    val client: SkraperClient get() = DefaultBlockingSkraperClient()
+    suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String?
+    suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post>
 }
 ```
 
@@ -53,10 +53,11 @@ Then you you are able to use provider like this:
 ```kotlin
 fun main() = runBlocking {
     val skraper = FacebookSkraper()
-    val channel = ProviderChannel(uri = "originaltrollfootball")
-    val posts = skraper.getLatestPosts(channel = channel)
+    
+    val posts = skraper.getLatestPosts(options = GetLatestPostsOptions(uri = "originaltrollfootball"))
     posts.forEach { println(it) }
-    val logo = skraper.getChannelLogoUrl(channel = channel)
+    
+    val logo = skraper.getPageLogoUrl(options = GetPageLogoUrlOptions(uri = "originaltrollfootball"))
     println(logo)
 }
 ```

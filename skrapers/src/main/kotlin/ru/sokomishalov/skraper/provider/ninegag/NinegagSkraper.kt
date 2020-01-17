@@ -24,6 +24,8 @@ import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.GetLatestPostsOptions
+import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
 import ru.sokomishalov.skraper.model.Post
 import java.time.ZonedDateTime
 import kotlin.text.Charsets.UTF_8
@@ -40,14 +42,14 @@ class NinegagSkraper @JvmOverloads constructor(
         private const val NINEGAG_URL = "https://9gag.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$NINEGAG_URL/${uri}")
+    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
+        val webPage = client.fetchDocument("$NINEGAG_URL/${options.uri}")
 
         val latestPostsIds = webPage
                 ?.getElementById("jsid-latest-entries")
                 ?.text()
                 ?.split(",")
-                ?.take(limit)
+                ?.take(options.limit)
                 .orEmpty()
 
 
@@ -69,15 +71,15 @@ class NinegagSkraper @JvmOverloads constructor(
                             attachments = listOf(Attachment(
                                     type = IMAGE,
                                     url = json["image"].asText().orEmpty(),
-                                    aspectRatio = client.getAspectRatio(json["image"].asText().orEmpty())
+                                    aspectRatio = client.getAspectRatio(url = json["image"].asText().orEmpty(), fetchAspectRatio = options.fetchAspectRatio)
                             ))
 
                     )
                 }
     }
 
-    override suspend fun getPageLogoUrl(uri: String): String? {
-        return client.fetchDocument("$NINEGAG_URL/${uri}")
+    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
+        return client.fetchDocument("$NINEGAG_URL/${options.uri}")
                 ?.head()
                 ?.getElementsByAttributeValueContaining("rel", "image_src")
                 ?.first()
