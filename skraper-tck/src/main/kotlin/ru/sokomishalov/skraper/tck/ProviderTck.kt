@@ -44,7 +44,7 @@ abstract class ProviderTck {
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
-        val posts = service.getLatestPosts(GetLatestPostsOptions(uri = uri, fetchAspectRatio = true))
+        val posts = service.getLatestPosts(GetLatestPostsOptions(uri = uri, fetchAspectRatio = false))
 
         log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 

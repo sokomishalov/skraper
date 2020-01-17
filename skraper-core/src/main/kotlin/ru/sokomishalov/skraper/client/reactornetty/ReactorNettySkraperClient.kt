@@ -39,7 +39,7 @@ class ReactorNettySkraperClient(
     }
 
     companion object {
-        private val DEFAULT_CLIENT = HttpClient
+        private val DEFAULT_CLIENT: HttpClient = HttpClient
                 .create()
                 .followRedirect(true)
                 .secure {

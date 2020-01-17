@@ -74,3 +74,4 @@ val skraper = FacebookSkraper(client = ReactorNettySkraperClient())
 Current http-client implementation list:
 - [ReactorNettySkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
 - [OkSkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
+- [SpringWebClientSkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringWebClientSkraperClient.kt) - [spring webclient](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
