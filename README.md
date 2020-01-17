@@ -61,14 +61,14 @@ fun main() = runBlocking {
 }
 ```
 
-**Important moment:** it is not recommended to use [DefaultBlockingHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/DefaultBlockingHttpClient.kt).
-There are some more efficient, non-blocking and resource-friendly implementations for [SkraperHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/SkraperHttpClient.kt).
+**Important moment:** it is not recommended to use [DefaultBlockingClient](./src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
+There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](./src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
 To use them you just need to have required dependencies in the classpath.
 After that usage as simple as is:
 ```kotlin
-val skraper = FacebookSkraper(client = ReactorNettySkraperHttpClient())
+val skraper = FacebookSkraper(client = ReactorNettySkraperClient())
 ``` 
 
 Current http-client implementation list:
-- [ReactorNettySkraperHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/ReactorNettySkraperHttpClient.kt) - built on [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty)
-- [OkSkraperHttpClient](./src/main/kotlin/ru/sokomishalov/skraper/client/OkSkraperHttpClient.kt) - built on [okhttp](https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp)
+- [ReactorNettySkraperClient](src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
+- [OkSkraperClient](src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation

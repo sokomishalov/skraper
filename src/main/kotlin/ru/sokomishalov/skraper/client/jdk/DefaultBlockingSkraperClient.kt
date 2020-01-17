@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.client
+package ru.sokomishalov.skraper.client.jdk
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
-import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.SkraperClient
 import java.net.URL
 
 /**
  * @author sokomishalov
  */
-class DefaultBlockingSkraperHttpClient : SkraperHttpClient {
+class DefaultBlockingSkraperClient : SkraperClient {
 
     override suspend fun fetch(url: String): ByteArray? {
         return withContext(IO) { URL(url).readBytes() }

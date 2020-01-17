@@ -15,20 +15,20 @@
  */
 @file:Suppress("unused")
 
-package ru.sokomishalov.skraper.client
+package ru.sokomishalov.skraper.client.reactornetty
 
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import reactor.netty.http.client.HttpClient
-import ru.sokomishalov.skraper.SkraperHttpClient
+import ru.sokomishalov.skraper.SkraperClient
 
 /**
  * @author sokomishalov
  */
-class ReactorNettySkraperHttpClient(
+class ReactorNettySkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
-) : SkraperHttpClient {
+) : SkraperClient {
 
     override suspend fun fetch(url: String): ByteArray? {
         return client

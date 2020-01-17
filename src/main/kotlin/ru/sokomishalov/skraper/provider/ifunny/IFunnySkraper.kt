@@ -16,8 +16,8 @@
 package ru.sokomishalov.skraper.provider.ifunny
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperHttpClient
-import ru.sokomishalov.skraper.client.DefaultBlockingSkraperHttpClient
+import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.util.jsoup.getSingleElementByTag
@@ -30,7 +30,7 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 class IFunnySkraper @JvmOverloads constructor(
-        override val client: SkraperHttpClient = DefaultBlockingSkraperHttpClient()
+        override val client: SkraperClient = DefaultBlockingSkraperClient()
 ) : Skraper {
 
     companion object {

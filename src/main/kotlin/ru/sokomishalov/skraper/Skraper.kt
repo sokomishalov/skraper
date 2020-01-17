@@ -15,14 +15,14 @@
  */
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.client.DefaultBlockingSkraperHttpClient
+import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.util.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.Post
 
 
 interface Skraper {
 
-    val client: SkraperHttpClient get() = DefaultBlockingSkraperHttpClient()
+    val client: SkraperClient get() = DefaultBlockingSkraperClient()
 
     suspend fun getPageLogoUrl(uri: String): String?
 

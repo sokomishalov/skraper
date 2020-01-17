@@ -27,12 +27,12 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 
-suspend fun SkraperHttpClient.fetchJson(url: String): JsonNode {
+suspend fun SkraperClient.fetchJson(url: String): JsonNode {
     val ba = fetch(url)
     return withContext(IO) { SKRAPER_OBJECT_MAPPER.readTree(ba) }
 }
 
-suspend fun SkraperHttpClient.fetchDocument(url: String): Document? {
+suspend fun SkraperClient.fetchDocument(url: String): Document? {
     val ba = fetch(url)
     return withContext(IO) { Jsoup.parse(ba?.toString(UTF_8)) }
 }

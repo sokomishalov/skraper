@@ -18,7 +18,7 @@ package ru.sokomishalov.skraper
 /**
  * @author sokomishalov
  */
-interface SkraperHttpClient {
+interface SkraperClient {
 
     suspend fun fetch(url: String): ByteArray?
 
