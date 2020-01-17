@@ -24,10 +24,11 @@ import java.net.URL
 
 
 /**
- * @author sokomishalov
- *
- * appreciation to mkyong
+ * Do not use this implementation!
+ * Appreciation to mkyong
  * @see <a href="https://mkyong.com/java/java-httpurlconnection-follow-redirect-example/">link</a>
+ *
+ * @author sokomishalov
  */
 class DefaultBlockingSkraperClient : SkraperClient {
 
@@ -35,9 +36,7 @@ class DefaultBlockingSkraperClient : SkraperClient {
         return withContext(IO) {
             val conn = URL(url).openConnection() as HttpURLConnection
 
-            conn.apply {
-                readTimeout = 5000
-            }
+            conn.applyDefaultHeaders()
 
             val status = conn.responseCode
 
@@ -45,6 +44,7 @@ class DefaultBlockingSkraperClient : SkraperClient {
                 val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
                 newConn.apply {
                     setRequestProperty("Cookie", conn.getHeaderField("Set-Cookie"))
+                    applyDefaultHeaders()
                 }
                 newConn.inputStream.readBytes()
             } else {
@@ -54,4 +54,10 @@ class DefaultBlockingSkraperClient : SkraperClient {
         }
     }
 
+    private fun HttpURLConnection.applyDefaultHeaders() {
+        readTimeout = 15_000
+        addRequestProperty("Accept-Language", "en-US,en;q=0.8")
+        addRequestProperty("User-Agent", "Mozilla")
+        addRequestProperty("Referer", "google.com")
+    }
 }

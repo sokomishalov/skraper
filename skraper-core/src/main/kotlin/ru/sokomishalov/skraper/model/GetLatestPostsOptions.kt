@@ -12,6 +12,6 @@ data class GetLatestPostsOptions(
         // limit for amount of posts to return
         val limit: Int = DEFAULT_POSTS_LIMIT,
 
-        // fetchAspectRatio fetch attachment's aspect ratios if there are not possibilities to scrape it
+        // fetch attachment's aspect ratios if there are not possibilities to scrape it
         val fetchAspectRatio: Boolean = false
 )
