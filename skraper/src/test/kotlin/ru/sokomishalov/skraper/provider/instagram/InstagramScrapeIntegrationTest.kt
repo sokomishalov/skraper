@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.ninegag
+package ru.sokomishalov.skraper.provider.instagram
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.provider.ProviderTck
+import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
+import ru.sokomishalov.skraper.tck.ProviderTck
 
 /**
  * @author sokomishalov
  */
-class NinegagScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = NinegagSkraper(client = client)
-    override val uri: String = "meme"
+class InstagramScrapeIntegrationTest : ProviderTck() {
+    override val service: Skraper = InstagramSkraper(client = ReactorNettySkraperClient())
+    override val uri: String = "originaltrollfootball"
 }

@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.twitter
+package ru.sokomishalov.skraper.provider.facebook
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.provider.ProviderTck
+import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
+import ru.sokomishalov.skraper.tck.ProviderTck
 
 /**
  * @author sokomishalov
  */
-class TwitterScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = TwitterSkraper(client = client)
-    override val uri: String = "russianmemesltd"
+class FacebookScrapeIntegrationTest : ProviderTck() {
+    override val service: Skraper = FacebookSkraper(client = ReactorNettySkraperClient())
+    override val uri: String = "originaltrollfootball"
 }

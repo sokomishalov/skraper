@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused")
+@file:Suppress("unused", "FunctionName")
 
-package ru.sokomishalov.skraper.provider
+package ru.sokomishalov.skraper.tck
 
+import com.fasterxml.jackson.databind.json.JsonMapper
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.getPageLogoByteArray
-import ru.sokomishalov.skraper.internal.util.serialization.SKRAPER_OBJECT_MAPPER
 
 
 /**
@@ -41,13 +39,11 @@ abstract class ProviderTck {
     protected abstract val service: Skraper
     protected abstract val uri: String
 
-    protected val client: SkraperClient = ReactorNettySkraperClient()
-
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
         val posts = service.getLatestPosts(uri)
 
-        log.info(SKRAPER_OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(posts))
+        log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 
         assertTrue(posts.isNotEmpty())
         posts.forEach {

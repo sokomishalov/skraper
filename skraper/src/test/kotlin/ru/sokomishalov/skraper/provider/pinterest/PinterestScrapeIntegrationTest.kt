@@ -16,12 +16,13 @@
 package ru.sokomishalov.skraper.provider.pinterest
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.provider.ProviderTck
+import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
+import ru.sokomishalov.skraper.tck.ProviderTck
 
 /**
  * @author sokomishalov
  */
 class PinterestScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = PinterestSkraper(client = client)
+    override val service: Skraper = PinterestSkraper(client = ReactorNettySkraperClient())
     override val uri: String = "celiatoler/pinterest-memes"
 }
