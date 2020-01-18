@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper
+package ru.sokomishalov.skraper.client.reactornetty
 
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.SkraperClientTck
+
 
 /**
  * @author sokomishalov
  */
-
-suspend fun Skraper.getPageLogoByteArray(options: GetPageLogoUrlOptions): ByteArray? = getPageLogoUrl(options)?.let { client.fetchBytes(it) }
-
-
+class ReactorNettySkraperClientTest : SkraperClientTck() {
+    override val client: SkraperClient = ReactorNettySkraperClient()
+}

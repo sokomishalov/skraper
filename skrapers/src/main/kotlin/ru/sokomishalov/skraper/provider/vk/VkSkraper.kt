@@ -21,8 +21,8 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.jsoup.getImageBackgroundUrl
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
@@ -99,7 +99,7 @@ class VkSkraper @JvmOverloads constructor(
                                         isVideo -> VIDEO
                                         else -> IMAGE
                                     },
-                                    aspectRatio = client.getAspectRatio(url = imageUrl, fetchAspectRatio = fetchAspectRatio)
+                                    aspectRatio = client.fetchAspectRatio(url = imageUrl, fetchAspectRatio = fetchAspectRatio)
                             ))
                         }
                     }

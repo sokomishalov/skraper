@@ -7,11 +7,11 @@
     <parent>
         <groupId>ru.sokomishalov.skraper</groupId>
         <artifactId>skraper-parent</artifactId>
-        <version>0.0.5</version>
+        <version>0.0.6</version>
     </parent>
 
     <artifactId>skraper-core</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
 
     <dependencies>
 
@@ -60,6 +60,35 @@
             <artifactId>spring-webflux</artifactId>
             <version>${spring.version}</version>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-core-jvm</artifactId>
+            <version>${ktor.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- TEST  -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-cio</artifactId>
+            <version>${ktor.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

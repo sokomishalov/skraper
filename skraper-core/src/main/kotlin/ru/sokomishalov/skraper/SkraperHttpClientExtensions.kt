@@ -31,26 +31,26 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 
+suspend fun SkraperClient.fetchBytes(url: String): ByteArray? {
+    return runCatching { fetch(url) }.getOrNull()
+}
+
 suspend fun SkraperClient.fetchJson(url: String): JsonNode {
-    val ba = fetch(url)
+    val ba = fetchBytes(url)
     return ba.aReadJsonNodes()
 }
 
 suspend fun SkraperClient.fetchDocument(url: String): Document? {
-    val ba = fetch(url)
-    return withContext(IO) { Jsoup.parse(ba?.toString(UTF_8)) }
+    val ba = fetchBytes(url)
+    return ba?.let { withContext(IO) { Jsoup.parse(it.toString(UTF_8)) } }
 }
 
 // TODO rewrite without java.awt
-suspend fun SkraperClient.getAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO, fetchAspectRatio: Boolean = true): Double {
+suspend fun SkraperClient.fetchAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO, fetchAspectRatio: Boolean = true): Double {
     return when {
-        fetchAspectRatio -> {
-            val dimensions = runCatching { fetch(url)?.toBufferedImage()?.run { width to height } }.getOrNull()
-            dimensions?.let { it.first.toDouble() / it.second } ?: orElse
-        }
-        else -> {
-            DEFAULT_POSTS_ASPECT_RATIO
-        }
+        fetchAspectRatio -> runCatching { fetchBytes(url)?.toBufferedImage()?.run { width.toDouble() / height } }.getOrNull()
+                ?: orElse
+        else -> DEFAULT_POSTS_ASPECT_RATIO
     }
 }
 

@@ -55,7 +55,8 @@ class DefaultBlockingSkraperClient : SkraperClient {
     }
 
     private fun HttpURLConnection.applyDefaultHeaders() {
-        readTimeout = 15_000
+        connectTimeout = 5_000
+        readTimeout = 5_000
         addRequestProperty("Accept-Language", "en-US,en;q=0.8")
         addRequestProperty("User-Agent", "Mozilla")
         addRequestProperty("Referer", "google.com")

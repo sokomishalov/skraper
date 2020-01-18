@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchJson
-import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -105,7 +105,7 @@ class InstagramSkraper @JvmOverloads constructor(
                 url = this["video_url"]?.asText() ?: this["display_url"].asText(),
                 aspectRatio = this["dimensions"]
                         ?.let { d -> d["width"].asDouble() / d["height"].asDouble() }
-                        ?: client.getAspectRatio(url = this["display_url"].asText().orEmpty(), fetchAspectRatio = fetchAspectRatio)
+                        ?: client.fetchAspectRatio(url = this["display_url"].asText().orEmpty(), fetchAspectRatio = fetchAspectRatio)
         )
     }
 }

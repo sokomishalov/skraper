@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -71,7 +71,7 @@ class NinegagSkraper @JvmOverloads constructor(
                             attachments = listOf(Attachment(
                                     type = IMAGE,
                                     url = json["image"].asText().orEmpty(),
-                                    aspectRatio = client.getAspectRatio(url = json["image"].asText().orEmpty(), fetchAspectRatio = options.fetchAspectRatio)
+                                    aspectRatio = client.fetchAspectRatio(url = json["image"].asText().orEmpty(), fetchAspectRatio = options.fetchAspectRatio)
                             ))
 
                     )

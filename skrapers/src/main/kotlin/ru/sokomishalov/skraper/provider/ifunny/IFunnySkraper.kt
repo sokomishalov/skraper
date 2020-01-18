@@ -18,8 +18,8 @@ package ru.sokomishalov.skraper.provider.ifunny
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.model.Attachment
@@ -67,7 +67,7 @@ class IFunnySkraper @JvmOverloads constructor(
                                             .attr("data-ratio")
                                             .toDoubleOrNull()
                                             ?.let { 1.div(it) }
-                                            ?: client.getAspectRatio(url = img.attr("data-src"), fetchAspectRatio = options.fetchAspectRatio)
+                                            ?: client.fetchAspectRatio(url = img.attr("data-src"), fetchAspectRatio = options.fetchAspectRatio)
                             ))
                     )
                 }

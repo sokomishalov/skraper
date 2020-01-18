@@ -19,8 +19,8 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
@@ -91,7 +91,7 @@ class TwitterSkraper @JvmOverloads constructor(
                     Attachment(
                             url = element.attr("data-image-url"),
                             type = IMAGE,
-                            aspectRatio = client.getAspectRatio(element.attr("data-image-url"), fetchAspectRatio = fetchAspectRatio)
+                            aspectRatio = client.fetchAspectRatio(element.attr("data-image-url"), fetchAspectRatio = fetchAspectRatio)
                     )
                 }
                 ?: emptyList()

@@ -19,8 +19,8 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.getAspectRatio
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.GetLatestPostsOptions
@@ -91,7 +91,7 @@ class FacebookSkraper @JvmOverloads constructor(
                     listOf(Attachment(
                             url = it,
                             type = IMAGE,
-                            aspectRatio = client.getAspectRatio(url = it, fetchAspectRatio = fetchAspectRatio)))
+                            aspectRatio = client.fetchAspectRatio(url = it, fetchAspectRatio = fetchAspectRatio)))
                 }
                 ?: emptyList()
     }
