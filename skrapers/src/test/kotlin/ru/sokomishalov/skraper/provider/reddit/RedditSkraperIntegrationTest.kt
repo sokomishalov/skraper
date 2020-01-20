@@ -16,13 +16,12 @@
 package ru.sokomishalov.skraper.provider.reddit
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class RedditSkraperIntegrationTest : SkraperTck() {
-    override val service: Skraper = RedditSkraper(client = ReactorNettySkraperClient())
+    override val skraper: Skraper = RedditSkraper(client = client)
     override val uri: String = "memes"
 }

@@ -24,6 +24,8 @@ import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.getPageLogoByteArray
 import ru.sokomishalov.skraper.model.ImageSize.SMALL
 
@@ -37,12 +39,14 @@ abstract class SkraperTck {
         private val log: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
     }
 
-    protected abstract val service: Skraper
+    protected abstract val skraper: Skraper
     protected abstract val uri: String
+
+    protected val client: SkraperClient = ReactorNettySkraperClient()
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
-        val posts = service.getLatestPosts(uri = uri, fetchAspectRatio = false)
+        val posts = skraper.getLatestPosts(uri = uri, fetchAspectRatio = true)
 
         log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 
@@ -59,7 +63,7 @@ abstract class SkraperTck {
 
     @Test
     fun `Check that channel logo has been fetched`() = runBlocking {
-        val image = service.getPageLogoByteArray(uri = uri, imageSize = SMALL) ?: ByteArray(0)
+        val image = skraper.getPageLogoByteArray(uri = uri, imageSize = SMALL) ?: ByteArray(0)
 
         assertNotEquals(0, image.size)
     }

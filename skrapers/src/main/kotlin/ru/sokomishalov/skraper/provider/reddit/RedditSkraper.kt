@@ -28,7 +28,7 @@ import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
 class RedditSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient()
+        override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     companion object {

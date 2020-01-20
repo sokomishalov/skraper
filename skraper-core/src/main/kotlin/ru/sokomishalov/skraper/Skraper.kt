@@ -29,7 +29,7 @@ interface Skraper {
     /**
      * @return http client for fetching web pages, images and json from network
      */
-    val client: SkraperClient get() = DefaultBlockingSkraperClient()
+    val client: SkraperClient get() = DefaultBlockingSkraperClient
 
     /**
      * @param uri specific uri for the page

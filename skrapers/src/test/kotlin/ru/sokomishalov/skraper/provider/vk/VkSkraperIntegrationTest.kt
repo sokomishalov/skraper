@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.vk
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 
@@ -24,6 +23,6 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  * @author sokomishalov
  */
 class VkSkraperIntegrationTest : SkraperTck() {
-    override val service: Skraper = VkSkraper(client = ReactorNettySkraperClient())
+    override val skraper: Skraper = VkSkraper(client = client)
     override val uri: String = "komment"
 }

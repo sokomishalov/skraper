@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.ifunny
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 
@@ -24,6 +23,6 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  * @author sokomishalov
  */
 class IFunnySkraperIntegrationTest : SkraperTck() {
-    override val service: Skraper = IFunnySkraper(client = ReactorNettySkraperClient())
+    override val skraper: Skraper = IFunnySkraper(client = client)
     override val uri: String = "memes"
 }

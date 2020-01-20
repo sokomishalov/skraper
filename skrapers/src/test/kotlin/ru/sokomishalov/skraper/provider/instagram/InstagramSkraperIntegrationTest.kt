@@ -16,13 +16,12 @@
 package ru.sokomishalov.skraper.provider.instagram
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class InstagramSkraperIntegrationTest : SkraperTck() {
-    override val service: Skraper = InstagramSkraper(client = ReactorNettySkraperClient())
+    override val skraper: Skraper = InstagramSkraper(client = client)
     override val uri: String = "originaltrollfootball"
 }

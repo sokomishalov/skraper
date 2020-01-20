@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused")
-
 package ru.sokomishalov.skraper
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -25,7 +23,6 @@ import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.image.getRemoteImageInfo
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import java.net.URL
 import kotlin.text.Charsets.UTF_8
 
 
@@ -49,7 +46,7 @@ suspend fun SkraperClient.fetchDocument(url: String): Document? {
 
 suspend fun SkraperClient.fetchAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO, fetchAspectRatio: Boolean = true): Double {
     return when {
-        fetchAspectRatio -> withContext(IO) { runCatching { URL(url).getRemoteImageInfo().run { width.toDouble() / height } }.getOrElse { orElse } }
+        fetchAspectRatio -> withContext(IO) { runCatching { openStream(url)!!.getRemoteImageInfo().run { width.toDouble() / height } }.getOrElse { orElse } }
         else -> orElse
     }
 }

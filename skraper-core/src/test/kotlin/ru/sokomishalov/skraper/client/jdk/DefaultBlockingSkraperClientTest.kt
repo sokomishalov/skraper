@@ -23,5 +23,5 @@ import ru.sokomishalov.skraper.client.SkraperClientTck
  * @author sokomishalov
  */
 class DefaultBlockingSkraperClientTest : SkraperClientTck() {
-    override val client: SkraperClient = DefaultBlockingSkraperClient()
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 }

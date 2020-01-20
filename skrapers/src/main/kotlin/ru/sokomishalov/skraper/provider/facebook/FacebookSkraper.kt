@@ -32,7 +32,7 @@ import java.util.UUID.randomUUID
  * @author sokomishalov
  */
 class FacebookSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient()
+        override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     companion object {
@@ -90,7 +90,8 @@ class FacebookSkraper @JvmOverloads constructor(
                     listOf(Attachment(
                             url = it,
                             type = IMAGE,
-                            aspectRatio = client.fetchAspectRatio(url = it, fetchAspectRatio = fetchAspectRatio)))
+                            aspectRatio = client.fetchAspectRatio(url = it, fetchAspectRatio = fetchAspectRatio)
+                    ))
                 }
                 ?: emptyList()
     }

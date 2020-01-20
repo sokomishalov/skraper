@@ -32,7 +32,7 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 class InstagramSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient()
+        override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     companion object {

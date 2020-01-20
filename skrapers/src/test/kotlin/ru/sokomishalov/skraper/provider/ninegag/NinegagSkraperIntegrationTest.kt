@@ -16,13 +16,12 @@
 package ru.sokomishalov.skraper.provider.ninegag
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class NinegagSkraperIntegrationTest : SkraperTck() {
-    override val service: Skraper = NinegagSkraper(client = ReactorNettySkraperClient())
+    override val skraper: Skraper = NinegagSkraper(client = client)
     override val uri: String = "meme"
 }

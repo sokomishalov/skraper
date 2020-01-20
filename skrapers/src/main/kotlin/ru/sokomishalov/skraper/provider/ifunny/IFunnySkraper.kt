@@ -20,7 +20,6 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -31,7 +30,7 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 class IFunnySkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient()
+        override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     companion object {
@@ -42,7 +41,8 @@ class IFunnySkraper @JvmOverloads constructor(
         val document = client.fetchDocument("${IFUNNY_URL}/${uri}")
 
         val posts = document
-                ?.getSingleElementByClass("feed__list")
+                ?.getElementsByClass("feed__list")
+                ?.firstOrNull()
                 ?.getElementsByClass("stream__item")
                 ?.take(limit)
                 .orEmpty()

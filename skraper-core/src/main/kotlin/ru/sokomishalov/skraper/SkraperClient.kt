@@ -15,11 +15,19 @@
  */
 package ru.sokomishalov.skraper
 
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
+import ru.sokomishalov.skraper.internal.net.openStreamForRedirectable
+import java.io.InputStream
+import java.net.URL
+
 /**
  * @author sokomishalov
  */
 interface SkraperClient {
 
-    suspend fun fetch(url: String): ByteArray?
+    suspend fun fetch(url: String): ByteArray? = withContext(IO) { openStream(url) }.use { it?.readBytes() }
+
+    suspend fun openStream(url: String): InputStream? = withContext(IO) { URL(url).openStreamForRedirectable() }
 
 }

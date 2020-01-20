@@ -31,11 +31,7 @@ class ReactorNettySkraperClient(
 ) : SkraperClient {
 
     override suspend fun fetch(url: String): ByteArray? {
-        return client
-                .get()
-                .uri(url)
-                .responseSingle { _, u -> u.asByteArray() }
-                .awaitFirstOrNull()
+        return client.get().uri(url).responseSingle { _, u -> u.asByteArray() }.awaitFirstOrNull()
     }
 
     companion object {

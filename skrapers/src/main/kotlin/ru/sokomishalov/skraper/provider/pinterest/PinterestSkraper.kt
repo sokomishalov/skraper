@@ -35,7 +35,7 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 class PinterestSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient()
+        override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     companion object {

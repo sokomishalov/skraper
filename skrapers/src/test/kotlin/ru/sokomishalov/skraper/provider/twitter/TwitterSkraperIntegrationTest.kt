@@ -16,13 +16,12 @@
 package ru.sokomishalov.skraper.provider.twitter
 
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class TwitterSkraperIntegrationTest : SkraperTck() {
-    override val service: Skraper = TwitterSkraper(client = ReactorNettySkraperClient())
+    override val skraper: Skraper = TwitterSkraper(client = client)
     override val uri: String = "russianmemesltd"
 }
