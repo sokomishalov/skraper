@@ -1,6 +1,6 @@
 package ru.sokomishalov.skraper.internal.net
 
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -12,7 +12,7 @@ import java.net.URL
  */
 
 internal suspend fun URL.openStreamForRedirectable(): InputStream {
-    return withContext(Dispatchers.IO) {
+    return withContext(IO) {
         val conn = openConnection() as HttpURLConnection
 
         conn.applyDefaultHeaders()

@@ -44,10 +44,6 @@ class SpringReactiveSkraperClient(
                 ?.awaitFirstOrNull()
     }
 
-//    override suspend fun openStream(url: String): InputStream? {
-//        webClient.get().uri(url).awaitExchange().
-//    }
-
     companion object {
         private val DEFAULT_CLIENT: WebClient = WebClient
                 .builder()
