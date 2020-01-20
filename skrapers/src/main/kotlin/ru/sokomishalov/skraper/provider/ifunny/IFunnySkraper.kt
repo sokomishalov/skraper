@@ -24,8 +24,7 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.GetLatestPostsOptions
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
 /**
@@ -39,13 +38,13 @@ class IFunnySkraper @JvmOverloads constructor(
         private const val IFUNNY_URL = "https://ifunny.co"
     }
 
-    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
-        val document = client.fetchDocument("${IFUNNY_URL}/${options.uri}")
+    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+        val document = client.fetchDocument("${IFUNNY_URL}/${uri}")
 
         val posts = document
                 ?.getSingleElementByClass("feed__list")
                 ?.getElementsByClass("stream__item")
-                ?.take(options.limit)
+                ?.take(limit)
                 .orEmpty()
 
         return posts
@@ -67,15 +66,15 @@ class IFunnySkraper @JvmOverloads constructor(
                                             .attr("data-ratio")
                                             .toDoubleOrNull()
                                             ?.let { 1.div(it) }
-                                            ?: client.fetchAspectRatio(url = img.attr("data-src"), fetchAspectRatio = options.fetchAspectRatio)
+                                            ?: client.fetchAspectRatio(url = img.attr("data-src"), fetchAspectRatio = fetchAspectRatio)
                             ))
                     )
                 }
                 .filterNotNull()
     }
 
-    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
-        return client.fetchDocument("${IFUNNY_URL}/${options.uri}")
+    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
+        return client.fetchDocument("${IFUNNY_URL}/${uri}")
                 ?.getElementsByTag("meta")
                 ?.find { it.attr("property") == "og:image" }
                 ?.attr("content")

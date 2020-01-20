@@ -44,8 +44,8 @@ Each scraper is a class which implements [Skraper](skraper-core/src/main/kotlin/
 ```kotlin
 interface Skraper {
     val client: SkraperClient get() = DefaultBlockingSkraperClient()
-    suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String?
-    suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post>
+    suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize = SMALL): String?
+    suspend fun getLatestPosts(uri: String, limit: Int = DEFAULT_POSTS_LIMIT, fetchAspectRatio: Boolean = false): List<Post>
 }
 ```
 
@@ -54,16 +54,16 @@ Then you you are able to use provider like this:
 fun main() = runBlocking {
     val skraper = FacebookSkraper()
     
-    val posts = skraper.getLatestPosts(options = GetLatestPostsOptions(uri = "originaltrollfootball"))
+    val posts = skraper.getLatestPosts(uri = "originaltrollfootball")
     posts.forEach { println(it) }
     
-    val logo = skraper.getPageLogoUrl(options = GetPageLogoUrlOptions(uri = "originaltrollfootball"))
+    val logo = skraper.getPageLogoUrl(uri = "originaltrollfootball")
     println(logo)
 }
 ```
 You can see the full model structure for posts and others [here](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/model)
 
-**Important moment:** it is not recommended to use [DefaultBlockingClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
+**Important moment:** it is highly recommended not to use [DefaultBlockingClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
 There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
 To use them you just have to put required dependencies in the classpath.
 After that usage as simple as is:

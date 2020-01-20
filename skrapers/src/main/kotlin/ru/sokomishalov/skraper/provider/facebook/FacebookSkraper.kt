@@ -23,8 +23,7 @@ import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.GetLatestPostsOptions
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 import java.util.UUID.randomUUID
 
@@ -41,22 +40,22 @@ class FacebookSkraper @JvmOverloads constructor(
         private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
     }
 
-    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
-        val webPage = client.fetchDocument("$FACEBOOK_BASE_URL/${options.uri}/posts")
-        val elements = webPage?.getElementsByClass("userContentWrapper")?.take(options.limit).orEmpty()
+    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+        val webPage = client.fetchDocument("$FACEBOOK_BASE_URL/${uri}/posts")
+        val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 
         return elements.map {
             Post(
                     id = it.getIdByUserContentWrapper(),
                     caption = it.getCaptionByUserContentWrapper(),
                     publishTimestamp = it.getPublishedAtByUserContentWrapper(),
-                    attachments = it.getAttachmentsByUserContentWrapper(fetchAspectRatio = options.fetchAspectRatio)
+                    attachments = it.getAttachmentsByUserContentWrapper(fetchAspectRatio = fetchAspectRatio)
             )
         }
     }
 
-    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
-        return "$FACEBOOK_GRAPH_BASE_URL/${options.uri}/picture?type=${options.imageSize.name.toLowerCase()}"
+    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
+        return "$FACEBOOK_GRAPH_BASE_URL/${uri}/picture?type=${imageSize.name.toLowerCase()}"
     }
 
     private fun Element.getIdByUserContentWrapper(): String {

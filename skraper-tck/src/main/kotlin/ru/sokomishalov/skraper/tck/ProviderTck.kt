@@ -25,8 +25,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.getPageLogoByteArray
-import ru.sokomishalov.skraper.model.GetLatestPostsOptions
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
 import ru.sokomishalov.skraper.model.ImageSize.SMALL
 
 
@@ -44,7 +42,7 @@ abstract class ProviderTck {
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
-        val posts = service.getLatestPosts(GetLatestPostsOptions(uri = uri, fetchAspectRatio = false))
+        val posts = service.getLatestPosts(uri = uri, fetchAspectRatio = false)
 
         log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 
@@ -61,7 +59,7 @@ abstract class ProviderTck {
 
     @Test
     fun `Check that channel logo has been fetched`() = runBlocking {
-        val image = service.getPageLogoByteArray(GetPageLogoUrlOptions(uri = uri, imageSize = SMALL)) ?: ByteArray(0)
+        val image = service.getPageLogoByteArray(uri = uri, imageSize = SMALL) ?: ByteArray(0)
 
         assertNotEquals(0, image.size)
     }

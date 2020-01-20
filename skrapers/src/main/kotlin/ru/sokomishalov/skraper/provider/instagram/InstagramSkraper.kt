@@ -24,8 +24,7 @@ import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.GetLatestPostsOptions
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -41,37 +40,34 @@ class InstagramSkraper @JvmOverloads constructor(
         private const val INSTAGRAM_URL = "https://www.instagram.com"
     }
 
-    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
-        val postsNodes = getPosts(options)
+    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+        val account = getAccount(uri)
 
-        return postsNodes.map {
-            Post(
-                    id = it.parseId(),
-                    caption = it.parseCaption(),
-                    publishTimestamp = it.parsePublishedAt(),
-                    attachments = listOf(it.parseAttachment(fetchAspectRatio = options.fetchAspectRatio))
-            )
-        }
-    }
-
-    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
-        val account = getAccount(options.uri)
-        return account["profile_pic_url"].asText()
-    }
-
-    private suspend fun getAccount(uri: String): JsonNode {
-        return client.fetchJson("${INSTAGRAM_URL}/${uri}/?__a=1")["graphql"]["user"]
-    }
-
-    private suspend fun getPosts(options: GetLatestPostsOptions): List<JsonNode> {
-        val account = getAccount(options.uri)
-        return client.fetchJson("${INSTAGRAM_URL}/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${options.limit}")
+        val postsNodes = client.fetchJson("$INSTAGRAM_URL/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
                 .get("data")
                 ?.get("user")
                 ?.get("edge_owner_to_timeline_media")
                 ?.get("edges")
                 ?.map { it["node"] }
                 .orEmpty()
+
+        return postsNodes.map {
+            Post(
+                    id = it.parseId(),
+                    caption = it.parseCaption(),
+                    publishTimestamp = it.parsePublishedAt(),
+                    attachments = listOf(it.parseAttachment(fetchAspectRatio = fetchAspectRatio))
+            )
+        }
+    }
+
+    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
+        val account = getAccount(uri)
+        return account["profile_pic_url"].asText()
+    }
+
+    private suspend fun getAccount(uri: String): JsonNode {
+        return client.fetchJson("${INSTAGRAM_URL}/${uri}/?__a=1")["graphql"]["user"]
     }
 
     private fun JsonNode.parseId(): String {

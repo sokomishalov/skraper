@@ -24,8 +24,7 @@ import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.GetLatestPostsOptions
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
 class RedditSkraper @JvmOverloads constructor(
@@ -36,8 +35,8 @@ class RedditSkraper @JvmOverloads constructor(
         private const val REDDIT_BASE_URL = "https://www.reddit.com"
     }
 
-    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
-        val response = client.fetchJson("$REDDIT_BASE_URL/r/${options.uri}/hot.json?limit=${options.limit}")
+    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+        val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/hot.json?limit=${limit}")
 
         val posts = response
                 .get("data")
@@ -73,14 +72,14 @@ class RedditSkraper @JvmOverloads constructor(
                                                     else -> null
                                                 }
                                             }
-                                            ?: client.fetchAspectRatio(url = it.getValue("url").orEmpty(), fetchAspectRatio = options.fetchAspectRatio)
+                                            ?: client.fetchAspectRatio(url = it.getValue("url").orEmpty(), fetchAspectRatio = fetchAspectRatio)
                             ))
                     )
                 }
     }
 
-    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
-        val response = client.fetchJson("$REDDIT_BASE_URL/r/${options.uri}/about.json")
+    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
+        val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/about.json")
 
         val communityIcon = response["data"].getValue("community_icon")
         val imgIcon = response["data"].getValue("icon_img")

@@ -15,12 +15,13 @@
  */
 package ru.sokomishalov.skraper
 
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.ImageSize.SMALL
 
 /**
  * @author sokomishalov
  */
 
-suspend fun Skraper.getPageLogoByteArray(options: GetPageLogoUrlOptions): ByteArray? = getPageLogoUrl(options)?.let { client.fetchBytes(it) }
+suspend fun Skraper.getPageLogoByteArray(uri: String, imageSize: ImageSize = SMALL): ByteArray? = getPageLogoUrl(uri, imageSize)?.let { client.fetchBytes(it) }
 
 

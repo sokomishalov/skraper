@@ -30,8 +30,7 @@ import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.GetLatestPostsOptions
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
 /**
@@ -45,24 +44,24 @@ class VkSkraper @JvmOverloads constructor(
         private const val VK_URL = "https://vk.com"
     }
 
-    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
-        val posts = client.fetchDocument("$VK_URL/${options.uri}")
+    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+        val posts = client.fetchDocument("$VK_URL/${uri}")
                 ?.getSingleElementByClass("wall_posts")
                 ?.getElementsByClass("wall_item")
-                ?.take(options.limit)
+                ?.take(limit)
                 .orEmpty()
 
         return posts.map {
             Post(
                     id = it.extractId(),
                     caption = it.extractCaption(),
-                    attachments = it.extractAttachments(fetchAspectRatio = options.fetchAspectRatio)
+                    attachments = it.extractAttachments(fetchAspectRatio = fetchAspectRatio)
             )
         }
     }
 
-    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
-        return client.fetchDocument("$VK_URL/${options.uri}")
+    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
+        return client.fetchDocument("$VK_URL/${uri}")
                 ?.getSingleElementByClass("profile_panel")
                 ?.getSingleElementByTag("img")
                 ?.attr("src")

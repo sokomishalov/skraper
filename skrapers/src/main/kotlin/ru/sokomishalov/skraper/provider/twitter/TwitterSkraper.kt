@@ -25,8 +25,7 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.GetLatestPostsOptions
-import ru.sokomishalov.skraper.model.GetPageLogoUrlOptions
+import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -41,14 +40,14 @@ class TwitterSkraper @JvmOverloads constructor(
         private const val TWITTER_URL = "https://twitter.com"
     }
 
-    override suspend fun getLatestPosts(options: GetLatestPostsOptions): List<Post> {
-        val webPage = client.fetchDocument("$TWITTER_URL/${options.uri}")
+    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+        val webPage = client.fetchDocument("$TWITTER_URL/${uri}")
 
         val posts = webPage
                 ?.body()
                 ?.getElementById("stream-items-id")
                 ?.getElementsByClass("stream-item")
-                ?.take(options.limit)
+                ?.take(limit)
                 ?.map { it.getSingleElementByClass("tweet") }
                 .orEmpty()
 
@@ -57,13 +56,13 @@ class TwitterSkraper @JvmOverloads constructor(
                     id = it.extractIdFromTweet(),
                     caption = it.extractCaptionFromTweet(),
                     publishTimestamp = it.extractPublishedAtFromTweet(),
-                    attachments = it.extractAttachmentsFromTweet(fetchAspectRatio = options.fetchAspectRatio)
+                    attachments = it.extractAttachmentsFromTweet(fetchAspectRatio = fetchAspectRatio)
             )
         }
     }
 
-    override suspend fun getPageLogoUrl(options: GetPageLogoUrlOptions): String? {
-        return client.fetchDocument("$TWITTER_URL/${options.uri}")
+    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
+        return client.fetchDocument("$TWITTER_URL/${uri}")
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")
