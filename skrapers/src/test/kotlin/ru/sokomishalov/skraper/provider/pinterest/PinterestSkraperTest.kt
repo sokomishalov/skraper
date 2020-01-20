@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.ninegag
+package ru.sokomishalov.skraper.provider.pinterest
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.provider.SkraperTck
@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 /**
  * @author sokomishalov
  */
-class NinegagSkraperIntegrationTest : SkraperTck() {
-    override val skraper: Skraper = NinegagSkraper(client = client)
-    override val uri: String = "meme"
+class PinterestSkraperTest : SkraperTck() {
+    override val skraper: Skraper = PinterestSkraper(client = client)
+    override val uri: String = "celiatoler/pinterest-memes"
 }

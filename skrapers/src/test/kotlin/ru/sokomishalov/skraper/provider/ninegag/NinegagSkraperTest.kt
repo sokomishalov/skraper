@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.twitter
+package ru.sokomishalov.skraper.provider.ninegag
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.provider.SkraperTck
@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 /**
  * @author sokomishalov
  */
-class TwitterSkraperIntegrationTest : SkraperTck() {
-    override val skraper: Skraper = TwitterSkraper(client = client)
-    override val uri: String = "russianmemesltd"
+class NinegagSkraperTest : SkraperTck() {
+    override val skraper: Skraper = NinegagSkraper(client = client)
+    override val uri: String = "meme"
 }

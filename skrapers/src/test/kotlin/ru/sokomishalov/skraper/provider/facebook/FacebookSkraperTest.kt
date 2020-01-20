@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.pinterest
+package ru.sokomishalov.skraper.provider.facebook
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.provider.SkraperTck
@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 /**
  * @author sokomishalov
  */
-class PinterestSkraperIntegrationTest : SkraperTck() {
-    override val skraper: Skraper = PinterestSkraper(client = client)
-    override val uri: String = "celiatoler/pinterest-memes"
+class FacebookSkraperTest : SkraperTck() {
+    override val skraper: Skraper = FacebookSkraper(client = client)
+    override val uri: String = "originaltrollfootball"
 }

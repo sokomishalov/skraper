@@ -65,7 +65,7 @@ class IFunnySkraper @JvmOverloads constructor(
                                     aspectRatio = it
                                             .attr("data-ratio")
                                             .toDoubleOrNull()
-                                            ?.let { 1.div(it) }
+                                            ?.let { r -> 1.0 / r }
                                             ?: client.fetchAspectRatio(url = img.attr("data-src"), fetchAspectRatio = fetchAspectRatio)
                             ))
                     )

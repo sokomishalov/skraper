@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.facebook
+package ru.sokomishalov.skraper.provider.vk
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.provider.SkraperTck
 
+
 /**
  * @author sokomishalov
  */
-class FacebookSkraperIntegrationTest : SkraperTck() {
-    override val skraper: Skraper = FacebookSkraper(client = client)
-    override val uri: String = "originaltrollfootball"
+class VkSkraperTest : SkraperTck() {
+    override val skraper: Skraper = VkSkraper(client = client)
+    override val uri: String = "komment"
 }

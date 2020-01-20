@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.vk
+package ru.sokomishalov.skraper.provider.reddit
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.provider.SkraperTck
 
-
 /**
  * @author sokomishalov
  */
-class VkSkraperIntegrationTest : SkraperTck() {
-    override val skraper: Skraper = VkSkraper(client = client)
-    override val uri: String = "komment"
+class RedditSkraperTest : SkraperTck() {
+    override val skraper: Skraper = RedditSkraper(client = client)
+    override val uri: String = "memes"
 }

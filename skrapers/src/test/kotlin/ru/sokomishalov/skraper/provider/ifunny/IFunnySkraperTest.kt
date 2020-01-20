@@ -22,7 +22,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 /**
  * @author sokomishalov
  */
-class IFunnySkraperIntegrationTest : SkraperTck() {
+class IFunnySkraperTest : SkraperTck() {
     override val skraper: Skraper = IFunnySkraper(client = client)
     override val uri: String = "memes"
 }

@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 /**
  * @author sokomishalov
  */
-class InstagramSkraperIntegrationTest : SkraperTck() {
+class InstagramSkraperTest : SkraperTck() {
     override val skraper: Skraper = InstagramSkraper(client = client)
     override val uri: String = "originaltrollfootball"
 }
