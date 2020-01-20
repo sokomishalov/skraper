@@ -15,7 +15,7 @@
  */
 @file:Suppress("unused", "FunctionName")
 
-package ru.sokomishalov.skraper.tck
+package ru.sokomishalov.skraper.provider
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import kotlinx.coroutines.runBlocking

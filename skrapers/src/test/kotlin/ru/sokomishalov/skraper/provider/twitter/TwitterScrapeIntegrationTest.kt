@@ -17,7 +17,7 @@ package ru.sokomishalov.skraper.provider.twitter
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
-import ru.sokomishalov.skraper.tck.ProviderTck
+import ru.sokomishalov.skraper.provider.ProviderTck
 
 /**
  * @author sokomishalov

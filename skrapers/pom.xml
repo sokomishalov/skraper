@@ -22,10 +22,18 @@
         </dependency>
 
         <!-- TEST  -->
+
         <dependency>
-            <groupId>ru.sokomishalov.skraper</groupId>
-            <artifactId>skraper-tck</artifactId>
-            <version>0.0.6</version>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
             <scope>test</scope>
         </dependency>
 
