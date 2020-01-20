@@ -45,5 +45,4 @@ interface Skraper {
      * @return list of posts
      */
     suspend fun getLatestPosts(uri: String, limit: Int = DEFAULT_POSTS_LIMIT, fetchAspectRatio: Boolean = false): List<Post>
-
 }

@@ -31,10 +31,10 @@ import ru.sokomishalov.skraper.model.ImageSize.SMALL
 /**
  * @author sokomishalov
  */
-abstract class ProviderTck {
+abstract class SkraperTck {
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(ProviderTck::class.java)
+        private val log: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
     }
 
     protected abstract val service: Skraper

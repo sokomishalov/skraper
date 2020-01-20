@@ -50,7 +50,6 @@ class DefaultBlockingSkraperClient : SkraperClient {
             } else {
                 conn.inputStream.readBytes()
             }
-
         }
     }
 

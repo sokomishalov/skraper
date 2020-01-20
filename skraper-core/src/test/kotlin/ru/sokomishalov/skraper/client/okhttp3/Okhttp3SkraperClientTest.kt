@@ -16,7 +16,7 @@
 package ru.sokomishalov.skraper.client.okhttp3
 
 import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.SkraperClientTck
+import ru.sokomishalov.skraper.client.SkraperClientTck
 
 
 /**

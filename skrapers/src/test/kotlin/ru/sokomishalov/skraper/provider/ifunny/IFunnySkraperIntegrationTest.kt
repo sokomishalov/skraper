@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.reddit
+package ru.sokomishalov.skraper.provider.ifunny
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
-import ru.sokomishalov.skraper.provider.ProviderTck
+import ru.sokomishalov.skraper.provider.SkraperTck
+
 
 /**
  * @author sokomishalov
  */
-class RedditApiIntegrationTest : ProviderTck() {
-    override val service: Skraper = RedditSkraper(client = ReactorNettySkraperClient())
+class IFunnySkraperIntegrationTest : SkraperTck() {
+    override val service: Skraper = IFunnySkraper(client = ReactorNettySkraperClient())
     override val uri: String = "memes"
 }

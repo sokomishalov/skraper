@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper
+package ru.sokomishalov.skraper.client
 
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import ru.sokomishalov.skraper.*
 import kotlin.math.abs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue

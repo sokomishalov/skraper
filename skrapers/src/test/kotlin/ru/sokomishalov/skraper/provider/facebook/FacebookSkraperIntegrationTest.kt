@@ -17,12 +17,12 @@ package ru.sokomishalov.skraper.provider.facebook
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
-import ru.sokomishalov.skraper.provider.ProviderTck
+import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
-class FacebookScrapeIntegrationTest : ProviderTck() {
+class FacebookSkraperIntegrationTest : SkraperTck() {
     override val service: Skraper = FacebookSkraper(client = ReactorNettySkraperClient())
     override val uri: String = "originaltrollfootball"
 }

@@ -16,7 +16,7 @@
 package ru.sokomishalov.skraper.client.ktor
 
 import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.SkraperClientTck
+import ru.sokomishalov.skraper.client.SkraperClientTck
 
 
 /**

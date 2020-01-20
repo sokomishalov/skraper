@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.vk
+package ru.sokomishalov.skraper.provider.pinterest
 
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
-import ru.sokomishalov.skraper.provider.ProviderTck
-
+import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
-class VkScrapeIntegrationTest : ProviderTck() {
-    override val service: Skraper = VkSkraper(client = ReactorNettySkraperClient())
-    override val uri: String = "komment"
+class PinterestSkraperIntegrationTest : SkraperTck() {
+    override val service: Skraper = PinterestSkraper(client = ReactorNettySkraperClient())
+    override val uri: String = "celiatoler/pinterest-memes"
 }

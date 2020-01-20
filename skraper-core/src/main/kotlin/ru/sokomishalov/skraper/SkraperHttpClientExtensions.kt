@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("unused")
+
 package ru.sokomishalov.skraper
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -21,11 +23,11 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
+import ru.sokomishalov.skraper.internal.image.getRemoteImageInfo
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
-import javax.imageio.ImageIO
+import java.net.URL
 import kotlin.text.Charsets.UTF_8
+
 
 /**
  * @author sokomishalov
@@ -45,15 +47,9 @@ suspend fun SkraperClient.fetchDocument(url: String): Document? {
     return ba?.let { withContext(IO) { Jsoup.parse(it.toString(UTF_8)) } }
 }
 
-// TODO rewrite without java.awt
 suspend fun SkraperClient.fetchAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO, fetchAspectRatio: Boolean = true): Double {
     return when {
-        fetchAspectRatio -> runCatching { fetchBytes(url)?.toBufferedImage()?.run { width.toDouble() / height } }.getOrNull()
-                ?: orElse
-        else -> DEFAULT_POSTS_ASPECT_RATIO
+        fetchAspectRatio -> withContext(IO) { runCatching { URL(url).getRemoteImageInfo().run { width.toDouble() / height } }.getOrElse { orElse } }
+        else -> orElse
     }
-}
-
-private fun ByteArray.toBufferedImage(): BufferedImage {
-    return ByteArrayInputStream(this).use { ImageIO.read(it) }
 }
