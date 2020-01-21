@@ -15,18 +15,16 @@
  */
 package ru.sokomishalov.skraper.provider.ninegag
 
-import com.fasterxml.jackson.databind.JsonNode
+import org.apache.commons.text.StringEscapeUtils
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
-import java.time.ZonedDateTime
 import kotlin.text.Charsets.UTF_8
 
 
@@ -44,37 +42,35 @@ class NinegagSkraper @JvmOverloads constructor(
     override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
         val webPage = client.fetchDocument("$NINEGAG_URL/${uri}")
 
-        val latestPostsIds = webPage
-                ?.getElementById("jsid-latest-entries")
-                ?.text()
-                ?.split(",")
-                ?.take(limit)
+        val dataJson = webPage
+                ?.getElementsByTag("script")
+                ?.firstOrNull { it.html().startsWith("window._config") }
+                ?.html()
+                ?.removePrefix("window._config = JSON.parse(\"")
+                ?.removeSuffix("\");")
+                ?.let { StringEscapeUtils.unescapeJson(it) }
+                ?.toByteArray(UTF_8)
+                ?.aReadJsonNodes()
+
+        val posts = dataJson
+                ?.get("data")
+                ?.get("posts")
+                ?.toList()
                 .orEmpty()
 
+        return posts.map { p ->
+            Post(
+                    id = p["id"].asText(),
+                    caption = p["title"].asText(),
+                    publishTimestamp = p["creationTs"].asLong().times(1000),
+                    attachments = listOf(Attachment(
+                            type = IMAGE,
+                            url = p["images"]["image460"]["url"].asText(),
+                            aspectRatio = p["images"]["image460"].let { it["width"].asDouble() / it["height"].asDouble() }
+                    ))
 
-        return latestPostsIds
-                .map {
-                    val gagDocument = client.fetchDocument("$NINEGAG_URL/gag/$it")
-                    val json = gagDocument
-                            ?.getElementsByAttributeValueContaining("type", "application/ld+json")
-                            ?.first()
-                            ?.html()
-                            .orEmpty()
-                            .toByteArray(UTF_8)
-                            .aReadJsonNodes()
-
-                    Post(
-                            id = it,
-                            caption = json["headline"].parseCaption(),
-                            publishTimestamp = json["datePublished"].parsePublishedDate(),
-                            attachments = listOf(Attachment(
-                                    type = IMAGE,
-                                    url = json["image"].asText().orEmpty(),
-                                    aspectRatio = client.fetchAspectRatio(url = json["image"].asText().orEmpty(), fetchAspectRatio = fetchAspectRatio)
-                            ))
-
-                    )
-                }
+            )
+        }
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
@@ -84,8 +80,4 @@ class NinegagSkraper @JvmOverloads constructor(
                 ?.first()
                 ?.attr("href")
     }
-
-    private fun JsonNode.parseCaption(): String = asText()?.replace(" - 9GAG", "") ?: ""
-
-    private fun JsonNode.parsePublishedDate(): Long = ZonedDateTime.parse(this.asText()).toInstant().toEpochMilli()
 }
