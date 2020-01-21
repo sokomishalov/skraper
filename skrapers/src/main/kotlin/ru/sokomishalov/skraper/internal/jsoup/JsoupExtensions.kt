@@ -18,6 +18,7 @@ package ru.sokomishalov.skraper.internal.jsoup
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
+
 internal fun Element.removeLinks(): String? {
     val titleDoc = Jsoup.parse(html())
 
@@ -42,4 +43,32 @@ internal fun Element.getSingleElementByTag(name: String): Element {
 internal fun Element.getImageBackgroundUrl(): String {
     val style = attr("style")
     return style.substring(style.indexOf("http"), style.indexOf(")"))
+}
+
+internal fun Element.getStyleMap(): Map<String, String> {
+    val keymaps = mutableMapOf<String, String>()
+    if (!hasAttr("style")) {
+        return keymaps
+    }
+    val styleStr = attr("style")
+    val keys = styleStr.split(":".toRegex()).toTypedArray()
+    var split: Array<String>
+    if (keys.size > 1) {
+        for (i in keys.indices) {
+            if (i % 2 != 0) {
+                split = keys[i].split(";".toRegex()).toTypedArray()
+                if (split.size == 1) break
+                keymaps[split[1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
+            } else {
+                split = keys[i].split(";".toRegex()).toTypedArray()
+                if (i + 1 == keys.size) break
+                keymaps[keys[i].split(";".toRegex()).toTypedArray()[split.size - 1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
+            }
+        }
+    }
+    return keymaps
+}
+
+internal fun Element.getStyle(name: String): String? {
+    return this.getStyleMap()[name]
 }

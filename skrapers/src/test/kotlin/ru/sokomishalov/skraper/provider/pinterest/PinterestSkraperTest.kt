@@ -23,5 +23,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class PinterestSkraperTest : SkraperTck() {
     override val skraper: Skraper = PinterestSkraper(client = client)
-    override val uri: String = "celiatoler/pinterest-memes"
+    override val uri: String = "levato/meme"
 }

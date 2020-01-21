@@ -21,10 +21,13 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
@@ -38,6 +41,7 @@ class TwitterSkraper @JvmOverloads constructor(
 
     companion object {
         private const val TWITTER_URL = "https://twitter.com"
+        private const val TWITTER_ATTACHMENT_URL = "https://twitter.com/i/status/"
     }
 
     override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
@@ -85,14 +89,30 @@ class TwitterSkraper @JvmOverloads constructor(
     }
 
     private suspend fun Element.extractAttachmentsFromTweet(fetchAspectRatio: Boolean): List<Attachment> {
-        return getElementsByClass("AdaptiveMedia-photoContainer")
-                ?.map { element ->
+        val imagesElements = getElementsByClass("AdaptiveMedia-photoContainer")
+        val videosElement = getElementsByClass("AdaptiveMedia-videoContainer").firstOrNull()
+        return when {
+            imagesElements.isNotEmpty() -> imagesElements.map { element ->
+                Attachment(
+                        url = element.attr("data-image-url"),
+                        type = IMAGE,
+                        aspectRatio = client.fetchAspectRatio(element.attr("data-image-url"), fetchAspectRatio = fetchAspectRatio)
+                )
+            }
+            videosElement != null -> listOf(
                     Attachment(
-                            url = element.attr("data-image-url"),
-                            type = IMAGE,
-                            aspectRatio = client.fetchAspectRatio(element.attr("data-image-url"), fetchAspectRatio = fetchAspectRatio)
+                            url = "${TWITTER_ATTACHMENT_URL}${this.extractIdFromTweet()}",
+                            type = VIDEO,
+                            aspectRatio = videosElement
+                                    .getSingleElementByClass("PlayableMedia-player")
+                                    .getStyle("padding-bottom")
+                                    ?.removeSuffix("%")
+                                    ?.toDoubleOrNull()
+                                    ?.let { 100 / it }
+                                    ?: DEFAULT_POSTS_ASPECT_RATIO
                     )
-                }
-                ?: emptyList()
+            )
+            else -> emptyList()
+        }
     }
 }
