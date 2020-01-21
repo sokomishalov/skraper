@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 import kotlin.text.Charsets.UTF_8
@@ -59,13 +60,21 @@ class NinegagSkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return posts.map { p ->
+            val isVideo = p.get("images")?.get("image460sv")?.get("duration")?.asInt() != null
+
             Post(
                     id = p["id"].asText(),
                     caption = p["title"].asText(),
                     publishTimestamp = p["creationTs"].asLong().times(1000),
                     attachments = listOf(Attachment(
-                            type = IMAGE,
-                            url = p["images"]["image460"]["url"].asText(),
+                            type = when {
+                                isVideo -> VIDEO
+                                else -> IMAGE
+                            },
+                            url = when {
+                                isVideo -> p["images"]["image460sv"]["url"].asText()
+                                else -> p["images"]["image460"]["url"].asText()
+                            },
                             aspectRatio = p["images"]["image460"].let { it["width"].asDouble() / it["height"].asDouble() }
                     ))
 
