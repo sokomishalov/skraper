@@ -39,6 +39,7 @@ class InstagramSkraper @JvmOverloads constructor(
     companion object {
         private const val QUERY_ID = "17888483320059182"
         private const val INSTAGRAM_URL = "https://www.instagram.com"
+        private const val INSTAGRAM_MEDIA_URL = "https://www.instagram.com/p/"
     }
 
     override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
@@ -57,7 +58,7 @@ class InstagramSkraper @JvmOverloads constructor(
                     id = it.parseId(),
                     caption = it.parseCaption(),
                     publishTimestamp = it.parsePublishedAt(),
-                    attachments = listOf(it.parseAttachment(fetchAspectRatio = fetchAspectRatio))
+                    attachments = it.parseAttachments(fetchAspectRatio = fetchAspectRatio)
             )
         }
     }
@@ -97,16 +98,21 @@ class InstagramSkraper @JvmOverloads constructor(
                 ?.times(1000)
     }
 
-    private suspend fun JsonNode.parseAttachment(fetchAspectRatio: Boolean): Attachment {
-        return Attachment(
+    private suspend fun JsonNode.parseAttachments(fetchAspectRatio: Boolean): List<Attachment> {
+        val isVideo = this["is_video"].asBoolean()
+
+        return listOf(Attachment(
                 type = when {
-                    this["is_video"].asBoolean() -> VIDEO
+                    isVideo -> VIDEO
                     else -> IMAGE
                 },
-                url = this["video_url"]?.asText() ?: this["display_url"].asText(),
+                url = when {
+                    isVideo -> "${INSTAGRAM_MEDIA_URL}${this["shortcode"].asText()}"
+                    else -> this["display_url"].asText()
+                },
                 aspectRatio = this["dimensions"]
                         ?.let { d -> d["width"].asDouble() / d["height"].asDouble() }
                         ?: client.fetchAspectRatio(url = this["display_url"].asText().orEmpty(), fetchAspectRatio = fetchAspectRatio)
-        )
+        ))
     }
 }
