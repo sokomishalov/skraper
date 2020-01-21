@@ -25,6 +25,7 @@ import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.ImageSize.*
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -63,7 +64,11 @@ class InstagramSkraper @JvmOverloads constructor(
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
         val account = getAccount(uri)
-        return account["profile_pic_url"].asText()
+        return when (imageSize) {
+            SMALL,
+            MEDIUM -> account["profile_pic_url"].asText()
+            LARGE -> account["profile_pic_url_hd"].asText()
+        }
     }
 
     private suspend fun getAccount(uri: String): JsonNode {
