@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("RemoveExplicitTypeArguments")
+@file:Suppress("RemoveExplicitTypeArguments", "MoveVariableDeclarationIntoWhen")
 
 package ru.sokomishalov.skraper.provider.vk
 
@@ -21,12 +21,9 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.jsoup.getImageBackgroundUrl
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.internal.jsoup.removeLinks
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
+import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -46,7 +43,6 @@ class VkSkraper @JvmOverloads constructor(
 
     override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
         val posts = client.fetchDocument("$VK_URL/${uri}")
-                ?.getSingleElementByClass("wall_posts")
                 ?.getElementsByClass("wall_item")
                 ?.take(limit)
                 .orEmpty()
@@ -55,7 +51,7 @@ class VkSkraper @JvmOverloads constructor(
             Post(
                     id = it.extractId(),
                     caption = it.extractCaption(),
-                    attachments = it.extractAttachments(fetchAspectRatio = fetchAspectRatio)
+                    attachments = it.extractAttachments()
             )
         }
     }
@@ -79,29 +75,32 @@ class VkSkraper @JvmOverloads constructor(
                 ?.removeLinks()
     }
 
-    private suspend fun Element.extractAttachments(fetchAspectRatio: Boolean): List<Attachment> {
-        return getElementsByClass("thumb_map_img")
-                .firstOrNull()
-                .let {
-                    when (it) {
-                        null -> emptyList<Attachment>()
-                        else -> {
-                            val isVideo = it.attr("data-video").isNotBlank()
-                            val imageUrl = runCatching { it.getImageBackgroundUrl() }.getOrNull().orEmpty()
+    private fun Element.extractAttachments(): List<Attachment> {
+        val thumbElement = getElementsByClass("thumbs_map_helper").firstOrNull()
+        val imgElement = thumbElement?.getElementsByClass("thumb_map_img")?.firstOrNull()
 
-                            listOf(Attachment(
-                                    url = when {
-                                        isVideo -> "$VK_URL${it.attr("href")}"
-                                        else -> imageUrl
-                                    },
-                                    type = when {
-                                        isVideo -> VIDEO
-                                        else -> IMAGE
-                                    },
-                                    aspectRatio = client.fetchAspectRatio(url = imageUrl, fetchAspectRatio = fetchAspectRatio)
-                            ))
-                        }
-                    }
-                }
+        return when (imgElement) {
+            null -> emptyList<Attachment>()
+            else -> {
+                val isVideo = imgElement.attr("data-video").isNotBlank()
+
+                listOf(Attachment(
+                        url = when {
+                            isVideo -> "$VK_URL${imgElement.attr("href")}"
+                            else -> runCatching { imgElement.getImageBackgroundUrl() }.getOrNull().orEmpty()
+                        },
+                        type = when {
+                            isVideo -> VIDEO
+                            else -> IMAGE
+                        },
+                        aspectRatio = thumbElement
+                                .getStyle("padding-top")
+                                ?.removeSuffix("%")
+                                ?.toDoubleOrNull()
+                                ?.div(100)
+                                ?: DEFAULT_POSTS_ASPECT_RATIO
+                ))
+            }
+        }
     }
 }

@@ -46,24 +46,21 @@ internal fun Element.getImageBackgroundUrl(): String {
 }
 
 internal fun Element.getStyleMap(): Map<String, String> {
+    if (!hasAttr("style")) return emptyMap()
+
+    val keys = attr("style").split(":").toTypedArray()
+
+    if (keys.size <= 1) return emptyMap()
+
     val keymaps = mutableMapOf<String, String>()
-    if (!hasAttr("style")) {
-        return keymaps
-    }
-    val styleStr = attr("style")
-    val keys = styleStr.split(":".toRegex()).toTypedArray()
-    var split: Array<String>
-    if (keys.size > 1) {
-        for (i in keys.indices) {
-            if (i % 2 != 0) {
-                split = keys[i].split(";".toRegex()).toTypedArray()
-                if (split.size == 1) break
-                keymaps[split[1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
-            } else {
-                split = keys[i].split(";".toRegex()).toTypedArray()
-                if (i + 1 == keys.size) break
-                keymaps[keys[i].split(";".toRegex()).toTypedArray()[split.size - 1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
-            }
+    for (i in keys.indices) {
+        val split = keys[i].split(";".toRegex()).toTypedArray()
+        if (i % 2 != 0) {
+            if (split.size == 1) break
+            keymaps[split[1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
+        } else {
+            if (i + 1 == keys.size) break
+            keymaps[keys[i].split(";".toRegex()).toTypedArray()[split.size - 1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
         }
     }
     return keymaps
