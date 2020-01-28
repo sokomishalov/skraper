@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchJson
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -58,7 +58,7 @@ class InstagramSkraper @JvmOverloads constructor(
                     id = it.parseId(),
                     caption = it.parseCaption(),
                     publishTimestamp = it.parsePublishedAt(),
-                    attachments = it.parseAttachments(fetchAspectRatio = fetchAspectRatio)
+                    attachments = it.parseAttachments()
             )
         }
     }
@@ -98,7 +98,7 @@ class InstagramSkraper @JvmOverloads constructor(
                 ?.times(1000)
     }
 
-    private suspend fun JsonNode.parseAttachments(fetchAspectRatio: Boolean): List<Attachment> {
+    private fun JsonNode.parseAttachments(): List<Attachment> {
         val isVideo = this["is_video"].asBoolean()
 
         return listOf(Attachment(
@@ -112,7 +112,7 @@ class InstagramSkraper @JvmOverloads constructor(
                 },
                 aspectRatio = this["dimensions"]
                         ?.let { d -> d["width"].asDouble() / d["height"].asDouble() }
-                        ?: client.fetchAspectRatio(url = this["display_url"].asText().orEmpty(), fetchAspectRatio = fetchAspectRatio)
+                        ?: DEFAULT_POSTS_ASPECT_RATIO
         ))
     }
 }

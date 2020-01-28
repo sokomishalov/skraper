@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchJson
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -54,7 +54,6 @@ class RedditSkraper @JvmOverloads constructor(
                                     url = it.getValue("url").orEmpty(),
                                     type = when {
                                         it["media"].isEmpty.not() -> VIDEO
-                                        it.getValue("url") != null -> IMAGE
                                         else -> IMAGE
                                     },
                                     aspectRatio = it
@@ -72,7 +71,7 @@ class RedditSkraper @JvmOverloads constructor(
                                                     else -> null
                                                 }
                                             }
-                                            ?: client.fetchAspectRatio(url = it.getValue("url").orEmpty(), fetchAspectRatio = fetchAspectRatio)
+                                            ?: DEFAULT_POSTS_ASPECT_RATIO
                             ))
                     )
                 }
