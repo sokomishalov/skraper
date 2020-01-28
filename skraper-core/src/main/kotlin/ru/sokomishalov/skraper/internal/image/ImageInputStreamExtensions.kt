@@ -31,65 +31,82 @@ internal fun InputStream.getRemoteImageInfo(): SimpleImageInfo = use {
     var width: Int = -1
     var mimeType: String? = null
 
-    if (c1 == 'G'.toInt() && c2 == 'I'.toInt() && c3 == 'F'.toInt()) { // GIF
-        skip(3)
-        width = this.readInt(2, false)
-        height = this.readInt(2, false)
-        mimeType = "image/gif"
-    } else if (c1 == 0xFF && c2 == 0xD8) { // JPG
-        while (c3 == 255) {
-            val marker = read()
-            val len = this.readInt(2, true)
-            if (marker == 192 || marker == 193 || marker == 194) {
-                skip(1)
-                height = this.readInt(2, true)
-                width = this.readInt(2, true)
-                mimeType = "image/jpeg"
-                break
-            }
-            skip(len - 2.toLong())
-            c3 = read()
+    when {
+        // GIF
+        c1 == 'G'.toInt() && c2 == 'I'.toInt() && c3 == 'F'.toInt() -> {
+            skip(3)
+            width = readInt(2, false)
+            height = readInt(2, false)
+            mimeType = "image/gif"
         }
-    } else if (c1 == 137 && c2 == 80 && c3 == 78) { // PNG
-        skip(15)
-        width = this.readInt(2, true)
-        skip(2)
-        height = this.readInt(2, true)
-        mimeType = "image/png"
-    } else if (c1 == 66 && c2 == 77) { // BMP
-        skip(15)
-        width = this.readInt(2, false)
-        skip(2)
-        height = this.readInt(2, false)
-        mimeType = "image/bmp"
-    } else {
-        val c4 = read()
-        if (c1 == 'M'.toInt() && c2 == 'M'.toInt() && c3 == 0 && c4 == 42 || c1 == 'I'.toInt() && c2 == 'I'.toInt() && c3 == 42 && c4 == 0) { //TIFF
-            val bigEndian = c1 == 'M'.toInt()
-            var ifd = 0
-            val entries: Int
-            ifd = this.readInt(4, bigEndian)
-            skip(ifd - 8.toLong())
-            entries = this.readInt(2, bigEndian)
-            for (i in 1..entries) {
-                val tag = this.readInt(2, bigEndian)
-                val fieldType = this.readInt(2, bigEndian)
-                val count = this.readInt(4, bigEndian).toLong()
-                var valOffset: Int
-                if (fieldType == 3 || fieldType == 8) {
-                    valOffset = this.readInt(2, bigEndian)
-                    skip(2)
-                } else {
-                    valOffset = this.readInt(4, bigEndian)
-                }
-                if (tag == 256) {
-                    width = valOffset
-                } else if (tag == 257) {
-                    height = valOffset
-                }
-                if (width != -1 && height != -1) {
-                    mimeType = "image/tiff"
+
+        // JPG
+        c1 == 0xFF && c2 == 0xD8 -> {
+            while (c3 == 255) {
+                val marker = read()
+                val len = readInt(2, true)
+                if (marker in (192..194)) {
+                    skip(1)
+                    height = readInt(2, true)
+                    width = readInt(2, true)
+                    mimeType = "image/jpeg"
                     break
+                }
+                skip(len - 2.toLong())
+                c3 = read()
+            }
+        }
+
+        // PNG
+        c1 == 137 && c2 == 80 && c3 == 78 -> {
+            skip(15)
+            width = readInt(2, true)
+            skip(2)
+            height = readInt(2, true)
+            mimeType = "image/png"
+        }
+
+        // BMP
+        c1 == 66 && c2 == 77 -> {
+            skip(15)
+            width = readInt(2, false)
+            skip(2)
+            height = readInt(2, false)
+            mimeType = "image/bmp"
+        }
+
+        // Unknown
+        else -> {
+            val c4 = read()
+
+            if (c1 == 'M'.toInt() && c2 == 'M'.toInt() && c3 == 0 && c4 == 42 || c1 == 'I'.toInt() && c2 == 'I'.toInt() && c3 == 42 && c4 == 0) { //TIFF
+                val bigEndian = c1 == 'M'.toInt()
+                var ifd = 0
+                val entries: Int
+                ifd = readInt(4, bigEndian)
+                skip(ifd - 8.toLong())
+                entries = readInt(2, bigEndian)
+
+                for (i in 1..entries) {
+                    val tag = readInt(2, bigEndian)
+                    val fieldType = readInt(2, bigEndian)
+                    val count = readInt(4, bigEndian).toLong()
+                    var valOffset: Int
+                    if (fieldType == 3 || fieldType == 8) {
+                        valOffset = readInt(2, bigEndian)
+                        skip(2)
+                    } else {
+                        valOffset = readInt(4, bigEndian)
+                    }
+                    if (tag == 256) {
+                        width = valOffset
+                    } else if (tag == 257) {
+                        height = valOffset
+                    }
+                    if (width != -1 && height != -1) {
+                        mimeType = "image/tiff"
+                        break
+                    }
                 }
             }
         }
