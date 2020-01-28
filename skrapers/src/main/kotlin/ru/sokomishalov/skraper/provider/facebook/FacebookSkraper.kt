@@ -109,7 +109,9 @@ class FacebookSkraper @JvmOverloads constructor(
                             ?: DEFAULT_POSTS_ASPECT_RATIO
             ))
 
-            else -> getElementsByClass("scaledImageFitWidth")
+            else -> getElementsByClass("uiScaledImageContainer")
+                    ?.firstOrNull()
+                    ?.getElementsByTag("img")
                     ?.firstOrNull()
                     ?.run {
                         val url = attr("src")
