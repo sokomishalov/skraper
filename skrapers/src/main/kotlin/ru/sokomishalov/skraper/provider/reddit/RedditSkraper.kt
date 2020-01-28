@@ -62,16 +62,15 @@ class RedditSkraper @JvmOverloads constructor(
                                             ?.elementsToList()
                                             ?.firstOrNull()
                                             ?.get("source")
-                                            ?.run {
+                                            .run {
                                                 val width = getValue("width")?.toDoubleOrNull()
                                                 val height = getValue("height")?.toDoubleOrNull()
 
                                                 when {
                                                     width != null && height != null -> width / height
-                                                    else -> null
+                                                    else -> DEFAULT_POSTS_ASPECT_RATIO
                                                 }
                                             }
-                                            ?: DEFAULT_POSTS_ASPECT_RATIO
                             ))
                     )
                 }

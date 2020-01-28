@@ -19,11 +19,12 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.ImageSize.*
 import ru.sokomishalov.skraper.model.Post
 import java.util.UUID.randomUUID
 
@@ -49,13 +50,18 @@ class FacebookSkraper @JvmOverloads constructor(
                     id = it.getIdByUserContentWrapper(),
                     caption = it.getCaptionByUserContentWrapper(),
                     publishTimestamp = it.getPublishedAtByUserContentWrapper(),
-                    attachments = it.getAttachmentsByUserContentWrapper(fetchAspectRatio = fetchAspectRatio)
+                    attachments = it.getAttachmentsByUserContentWrapper()
             )
         }
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return "$FACEBOOK_GRAPH_BASE_URL/${uri}/picture?type=${imageSize.name.toLowerCase()}"
+        val type = when (imageSize) {
+            SMALL -> "small"
+            MEDIUM -> "normal"
+            LARGE -> "large"
+        }
+        return "$FACEBOOK_GRAPH_BASE_URL/${uri}/picture?type=${type}"
     }
 
     private fun Element.getIdByUserContentWrapper(): String {
@@ -82,15 +88,22 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.times(1000)
     }
 
-    private suspend fun Element.getAttachmentsByUserContentWrapper(fetchAspectRatio: Boolean): List<Attachment> {
+    private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
         return getElementsByClass("scaledImageFitWidth")
-                ?.first()
-                ?.attr("src")
+                ?.firstOrNull()
                 ?.let {
                     listOf(Attachment(
-                            url = it,
+                            url = it.attr("src"),
                             type = IMAGE,
-                            aspectRatio = client.fetchAspectRatio(url = it, fetchAspectRatio = fetchAspectRatio)
+                            aspectRatio = with(it) {
+                                val width = attr("width").toDoubleOrNull()
+                                val height = attr("height").toDoubleOrNull()
+
+                                when {
+                                    width != null && height != null -> width / height
+                                    else -> DEFAULT_POSTS_ASPECT_RATIO
+                                }
+                            }
                     ))
                 }
                 ?: emptyList()
