@@ -44,7 +44,7 @@ class PinterestSkraper @JvmOverloads constructor(
         private const val PINTEREST_URL = "https://www.pinterest.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val infoJsonNode = parseInitJson(uri)
 
         val feedList = infoJsonNode

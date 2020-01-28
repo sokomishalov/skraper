@@ -41,7 +41,7 @@ class VkSkraper @JvmOverloads constructor(
         private const val VK_URL = "https://vk.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val posts = client.fetchDocument("$VK_URL/${uri}")
                 ?.getElementsByClass("wall_item")
                 ?.take(limit)

@@ -41,7 +41,7 @@ class FacebookSkraper @JvmOverloads constructor(
         private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val webPage = client.fetchDocument("$FACEBOOK_BASE_URL/${uri}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 

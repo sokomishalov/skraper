@@ -44,7 +44,7 @@ class TwitterSkraper @JvmOverloads constructor(
         private const val TWITTER_ATTACHMENT_URL = "https://twitter.com/i/status/"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val webPage = client.fetchDocument("$TWITTER_URL/${uri}")
 
         val posts = webPage
@@ -60,7 +60,7 @@ class TwitterSkraper @JvmOverloads constructor(
                     id = it.extractIdFromTweet(),
                     caption = it.extractCaptionFromTweet(),
                     publishTimestamp = it.extractPublishedAtFromTweet(),
-                    attachments = it.extractAttachmentsFromTweet(fetchAspectRatio = fetchAspectRatio)
+                    attachments = it.extractAttachmentsFromTweet(fetchAspectRatio = true)
             )
         }
     }

@@ -46,7 +46,7 @@ abstract class SkraperTck {
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
-        val posts = skraper.getLatestPosts(uri = uri, fetchAspectRatio = false)
+        val posts = skraper.getLatestPosts(uri = uri)
 
         log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 

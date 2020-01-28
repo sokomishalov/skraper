@@ -32,10 +32,10 @@ class RedditSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     companion object {
-        private const val REDDIT_BASE_URL = "https://www.reddit.com"
+        private const val REDDIT_BASE_URL = "https://reddit.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/hot.json?limit=${limit}")
 
         val posts = response

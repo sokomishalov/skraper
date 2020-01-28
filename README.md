@@ -44,8 +44,8 @@ Each scraper is a class which implements [Skraper](skraper-core/src/main/kotlin/
 ```kotlin
 interface Skraper {
     val client: SkraperClient get() = DefaultBlockingSkraperClient
-    suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize = SMALL): String?
-    suspend fun getLatestPosts(uri: String, limit: Int = DEFAULT_POSTS_LIMIT, fetchAspectRatio: Boolean = false): List<Post>
+    suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize = ImageSize.SMALL): String?
+    suspend fun getLatestPosts(uri: String, limit: Int = 100): List<Post>
 }
 ```
 

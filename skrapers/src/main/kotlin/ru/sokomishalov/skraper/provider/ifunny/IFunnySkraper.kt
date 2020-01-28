@@ -37,7 +37,7 @@ class IFunnySkraper @JvmOverloads constructor(
         private const val IFUNNY_URL = "https://ifunny.co"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val document = client.fetchDocument("${IFUNNY_URL}/${uri}")
 
         val posts = document

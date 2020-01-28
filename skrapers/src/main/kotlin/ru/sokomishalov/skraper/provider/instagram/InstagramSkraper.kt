@@ -42,7 +42,7 @@ class InstagramSkraper @JvmOverloads constructor(
         private const val INSTAGRAM_MEDIA_URL = "https://www.instagram.com/p/"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val account = getAccount(uri)
 
         val postsNodes = client.fetchJson("$INSTAGRAM_URL/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")

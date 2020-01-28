@@ -40,7 +40,7 @@ class NinegagSkraper @JvmOverloads constructor(
         private const val NINEGAG_URL = "https://9gag.com"
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int, fetchAspectRatio: Boolean): List<Post> {
+    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val webPage = client.fetchDocument("$NINEGAG_URL/${uri}")
 
         val dataJson = webPage
