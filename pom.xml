@@ -6,7 +6,7 @@
 
     <groupId>ru.sokomishalov.skraper</groupId>
     <artifactId>skraper-parent</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <packaging>pom</packaging>
 
     <properties>
