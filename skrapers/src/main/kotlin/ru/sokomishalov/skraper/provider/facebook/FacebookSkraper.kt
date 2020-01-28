@@ -23,10 +23,10 @@ import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.ImageSize.*
 import ru.sokomishalov.skraper.model.Post
-import java.util.UUID.randomUUID
 
 
 /**
@@ -37,7 +37,7 @@ class FacebookSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     companion object {
-        private const val FACEBOOK_BASE_URL = "https://www.facebook.com"
+        private const val FACEBOOK_BASE_URL = "https://facebook.com"
         private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
     }
 
@@ -66,46 +66,67 @@ class FacebookSkraper @JvmOverloads constructor(
 
     private fun Element.getIdByUserContentWrapper(): String {
         return getElementsByAttributeValueContaining("id", "feed_subtitle")
-                ?.first()
+                ?.firstOrNull()
                 ?.attr("id")
-                ?: randomUUID().toString()
+                ?.substringAfter(";")
+                ?.substringBefore(";")
+                .orEmpty()
     }
 
     private fun Element.getCaptionByUserContentWrapper(): String? {
         return getElementsByClass("userContent")
-                ?.first()
+                ?.firstOrNull()
                 ?.getElementsByTag("p")
-                ?.first()
-                ?.ownText()
+                ?.firstOrNull()
+                ?.wholeText()
                 ?.toString()
     }
 
     private fun Element.getPublishedAtByUserContentWrapper(): Long? {
         return getElementsByAttribute("data-utime")
-                ?.first()
+                ?.firstOrNull()
                 ?.attr("data-utime")
                 ?.toLongOrNull()
                 ?.times(1000)
     }
 
     private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
-        return getElementsByClass("scaledImageFitWidth")
-                ?.firstOrNull()
-                ?.let {
-                    listOf(Attachment(
-                            url = it.attr("src"),
-                            type = IMAGE,
-                            aspectRatio = with(it) {
-                                val width = attr("width").toDoubleOrNull()
-                                val height = attr("height").toDoubleOrNull()
+        val videoElement = getElementsByTag("video").firstOrNull()
 
-                                when {
+        return when {
+            videoElement != null -> listOf(Attachment(
+                    type = VIDEO,
+                    url = getElementsByAttributeValueContaining("id", "feed_subtitle")
+                            .firstOrNull()
+                            ?.getElementsByTag("a")
+                            ?.firstOrNull()
+                            ?.attr("href")
+                            ?.let { "${FACEBOOK_BASE_URL}${it}" }
+                            .orEmpty(),
+                    aspectRatio = videoElement
+                            .attr("data-original-aspect-ratio")
+                            .toDoubleOrNull()
+                            ?: DEFAULT_POSTS_ASPECT_RATIO
+            ))
+
+            else -> getElementsByClass("scaledImageFitWidth")
+                    ?.firstOrNull()
+                    ?.run {
+                        val url = attr("src")
+                        val width = attr("width").toDoubleOrNull()
+                        val height = attr("height").toDoubleOrNull()
+
+                        listOf(Attachment(
+                                type = IMAGE,
+                                url = url,
+                                aspectRatio = when {
                                     width != null && height != null -> width / height
                                     else -> DEFAULT_POSTS_ASPECT_RATIO
                                 }
-                            }
-                    ))
-                }
-                ?: emptyList()
+
+                        ))
+                    }
+                    ?: emptyList()
+        }
     }
 }
