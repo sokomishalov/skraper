@@ -44,9 +44,12 @@ suspend fun SkraperClient.fetchDocument(url: String): Document? {
     return ba?.let { withContext(IO) { Jsoup.parse(it.toString(UTF_8)) } }
 }
 
-suspend fun SkraperClient.fetchAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO, fetchAspectRatio: Boolean = true): Double {
-    return when {
-        fetchAspectRatio -> withContext(IO) { runCatching { openStream(url)!!.getRemoteImageInfo().run { width.toDouble() / height } }.getOrElse { orElse } }
-        else -> orElse
+suspend fun SkraperClient.fetchAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO): Double {
+    return withContext(IO) {
+        runCatching {
+            openStream(url)!!.getRemoteImageInfo().run { width.toDouble() / height.toDouble() }
+        }.getOrElse {
+            orElse
+        }
     }
 }

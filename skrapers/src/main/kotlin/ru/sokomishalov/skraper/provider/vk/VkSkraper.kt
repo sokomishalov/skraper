@@ -23,7 +23,9 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.jsoup.getImageBackgroundUrl
+import ru.sokomishalov.skraper.internal.jsoup.getStyle
+import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -58,8 +60,10 @@ class VkSkraper @JvmOverloads constructor(
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
         return client.fetchDocument("$VK_URL/${uri}")
-                ?.getSingleElementByClass("profile_panel")
-                ?.getSingleElementByTag("img")
+                ?.getElementsByClass("profile_panel")
+                ?.firstOrNull()
+                ?.getElementsByTag("img")
+                ?.firstOrNull()
                 ?.attr("src")
     }
 
@@ -97,7 +101,7 @@ class VkSkraper @JvmOverloads constructor(
                                 .getStyle("padding-top")
                                 ?.removeSuffix("%")
                                 ?.toDoubleOrNull()
-                                ?.div(100)
+                                ?.let { 100 / it }
                                 ?: DEFAULT_POSTS_ASPECT_RATIO
                 ))
             }

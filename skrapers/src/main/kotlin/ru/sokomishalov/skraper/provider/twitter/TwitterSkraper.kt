@@ -19,7 +19,6 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchAspectRatio
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
@@ -60,7 +59,7 @@ class TwitterSkraper @JvmOverloads constructor(
                     id = it.extractIdFromTweet(),
                     caption = it.extractCaptionFromTweet(),
                     publishTimestamp = it.extractPublishedAtFromTweet(),
-                    attachments = it.extractAttachmentsFromTweet(fetchAspectRatio = true)
+                    attachments = it.extractAttachmentsFromTweet()
             )
         }
     }
@@ -78,8 +77,9 @@ class TwitterSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractCaptionFromTweet(): String? {
-        return getSingleElementByClass("tweet-text")
-                .removeLinks()
+        return getElementsByClass("tweet-text")
+                .firstOrNull()
+                ?.removeLinks()
     }
 
     private fun Element.extractPublishedAtFromTweet(): Long {
@@ -88,16 +88,28 @@ class TwitterSkraper @JvmOverloads constructor(
                 .toLong()
     }
 
-    private suspend fun Element.extractAttachmentsFromTweet(fetchAspectRatio: Boolean): List<Attachment> {
+    private fun Element.extractAttachmentsFromTweet(): List<Attachment> {
         val imagesElements = getElementsByClass("AdaptiveMedia-photoContainer")
         val videosElement = getElementsByClass("AdaptiveMedia-videoContainer").firstOrNull()
+
         return when {
-            imagesElements.isNotEmpty() -> imagesElements.map { element ->
-                Attachment(
-                        url = element.attr("data-image-url"),
-                        type = IMAGE,
-                        aspectRatio = client.fetchAspectRatio(element.attr("data-image-url"), fetchAspectRatio = fetchAspectRatio)
-                )
+            imagesElements.isNotEmpty() -> {
+                val aspectRatio = getElementsByClass("AdaptiveMedia-singlePhoto")
+                        .firstOrNull()
+                        ?.getStyle("padding-top")
+                        ?.substringAfter("calc(")
+                        ?.substringBefore("* 100%")
+                        ?.toDoubleOrNull()
+                        ?.let { 1.0 / it }
+                        ?: DEFAULT_POSTS_ASPECT_RATIO
+
+                imagesElements.map { element ->
+                    Attachment(
+                            url = element.attr("data-image-url"),
+                            type = IMAGE,
+                            aspectRatio = aspectRatio
+                    )
+                }
             }
             videosElement != null -> listOf(
                     Attachment(

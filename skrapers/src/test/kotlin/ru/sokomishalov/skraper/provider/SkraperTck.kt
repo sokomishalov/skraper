@@ -27,6 +27,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.getPageLogoByteArray
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.ImageSize.SMALL
 
 
@@ -46,7 +47,7 @@ abstract class SkraperTck {
 
     @Test
     fun `Check that posts has been fetched`() = runBlocking {
-        val posts = skraper.getLatestPosts(uri = uri)
+        val posts = skraper.getLatestPosts(uri = uri, limit = DEFAULT_POSTS_LIMIT)
 
         log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 

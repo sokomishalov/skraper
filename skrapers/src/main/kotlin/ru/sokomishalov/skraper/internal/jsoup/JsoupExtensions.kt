@@ -29,7 +29,7 @@ internal fun Element.removeLinks(): String? {
     allAnchors.filterNotTo(unwantedAnchors) { hrefAnchors.contains(it) }
     unwantedAnchors.forEach { it.remove() }
 
-    return titleDoc.text()
+    return titleDoc.wholeText()
 }
 
 internal fun Element.getSingleElementByClass(name: String): Element {
@@ -46,24 +46,17 @@ internal fun Element.getImageBackgroundUrl(): String {
 }
 
 internal fun Element.getStyleMap(): Map<String, String> {
-    if (!hasAttr("style")) return emptyMap()
-
-    val keys = attr("style").split(":").toTypedArray()
-
-    if (keys.size <= 1) return emptyMap()
-
-    val keymaps = mutableMapOf<String, String>()
-    for (i in keys.indices) {
-        val split = keys[i].split(";".toRegex()).toTypedArray()
-        if (i % 2 != 0) {
-            if (split.size == 1) break
-            keymaps[split[1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
-        } else {
-            if (i + 1 == keys.size) break
-            keymaps[keys[i].split(";".toRegex()).toTypedArray()[split.size - 1].trim { it <= ' ' }] = keys[i + 1].split(";".toRegex()).toTypedArray()[0].trim { it <= ' ' }
-        }
+    return when {
+        hasAttr("style").not() -> emptyMap()
+        else -> attr("style")
+                .split(";")
+                .filter { it.isNotBlank() }
+                .map { ss ->
+                    val items = ss.split(":")
+                    items[0].trim() to items[1]
+                }
+                .toMap()
     }
-    return keymaps
 }
 
 internal fun Element.getStyle(name: String): String? {
