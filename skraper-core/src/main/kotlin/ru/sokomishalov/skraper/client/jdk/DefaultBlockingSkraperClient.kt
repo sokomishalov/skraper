@@ -19,7 +19,7 @@ import ru.sokomishalov.skraper.SkraperClient
 
 
 /**
- * Do not use this implementation!
+ * You should not use this implementation
  * @author sokomishalov
  */
 object DefaultBlockingSkraperClient : SkraperClient
