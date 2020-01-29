@@ -23,6 +23,7 @@ Current list of implemented sources:
 - [Instagram](https://instagram.com)
 - [Twitter](https://twitter.com)
 - [Youtube](https://youtube.com)
+- [TikTok](https://tiktok.com)
 - [Twitch](https://twitch.tv)
 - [Reddit](https://reddit.com)
 - [9GAG](https://9gag.com)
@@ -155,6 +156,7 @@ As mentioned before, the provider implementation list is:
 - [InstagramSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/instagram/InstagramSkraper.kt)
 - [TwitterSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/twitter/TwitterSkraper.kt)
 - [YoutubeSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/youtube/YoutubeSkraper.kt)
+- [TikTokSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/tiktok/TikTokSkraper.kt)
 - [TwitchSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/twitch/TwitchSkraper.kt)
 - [RedditSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/reddit/RedditSkraper.kt)
 - [NinegagSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ninegag/NinegagSkraper.kt)
@@ -282,8 +284,12 @@ Output:
   "description": "http://memes.com is your number one website for the funniest content on the web. You will find funny pictures, funny memes and much more.",
   "postsCount": 10848,
   "followersCount": 154718,
-  "avatar": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg",
-  "cover": "https://abs.twimg.com/images/themes/theme1/bg.png"
+  "avatar": {
+    "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
+  },
+  "cover": {
+    "url": "https://abs.twimg.com/images/themes/theme1/bg.png"
+  }
 }
 ```
 
@@ -361,7 +367,9 @@ Output:
 ```json5
 {
   "name": "Instagram",
-  "logo": "https://instagram.com/favicon.ico"
+  "logo": {
+    "url": "https://instagram.com/favicon.ico"
+  }
 }
 ```
 
