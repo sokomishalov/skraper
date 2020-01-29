@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UNUSED_VARIABLE")
+
 package ru.sokomishalov.skraper.internal.image
 
 import java.io.InputStream
@@ -79,33 +81,36 @@ internal fun InputStream.getRemoteImageInfo(): SimpleImageInfo = use {
         else -> {
             val c4 = read()
 
-            if (c1 == 'M'.toInt() && c2 == 'M'.toInt() && c3 == 0 && c4 == 42 || c1 == 'I'.toInt() && c2 == 'I'.toInt() && c3 == 42 && c4 == 0) { //TIFF
-                val bigEndian = c1 == 'M'.toInt()
-                var ifd = 0
-                val entries: Int
-                ifd = readInt(4, bigEndian)
-                skip(ifd - 8.toLong())
-                entries = readInt(2, bigEndian)
+            when {
+                //TIFF
+                (c1 == 'M'.toInt() && c2 == 'M'.toInt() && c3 == 0 && c4 == 42) || (c1 == 'I'.toInt() && c2 == 'I'.toInt() && c3 == 42 && c4 == 0) -> {
+                    val bigEndian = c1 == 'M'.toInt()
+                    var ifd = 0
+                    val entries: Int
+                    ifd = readInt(4, bigEndian)
+                    skip(ifd - 8.toLong())
+                    entries = readInt(2, bigEndian)
 
-                for (i in 1..entries) {
-                    val tag = readInt(2, bigEndian)
-                    val fieldType = readInt(2, bigEndian)
-                    val count = readInt(4, bigEndian).toLong()
-                    var valOffset: Int
-                    if (fieldType == 3 || fieldType == 8) {
-                        valOffset = readInt(2, bigEndian)
-                        skip(2)
-                    } else {
-                        valOffset = readInt(4, bigEndian)
-                    }
-                    if (tag == 256) {
-                        width = valOffset
-                    } else if (tag == 257) {
-                        height = valOffset
-                    }
-                    if (width != -1 && height != -1) {
-                        mimeType = "image/tiff"
-                        break
+                    for (i in 1..entries) {
+                        val tag = readInt(2, bigEndian)
+                        val fieldType = readInt(2, bigEndian)
+                        val count = readInt(4, bigEndian).toLong()
+                        var valOffset: Int
+                        if (fieldType == 3 || fieldType == 8) {
+                            valOffset = readInt(2, bigEndian)
+                            skip(2)
+                        } else {
+                            valOffset = readInt(4, bigEndian)
+                        }
+                        if (tag == 256) {
+                            width = valOffset
+                        } else if (tag == 257) {
+                            height = valOffset
+                        }
+                        if (width != -1 && height != -1) {
+                            mimeType = "image/tiff"
+                            break
+                        }
                     }
                 }
             }
