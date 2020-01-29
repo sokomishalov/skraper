@@ -41,17 +41,17 @@ class RedditSkraper @JvmOverloads constructor(
         val posts = response
                 .get("data")
                 ?.get("children")
-                .elementsToList()
+                .children()
                 .mapNotNull { it["data"] }
 
         return posts
                 .map {
                     Post(
-                            id = it.getValue("id").orEmpty(),
-                            caption = it.getValue("title"),
-                            publishTimestamp = it.extractDate(),
+                            id = it.get("id").asText().orEmpty(),
+                            caption = it.get("title").asText(),
+                            publishTimestamp = it.get("created_utc")?.asLong()?.times(1000),
                             attachments = listOf(Attachment(
-                                    url = it.getValue("url").orEmpty(),
+                                    url = it.get("url").asText().orEmpty(),
                                     type = when {
                                         it["media"].isEmpty.not() -> VIDEO
                                         else -> IMAGE
@@ -59,12 +59,12 @@ class RedditSkraper @JvmOverloads constructor(
                                     aspectRatio = it
                                             .get("preview")
                                             ?.get("images")
-                                            ?.elementsToList()
+                                            ?.children()
                                             ?.firstOrNull()
                                             ?.get("source")
                                             .run {
-                                                val width = getValue("width")?.toDoubleOrNull()
-                                                val height = getValue("height")?.toDoubleOrNull()
+                                                val width = this?.get("width")?.asDouble()
+                                                val height = this?.get("height")?.asDouble()
 
                                                 when {
                                                     width != null && height != null -> width / height
@@ -79,25 +79,13 @@ class RedditSkraper @JvmOverloads constructor(
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
         val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/about.json")
 
-        val communityIcon = response["data"].getValue("community_icon")
-        val imgIcon = response["data"].getValue("icon_img")
+        val communityIcon = response["data"].get("community_icon").asText()
+        val imgIcon = response["data"].get("icon_img").asText()
 
         return communityIcon?.ifBlank { imgIcon }
     }
 
-    private fun JsonNode?.getValue(field: String): String? {
-        return this
-                ?.get(field)
-                ?.asText()
-                ?.replace("null", "")
-                ?.ifBlank { null }
-    }
-
-    private fun JsonNode?.elementsToList(): List<JsonNode> {
+    private fun JsonNode?.children(): List<JsonNode> {
         return this?.elements()?.asSequence()?.toList() ?: emptyList()
-    }
-
-    private fun JsonNode.extractDate(): Long? {
-        return getValue("created_utc")?.toBigDecimal()?.longValueExact()?.times(1000)
     }
 }
