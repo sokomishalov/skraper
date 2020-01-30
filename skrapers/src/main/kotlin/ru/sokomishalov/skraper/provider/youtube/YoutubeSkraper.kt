@@ -1,10 +1,12 @@
 package ru.sokomishalov.skraper.provider.youtube
 
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
@@ -54,7 +56,14 @@ class YoutubeSkraper(
                 ?.attr("href")
     }
 
-    private suspend inline fun getPage(uri: String) = client.fetchDocument("${YOUTUBE_BASE_URL}/channel/${uri}/videos?gl=EN&hl=en")
+    private suspend fun getPage(uri: String): Document? {
+        val finalUri = when {
+            uri.endsWith("/videos") -> "${uri.uriCleanUp()}?gl=EN&hl=en"
+            else -> "${uri.uriCleanUp()}/videos?gl=EN&hl=en"
+        }
+
+        return client.fetchDocument("${YOUTUBE_BASE_URL}/${finalUri}")
+    }
 
     private fun Element?.parseId(): String {
         return this

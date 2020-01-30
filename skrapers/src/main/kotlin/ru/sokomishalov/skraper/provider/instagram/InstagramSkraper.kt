@@ -37,9 +37,8 @@ class InstagramSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     companion object {
+        private const val INSTAGRAM_URL = "https://instagram.com"
         private const val QUERY_ID = "17888483320059182"
-        private const val INSTAGRAM_URL = "https://www.instagram.com"
-        private const val INSTAGRAM_MEDIA_URL = "https://www.instagram.com/p/"
     }
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
@@ -107,7 +106,7 @@ class InstagramSkraper @JvmOverloads constructor(
                     else -> IMAGE
                 },
                 url = when {
-                    isVideo -> "${INSTAGRAM_MEDIA_URL}${this["shortcode"].asText()}"
+                    isVideo -> "${INSTAGRAM_URL}/p/${this["shortcode"].asText()}"
                     else -> this["display_url"].asText()
                 },
                 aspectRatio = this["dimensions"]
