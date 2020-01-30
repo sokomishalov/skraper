@@ -47,29 +47,29 @@ class IFunnySkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return posts
-                .map {
+                .mapNotNull {
                     val a = it.getSingleElementByTag("a")
 
                     val img = a.getSingleElementByTag("img")
                     val link = a.attr("href")
 
                     // videos and gifs cannot be scraped :(
-                    if ("video" in link || "gif" in link) return@map null
-
-                    Post(
-                            id = link.convertUriToId(),
-                            attachments = listOf(Attachment(
-                                    url = img.attr("data-src"),
-                                    type = IMAGE,
-                                    aspectRatio = it
-                                            .attr("data-ratio")
-                                            .toDoubleOrNull()
-                                            ?.let { r -> 1.0 / r }
-                                            ?: DEFAULT_POSTS_ASPECT_RATIO
-                            ))
-                    )
+                    when {
+                        "video" in link || "gif" in link -> null
+                        else -> Post(
+                                id = link.convertUriToId(),
+                                attachments = listOf(Attachment(
+                                        url = img.attr("data-src"),
+                                        type = IMAGE,
+                                        aspectRatio = it
+                                                .attr("data-ratio")
+                                                .toDoubleOrNull()
+                                                ?.let { r -> 1.0 / r }
+                                                ?: DEFAULT_POSTS_ASPECT_RATIO
+                                ))
+                        )
+                    }
                 }
-                .filterNotNull()
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
