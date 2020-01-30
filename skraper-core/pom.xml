@@ -7,11 +7,11 @@
     <parent>
         <groupId>ru.sokomishalov.skraper</groupId>
         <artifactId>skraper-parent</artifactId>
-        <version>0.0.7</version>
+        <version>0.0.8</version>
     </parent>
 
     <artifactId>skraper-core</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
 
     <dependencies>
 
