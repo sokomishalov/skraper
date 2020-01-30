@@ -39,6 +39,15 @@ class FacebookSkraper @JvmOverloads constructor(
 
     override val baseUrl: String = "https://facebook.com"
 
+    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
+        val type = when (imageSize) {
+            SMALL -> "small"
+            MEDIUM -> "normal"
+            LARGE -> "large"
+        }
+        return "http://graph.facebook.com/${uri.uriCleanUp()}/picture?type=${type}"
+    }
+
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val webPage = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
@@ -51,15 +60,6 @@ class FacebookSkraper @JvmOverloads constructor(
                     attachments = it.getAttachmentsByUserContentWrapper()
             )
         }
-    }
-
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val type = when (imageSize) {
-            SMALL -> "small"
-            MEDIUM -> "normal"
-            LARGE -> "large"
-        }
-        return "http://graph.facebook.com/${uri.uriCleanUp()}/picture?type=${type}"
     }
 
     private fun Element.getIdByUserContentWrapper(): String {

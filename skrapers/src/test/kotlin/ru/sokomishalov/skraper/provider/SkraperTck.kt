@@ -19,13 +19,15 @@ package ru.sokomishalov.skraper.provider
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
+import ru.sokomishalov.skraper.getLogoByteArray
 import ru.sokomishalov.skraper.getPageLogoByteArray
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.ImageSize.SMALL
@@ -46,7 +48,7 @@ abstract class SkraperTck {
     protected val client: SkraperClient = ReactorNettySkraperClient()
 
     @Test
-    fun `Check that posts has been fetched`() = runBlocking {
+    fun `Check that posts have been fetched`() = runBlocking {
         val posts = skraper.getLatestPosts(uri = uri, limit = DEFAULT_POSTS_LIMIT)
 
         log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
@@ -63,9 +65,16 @@ abstract class SkraperTck {
     }
 
     @Test
-    fun `Check that channel logo has been fetched`() = runBlocking {
-        val image = skraper.getPageLogoByteArray(uri = uri, imageSize = SMALL) ?: ByteArray(0)
+    fun `Check that page logo has been fetched`() = runBlocking {
+        val image = skraper.getPageLogoByteArray(uri = uri, imageSize = SMALL)
 
-        assertNotEquals(0, image.size)
+        assertNotNull(image)
+    }
+
+    @Test
+    fun `Check that provider logo has been fetched`() = runBlocking {
+        val image = skraper.getLogoByteArray(imageSize = SMALL)
+
+        assertNotNull(image)
     }
 }
