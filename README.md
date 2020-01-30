@@ -51,13 +51,16 @@ interface Skraper {
 Then you you are able to use provider like this:
 ```kotlin
 fun main() = runBlocking {
-    val skraper = FacebookSkraper()
-    
+    val skraper = FacebookSkraper(client = KtorSkraperClient())
+
     val posts = skraper.getLatestPosts(uri = "originaltrollfootball")
     posts.forEach { println(it) }
-    
-    val logo = skraper.getPageLogoUrl(uri = "originaltrollfootball")
-    println(logo)
+
+    val pageLogo = skraper.getPageLogoUrl(uri = "originaltrollfootball")
+    println(pageLogo)
+
+    val providerLogo = skraper.getLogoUrl()
+    println(providerLogo)
 }
 ```
 You can see the full model structure for posts and others [here](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/model)
