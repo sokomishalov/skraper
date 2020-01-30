@@ -14,6 +14,7 @@ List of implemented scrapers looks like this so far:
 - [Facebook](https://www.facebook.com)
 - [Instagram](https://www.instagram.com)
 - [Twitter](https://twitter.com)
+- [YouTube](https://youtube.com)
 - [9gag](https://9gag.com)
 - [Pinterest](https://www.pinterest.com)
 - [VK](https://vk.com)
