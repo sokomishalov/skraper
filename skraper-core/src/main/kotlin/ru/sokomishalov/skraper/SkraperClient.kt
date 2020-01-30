@@ -26,7 +26,7 @@ import java.net.URL
  */
 interface SkraperClient {
 
-    suspend fun fetch(url: String): ByteArray? = withContext(IO) { openStream(url) }.use { it?.readBytes() }
+    suspend fun fetch(url: String): ByteArray? = withContext(IO) { URL(url).openStreamForRedirectable() }.use { it.readBytes() }
 
     suspend fun openStream(url: String): InputStream? = withContext(IO) { URL(url).openStreamForRedirectable() }
 
