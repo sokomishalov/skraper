@@ -24,6 +24,7 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
@@ -40,8 +41,6 @@ class IFunnySkraper @JvmOverloads constructor(
         val document = getTopicPage(uri)
 
         val posts = document
-                ?.getElementsByClass("feed__list")
-                ?.firstOrNull()
                 ?.getElementsByClass("stream__item")
                 ?.take(limit)
                 .orEmpty()
@@ -53,27 +52,32 @@ class IFunnySkraper @JvmOverloads constructor(
                     val img = a.getSingleElementByTag("img")
                     val link = a.attr("href")
 
-                    // videos and gifs cannot be scraped :(
-                    when {
-                        "video" in link || "gif" in link -> null
-                        else -> Post(
-                                id = link.convertUriToId(),
-                                attachments = listOf(Attachment(
-                                        url = img.attr("data-src"),
-                                        type = IMAGE,
-                                        aspectRatio = it
-                                                .attr("data-ratio")
-                                                .toDoubleOrNull()
-                                                ?.let { r -> 1.0 / r }
-                                                ?: DEFAULT_POSTS_ASPECT_RATIO
-                                ))
-                        )
-                    }
+                    val video = "video" in link || "gif" in link
+                    Post(
+                            id = link.convertUriToId(),
+                            attachments = listOf(Attachment(
+                                    url = when {
+                                        video -> "${baseUrl}${link}"
+                                        else -> img.attr("data-src")
+                                    },
+                                    type = when {
+                                        video -> VIDEO
+                                        else -> IMAGE
+                                    },
+                                    aspectRatio = it
+                                            .attr("data-ratio")
+                                            .toDoubleOrNull()
+                                            ?.let { r -> 1.0 / r }
+                                            ?: DEFAULT_POSTS_ASPECT_RATIO
+                            ))
+                    )
                 }
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return getTopicPage(uri)
+        val document = getTopicPage(uri)
+
+        return document
                 ?.getElementsByTag("meta")
                 ?.find { it.attr("property") == "og:image" }
                 ?.attr("content")
