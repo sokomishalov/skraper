@@ -36,15 +36,12 @@ class InstagramSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val INSTAGRAM_URL = "https://instagram.com"
-        private const val QUERY_ID = "17888483320059182"
-    }
+    override val baseUrl: String = "https://instagram.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val account = getAccount(uri)
 
-        val postsNodes = client.fetchJson("$INSTAGRAM_URL/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
+        val postsNodes = client.fetchJson("$baseUrl/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
                 .get("data")
                 ?.get("user")
                 ?.get("edge_owner_to_timeline_media")
@@ -72,7 +69,7 @@ class InstagramSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getAccount(uri: String): JsonNode {
-        return client.fetchJson("${INSTAGRAM_URL}/${uri}/?__a=1")["graphql"]["user"]
+        return client.fetchJson("${baseUrl}/${uri}/?__a=1")["graphql"]["user"]
     }
 
     private fun JsonNode.parseId(): String {
@@ -106,12 +103,16 @@ class InstagramSkraper @JvmOverloads constructor(
                     else -> IMAGE
                 },
                 url = when {
-                    isVideo -> "${INSTAGRAM_URL}/p/${this["shortcode"].asText()}"
+                    isVideo -> "https://instagram.com/p/${this["shortcode"].asText()}"
                     else -> this["display_url"].asText()
                 },
                 aspectRatio = this["dimensions"]
                         ?.let { d -> d["width"].asDouble() / d["height"].asDouble() }
                         ?: DEFAULT_POSTS_ASPECT_RATIO
         ))
+    }
+
+    companion object {
+        private const val QUERY_ID = "17888483320059182"
     }
 }

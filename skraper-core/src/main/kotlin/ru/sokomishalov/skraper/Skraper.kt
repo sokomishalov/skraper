@@ -27,6 +27,11 @@ import ru.sokomishalov.skraper.model.Post
 interface Skraper {
 
     /**
+     * @return provider base url
+     */
+    val baseUrl: String
+
+    /**
      * @return http client for fetching web pages, images and json from network
      */
     val client: SkraperClient get() = DefaultBlockingSkraperClient

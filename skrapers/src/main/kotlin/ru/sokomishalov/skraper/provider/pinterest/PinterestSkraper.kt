@@ -39,13 +39,10 @@ class PinterestSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)
-        private const val PINTEREST_URL = "https://www.pinterest.com"
-    }
+    override val baseUrl: String = "https://pinterest.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val infoJsonNode = parseInitJson(uri)
+        val infoJsonNode = fetchInitJson(uri)
 
         val feedList = infoJsonNode
                 .get("resourceResponses")
@@ -73,7 +70,7 @@ class PinterestSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val infoJsonNode = parseInitJson(uri)
+        val infoJsonNode = fetchInitJson(uri)
 
         val owner = infoJsonNode["resourceResponses"]
                 ?.first()
@@ -88,9 +85,13 @@ class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun parseInitJson(uri: String): JsonNode {
-        val webPage = client.fetchDocument("$PINTEREST_URL/${uri}")
+    private suspend fun fetchInitJson(uri: String): JsonNode {
+        val webPage = client.fetchDocument("$baseUrl/${uri}")
         val infoJson = webPage?.getElementById("initial-state")?.html()?.toByteArray(UTF_8)
         return infoJson.aReadJsonNodes()
+    }
+
+    companion object {
+        private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)
     }
 }

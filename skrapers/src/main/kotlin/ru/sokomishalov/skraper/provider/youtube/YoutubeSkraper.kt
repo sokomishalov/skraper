@@ -19,10 +19,7 @@ class YoutubeSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val YOUTUBE_BASE_URL = "https://www.youtube.com"
-        private const val YOUTUBE_DEFAULT_VIDEO_ASPECT_RATIO = 210 / 117.5
-    }
+    override val baseUrl: String = "https://www.youtube.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val document = getPage(uri)
@@ -39,7 +36,7 @@ class YoutubeSkraper(
                     caption = linkElement.parseCaption(),
                     publishTimestamp = it.parsePublishDate(),
                     attachments = listOf(Attachment(
-                            url = "${YOUTUBE_BASE_URL}${linkElement?.attr("href")}",
+                            url = "${baseUrl}${linkElement?.attr("href")}",
                             type = VIDEO,
                             aspectRatio = YOUTUBE_DEFAULT_VIDEO_ASPECT_RATIO
                     ))
@@ -62,7 +59,7 @@ class YoutubeSkraper(
             else -> "${uri.uriCleanUp()}/videos?gl=EN&hl=en"
         }
 
-        return client.fetchDocument("${YOUTUBE_BASE_URL}/${finalUri}")
+        return client.fetchDocument("${baseUrl}/${finalUri}")
     }
 
     private fun Element?.parseId(): String {
@@ -108,5 +105,9 @@ class YoutubeSkraper(
         }
 
         return now - millisAgo
+    }
+
+    companion object {
+        private const val YOUTUBE_DEFAULT_VIDEO_ASPECT_RATIO = 210 / 117.5
     }
 }

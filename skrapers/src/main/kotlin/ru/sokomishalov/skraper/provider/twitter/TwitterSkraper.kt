@@ -38,13 +38,10 @@ class TwitterSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val TWITTER_URL = "https://twitter.com"
-        private const val TWITTER_ATTACHMENT_URL = "https://twitter.com/i/status/"
-    }
+    override val baseUrl: String = "https://twitter.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$TWITTER_URL/${uri}")
+        val webPage = client.fetchDocument("$baseUrl/${uri}")
 
         val posts = webPage
                 ?.body()
@@ -65,7 +62,7 @@ class TwitterSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return client.fetchDocument("$TWITTER_URL/${uri}")
+        return client.fetchDocument("$baseUrl/${uri}")
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")
@@ -113,7 +110,7 @@ class TwitterSkraper @JvmOverloads constructor(
             }
             videosElement != null -> listOf(
                     Attachment(
-                            url = "${TWITTER_ATTACHMENT_URL}${this.extractIdFromTweet()}",
+                            url = "${baseUrl}/i/status/${extractIdFromTweet()}",
                             type = VIDEO,
                             aspectRatio = videosElement
                                     .getSingleElementByClass("PlayableMedia-player")

@@ -33,12 +33,10 @@ class IFunnySkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val IFUNNY_URL = "https://ifunny.co"
-    }
+    override val baseUrl: String = "https://ifunny.co"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = client.fetchDocument("${IFUNNY_URL}/${uri}")
+        val document = client.fetchDocument("${baseUrl}/${uri}")
 
         val posts = document
                 ?.getElementsByClass("feed__list")
@@ -74,7 +72,7 @@ class IFunnySkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return client.fetchDocument("${IFUNNY_URL}/${uri}")
+        return client.fetchDocument("https://ifunny.co/${uri}")
                 ?.getElementsByTag("meta")
                 ?.find { it.attr("property") == "og:image" }
                 ?.attr("content")

@@ -36,13 +36,10 @@ class FacebookSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val FACEBOOK_BASE_URL = "https://facebook.com"
-        private const val FACEBOOK_GRAPH_BASE_URL = "http://graph.facebook.com"
-    }
+    override val baseUrl: String = "https://facebook.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$FACEBOOK_BASE_URL/${uri}/posts")
+        val webPage = client.fetchDocument("${baseUrl}/${uri}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 
         return elements.map {
@@ -61,7 +58,7 @@ class FacebookSkraper @JvmOverloads constructor(
             MEDIUM -> "normal"
             LARGE -> "large"
         }
-        return "$FACEBOOK_GRAPH_BASE_URL/${uri}/picture?type=${type}"
+        return "http://graph.facebook.com/${uri}/picture?type=${type}"
     }
 
     private fun Element.getIdByUserContentWrapper(): String {
@@ -101,7 +98,7 @@ class FacebookSkraper @JvmOverloads constructor(
                             ?.getElementsByTag("a")
                             ?.firstOrNull()
                             ?.attr("href")
-                            ?.let { "${FACEBOOK_BASE_URL}${it}" }
+                            ?.let { "${baseUrl}${it}" }
                             .orEmpty(),
                     aspectRatio = videoElement
                             .attr("data-original-aspect-ratio")

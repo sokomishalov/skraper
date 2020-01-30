@@ -39,12 +39,10 @@ class VkSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val VK_URL = "https://vk.com"
-    }
+    override val baseUrl: String = "https://vk.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val posts = client.fetchDocument("$VK_URL/${uri}")
+        val posts = client.fetchDocument("$baseUrl/${uri}")
                 ?.getElementsByClass("wall_item")
                 ?.take(limit)
                 .orEmpty()
@@ -59,7 +57,7 @@ class VkSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return client.fetchDocument("$VK_URL/${uri}")
+        return client.fetchDocument("$baseUrl/${uri}")
                 ?.getElementsByClass("profile_panel")
                 ?.firstOrNull()
                 ?.getElementsByTag("img")
@@ -90,7 +88,7 @@ class VkSkraper @JvmOverloads constructor(
 
                 listOf(Attachment(
                         url = when {
-                            isVideo -> "$VK_URL${imgElement.attr("href")}"
+                            isVideo -> "https://vk.com${imgElement.attr("href")}"
                             else -> runCatching { imgElement.getImageBackgroundUrl() }.getOrNull().orEmpty()
                         },
                         type = when {

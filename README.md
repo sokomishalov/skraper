@@ -40,6 +40,7 @@ List of implemented scrapers looks like this so far:
 Each scraper is a class which implements [Skraper](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
 ```kotlin
 interface Skraper {
+    val baseUrl: String
     val client: SkraperClient get() = DefaultBlockingSkraperClient
     suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize = ImageSize.SMALL): String?
     suspend fun getLatestPosts(uri: String, limit: Int = 100): List<Post>

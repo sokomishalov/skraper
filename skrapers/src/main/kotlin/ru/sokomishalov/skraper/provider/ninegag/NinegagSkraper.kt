@@ -36,12 +36,10 @@ class NinegagSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val NINEGAG_URL = "https://9gag.com"
-    }
+    override val baseUrl: String = "https://9gag.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$NINEGAG_URL/${uri}")
+        val webPage = client.fetchDocument("$baseUrl/${uri}")
 
         val dataJson = webPage
                 ?.getElementsByTag("script")
@@ -83,7 +81,7 @@ class NinegagSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return client.fetchDocument("$NINEGAG_URL/${uri}")
+        return client.fetchDocument("$baseUrl/${uri}")
                 ?.head()
                 ?.getElementsByAttributeValueContaining("rel", "image_src")
                 ?.first()

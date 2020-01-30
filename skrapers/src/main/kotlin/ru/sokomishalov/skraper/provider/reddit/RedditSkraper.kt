@@ -31,12 +31,10 @@ class RedditSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
-    companion object {
-        private const val REDDIT_BASE_URL = "https://reddit.com"
-    }
+    override val baseUrl: String = "https://reddit.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/hot.json?limit=${limit}")
+        val response = client.fetchJson("$baseUrl/r/${uri}/hot.json?limit=${limit}")
 
         val posts = response
                 .get("data")
@@ -77,7 +75,7 @@ class RedditSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val response = client.fetchJson("$REDDIT_BASE_URL/r/${uri}/about.json")
+        val response = client.fetchJson("$baseUrl/r/${uri}/about.json")
 
         val communityIcon = response["data"].get("community_icon").asText()
         val imgIcon = response["data"].get("icon_img").asText()
