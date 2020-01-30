@@ -23,5 +23,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class FacebookSkraperTest : SkraperTck() {
     override val skraper: Skraper = FacebookSkraper(client = client)
-    override val uri: String = "originaltrollfootball"
+    override val uri: String = "/originaltrollfootball"
 }

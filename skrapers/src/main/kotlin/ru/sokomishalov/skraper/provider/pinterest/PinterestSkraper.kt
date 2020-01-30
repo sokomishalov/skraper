@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
+import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.ImageSize
@@ -42,7 +43,7 @@ class PinterestSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://pinterest.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val infoJsonNode = fetchInitJson(uri)
+        val infoJsonNode = getUserJson(uri)
 
         val feedList = infoJsonNode
                 .get("resourceResponses")
@@ -70,7 +71,7 @@ class PinterestSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val infoJsonNode = fetchInitJson(uri)
+        val infoJsonNode = getUserJson(uri)
 
         val owner = infoJsonNode["resourceResponses"]
                 ?.first()
@@ -85,8 +86,8 @@ class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun fetchInitJson(uri: String): JsonNode {
-        val webPage = client.fetchDocument("$baseUrl/${uri}")
+    private suspend fun getUserJson(uri: String): JsonNode {
+        val webPage = client.fetchDocument("$baseUrl/${uri.uriCleanUp()}")
         val infoJson = webPage?.getElementById("initial-state")?.html()?.toByteArray(UTF_8)
         return infoJson.aReadJsonNodes()
     }

@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
+import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.ImageSize
@@ -36,7 +37,7 @@ class IFunnySkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://ifunny.co"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = client.fetchDocument("${baseUrl}/${uri}")
+        val document = getTopicPage(uri)
 
         val posts = document
                 ?.getElementsByClass("feed__list")
@@ -72,15 +73,13 @@ class IFunnySkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return client.fetchDocument("https://ifunny.co/${uri}")
+        return getTopicPage(uri)
                 ?.getElementsByTag("meta")
                 ?.find { it.attr("property") == "og:image" }
                 ?.attr("content")
     }
 
-    private fun String.convertUriToId(): String {
-        return this
-                .substringBeforeLast("?")
-                .replaceFirst("/", "")
-    }
+    private suspend fun getTopicPage(uri: String) = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}")
+
+    private fun String.convertUriToId(): String = substringBeforeLast("?").replaceFirst("/", "")
 }

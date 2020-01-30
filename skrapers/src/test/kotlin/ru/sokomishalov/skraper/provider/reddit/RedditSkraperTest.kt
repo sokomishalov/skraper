@@ -23,5 +23,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class RedditSkraperTest : SkraperTck() {
     override val skraper: Skraper = RedditSkraper(client = client)
-    override val uri: String = "memes"
+    override val uri: String = "/r/memes"
 }

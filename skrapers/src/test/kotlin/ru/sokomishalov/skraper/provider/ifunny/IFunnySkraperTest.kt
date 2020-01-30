@@ -24,5 +24,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class IFunnySkraperTest : SkraperTck() {
     override val skraper: Skraper = IFunnySkraper(client = client)
-    override val uri: String = "memes"
+    override val uri: String = "/memes"
 }

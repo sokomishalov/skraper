@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
+import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -34,7 +35,7 @@ class RedditSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://reddit.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val response = client.fetchJson("$baseUrl/r/${uri}/hot.json?limit=${limit}")
+        val response = client.fetchJson("$baseUrl/${uri.uriCleanUp()}/hot.json?limit=${limit}")
 
         val posts = response
                 .get("data")
@@ -75,7 +76,7 @@ class RedditSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val response = client.fetchJson("$baseUrl/r/${uri}/about.json")
+        val response = client.fetchJson("$baseUrl/${uri.uriCleanUp()}/about.json")
 
         val communityIcon = response["data"].get("community_icon").asText()
         val imgIcon = response["data"].get("icon_img").asText()

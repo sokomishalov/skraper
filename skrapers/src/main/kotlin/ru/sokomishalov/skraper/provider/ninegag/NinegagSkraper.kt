@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
+import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -39,7 +40,7 @@ class NinegagSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://9gag.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$baseUrl/${uri}")
+        val webPage = getUserPage(uri)
 
         val dataJson = webPage
                 ?.getElementsByTag("script")
@@ -81,10 +82,14 @@ class NinegagSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return client.fetchDocument("$baseUrl/${uri}")
+        val document = getUserPage(uri)
+
+        return document
                 ?.head()
                 ?.getElementsByAttributeValueContaining("rel", "image_src")
                 ?.first()
                 ?.attr("href")
     }
+
+    private suspend fun getUserPage(uri: String) = client.fetchDocument("$baseUrl/${uri.uriCleanUp()}")
 }

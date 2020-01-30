@@ -23,5 +23,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class NinegagSkraperTest : SkraperTck() {
     override val skraper: Skraper = NinegagSkraper(client = client)
-    override val uri: String = "meme"
+    override val uri: String = "/meme"
 }

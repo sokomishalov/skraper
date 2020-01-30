@@ -6,5 +6,5 @@ import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
 
 class YoutubeSkraperTest : SkraperTck() {
     override val skraper: Skraper = YoutubeSkraper(client = client)
-    override val uri: String = "user/JUGRuVideo"
+    override val uri: String = "/user/JUGRuVideo"
 }

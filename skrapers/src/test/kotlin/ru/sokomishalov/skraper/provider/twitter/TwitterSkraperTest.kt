@@ -23,5 +23,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class TwitterSkraperTest : SkraperTck() {
     override val skraper: Skraper = TwitterSkraper(client = client)
-    override val uri: String = "russianmemesltd"
+    override val uri: String = "/russianmemesltd"
 }

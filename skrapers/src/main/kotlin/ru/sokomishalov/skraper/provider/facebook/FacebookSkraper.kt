@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
+import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -39,7 +40,7 @@ class FacebookSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://facebook.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("${baseUrl}/${uri}/posts")
+        val webPage = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
         val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 
         return elements.map {
@@ -58,7 +59,7 @@ class FacebookSkraper @JvmOverloads constructor(
             MEDIUM -> "normal"
             LARGE -> "large"
         }
-        return "http://graph.facebook.com/${uri}/picture?type=${type}"
+        return "http://graph.facebook.com/${uri.uriCleanUp()}/picture?type=${type}"
     }
 
     private fun Element.getIdByUserContentWrapper(): String {

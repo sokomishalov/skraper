@@ -22,7 +22,7 @@ class YoutubeSkraper(
     override val baseUrl: String = "https://www.youtube.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = getPage(uri)
+        val document = getUserPage(uri)
         val videos = document
                 ?.getElementsByClass("yt-lockup-video")
                 ?.take(limit)
@@ -45,7 +45,7 @@ class YoutubeSkraper(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getPage(uri)
+        val document = getUserPage(uri)
 
         return document
                 ?.getElementsByAttributeValue("rel", "image_src")
@@ -53,7 +53,7 @@ class YoutubeSkraper(
                 ?.attr("href")
     }
 
-    private suspend fun getPage(uri: String): Document? {
+    private suspend fun getUserPage(uri: String): Document? {
         val finalUri = when {
             uri.endsWith("/videos") -> "${uri.uriCleanUp()}?gl=EN&hl=en"
             else -> "${uri.uriCleanUp()}/videos?gl=EN&hl=en"

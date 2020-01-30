@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.twitter
 
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
@@ -24,6 +25,7 @@ import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
+import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -41,7 +43,7 @@ class TwitterSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://twitter.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("$baseUrl/${uri}")
+        val webPage = getUserPage(uri)
 
         val posts = webPage
                 ?.body()
@@ -62,10 +64,14 @@ class TwitterSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return client.fetchDocument("$baseUrl/${uri}")
+        return getUserPage(uri)
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")
+    }
+
+    private suspend fun getUserPage(uri: String): Document? {
+        return client.fetchDocument("$baseUrl/${uri.uriCleanUp()}")
     }
 
     private fun Element.extractIdFromTweet(): String {
