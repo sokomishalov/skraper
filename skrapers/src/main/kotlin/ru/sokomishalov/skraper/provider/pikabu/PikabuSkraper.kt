@@ -30,6 +30,8 @@ import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 import java.nio.charset.Charset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.text.Charsets.UTF_8
 
 class PikabuSkraper(
@@ -60,6 +62,7 @@ class PikabuSkraper(
             Post(
                     id = it.parseId(),
                     caption = String(caption.toByteArray(UTF_8)),
+                    publishTimestamp = it.parsePublishDate(),
                     attachments = storyBlocks.parseMediaAttachments()
             )
         }
@@ -91,6 +94,13 @@ class PikabuSkraper(
                 .firstOrNull()
                 ?.wholeText()
                 .orEmpty()
+    }
+
+    private fun Element.parsePublishDate(): Long? {
+        return getElementsByTag("time")
+                .firstOrNull()
+                ?.attr("datetime")
+                ?.run { ZonedDateTime.parse(this, DATE_FORMATTER).toEpochSecond().times(1000) }
     }
 
     private fun Elements.parseMediaAttachments(): List<Attachment> {
@@ -143,6 +153,8 @@ class PikabuSkraper(
         return filter { b -> "story-block_type_text" in b.classNames() }
                 .joinToString("\n") { b -> b.wholeText() }
     }
+
+    companion object {
+        private val DATE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME
+    }
 }
-
-

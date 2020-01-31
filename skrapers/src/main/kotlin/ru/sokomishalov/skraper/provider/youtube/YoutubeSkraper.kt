@@ -21,14 +21,12 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.time.ago.parseTimeAgo
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
-import java.time.Duration
-import java.time.Period
-import java.time.temporal.ChronoUnit.DAYS
 
 class YoutubeSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient
@@ -98,28 +96,6 @@ class YoutubeSkraper(
                 ?.getOrNull(1)
                 ?.wholeText()
                 ?.parseTimeAgo()
-    }
-
-    private fun CharSequence.parseTimeAgo(): Long {
-        val now = System.currentTimeMillis()
-
-        val amount = split(" ")
-                .firstOrNull()
-                ?.toIntOrNull()
-                ?: 0
-
-        val millisAgo: Long = when {
-            contains("second", ignoreCase = true) -> Duration.ofSeconds(amount.toLong()).toMillis()
-            contains("minute", ignoreCase = true) -> Duration.ofMinutes(amount.toLong()).toMillis()
-            contains("hour", ignoreCase = true) -> Duration.ofHours(amount.toLong()).toMillis()
-            contains("day", ignoreCase = true) -> Duration.ofDays(amount.toLong()).toMillis()
-            contains("week", ignoreCase = true) -> Duration.ofDays(Period.ofWeeks(amount).get(DAYS)).toMillis()
-            contains("month", ignoreCase = true) -> Duration.ofDays(Period.ofMonths(amount).get(DAYS)).toMillis()
-            contains("year", ignoreCase = true) -> Duration.ofDays(Period.ofYears(amount).get(DAYS)).toMillis()
-            else -> 0
-        }
-
-        return now - millisAgo
     }
 
     companion object {
