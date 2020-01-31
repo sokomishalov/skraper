@@ -49,8 +49,8 @@ class FacebookSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
-        val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
+        val document = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
+        val elements = document?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
 
         return elements.map {
             Post(

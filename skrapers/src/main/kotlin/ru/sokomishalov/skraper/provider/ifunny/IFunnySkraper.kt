@@ -45,33 +45,32 @@ class IFunnySkraper @JvmOverloads constructor(
                 ?.take(limit)
                 .orEmpty()
 
-        return posts
-                .mapNotNull {
-                    val a = it.getSingleElementByTag("a")
+        return posts.mapNotNull {
+            val a = it.getSingleElementByTag("a")
 
-                    val img = a.getSingleElementByTag("img")
-                    val link = a.attr("href")
+            val img = a.getSingleElementByTag("img")
+            val link = a.attr("href")
 
-                    val video = "video" in link || "gif" in link
-                    Post(
-                            id = link.convertUriToId(),
-                            attachments = listOf(Attachment(
-                                    url = when {
-                                        video -> "${baseUrl}${link}"
-                                        else -> img.attr("data-src")
-                                    },
-                                    type = when {
-                                        video -> VIDEO
-                                        else -> IMAGE
-                                    },
-                                    aspectRatio = it
-                                            .attr("data-ratio")
-                                            .toDoubleOrNull()
-                                            ?.let { r -> 1.0 / r }
-                                            ?: DEFAULT_POSTS_ASPECT_RATIO
-                            ))
-                    )
-                }
+            val video = "video" in link || "gif" in link
+            Post(
+                    id = link.convertUriToId(),
+                    attachments = listOf(Attachment(
+                            url = when {
+                                video -> "${baseUrl}${link}"
+                                else -> img.attr("data-src")
+                            },
+                            type = when {
+                                video -> VIDEO
+                                else -> IMAGE
+                            },
+                            aspectRatio = it
+                                    .attr("data-ratio")
+                                    .toDoubleOrNull()
+                                    ?.let { r -> 1.0 / r }
+                                    ?: DEFAULT_POSTS_ASPECT_RATIO
+                    ))
+            )
+        }
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {

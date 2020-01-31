@@ -19,5 +19,7 @@ data class Post(
         val id: String,
         val caption: String? = "",
         val publishTimestamp: Long? = null,
+        val rating: Int? = null,
+        val commentsCount: Int? = null,
         val attachments: List<Attachment> = emptyList()
 )

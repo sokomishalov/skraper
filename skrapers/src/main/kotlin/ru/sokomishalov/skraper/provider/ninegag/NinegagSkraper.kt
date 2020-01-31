@@ -59,12 +59,26 @@ class NinegagSkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return posts.map { p ->
-            val isVideo = p.get("images")?.get("image460sv")?.get("duration")?.asInt() != null
+            val isVideo = p
+                    .get("images")
+                    ?.get("image460sv")
+                    ?.get("duration")
+                    ?.asInt() != null
 
             Post(
-                    id = p["id"].asText(),
-                    caption = p["title"].asText(),
-                    publishTimestamp = p["creationTs"].asLong().times(1000),
+                    id = p["id"]?.asText().orEmpty(),
+                    caption = p["title"]?.asText(),
+                    publishTimestamp = p["creationTs"]?.asLong()?.times(1000),
+                    rating = p.run {
+                        val up = get("upVoteCount")?.asInt()
+                        val down = get("downVoteCount")?.asInt()
+
+                        when {
+                            up != null && down != null -> up - down
+                            else -> 0
+                        }
+                    },
+                    commentsCount = p["commentsCount"]?.asInt(),
                     attachments = listOf(Attachment(
                             type = when {
                                 isVideo -> VIDEO

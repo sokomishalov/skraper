@@ -49,6 +49,8 @@ class RedditSkraper @JvmOverloads constructor(
                             id = it.get("id").asText().orEmpty(),
                             caption = it.get("title").asText(),
                             publishTimestamp = it.get("created_utc")?.asLong()?.times(1000),
+                            rating = it.get("score")?.asInt(),
+                            commentsCount = it.get("num_comments")?.asInt(),
                             attachments = listOf(Attachment(
                                     url = it.get("url").asText().orEmpty(),
                                     type = when {
@@ -85,6 +87,10 @@ class RedditSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode?.children(): List<JsonNode> {
-        return this?.elements()?.asSequence()?.toList() ?: emptyList()
+        return this
+                ?.elements()
+                ?.asSequence()
+                ?.toList()
+                .orEmpty()
     }
 }
