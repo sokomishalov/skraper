@@ -15,6 +15,7 @@ import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 import java.nio.charset.Charset
+import kotlin.text.Charsets.UTF_8
 
 class PikabuSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient
@@ -43,7 +44,7 @@ class PikabuSkraper(
 
             Post(
                     id = it.parseId(),
-                    caption = String(caption.toByteArray(Charset.forName("windows-1251"))),
+                    caption = String(caption.toByteArray(UTF_8)),
                     attachments = storyBlocks.parseMediaAttachments()
             )
         }
@@ -59,7 +60,7 @@ class PikabuSkraper(
     }
 
     private suspend fun getUserPage(uri: String): Document? {
-        return client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}")
+        return client.fetchDocument(url = "${baseUrl}/${uri.uriCleanUp()}", charset = Charset.forName("windows-1251"))
     }
 
     private fun Element.parseId(): String {

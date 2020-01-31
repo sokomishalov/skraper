@@ -23,6 +23,7 @@ import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.image.getRemoteImageInfo
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
+import java.nio.charset.Charset
 import kotlin.text.Charsets.UTF_8
 
 
@@ -39,9 +40,9 @@ suspend fun SkraperClient.fetchJson(url: String): JsonNode {
     return ba.aReadJsonNodes()
 }
 
-suspend fun SkraperClient.fetchDocument(url: String): Document? {
+suspend fun SkraperClient.fetchDocument(url: String, charset: Charset = UTF_8): Document? {
     val ba = fetchBytes(url)
-    return ba?.let { withContext(IO) { Jsoup.parse(it.toString(UTF_8)) } }
+    return ba?.let { withContext(IO) { Jsoup.parse(it.toString(charset)) } }
 }
 
 suspend fun SkraperClient.fetchAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO): Double {
