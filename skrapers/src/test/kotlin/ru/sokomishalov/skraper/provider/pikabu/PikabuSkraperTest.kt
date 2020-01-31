@@ -5,5 +5,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 
 class PikabuSkraperTest : SkraperTck() {
     override val skraper: Skraper = PikabuSkraper(client = client)
-    override val uri: String = "/@Pykav"
+    override val uri: String = "/@Vereshch"
 }
