@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.time.ago.langs.EnglishTimeUnit
 import ru.sokomishalov.skraper.internal.time.ago.parseTimeAgo
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
@@ -95,7 +96,7 @@ class YoutubeSkraper(
                 ?.getElementsByTag("li")
                 ?.getOrNull(1)
                 ?.wholeText()
-                ?.parseTimeAgo()
+                ?.parseTimeAgo(lang = EnglishTimeUnit)
     }
 
     companion object {

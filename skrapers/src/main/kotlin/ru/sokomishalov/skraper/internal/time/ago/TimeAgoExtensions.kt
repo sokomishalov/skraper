@@ -7,7 +7,7 @@ import java.time.chrono.ChronoPeriod
 import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.TemporalAmount
 
-internal fun CharSequence.parseTimeAgo(timeUnit: IntlTimeUnit = EnglishTimeUnit): Long {
+internal fun CharSequence.parseTimeAgo(lang: IntlTimeUnit = EnglishTimeUnit): Long {
     val now = System.currentTimeMillis()
 
     val amount = split(" ")
@@ -16,14 +16,14 @@ internal fun CharSequence.parseTimeAgo(timeUnit: IntlTimeUnit = EnglishTimeUnit)
             ?: 1
 
     val temporalAmount: TemporalAmount = when {
-        contains(timeUnit.moment, ignoreCase = true) or contains(timeUnit.moments, ignoreCase = true) -> Duration.ofMillis(amount.toLong())
-        contains(timeUnit.second, ignoreCase = true) or contains(timeUnit.seconds, ignoreCase = true) -> Duration.ofSeconds(amount.toLong())
-        contains(timeUnit.minute, ignoreCase = true) or contains(timeUnit.minutes, ignoreCase = true) -> Duration.ofMinutes(amount.toLong())
-        contains(timeUnit.hour, ignoreCase = true) or contains(timeUnit.hours, ignoreCase = true) -> Duration.ofHours(amount.toLong())
-        contains(timeUnit.day, ignoreCase = true) or contains(timeUnit.days, ignoreCase = true) -> Duration.ofDays(amount.toLong())
-        contains(timeUnit.week, ignoreCase = true) or contains(timeUnit.weeks, ignoreCase = true) -> Period.ofWeeks(amount)
-        contains(timeUnit.month, ignoreCase = true) or contains(timeUnit.months, ignoreCase = true) -> Period.ofMonths(amount)
-        contains(timeUnit.year, ignoreCase = true) or contains(timeUnit.years, ignoreCase = true) -> Period.ofYears(amount)
+        contains(lang.moment, ignoreCase = true) or contains(lang.moments, ignoreCase = true) -> Duration.ofMillis(amount.toLong())
+        contains(lang.second, ignoreCase = true) or contains(lang.seconds, ignoreCase = true) -> Duration.ofSeconds(amount.toLong())
+        contains(lang.minute, ignoreCase = true) or contains(lang.minutes, ignoreCase = true) -> Duration.ofMinutes(amount.toLong())
+        contains(lang.hour, ignoreCase = true) or contains(lang.hours, ignoreCase = true) -> Duration.ofHours(amount.toLong())
+        contains(lang.day, ignoreCase = true) or contains(lang.days, ignoreCase = true) -> Duration.ofDays(amount.toLong())
+        contains(lang.week, ignoreCase = true) or contains(lang.weeks, ignoreCase = true) -> Period.ofWeeks(amount)
+        contains(lang.month, ignoreCase = true) or contains(lang.months, ignoreCase = true) -> Period.ofMonths(amount)
+        contains(lang.year, ignoreCase = true) or contains(lang.years, ignoreCase = true) -> Period.ofYears(amount)
         else -> Duration.ZERO
     }
 
