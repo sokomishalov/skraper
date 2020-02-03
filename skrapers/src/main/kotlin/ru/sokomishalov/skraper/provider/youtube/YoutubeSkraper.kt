@@ -21,7 +21,8 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.time.ago.langs.EnglishTimeUnit
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
+import ru.sokomishalov.skraper.internal.time.ago.langs.EnglishTimeAgoUnit
 import ru.sokomishalov.skraper.internal.time.ago.parseTimeAgo
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
@@ -37,6 +38,7 @@ class YoutubeSkraper(
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val document = getUserPage(uri)
+
         val videos = document
                 ?.getElementsByClass("yt-lockup-video")
                 ?.take(limit)
@@ -91,12 +93,11 @@ class YoutubeSkraper(
 
     private fun Element?.parsePublishDate(): Long? {
         return this
-                ?.getElementsByClass("yt-lockup-meta-info")
-                ?.firstOrNull()
+                ?.getSingleElementByClassOrNull("yt-lockup-meta-info")
                 ?.getElementsByTag("li")
                 ?.getOrNull(1)
                 ?.wholeText()
-                ?.parseTimeAgo(lang = EnglishTimeUnit)
+                ?.parseTimeAgo(lang = EnglishTimeAgoUnit)
     }
 
     companion object {

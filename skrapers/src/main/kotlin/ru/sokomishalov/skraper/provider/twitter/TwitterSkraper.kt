@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
@@ -57,6 +58,8 @@ class TwitterSkraper @JvmOverloads constructor(
             Post(
                     id = it.extractIdFromTweet(),
                     caption = it.extractCaptionFromTweet(),
+                    rating = it.extractLikes(),
+                    commentsCount = it.extractReplies(),
                     publishTimestamp = it.extractPublishedAtFromTweet(),
                     attachments = it.extractAttachmentsFromTweet()
             )
@@ -64,7 +67,9 @@ class TwitterSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return getUserPage(uri)
+        val document = getUserPage(uri)
+
+        return document
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")
@@ -75,30 +80,43 @@ class TwitterSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractIdFromTweet(): String {
-        return getSingleElementByClass("js-stream-tweet")
-                .attr("data-tweet-id")
+        return getSingleElementByClassOrNull("js-stream-tweet")
+                ?.attr("data-tweet-id")
+                .orEmpty()
     }
 
     private fun Element.extractCaptionFromTweet(): String? {
-        return getElementsByClass("tweet-text")
-                .firstOrNull()
+        return getSingleElementByClassOrNull("tweet-text")
                 ?.removeLinks()
     }
 
-    private fun Element.extractPublishedAtFromTweet(): Long {
-        return getSingleElementByClass("js-short-timestamp")
-                .attr("data-time-ms")
-                .toLong()
+    private fun Element.extractPublishedAtFromTweet(): Long? {
+        return getSingleElementByClassOrNull("js-short-timestamp")
+                ?.attr("data-time-ms")
+                ?.toLong()
+    }
+
+    private fun Element.extractLikes(): Int? {
+        return getSingleElementByClassOrNull("ProfileTweet-action--favorite")
+                ?.getSingleElementByClassOrNull("ProfileTweet-actionCount")
+                ?.attr("data-tweet-stat-count")
+                ?.toIntOrNull()
+    }
+
+    private fun Element.extractReplies(): Int? {
+        return getSingleElementByClassOrNull("ProfileTweet-action--reply")
+                ?.getSingleElementByClassOrNull("ProfileTweet-actionCount")
+                ?.attr("data-tweet-stat-count")
+                ?.toIntOrNull()
     }
 
     private fun Element.extractAttachmentsFromTweet(): List<Attachment> {
         val imagesElements = getElementsByClass("AdaptiveMedia-photoContainer")
-        val videosElement = getElementsByClass("AdaptiveMedia-videoContainer").firstOrNull()
+        val videosElement = getSingleElementByClassOrNull("AdaptiveMedia-videoContainer")
 
         return when {
             imagesElements.isNotEmpty() -> {
-                val aspectRatio = getElementsByClass("AdaptiveMedia-singlePhoto")
-                        .firstOrNull()
+                val aspectRatio = getSingleElementByClassOrNull("AdaptiveMedia-singlePhoto")
                         ?.getStyle("padding-top")
                         ?.substringAfter("calc(")
                         ?.substringBefore("* 100%")
@@ -119,8 +137,8 @@ class TwitterSkraper @JvmOverloads constructor(
                             url = "${baseUrl}/i/status/${extractIdFromTweet()}",
                             type = VIDEO,
                             aspectRatio = videosElement
-                                    .getSingleElementByClass("PlayableMedia-player")
-                                    .getStyle("padding-bottom")
+                                    .getSingleElementByClassOrNull("PlayableMedia-player")
+                                    ?.getStyle("padding-bottom")
                                     ?.removeSuffix("%")
                                     ?.toDoubleOrNull()
                                     ?.let { 100 / it }

@@ -18,7 +18,9 @@
 package ru.sokomishalov.skraper.provider
 
 import com.fasterxml.jackson.databind.json.JsonMapper
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -51,7 +53,7 @@ abstract class SkraperTck {
     fun `Check that posts have been fetched`() = runBlocking {
         val posts = skraper.getLatestPosts(uri = uri, limit = DEFAULT_POSTS_LIMIT)
 
-        log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
+        withContext(IO) { log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)) }
 
         assertTrue(posts.isNotEmpty())
         posts.forEach {

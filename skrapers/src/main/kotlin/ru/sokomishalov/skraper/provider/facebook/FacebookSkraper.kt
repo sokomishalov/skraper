@@ -15,19 +15,25 @@
  */
 package ru.sokomishalov.skraper.provider.facebook
 
+import com.fasterxml.jackson.databind.JsonNode
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByAttributeOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
+import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.*
 import ru.sokomishalov.skraper.model.Post
+import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -40,64 +46,119 @@ class FacebookSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://facebook.com"
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val type = when (imageSize) {
-            SMALL -> "small"
-            MEDIUM -> "normal"
-            LARGE -> "large"
-        }
-        return "http://graph.facebook.com/${uri.uriCleanUp()}/picture?type=${type}"
+        val document = getPage(uri)
+
+        return document
+                ?.getElementsByAttributeValue("property", "og:image")
+                ?.firstOrNull()
+                ?.attr("content")
     }
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
-        val elements = webPage?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
+        val document = getPage(uri)
+
+        val elements = document.extractPosts(limit)
+        val jsonData = document.extractJsonData()
+        val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
 
         return elements.map {
+            val id = it.getIdByUserContentWrapper()
+            val node = metaInfoJsonMap[id]
+
             Post(
-                    id = it.getIdByUserContentWrapper(),
+                    id = id,
                     caption = it.getCaptionByUserContentWrapper(),
                     publishTimestamp = it.getPublishedAtByUserContentWrapper(),
+                    rating = node.extractReactionCount(),
+                    commentsCount = node.extractCommentsCount(),
                     attachments = it.getAttachmentsByUserContentWrapper()
             )
         }
     }
 
+    private suspend fun getPage(uri: String): Document? {
+        return client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
+    }
+
+    private fun JsonNode?.prepareMetaInfoMap(): Map<String, JsonNode> {
+        return this
+                ?.get("pre_display_requires")
+                ?.toList()
+                ?.map { it.findPath("__bbox") }
+                ?.mapNotNull { it?.get("result")?.get("data")?.get("feedback") }
+                ?.map { it["share_fbid"].asText() to it }
+                ?.toMap()
+                .orEmpty()
+    }
+
+    private suspend fun Document?.extractJsonData(): JsonNode? {
+        val infoJsonPrefix = "new (require(\"ServerJS\"))().handle("
+        val infoJsonSuffix = ");"
+
+        return this
+                ?.getElementsByTag("script")
+                ?.find { s -> s.html().startsWith(infoJsonPrefix) }
+                ?.run {
+                    html()
+                            .removePrefix(infoJsonPrefix)
+                            .removeSuffix(infoJsonSuffix)
+                            .toByteArray(UTF_8)
+                            .aReadJsonNodes()
+                }
+    }
+
+    private fun Document?.extractPosts(limit: Int): List<Element> {
+        return this
+                ?.getElementsByClass("userContentWrapper")
+                ?.toList()
+                ?.take(limit)
+                .orEmpty()
+    }
+
     private fun Element.getIdByUserContentWrapper(): String {
-        return getElementsByAttributeValueContaining("id", "feed_subtitle")
+        return getElementsByAttributeValue("name", "ft_ent_identifier")
                 ?.firstOrNull()
-                ?.attr("id")
-                ?.substringAfter(";")
-                ?.substringBefore(";")
+                ?.attr("value")
                 .orEmpty()
     }
 
     private fun Element.getCaptionByUserContentWrapper(): String? {
-        return getElementsByClass("userContent")
-                ?.firstOrNull()
-                ?.getElementsByTag("p")
-                ?.firstOrNull()
+        return getSingleElementByClassOrNull("userContent")
+                ?.getSingleElementByTagOrNull("p")
                 ?.wholeText()
                 ?.toString()
     }
 
     private fun Element.getPublishedAtByUserContentWrapper(): Long? {
-        return getElementsByAttribute("data-utime")
-                ?.firstOrNull()
+        return getSingleElementByAttributeOrNull("data-utime")
                 ?.attr("data-utime")
                 ?.toLongOrNull()
                 ?.times(1000)
     }
 
+    private fun JsonNode?.extractReactionCount(): Int? {
+        return this
+                ?.get("reaction_count")
+                ?.get("count")
+                ?.asInt()
+    }
+
+    private fun JsonNode?.extractCommentsCount(): Int? {
+        return this
+                ?.get("display_comments_count")
+                ?.get("count")
+                ?.asInt()
+    }
+
     private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
-        val videoElement = getElementsByTag("video").firstOrNull()
+        val videoElement = getSingleElementByTagOrNull("video")
 
         return when {
             videoElement != null -> listOf(Attachment(
                     type = VIDEO,
                     url = getElementsByAttributeValueContaining("id", "feed_subtitle")
                             .firstOrNull()
-                            ?.getElementsByTag("a")
-                            ?.firstOrNull()
+                            ?.getSingleElementByTagOrNull("a")
                             ?.attr("href")
                             ?.let { "${baseUrl}${it}" }
                             .orEmpty(),
@@ -107,10 +168,8 @@ class FacebookSkraper @JvmOverloads constructor(
                             ?: DEFAULT_POSTS_ASPECT_RATIO
             ))
 
-            else -> getElementsByClass("uiScaledImageContainer")
-                    ?.firstOrNull()
-                    ?.getElementsByTag("img")
-                    ?.firstOrNull()
+            else -> getSingleElementByClassOrNull("uiScaledImageContainer")
+                    ?.getSingleElementByTagOrNull("img")
                     ?.run {
                         val url = attr("src")
                         val width = attr("width").toDoubleOrNull()

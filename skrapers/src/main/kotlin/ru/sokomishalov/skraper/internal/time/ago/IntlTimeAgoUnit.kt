@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.client.ktor
+package ru.sokomishalov.skraper.internal.time.ago
 
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import ru.sokomishalov.skraper.SkraperClient
-
-class KtorSkraperClient(
-        private val client: HttpClient = DEFAULT_CLIENT
-) : SkraperClient {
-
-    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
-        return client.get(url) {
-            headers.forEach { (k, v) -> header(k, v) }
-        }
-    }
-
-    companion object {
-        private val DEFAULT_CLIENT = HttpClient {
-            followRedirects = true
-        }
-    }
+interface IntlTimeAgoUnit {
+    val moment: String
+    val moments: String
+    val second: String
+    val seconds: String
+    val minute: String
+    val minutes: String
+    val hour: String
+    val hours: String
+    val day: String
+    val days: String
+    val week: String
+    val weeks: String
+    val month: String
+    val months: String
+    val year: String
+    val years: String
 }

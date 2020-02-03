@@ -38,7 +38,7 @@ interface Skraper {
 
     /**
      * @param uri specific uri for the page
-     * @param limit limit for amount of posts to return
+     * @param limit limit for an amount of posts to return
      * @return list of posts
      */
     suspend fun getLatestPosts(uri: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>

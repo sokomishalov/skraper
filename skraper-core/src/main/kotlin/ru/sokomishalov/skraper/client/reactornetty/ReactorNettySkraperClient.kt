@@ -30,8 +30,13 @@ class ReactorNettySkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: String): ByteArray? {
-        return client.get().uri(url).responseSingle { _, u -> u.asByteArray() }.awaitFirstOrNull()
+    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
+        return client
+                .headers { headers.forEach { (k, v) -> it[k] = v } }
+                .get()
+                .uri(url)
+                .responseSingle { _, u -> u.asByteArray() }
+                .awaitFirstOrNull()
     }
 
     companion object {

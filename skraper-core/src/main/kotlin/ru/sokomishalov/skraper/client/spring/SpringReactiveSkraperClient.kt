@@ -34,10 +34,11 @@ class SpringReactiveSkraperClient(
         private val webClient: WebClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: String): ByteArray? {
+    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
         return webClient
                 .get()
                 .uri(url)
+                .headers { headers.forEach { (k, v) -> it[k] = v } }
                 .exchange()
                 .awaitFirstOrNull()
                 ?.bodyToMono<ByteArray>()

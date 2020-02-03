@@ -26,11 +26,11 @@ import java.net.URL
  * @author sokomishalov
  */
 
-internal suspend fun URL.openStreamForRedirectable(): InputStream {
+internal suspend fun URL.openStreamForRedirectable(headers: Map<String, String> = emptyMap()): InputStream {
     return withContext(IO) {
         val conn = openConnection() as HttpURLConnection
 
-        conn.applyDefaultHeaders()
+        conn.applyDefaultHeaders(headers = headers)
 
         val status = conn.responseCode
 
@@ -39,7 +39,7 @@ internal suspend fun URL.openStreamForRedirectable(): InputStream {
                 val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
                 newConn.apply {
                     setRequestProperty("Cookie", conn.getHeaderField("Set-Cookie"))
-                    applyDefaultHeaders()
+                    applyDefaultHeaders(headers)
                 }
                 newConn.inputStream
             }
@@ -48,10 +48,8 @@ internal suspend fun URL.openStreamForRedirectable(): InputStream {
     }
 }
 
-private fun HttpURLConnection.applyDefaultHeaders() {
+private fun HttpURLConnection.applyDefaultHeaders(headers: Map<String, String> = emptyMap()) {
     connectTimeout = 5_000
     readTimeout = 5_000
-    addRequestProperty("Accept-Language", "en-US,en;q=0.8")
-    addRequestProperty("User-Agent", "Mozilla")
-    addRequestProperty("Referer", "google.com")
+    headers.forEach { (k, v) -> addRequestProperty(k, v) }
 }

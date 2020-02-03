@@ -55,6 +55,8 @@ class InstagramSkraper @JvmOverloads constructor(
                     id = it.parseId(),
                     caption = it.parseCaption(),
                     publishTimestamp = it.parsePublishedAt(),
+                    rating = it.parseLikesCount(),
+                    commentsCount = it.parseCommentsCount(),
                     attachments = it.parseAttachments()
             )
         }
@@ -93,6 +95,18 @@ class InstagramSkraper @JvmOverloads constructor(
         return get("taken_at_timestamp")
                 ?.asLong()
                 ?.times(1000)
+    }
+
+    private fun JsonNode.parseLikesCount(): Int? {
+        return get("edge_media_preview_like")
+                ?.get("count")
+                ?.asInt()
+    }
+
+    private fun JsonNode.parseCommentsCount(): Int? {
+        return get("edge_media_to_comment")
+                ?.get("count")
+                ?.asInt()
     }
 
     private fun JsonNode.parseAttachments(): List<Attachment> {
