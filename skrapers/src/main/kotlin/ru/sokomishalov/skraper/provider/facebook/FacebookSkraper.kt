@@ -81,10 +81,8 @@ class FacebookSkraper @JvmOverloads constructor(
         val metaInfoJsonMap = jsonData
                 ?.get("pre_display_requires")
                 ?.toList()
-                ?.let { it.subList(it.size / 2, it.size - 1) }
                 .orEmpty()
                 .map { it.findPath("__bbox") }
-                .take(limit)
                 .mapNotNull { it?.get("result")?.get("data")?.get("feedback") }
                 .map { it["share_fbid"].asText() to it }
                 .toMap()
