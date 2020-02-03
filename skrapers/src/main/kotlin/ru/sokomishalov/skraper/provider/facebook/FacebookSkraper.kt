@@ -16,6 +16,7 @@
 package ru.sokomishalov.skraper.provider.facebook
 
 import com.fasterxml.jackson.databind.JsonNode
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
@@ -57,35 +58,9 @@ class FacebookSkraper @JvmOverloads constructor(
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val document = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
 
-        val elements = document
-                ?.getElementsByClass("userContentWrapper")
-                ?.toList()
-                ?.drop(1)
-                ?.take(limit)
-                .orEmpty()
-
-        val infoJsonPrefix = "new (require(\"ServerJS\"))().handle("
-        val infoJsonSuffix = ");"
-
-        val jsonData = document
-                ?.getElementsByTag("script")
-                ?.find { s -> s.html().startsWith(infoJsonPrefix) }
-                ?.run {
-                    html()
-                            .removePrefix(infoJsonPrefix)
-                            .removeSuffix(infoJsonSuffix)
-                            .toByteArray(UTF_8)
-                            .aReadJsonNodes()
-                }
-
-        val metaInfoJsonMap = jsonData
-                ?.get("pre_display_requires")
-                ?.toList()
-                .orEmpty()
-                .map { it.findPath("__bbox") }
-                .mapNotNull { it?.get("result")?.get("data")?.get("feedback") }
-                .map { it["share_fbid"].asText() to it }
-                .toMap()
+        val elements = document.extractPosts(limit)
+        val jsonData = document.extractJsonData()
+        val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
 
         return elements.map {
             val id = it.getIdByUserContentWrapper()
@@ -102,12 +77,45 @@ class FacebookSkraper @JvmOverloads constructor(
         }
     }
 
+    private fun JsonNode?.prepareMetaInfoMap(): Map<String, JsonNode> {
+        return this
+                ?.get("pre_display_requires")
+                ?.toList()
+                ?.map { it.findPath("__bbox") }
+                ?.mapNotNull { it?.get("result")?.get("data")?.get("feedback") }
+                ?.map { it["share_fbid"].asText() to it }
+                ?.toMap()
+                .orEmpty()
+    }
+
+    private suspend fun Document?.extractJsonData(): JsonNode? {
+        val infoJsonPrefix = "new (require(\"ServerJS\"))().handle("
+        val infoJsonSuffix = ");"
+
+        return this
+                ?.getElementsByTag("script")
+                ?.find { s -> s.html().startsWith(infoJsonPrefix) }
+                ?.run {
+                    html()
+                            .removePrefix(infoJsonPrefix)
+                            .removeSuffix(infoJsonSuffix)
+                            .toByteArray(UTF_8)
+                            .aReadJsonNodes()
+                }
+    }
+
+    private fun Document?.extractPosts(limit: Int): List<Element> {
+        return this
+                ?.getElementsByClass("userContentWrapper")
+                ?.toList()
+                ?.take(limit)
+                .orEmpty()
+    }
+
     private fun Element.getIdByUserContentWrapper(): String {
-        return getElementsByAttributeValueContaining("id", "feed_subtitle")
+        return getElementsByAttributeValue("name", "ft_ent_identifier")
                 ?.firstOrNull()
-                ?.attr("id")
-                ?.substringAfter(";")
-                ?.substringBefore(";")
+                ?.attr("value")
                 .orEmpty()
     }
 
