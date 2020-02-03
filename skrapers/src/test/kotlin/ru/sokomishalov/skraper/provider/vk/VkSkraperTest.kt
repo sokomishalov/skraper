@@ -24,6 +24,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class VkSkraperTest : SkraperTck() {
     override val skraper: Skraper = VkSkraper(client = client)
-//    override val uri: String = "/komment"
-    override val uri: String = "/vozdushnaya_massa"
+    override val uri: String = "/komment"
 }
