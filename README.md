@@ -83,28 +83,27 @@ Received data structure is similar to each other provider's. Output data example
 ```json
 [
   {
-    "id": "5025763337441213",
-    "caption": "looks natural AF",
-    "publishTimestamp": 1580470800000,
-    "attachments": [
-      {
-        "url": "https://facebook.com/memes/posts/5025763337441213?__xts__%5B0%5D=68.ARAPnnd-jbS5dtHDl23RZdXAJ9byMvioJE1tq52xm2zQ61ciyG59tSHfYiVMs2LHYT12d0Cxt7SAP8lZwkdvRHyj9z47Z5wNv32P8vHPOQNHMHIgEbqeX0uljZLi7ZJ0jLdpRPG51ZGZzqUY7Zjvl56SwgAa3093TAOfv7RZRzpkTVJcY7r0hzXoVkSkBdSnMqt47E4Di862xqBkpHv9_BbxJcK3iml_7_FL4tOj6L4eWN2uLI6gsMypCPAphRK82EsrAUiLLx9rh5-d2LJL_CBFyuHT1dEVin8z5cwOiEXqlqIkkz30tsA6N2UYJj5iv4i3iy2tMHtheMGjpA1QeCU3eke2JZ_x8MZR7rGhE6daXAmNBInZDTQrsb2IESoxZZRfVuT9tNmj6j18fbpY9BWcGlwMPNmGAuTgn2T4fwKDjuV1uNxazTfH8ysE0q7yCmfELX2lkyeiRpQIaK_TZkPKlXEreTQmnQvssptYyKAvtN4QUtq0Cocj-iB3s2pNeQ&__tn__=-R",
-        "type": "VIDEO",
-        "aspectRatio": 1.0
-      }
-    ]
-  },
-  {
-    "id": "4960623483955199",
-    "caption": "Yup",
-    "publishTimestamp": 1580468400000,
-    "attachments": [
-      {
-        "url": "https://z-p3-scontent-waw1-1.xx.fbcdn.net/v/t1.0-0/p180x540/51814898_10157713123579879_3485770430659166208_n.jpg?_nc_cat=1&_nc_oc=AQlYqPblAabvCl-Y5YC9nFGBJ3lMvu6y7max-b8Ps4DPOAaOryfuCuX2UOUyvDWSwpU&_nc_ht=z-p3-scontent-waw1-1.xx&_nc_tp=6&oh=bde157c673766599bfe5a801b48e940f&oe=5E8D4261",
-        "type": "IMAGE",
-        "aspectRatio": 0.9363295880149812
-      }
-    ]
+    "id" : "5029851093699104",
+    "caption" : "gotta love em!",
+    "publishTimestamp" : 1580744400000,
+    "rating" : 79,
+    "commentsCount" : 3,
+    "attachments" : [ {
+      "url" : "https://facebook.com/memes/posts/5029851093699104?__xts__%5B0%5D=68.ARA2yRI2YnlXQRKX7Pdphh8ztgvnP11aYE_bZFPNmqLpJZLhwJaG24gDPUTiKDLv-J_E09u2vLjCXalpmEuGSmVR0BkVtcng_i6QV8x5e-aZUv0Mkn1wwKLlhp5NNH6zQWKlqDqRjZrwvcKeUi0unzzulRCHRvDIrbz2leM6PLescFySwMYbMmKFc7ctqaC_F7nJ09Ya0lz9Pqaq_Rh6UsNKom6fqdgHAuoHV894a3QRuyY0BC6fQuXZLOLbRIfEVK3cF9Z5UQiXUYruCySF-WpQEV0k72x6DIjT6B3iovYFnBGHaji9VAx2PByZ-MDs33D1Hz96Mk-O1Pj7zBwO6FvXGhkUJgepiwUOVd0q-pV83rS5EhjtPFDylNoNO2xkDUSIi483p49vumVPWtmab8LX1V6w2anf55kh6pedCXcH3D8rBjz8DaTBnv995u9kk5im-1-HdAGQHyKrCZpaA0QyC-I4oGsCoIJGck3RO8u_SoHcfe2tKjTgPe6j9p1D&__tn__=-R",
+      "type" : "VIDEO",
+      "aspectRatio" : 0.864
+    } ]
+  }, {
+    "id" : "4990218157662398",
+    "caption" : "Interesting",
+    "publishTimestamp" : 1580742000000,
+    "rating" : 3092,
+    "commentsCount" : 514,
+    "attachments" : [ {
+      "url" : "https://scontent.fhrk1-1.fna.fbcdn.net/v/t1.0-0/p526x296/52333452_10157743612509879_529328953723191296_n.png?_nc_cat=1&_nc_ohc=oNMb8_mCbD8AX-w9zeY&_nc_ht=scontent.fhrk1-1.fna&oh=ca8a719518ecfb1a24f871282b860124&oe=5E910D0C",
+      "type" : "IMAGE",
+      "aspectRatio" : 0.8960573476702509
+    } ]
   },
   //...
 ]
