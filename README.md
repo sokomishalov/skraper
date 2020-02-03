@@ -75,7 +75,7 @@ To scrape the latest posts for specific user, channel or trend use skraper like 
 ```kotlin
 fun main() = runBlocking {
     val skraper = FacebookSkraper()
-    val posts = skraper.getLatestPosts(uri = "/memes")
+    val posts = skraper.getLatestPosts(uri = "/memes", limit = 2)
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 }
 ```
@@ -105,7 +105,6 @@ Received data structure is similar to each other provider's. Output data example
       "aspectRatio" : 0.8960573476702509
     } ]
   }
-  /* ... */
 ]
 ```
 
