@@ -38,6 +38,7 @@ class YoutubeSkraper(
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val document = getUserPage(uri)
+
         val videos = document
                 ?.getElementsByClass("yt-lockup-video")
                 ?.take(limit)
