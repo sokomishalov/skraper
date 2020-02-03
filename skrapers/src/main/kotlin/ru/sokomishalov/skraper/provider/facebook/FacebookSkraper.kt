@@ -21,6 +21,9 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByAttributeOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -72,32 +75,28 @@ class FacebookSkraper @JvmOverloads constructor(
     }
 
     private fun Element.getCaptionByUserContentWrapper(): String? {
-        return getElementsByClass("userContent")
-                ?.firstOrNull()
-                ?.getElementsByTag("p")
-                ?.firstOrNull()
+        return getSingleElementByClassOrNull("userContent")
+                ?.getSingleElementByTagOrNull("p")
                 ?.wholeText()
                 ?.toString()
     }
 
     private fun Element.getPublishedAtByUserContentWrapper(): Long? {
-        return getElementsByAttribute("data-utime")
-                ?.firstOrNull()
+        return getSingleElementByAttributeOrNull("data-utime")
                 ?.attr("data-utime")
                 ?.toLongOrNull()
                 ?.times(1000)
     }
 
     private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
-        val videoElement = getElementsByTag("video").firstOrNull()
+        val videoElement = getSingleElementByTagOrNull("video")
 
         return when {
             videoElement != null -> listOf(Attachment(
                     type = VIDEO,
                     url = getElementsByAttributeValueContaining("id", "feed_subtitle")
                             .firstOrNull()
-                            ?.getElementsByTag("a")
-                            ?.firstOrNull()
+                            ?.getSingleElementByTagOrNull("a")
                             ?.attr("href")
                             ?.let { "${baseUrl}${it}" }
                             .orEmpty(),
@@ -107,10 +106,8 @@ class FacebookSkraper @JvmOverloads constructor(
                             ?: DEFAULT_POSTS_ASPECT_RATIO
             ))
 
-            else -> getElementsByClass("uiScaledImageContainer")
-                    ?.firstOrNull()
-                    ?.getElementsByTag("img")
-                    ?.firstOrNull()
+            else -> getSingleElementByClassOrNull("uiScaledImageContainer")
+                    ?.getSingleElementByTagOrNull("img")
                     ?.run {
                         val url = attr("src")
                         val width = attr("width").toDoubleOrNull()

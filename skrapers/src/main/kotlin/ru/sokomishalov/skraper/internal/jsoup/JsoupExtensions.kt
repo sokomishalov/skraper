@@ -35,6 +35,14 @@ internal fun Element.getSingleElementByTagOrNull(name: String): Element? {
     return getElementsByTag(name).firstOrNull()
 }
 
+internal fun Element.getSingleElementByAttribute(name: String): Element {
+    return getElementsByAttribute(name).first()
+}
+
+internal fun Element.getSingleElementByAttributeOrNull(name: String): Element? {
+    return getElementsByAttribute(name).firstOrNull()
+}
+
 internal fun Element.getImageBackgroundUrl(): String {
     val style = attr("style")
     return style.substring(style.indexOf("http"), style.indexOf(")"))
