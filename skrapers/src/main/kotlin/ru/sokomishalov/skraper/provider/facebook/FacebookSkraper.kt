@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.facebook
 
+import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
@@ -24,6 +25,7 @@ import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByAttributeOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
+import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -31,6 +33,7 @@ import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.ImageSize.*
 import ru.sokomishalov.skraper.model.Post
+import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -53,13 +56,49 @@ class FacebookSkraper @JvmOverloads constructor(
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val document = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
-        val elements = document?.getElementsByClass("userContentWrapper")?.take(limit).orEmpty()
+
+        val elements = document
+                ?.getElementsByClass("userContentWrapper")
+                ?.toList()
+                ?.drop(1)
+                ?.take(limit)
+                .orEmpty()
+
+        val infoJsonPrefix = "new (require(\"ServerJS\"))().handle("
+        val infoJsonSuffix = ");"
+
+        val jsonData = document
+                ?.getElementsByTag("script")
+                ?.find { s -> s.html().startsWith(infoJsonPrefix) }
+                ?.run {
+                    html()
+                            .removePrefix(infoJsonPrefix)
+                            .removeSuffix(infoJsonSuffix)
+                            .toByteArray(UTF_8)
+                            .aReadJsonNodes()
+                }
+
+        val metaInfoJsonMap = jsonData
+                ?.get("pre_display_requires")
+                ?.toList()
+                ?.let { it.subList(it.size / 2, it.size - 1) }
+                .orEmpty()
+                .map { it.findPath("__bbox") }
+                .take(limit)
+                .mapNotNull { it?.get("result")?.get("data")?.get("feedback") }
+                .map { it["share_fbid"].asText() to it }
+                .toMap()
 
         return elements.map {
+            val id = it.getIdByUserContentWrapper()
+            val node = metaInfoJsonMap[id]
+
             Post(
-                    id = it.getIdByUserContentWrapper(),
+                    id = id,
                     caption = it.getCaptionByUserContentWrapper(),
                     publishTimestamp = it.getPublishedAtByUserContentWrapper(),
+                    rating = node.extractReactionCount(),
+                    commentsCount = node.extractCommentsCount(),
                     attachments = it.getAttachmentsByUserContentWrapper()
             )
         }
@@ -86,6 +125,20 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.attr("data-utime")
                 ?.toLongOrNull()
                 ?.times(1000)
+    }
+
+    private fun JsonNode?.extractReactionCount(): Int? {
+        return this
+                ?.get("reaction_count")
+                ?.get("count")
+                ?.asInt()
+    }
+
+    private fun JsonNode?.extractCommentsCount(): Int? {
+        return this
+                ?.get("display_comments_count")
+                ?.get("count")
+                ?.asInt()
     }
 
     private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
