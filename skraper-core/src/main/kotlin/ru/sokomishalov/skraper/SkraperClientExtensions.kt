@@ -31,24 +31,38 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 
-suspend fun SkraperClient.fetchBytes(url: String): ByteArray? {
-    return runCatching { fetch(url) }.getOrNull()
+suspend fun SkraperClient.fetchBytes(
+        url: String,
+        headers: Map<String, String> = emptyMap()
+): ByteArray? {
+    return runCatching { fetch(url = url, headers = headers) }.getOrNull()
 }
 
-suspend fun SkraperClient.fetchJson(url: String): JsonNode {
-    val ba = fetchBytes(url)
+suspend fun SkraperClient.fetchJson(
+        url: String,
+        headers: Map<String, String> = emptyMap()
+): JsonNode {
+    val ba = fetchBytes(url = url, headers = headers)
     return ba.aReadJsonNodes()
 }
 
-suspend fun SkraperClient.fetchDocument(url: String, charset: Charset = UTF_8): Document? {
-    val ba = fetchBytes(url)
+suspend fun SkraperClient.fetchDocument(
+        url: String,
+        headers: Map<String, String> = emptyMap(),
+        charset: Charset = UTF_8
+): Document? {
+    val ba = fetchBytes(url = url, headers = headers)
     return ba?.let { withContext(IO) { Jsoup.parse(it.toString(charset)) } }
 }
 
-suspend fun SkraperClient.fetchAspectRatio(url: String, orElse: Double = DEFAULT_POSTS_ASPECT_RATIO): Double {
+suspend fun SkraperClient.fetchAspectRatio(
+        url: String,
+        headers: Map<String, String> = emptyMap(),
+        orElse: Double = DEFAULT_POSTS_ASPECT_RATIO
+): Double {
     return withContext(IO) {
         runCatching {
-            openStream(url)!!.getRemoteImageInfo().run { width.toDouble() / height.toDouble() }
+            openStream(url = url, headers = headers)!!.getRemoteImageInfo().run { width.toDouble() / height.toDouble() }
         }.getOrElse {
             orElse
         }

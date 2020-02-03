@@ -17,14 +17,17 @@ package ru.sokomishalov.skraper.client.ktor
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import ru.sokomishalov.skraper.SkraperClient
 
 class KtorSkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: String): ByteArray? {
-        return client.get(url)
+    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
+        return client.get(url) {
+            headers.forEach { (k, v) -> header(k, v) }
+        }
     }
 
     companion object {
