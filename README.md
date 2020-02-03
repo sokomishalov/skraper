@@ -80,7 +80,7 @@ fun main() = runBlocking {
 }
 ```
 Received data structure is similar to each other provider's. Output data example:
-```json
+```json5
 [
   {
     "id" : "5029851093699104",
@@ -104,8 +104,8 @@ Received data structure is similar to each other provider's. Output data example
       "type" : "IMAGE",
       "aspectRatio" : 0.8960573476702509
     } ]
-  },
-  //...
+  }
+  /* ... */
 ]
 ```
 
