@@ -67,7 +67,9 @@ class TwitterSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return getUserPage(uri)
+        val document = getUserPage(uri)
+
+        return document
                 ?.body()
                 ?.getSingleElementByClass("ProfileAvatar-image")
                 ?.attr("src")

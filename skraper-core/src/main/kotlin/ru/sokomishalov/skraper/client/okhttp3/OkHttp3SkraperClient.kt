@@ -36,14 +36,16 @@ class OkHttp3SkraperClient(
         private val client: OkHttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? = withContext(IO) {
+    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
         val request = Request
                 .Builder()
                 .url(url)
                 .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
                 .build()
 
-        client.newCall(request).await().body?.bytes()
+        return withContext(IO) {
+            client.newCall(request).await().body?.bytes()
+        }
     }
 
     companion object {
