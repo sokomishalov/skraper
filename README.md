@@ -6,7 +6,7 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 ## Overview
-Tool that scrapes posts with media and other meta info from various sources without any authorization or full page rendering.
+Allows scraping posts with media and other meta info from various sources without any authorization or full page rendering.
 
 Based on Kotlin/JVM coroutines and jsoup.
 
