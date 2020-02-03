@@ -31,6 +31,11 @@ import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatterBuilder
+import java.util.Locale.ENGLISH
 
 /**
  * @author sokomishalov
@@ -71,7 +76,7 @@ class VkSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserPage(uri: String): Document? {
-        return client.fetchDocument("$baseUrl/${uri.uriCleanUp()}")
+        return client.fetchDocument(url = "$baseUrl/${uri.uriCleanUp()}", headers = mapOf("Accept-Language" to "en-US"))
     }
 
     private fun Element.extractId(): String {
@@ -88,9 +93,46 @@ class VkSkraper @JvmOverloads constructor(
     private fun Element.extractPublishedDate(): Long? {
         return getSingleElementByClassOrNull("wi_date")
                 ?.wholeText()
-                ?.let {
-                    // TODO parse
-                    null
+                ?.run {
+                    val localDate = runCatching {
+                        when {
+                            startsWith("today at ") -> {
+                                removePrefix("today at ")
+                                        .let {
+                                            LocalTime.parse(it.toUpperCase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
+                                        }
+                                        .let {
+                                            LocalDate
+                                                    .now()
+                                                    .atTime(it)
+                                                    .atZone(ZoneId.systemDefault())
+                                        }
+                            }
+                            startsWith("yesterday at ") -> {
+                                removePrefix("yesterday at ")
+                                        .let {
+                                            LocalTime.parse(it.toUpperCase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
+                                        }
+                                        .let {
+                                            LocalDate
+                                                    .now()
+                                                    .minusDays(1)
+                                                    .atTime(it)
+                                                    .atZone(ZoneId.systemDefault())
+                                        }
+                            }
+                            else -> {
+                                LocalDate
+                                        .parse(this, VK_LONG_TIME_AGO_DATE_FORMATTER)
+                                        .atTime(LocalTime.NOON)
+                                        .atZone(ZoneId.systemDefault())
+                            }
+                        }
+                    }.getOrNull()
+
+                    return localDate
+                            ?.toEpochSecond()
+                            ?.times(1000)
                 }
     }
 
@@ -132,5 +174,18 @@ class VkSkraper @JvmOverloads constructor(
                     )
                 }
                 .orEmpty()
+    }
+
+    companion object {
+        private val VK_SHORT_TIME_AGO_DATE_FORMATTER = DateTimeFormatterBuilder()
+                .appendPattern("h:mm a")
+                .parseLenient()
+                .toFormatter(ENGLISH)
+
+        private val VK_LONG_TIME_AGO_DATE_FORMATTER = DateTimeFormatterBuilder()
+                .appendPattern("d MMM yyyy")
+                .parseLenient()
+                .toFormatter(ENGLISH)
+
     }
 }

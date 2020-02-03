@@ -15,9 +15,9 @@
  */
 package ru.sokomishalov.skraper.internal.time.ago.langs
 
-import ru.sokomishalov.skraper.internal.time.ago.IntlTimeUnit
+import ru.sokomishalov.skraper.internal.time.ago.IntlTimeAgoUnit
 
-object EnglishTimeUnit : IntlTimeUnit {
+internal object EnglishTimeAgoUnit : IntlTimeAgoUnit {
     override val moment: String = "moment"
     override val moments: String = "moments"
     override val second: String = "second"

@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.internal.time.ago
 
-interface IntlTimeUnit {
+interface IntlTimeAgoUnit {
     val moment: String
     val moments: String
     val second: String

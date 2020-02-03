@@ -15,14 +15,14 @@
  */
 package ru.sokomishalov.skraper.internal.time.ago
 
-import ru.sokomishalov.skraper.internal.time.ago.langs.EnglishTimeUnit
+import ru.sokomishalov.skraper.internal.time.ago.langs.EnglishTimeAgoUnit
 import java.time.Duration
 import java.time.Period
 import java.time.chrono.ChronoPeriod
 import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.TemporalAmount
 
-internal fun CharSequence.parseTimeAgo(lang: IntlTimeUnit = EnglishTimeUnit): Long {
+internal fun CharSequence.parseTimeAgo(lang: IntlTimeAgoUnit = EnglishTimeAgoUnit): Long {
     val now = System.currentTimeMillis()
 
     val amount = split(" ")
