@@ -6,7 +6,7 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 ## Overview
-Scrapes posts with media and other meta info from various sources without any authorization or full page rendering.
+Tool that scrapes posts with media and other meta info from various sources without any authorization or full page rendering.
 
 Based on Kotlin/JVM coroutines and jsoup.
 
@@ -70,8 +70,8 @@ interface Skraper {
 }
 ```
 
-### Latest user/channel/trend posts
-To scrape latest posts for specific user, channel or trend use skraper like that: 
+### The latest user/channel/trend posts
+To scrape the latest posts for specific user, channel or trend use skraper like that: 
 ```kotlin
 fun main() = runBlocking {
     val skraper = FacebookSkraper()

@@ -15,6 +15,15 @@
  */
 package ru.sokomishalov.skraper.model
 
+/**
+ * Represents a provider post.
+ * @property id provider's internal id
+ * @property caption caption (or article)
+ * @property publishTimestamp published at *(nullable - data for it may not exist on the provider's page)
+ * @property rating rating (likes) count *(nullable - data for it may not exist on the provider's page)
+ * @property commentsCount comments count *(nullable - data for it may not exist on the provider's page)
+ * @property attachments attachments (images or videos)
+ */
 data class Post(
         val id: String,
         val caption: String? = "",

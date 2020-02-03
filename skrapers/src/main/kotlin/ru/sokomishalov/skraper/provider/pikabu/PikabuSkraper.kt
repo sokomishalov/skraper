@@ -44,7 +44,7 @@ class PikabuSkraper(
         val document = getUserPage(uri)
 
         val stories = document
-                ?.getElementsByClass("story__main")
+                ?.getElementsByTag("article")
                 ?.take(limit)
                 .orEmpty()
 
@@ -63,6 +63,8 @@ class PikabuSkraper(
                     id = it.parseId(),
                     caption = String(caption.toByteArray(UTF_8)),
                     publishTimestamp = it.parsePublishDate(),
+                    rating = it.parseRating(),
+                    commentsCount = it.parseCommentsCount(),
                     attachments = storyBlocks.parseMediaAttachments()
             )
         }
@@ -101,6 +103,20 @@ class PikabuSkraper(
                 .firstOrNull()
                 ?.attr("datetime")
                 ?.run { ZonedDateTime.parse(this, DATE_FORMATTER).toEpochSecond().times(1000) }
+    }
+
+    private fun Element.parseRating(): Int? {
+        return getElementsByClass("story__rating-count")
+                .firstOrNull()
+                ?.wholeText()
+                ?.toIntOrNull()
+    }
+
+    private fun Element.parseCommentsCount(): Int? {
+        return getElementsByClass("story__comments-link-count")
+                .firstOrNull()
+                ?.wholeText()
+                ?.toIntOrNull()
     }
 
     private fun Elements.parseMediaAttachments(): List<Attachment> {

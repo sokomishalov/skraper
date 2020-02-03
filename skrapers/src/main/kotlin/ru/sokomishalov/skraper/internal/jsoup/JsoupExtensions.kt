@@ -19,25 +19,20 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 
-internal fun Element.removeLinks(): String? {
-    val titleDoc = Jsoup.parse(html())
-
-    val allAnchors = titleDoc.select("a")
-    val hrefAnchors = titleDoc.select("a[href^=/]")
-    val unwantedAnchors = mutableListOf<Element>()
-
-    allAnchors.filterNotTo(unwantedAnchors) { hrefAnchors.contains(it) }
-    unwantedAnchors.forEach { it.remove() }
-
-    return titleDoc.wholeText()
-}
-
 internal fun Element.getSingleElementByClass(name: String): Element {
     return getElementsByClass(name).first()
 }
 
+internal fun Element.getSingleElementByClassOrNull(name: String): Element? {
+    return getElementsByClass(name).firstOrNull()
+}
+
 internal fun Element.getSingleElementByTag(name: String): Element {
     return getElementsByTag(name).first()
+}
+
+internal fun Element.getSingleElementByTagOrNull(name: String): Element? {
+    return getElementsByTag(name).firstOrNull()
 }
 
 internal fun Element.getImageBackgroundUrl(): String {
@@ -61,4 +56,17 @@ internal fun Element.getStyleMap(): Map<String, String> {
 
 internal fun Element.getStyle(name: String): String? {
     return this.getStyleMap()[name]
+}
+
+internal fun Element.removeLinks(): String? {
+    val titleDoc = Jsoup.parse(html())
+
+    val allAnchors = titleDoc.select("a")
+    val hrefAnchors = titleDoc.select("a[href^=/]")
+    val unwantedAnchors = mutableListOf<Element>()
+
+    allAnchors.filterNotTo(unwantedAnchors) { hrefAnchors.contains(it) }
+    unwantedAnchors.forEach { it.remove() }
+
+    return titleDoc.wholeText()
 }

@@ -24,9 +24,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getImageBackgroundUrl
-import ru.sokomishalov.skraper.internal.jsoup.getStyle
-import ru.sokomishalov.skraper.internal.jsoup.removeLinks
+import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
@@ -53,6 +51,9 @@ class VkSkraper @JvmOverloads constructor(
             Post(
                     id = it.extractId(),
                     caption = it.extractCaption(),
+                    publishTimestamp = it.extractPublishedDate(),
+                    rating = it.extractLikes(),
+                    commentsCount = it.extractReplies(),
                     attachments = it.extractAttachments()
             )
         }
@@ -60,10 +61,8 @@ class VkSkraper @JvmOverloads constructor(
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
         return getUserPage(uri)
-                ?.getElementsByClass("profile_panel")
-                ?.firstOrNull()
-                ?.getElementsByTag("img")
-                ?.firstOrNull()
+                ?.getSingleElementByClassOrNull("profile_panel")
+                ?.getSingleElementByTagOrNull("img")
                 ?.attr("src")
     }
 
@@ -78,37 +77,56 @@ class VkSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractCaption(): String? {
-        return getElementsByClass("pi_text")
-                ?.firstOrNull()
+        return getSingleElementByClassOrNull("pi_text")
                 ?.removeLinks()
     }
 
+    private fun Element.extractPublishedDate(): Long? {
+        return getSingleElementByClassOrNull("wi_date")
+                ?.wholeText()
+                ?.let {
+                    // TODO parse
+                    null
+                }
+    }
+
+    private fun Element.extractLikes(): Int? {
+        return getSingleElementByClassOrNull("v_like")
+                ?.wholeText()
+                ?.toIntOrNull()
+    }
+
+    private fun Element.extractReplies(): Int? {
+        return getSingleElementByClassOrNull("v_replies")
+                ?.wholeText()
+                ?.toIntOrNull()
+    }
+
     private fun Element.extractAttachments(): List<Attachment> {
-        val thumbElement = getElementsByClass("thumbs_map_helper").firstOrNull()
-        val imgElement = thumbElement?.getElementsByClass("thumb_map_img")?.firstOrNull()
+        val thumbElement = getSingleElementByClassOrNull("thumbs_map_helper")
 
-        return when (imgElement) {
-            null -> emptyList<Attachment>()
-            else -> {
-                val isVideo = imgElement.attr("data-video").isNotBlank()
+        return thumbElement
+                ?.getElementsByClass("thumb_map_img")
+                ?.mapNotNull {
+                    val isVideo = it.attr("data-video").isNotBlank()
 
-                listOf(Attachment(
-                        url = when {
-                            isVideo -> "https://vk.com${imgElement.attr("href")}"
-                            else -> runCatching { imgElement.getImageBackgroundUrl() }.getOrNull().orEmpty()
-                        },
-                        type = when {
-                            isVideo -> VIDEO
-                            else -> IMAGE
-                        },
-                        aspectRatio = thumbElement
-                                .getStyle("padding-top")
-                                ?.removeSuffix("%")
-                                ?.toDoubleOrNull()
-                                ?.let { 100 / it }
-                                ?: DEFAULT_POSTS_ASPECT_RATIO
-                ))
-            }
-        }
+                    Attachment(
+                            url = when {
+                                isVideo -> "${baseUrl}${it.attr("href")}"
+                                else -> runCatching { it.getImageBackgroundUrl() }.getOrNull().orEmpty()
+                            },
+                            type = when {
+                                isVideo -> VIDEO
+                                else -> IMAGE
+                            },
+                            aspectRatio = thumbElement
+                                    .getStyle("padding-top")
+                                    ?.removeSuffix("%")
+                                    ?.toDoubleOrNull()
+                                    ?.let { 100 / it }
+                                    ?: DEFAULT_POSTS_ASPECT_RATIO
+                    )
+                }
+                .orEmpty()
     }
 }
