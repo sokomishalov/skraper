@@ -169,7 +169,7 @@ class VkSkraper @JvmOverloads constructor(
                                     .getStyle("padding-top")
                                     ?.removeSuffix("%")
                                     ?.toDoubleOrNull()
-                                    ?.let { 100 / it }
+                                    ?.run { 100 / this }
                                     ?: DEFAULT_POSTS_ASPECT_RATIO
                     )
                 }

@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.ifunny
 
+import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
@@ -53,7 +54,7 @@ class IFunnySkraper @JvmOverloads constructor(
 
             val video = "video" in link || "gif" in link
             Post(
-                    id = link.convertUriToId(),
+                    id = link.substringBeforeLast("?").substringAfterLast("/"),
                     attachments = listOf(Attachment(
                             url = when {
                                 video -> "${baseUrl}${link}"
@@ -74,15 +75,10 @@ class IFunnySkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getTopicPage(uri)
-
-        return document
-                ?.getElementsByTag("meta")
-                ?.find { it.attr("property") == "og:image" }
-                ?.attr("content")
+        return getLogoUrl(imageSize)
     }
 
-    private suspend fun getTopicPage(uri: String) = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}")
-
-    private fun String.convertUriToId(): String = substringBeforeLast("?").replaceFirst("/", "")
+    private suspend fun getTopicPage(uri: String): Document? {
+        return client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}")
+    }
 }
