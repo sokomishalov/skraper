@@ -32,7 +32,6 @@ import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.*
 import ru.sokomishalov.skraper.model.Post
 import kotlin.text.Charsets.UTF_8
 
@@ -47,16 +46,16 @@ class FacebookSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://facebook.com"
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val type = when (imageSize) {
-            SMALL -> "small"
-            MEDIUM -> "normal"
-            LARGE -> "large"
-        }
-        return "http://graph.facebook.com/${uri.uriCleanUp()}/picture?type=${type}"
+        val document = getPage(uri)
+
+        return document
+                ?.getElementsByAttributeValue("property", "og:image")
+                ?.firstOrNull()
+                ?.attr("content")
     }
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
+        val document = getPage(uri)
 
         val elements = document.extractPosts(limit)
         val jsonData = document.extractJsonData()
@@ -75,6 +74,10 @@ class FacebookSkraper @JvmOverloads constructor(
                     attachments = it.getAttachmentsByUserContentWrapper()
             )
         }
+    }
+
+    private suspend fun getPage(uri: String): Document? {
+        return client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
     }
 
     private fun JsonNode?.prepareMetaInfoMap(): Map<String, JsonNode> {
