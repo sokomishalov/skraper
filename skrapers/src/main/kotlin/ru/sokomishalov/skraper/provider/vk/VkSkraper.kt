@@ -42,7 +42,9 @@ class VkSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://vk.com"
 
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val posts = getUserPage(uri)
+        val document = getUserPage(uri)
+
+        val posts = document
                 ?.getElementsByClass("wall_item")
                 ?.take(limit)
                 .orEmpty()
@@ -60,7 +62,9 @@ class VkSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return getUserPage(uri)
+        val document = getUserPage(uri)
+
+        return document
                 ?.getSingleElementByClassOrNull("profile_panel")
                 ?.getSingleElementByTagOrNull("img")
                 ?.attr("src")
