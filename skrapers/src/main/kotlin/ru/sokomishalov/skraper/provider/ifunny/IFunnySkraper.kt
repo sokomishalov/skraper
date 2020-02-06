@@ -75,7 +75,7 @@ class IFunnySkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return getLogoUrl(imageSize)
+        return getProviderLogoUrl(imageSize)
     }
 
     private suspend fun getTopicPage(uri: String): Document? {

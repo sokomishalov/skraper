@@ -24,6 +24,6 @@ import ru.sokomishalov.skraper.model.ImageSize.SMALL
 
 suspend fun Skraper.getPageLogoByteArray(uri: String, imageSize: ImageSize = SMALL): ByteArray? = getPageLogoUrl(uri, imageSize)?.let { client.fetchBytes(it) }
 
-suspend fun Skraper.getLogoByteArray(imageSize: ImageSize = SMALL): ByteArray? = getLogoUrl(imageSize)?.let { client.fetchBytes(it) }
+suspend fun Skraper.getLogoByteArray(imageSize: ImageSize = SMALL): ByteArray? = getProviderLogoUrl(imageSize)?.let { client.fetchBytes(it) }
 
 
