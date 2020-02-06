@@ -22,13 +22,17 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
-import ru.sokomishalov.skraper.internal.time.ago.langs.EnglishTimeAgoUnit
-import ru.sokomishalov.skraper.internal.time.ago.parseTimeAgo
 import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
+import java.lang.System.currentTimeMillis
+import java.time.Duration
+import java.time.Period
+import java.time.chrono.ChronoPeriod
+import java.time.temporal.ChronoUnit.DAYS
+import java.time.temporal.TemporalAmount
 
 class YoutubeSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient
@@ -97,7 +101,33 @@ class YoutubeSkraper(
                 ?.getElementsByTag("li")
                 ?.getOrNull(1)
                 ?.wholeText()
-                ?.parseTimeAgo(lang = EnglishTimeAgoUnit)
+                ?.let {
+                    val now = currentTimeMillis()
+
+                    val amount = it.split(" ")
+                            .firstOrNull()
+                            ?.toIntOrNull()
+                            ?: 1
+
+                    val temporalAmount: TemporalAmount = when {
+                        it.contains("moment", ignoreCase = true) or it.contains("moments", ignoreCase = true) -> Duration.ofMillis(amount.toLong())
+                        it.contains("second", ignoreCase = true) or it.contains("seconds", ignoreCase = true) -> Duration.ofSeconds(amount.toLong())
+                        it.contains("minute", ignoreCase = true) or it.contains("minute", ignoreCase = true) -> Duration.ofMinutes(amount.toLong())
+                        it.contains("hour", ignoreCase = true) or it.contains("hour", ignoreCase = true) -> Duration.ofHours(amount.toLong())
+                        it.contains("day", ignoreCase = true) or it.contains("day", ignoreCase = true) -> Duration.ofDays(amount.toLong())
+                        it.contains("week", ignoreCase = true) or it.contains("week", ignoreCase = true) -> Period.ofWeeks(amount)
+                        it.contains("month", ignoreCase = true) or it.contains("month", ignoreCase = true) -> Period.ofMonths(amount)
+                        it.contains("year", ignoreCase = true) or it.contains("year", ignoreCase = true) -> Period.ofYears(amount)
+                        else -> Duration.ZERO
+                    }
+                    val millisAgo = when (temporalAmount) {
+                        is Duration -> temporalAmount.toMillis()
+                        is Period -> Duration.ofDays(temporalAmount.get(DAYS)).toMillis()
+                        is ChronoPeriod -> Duration.ofDays(temporalAmount.get(DAYS)).toMillis()
+                        else -> 0
+                    }
+                    now - millisAgo
+                }
     }
 
     companion object {
