@@ -23,5 +23,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class InstagramSkraperTest : SkraperTck() {
     override val skraper: Skraper = InstagramSkraper(client = client)
-    override val uri: String = "/originaltrollfootball"
+    override val uri: String = "/memes"
 }

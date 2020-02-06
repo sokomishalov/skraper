@@ -42,7 +42,9 @@ class InstagramSkraper @JvmOverloads constructor(
     override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
         val account = getUserInfo(uri)
 
-        val postsNodes = client.fetchJson("$baseUrl/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
+        val data = client.fetchJson("$baseUrl/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
+
+        val postsNodes = data
                 .get("data")
                 ?.get("user")
                 ?.get("edge_owner_to_timeline_media")
