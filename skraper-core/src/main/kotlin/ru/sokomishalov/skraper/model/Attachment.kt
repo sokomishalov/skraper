@@ -22,7 +22,6 @@ package ru.sokomishalov.skraper.model
  * @property aspectRatio width to height ratio
  */
 data class Attachment(
-        // url
         val url: String,
         val type: AttachmentType,
         val aspectRatio: Double

@@ -5,5 +5,5 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 
 class TumblrSkraperTest : SkraperTck() {
     override val skraper: Skraper = TumblrSkraper(client = client)
-    override val uri: String = "revaiim"
+    override val uri: String = "memegeeks"
 }
