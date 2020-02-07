@@ -75,6 +75,7 @@ class TumblrSkraper(
                 ?.split(" ")
                 ?.firstOrNull()
                 ?.toIntOrNull()
+                ?: 0
     }
 
     private fun Element.extractAttachments(): List<Attachment> {
