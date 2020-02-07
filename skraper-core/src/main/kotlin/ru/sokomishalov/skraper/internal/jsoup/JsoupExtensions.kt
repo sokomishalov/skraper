@@ -13,42 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("unused")
+
 package ru.sokomishalov.skraper.internal.jsoup
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
-
-internal fun Element.getSingleElementByClass(name: String): Element {
+fun Element.getSingleElementByClass(name: String): Element {
     return getElementsByClass(name).first()
 }
 
-internal fun Element.getSingleElementByClassOrNull(name: String): Element? {
+fun Element.getSingleElementByClassOrNull(name: String): Element? {
     return getElementsByClass(name).firstOrNull()
 }
 
-internal fun Element.getSingleElementByTag(name: String): Element {
+fun Element.getSingleElementByTag(name: String): Element {
     return getElementsByTag(name).first()
 }
 
-internal fun Element.getSingleElementByTagOrNull(name: String): Element? {
+fun Element.getSingleElementByTagOrNull(name: String): Element? {
     return getElementsByTag(name).firstOrNull()
 }
 
-internal fun Element.getSingleElementByAttribute(name: String): Element {
+fun Element.getSingleElementByAttribute(name: String): Element {
     return getElementsByAttribute(name).first()
 }
 
-internal fun Element.getSingleElementByAttributeOrNull(name: String): Element? {
+fun Element.getSingleElementByAttributeOrNull(name: String): Element? {
     return getElementsByAttribute(name).firstOrNull()
 }
 
-internal fun Element.getImageBackgroundUrl(): String {
+fun Element.getImageBackgroundUrl(): String {
     val style = attr("style")
     return style.substring(style.indexOf("http"), style.indexOf(")"))
 }
 
-internal fun Element.getStyleMap(): Map<String, String> {
+fun Element.getStyleMap(): Map<String, String> {
     return when {
         hasAttr("style").not() -> emptyMap()
         else -> attr("style")
@@ -62,11 +63,11 @@ internal fun Element.getStyleMap(): Map<String, String> {
     }
 }
 
-internal fun Element.getStyle(name: String): String? {
+fun Element.getStyle(name: String): String? {
     return this.getStyleMap()[name]
 }
 
-internal fun Element.removeLinks(): String? {
+fun Element.removeLinks(): String? {
     val titleDoc = Jsoup.parse(html())
 
     val allAnchors = titleDoc.select("a")
