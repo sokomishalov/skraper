@@ -20,6 +20,7 @@ List of implemented scrapers looks like this so far:
 - [YoutubeSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/youtube/YoutubeSkraper.kt) - [YouTube](https://youtube.com) scraper
 - [NinegagSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ninegag/NinegagSkraper.kt) - [9gag](https://9gag.com) scraper
 - [PinterestSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pinterest/PinterestSkraper.kt) - [Pinterest](https://www.pinterest.com) scraper
+- [TumblrSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/tumblr/TumblrSkraper.kt) - [Tumblr](https://tumblr.com) scraper
 - [IFunnySkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ifunny/IFunnySkraper.kt) - [IFunny](https://ifunny.co) scraper
 - [VkSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/vk/VkSkraper.kt) - [VK](https://vk.com) scraper
 - [PikabuSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pikabu/PikabuSkraper.kt) - [Pikabu](https://pikabu.ru) scraper
