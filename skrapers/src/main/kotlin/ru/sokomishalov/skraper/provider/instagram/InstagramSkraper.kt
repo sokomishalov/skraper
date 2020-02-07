@@ -21,7 +21,6 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -33,16 +32,31 @@ import ru.sokomishalov.skraper.model.Post
 /**
  * @author sokomishalov
  */
-class InstagramSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class InstagramSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://instagram.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://instagram.com"
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val account = getUserInfo(path = path)
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val account = getUserInfo(uri)
+        return getPostsByUserId(account["id"].asLong(), limit)
+    }
 
-        val data = client.fetchJson("$baseUrl/graphql/query/?query_id=$QUERY_ID&id=${account["id"].asLong()}&first=${limit}")
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val account = getUserInfo(path = path)
+
+        return when (imageSize) {
+            SMALL,
+            MEDIUM -> account["profile_pic_url"].asText()
+            LARGE -> account["profile_pic_url_hd"].asText()
+        }
+    }
+
+    private suspend fun getUserInfo(path: String): JsonNode = client.fetchJson("$baseUrl$path/?__a=1")["graphql"]["user"]
+
+    internal suspend fun getPostsByUserId(userId: Long, limit: Int): List<Post> {
+        val data = client.fetchJson("$baseUrl/graphql/query/?query_id=$QUERY_ID&id=${userId}&first=${limit}")
 
         val postsNodes = data
                 .get("data")
@@ -62,19 +76,6 @@ class InstagramSkraper @JvmOverloads constructor(
                     attachments = it.parseAttachments()
             )
         }
-    }
-
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val account = getUserInfo(uri)
-        return when (imageSize) {
-            SMALL,
-            MEDIUM -> account["profile_pic_url"].asText()
-            LARGE -> account["profile_pic_url_hd"].asText()
-        }
-    }
-
-    private suspend fun getUserInfo(uri: String): JsonNode {
-        return client.fetchJson("${baseUrl}/${uri.uriCleanUp()}/?__a=1")["graphql"]["user"]
     }
 
     private fun JsonNode.parseId(): String {

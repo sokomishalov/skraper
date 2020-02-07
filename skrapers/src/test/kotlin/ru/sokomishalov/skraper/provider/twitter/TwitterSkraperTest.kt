@@ -15,13 +15,24 @@
  */
 package ru.sokomishalov.skraper.provider.twitter
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class TwitterSkraperTest : SkraperTck() {
-    override val skraper: Skraper = TwitterSkraper(client = client)
-    override val uri: String = "/russianmemesltd"
+    override val skraper: TwitterSkraper = TwitterSkraper(client = client)
+    override val path: String = "/memes"
+    private val username: String = "memes"
+
+    @Test
+    fun `Check user posts`() {
+        assertPosts { skraper.getUserPosts(username = username) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
 }

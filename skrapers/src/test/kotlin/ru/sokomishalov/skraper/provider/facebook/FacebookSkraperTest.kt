@@ -15,13 +15,24 @@
  */
 package ru.sokomishalov.skraper.provider.facebook
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class FacebookSkraperTest : SkraperTck() {
-    override val skraper: Skraper = FacebookSkraper(client = client)
-    override val uri: String = "/memes"
+    override val skraper: FacebookSkraper = FacebookSkraper(client = client)
+    override val path: String = "/memes"
+    private val username: String = "memes"
+
+    @Test
+    fun `Check user posts`() {
+        assertPosts { skraper.getUserPosts(username = username) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
 }

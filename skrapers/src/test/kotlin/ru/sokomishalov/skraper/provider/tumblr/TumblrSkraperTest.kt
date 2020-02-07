@@ -15,10 +15,21 @@
  */
 package ru.sokomishalov.skraper.provider.tumblr
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 class TumblrSkraperTest : SkraperTck() {
-    override val skraper: Skraper = TumblrSkraper(client = client)
-    override val uri: String = "memegeeks"
+    override val skraper: TumblrSkraper = TumblrSkraper(client = client)
+    override val path: String = "/dashboard/blog/memegeeks"
+    private val username: String = "memegeeks"
+
+    @Test
+    fun `Check user posts`() {
+        assertPosts { skraper.getUserPosts(username = username) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused", "FunctionName")
+@file:Suppress("MemberVisibilityCanBePrivate")
 
 package ru.sokomishalov.skraper.provider
 
@@ -29,10 +29,7 @@ import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
-import ru.sokomishalov.skraper.getLogoByteArray
-import ru.sokomishalov.skraper.getPageLogoByteArray
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize.SMALL
+import ru.sokomishalov.skraper.model.Post
 
 
 /**
@@ -45,13 +42,27 @@ abstract class SkraperTck {
     }
 
     protected abstract val skraper: Skraper
-    protected abstract val uri: String
+    protected abstract val path: String
 
     protected val client: SkraperClient = ReactorNettySkraperClient()
 
     @Test
-    fun `Check that posts have been fetched`() = runBlocking {
-        val posts = skraper.getLatestPosts(uri = uri, limit = DEFAULT_POSTS_LIMIT)
+    fun `Check posts`() {
+        assertPosts { getPosts(path = path) }
+    }
+
+    @Test
+    fun `Check page logo`() {
+        assertLogo { getLogoUrl(path = path) }
+    }
+
+    @Test
+    fun `Check provider logo`() {
+        assertLogo { getProviderLogoUrl() }
+    }
+
+    protected fun assertPosts(action: suspend Skraper.() -> List<Post>) = runBlocking {
+        val posts = skraper.action()
 
         withContext(IO) { log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)) }
 
@@ -66,17 +77,9 @@ abstract class SkraperTck {
         }
     }
 
-    @Test
-    fun `Check that page logo has been fetched`() = runBlocking {
-        val image = skraper.getPageLogoByteArray(uri = uri, imageSize = SMALL)
-
-        assertNotNull(image)
-    }
-
-    @Test
-    fun `Check that provider logo has been fetched`() = runBlocking {
-        val image = skraper.getLogoByteArray(imageSize = SMALL)
-
-        assertNotNull(image)
+    protected fun assertLogo(action: suspend Skraper.() -> String?) = runBlocking {
+        val url = skraper.action()
+        log.info(url)
+        assertNotNull(url)
     }
 }

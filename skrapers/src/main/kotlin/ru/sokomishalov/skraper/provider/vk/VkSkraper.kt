@@ -25,7 +25,6 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.*
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -40,14 +39,13 @@ import java.util.Locale.ENGLISH
 /**
  * @author sokomishalov
  */
-class VkSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class VkSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://vk.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://vk.com"
-
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = getUserPage(uri)
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val document = getUserPage(path = path)
 
         val posts = document
                 ?.getElementsByClass("wall_item")
@@ -66,8 +64,8 @@ class VkSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getUserPage(uri)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getUserPage(path = path)
 
         return document
                 ?.getSingleElementByClassOrNull("profile_panel")
@@ -75,9 +73,7 @@ class VkSkraper @JvmOverloads constructor(
                 ?.attr("src")
     }
 
-    private suspend fun getUserPage(uri: String): Document? {
-        return client.fetchDocument(url = "$baseUrl/${uri.uriCleanUp()}", headers = mapOf("Accept-Language" to "en-US"))
-    }
+    private suspend fun getUserPage(path: String): Document? = client.fetchDocument(url = "$baseUrl$path", headers = mapOf("Accept-Language" to "en-US"))
 
     private fun Element.extractId(): String {
         return getElementsByAttribute("data-post-id")

@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.ifunny
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 
@@ -23,6 +23,22 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  * @author sokomishalov
  */
 class IFunnySkraperTest : SkraperTck() {
-    override val skraper: Skraper = IFunnySkraper(client = client)
-    override val uri: String = "/memes"
+    override val skraper: IFunnySkraper = IFunnySkraper(client = client)
+    override val path: String = "/memes"
+    private val username: String = "memes"
+
+    @Test
+    fun `Check user posts`() {
+        assertPosts { skraper.getUserPosts(username = username) }
+    }
+
+    @Test
+    fun `Check catalog posts`() {
+        assertPosts { skraper.getCatalogLatestPosts(catalog = username) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
 }

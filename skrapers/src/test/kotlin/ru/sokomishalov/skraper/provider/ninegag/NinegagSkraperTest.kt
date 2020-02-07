@@ -15,13 +15,50 @@
  */
 package ru.sokomishalov.skraper.provider.ninegag
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class NinegagSkraperTest : SkraperTck() {
-    override val skraper: Skraper = NinegagSkraper(client = client)
-    override val uri: String = "/meme"
+    override val skraper: NinegagSkraper = NinegagSkraper(client = client)
+    override val path: String = "/meme"
+    private val topic: String = "meme"
+    private val tag: String = "dank-meme"
+
+    @Test
+    fun `Check hot posts`() {
+        assertPosts { skraper.getHotPosts() }
+    }
+
+    @Test
+    fun `Check trending posts`() {
+        assertPosts { skraper.getTrendingPosts() }
+    }
+
+    @Test
+    fun `Check fresh posts`() {
+        assertPosts { skraper.getFreshPosts() }
+    }
+
+    @Test
+    fun `Check user hot posts`() {
+        assertPosts { skraper.getTopicHotPosts(topic = topic) }
+    }
+
+    @Test
+    fun `Check user fresh posts`() {
+        assertPosts { skraper.getTopicFreshPosts(topic = topic) }
+    }
+
+    @Test
+    fun `Check tag posts`() {
+        assertPosts { skraper.getTagPosts(tag = tag) }
+    }
+
+    @Test
+    fun `Check topic logo`() {
+        assertLogo { skraper.getTopicLogoUrl(topic = topic) }
+    }
 }

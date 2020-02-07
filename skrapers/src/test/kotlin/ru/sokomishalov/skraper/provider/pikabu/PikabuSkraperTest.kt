@@ -15,10 +15,69 @@
  */
 package ru.sokomishalov.skraper.provider.pikabu
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 class PikabuSkraperTest : SkraperTck() {
-    override val skraper: Skraper = PikabuSkraper(client = client)
-    override val uri: String = "/@Vereshch"
+    override val skraper: PikabuSkraper = PikabuSkraper(client = client)
+    override val path: String = "/@admin"
+    private val username: String = "admin"
+    private val community: String = "pikabu"
+
+
+    @Test
+    fun `Check hot posts`() {
+        assertPosts { skraper.getHotPosts() }
+    }
+
+    @Test
+    fun `Check best posts`() {
+        assertPosts { skraper.getBestPosts() }
+    }
+
+    @Test
+    fun `Check new posts`() {
+        assertPosts { skraper.getNewPosts() }
+    }
+
+    @Test
+    fun `Check community hot posts`() {
+        assertPosts { skraper.getCommunityHotPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community best posts`() {
+        assertPosts { skraper.getCommunityBestPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community new posts`() {
+        assertPosts { skraper.getCommunityNewPosts(community = community) }
+    }
+
+    @Test
+    fun `Check user latest posts`() {
+        assertPosts { skraper.getUserLatestPosts(username = username) }
+    }
+
+    @Test
+    fun `Check user best posts`() {
+        assertPosts { skraper.getUserBestPosts(username = username) }
+    }
+
+    @Test
+    fun `Check user own posts`() {
+        assertPosts { skraper.getUserOwnPosts(username = username) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
+
+    @Test
+    fun `Check community logo`() {
+        assertLogo { skraper.getCommunityLogoUrl(community = community) }
+    }
+
 }
