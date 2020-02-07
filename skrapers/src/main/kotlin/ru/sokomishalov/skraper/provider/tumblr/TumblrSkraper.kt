@@ -46,7 +46,8 @@ class TumblrSkraper(
         return articles.map { a ->
             Post(
                     id = a.extractId(),
-                    publishTimestamp = a.extractPublishedDate(),
+                    text = a.extractText(),
+                    publishedAt = a.extractPublishedDate(),
                     rating = a.extractNotes(),
                     commentsCount = a.extractNotes(),
                     attachments = a.extractAttachments()
@@ -61,6 +62,12 @@ class TumblrSkraper(
     private fun Element.extractId(): String {
         return attr("data-post-id")
                 .ifBlank { attr("id") }
+    }
+
+    private fun Element.extractText(): String? {
+        return getElementsByTag("figcaption")
+                .joinToString("\n") { it.wholeText().orEmpty() }
+                .substringAfter(":")
     }
 
     private fun Element.extractPublishedDate(): Long? {
@@ -103,14 +110,15 @@ class TumblrSkraper(
     }
 
     private fun Element.extractAttachments(): List<Attachment> {
-        return getElementsByTag("figure").map { f ->
+        return getElementsByTag("figure").mapNotNull { f ->
             val video = f.getSingleElementByTagOrNull("video")
             val img = f.getSingleElementByTagOrNull("img")
 
             Attachment(
                     type = when {
                         video != null -> VIDEO
-                        else -> IMAGE
+                        img != null -> IMAGE
+                        else -> return@mapNotNull null
                     },
                     url = when {
                         video != null -> video.getSingleElementByTagOrNull("source")?.attr("src").orEmpty()

@@ -57,10 +57,10 @@ class TwitterSkraper @JvmOverloads constructor(
         return posts.map {
             Post(
                     id = it.extractIdFromTweet(),
-                    caption = it.extractCaptionFromTweet(),
+                    text = it.extractCaptionFromTweet(),
                     rating = it.extractLikes(),
                     commentsCount = it.extractReplies(),
-                    publishTimestamp = it.extractPublishedAtFromTweet(),
+                    publishedAt = it.extractPublishedAtFromTweet(),
                     attachments = it.extractAttachmentsFromTweet()
             )
         }

@@ -53,8 +53,8 @@ class YoutubeSkraper @JvmOverloads constructor(
 
             Post(
                     id = linkElement.parseId(),
-                    caption = linkElement.parseCaption(),
-                    publishTimestamp = it.parsePublishDate(),
+                    text = linkElement.parseCaption(),
+                    publishedAt = it.parsePublishDate(),
                     attachments = listOf(Attachment(
                             url = "${baseUrl}${linkElement?.attr("href")}",
                             type = VIDEO,

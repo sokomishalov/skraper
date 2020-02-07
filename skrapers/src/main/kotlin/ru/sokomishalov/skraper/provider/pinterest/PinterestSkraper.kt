@@ -59,8 +59,8 @@ class PinterestSkraper @JvmOverloads constructor(
                     val imageInfo = it["images"]["orig"]
                     Post(
                             id = it["id"]?.asText().orEmpty(),
-                            caption = it["description"]?.asText(),
-                            publishTimestamp = ZonedDateTime.parse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant().toEpochMilli(),
+                            text = it["description"]?.asText(),
+                            publishedAt = ZonedDateTime.parse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant().toEpochMilli(),
                             rating = it.get("aggregated_pin_data")?.get("aggregated_stats")?.get("saves")?.asInt(),
                             commentsCount = it["comment_count"]?.asInt(),
                             attachments = listOf(Attachment(
