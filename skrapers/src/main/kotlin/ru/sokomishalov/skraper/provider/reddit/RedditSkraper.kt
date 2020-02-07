@@ -47,8 +47,8 @@ class RedditSkraper @JvmOverloads constructor(
                 .map {
                     Post(
                             id = it.get("id").asText().orEmpty(),
-                            caption = it.get("title").asText(),
-                            publishTimestamp = it.get("created_utc")?.asLong()?.times(1000),
+                            text = it.get("title").asText(),
+                            publishedAt = it.get("created_utc")?.asLong()?.times(1000),
                             rating = it.get("score")?.asInt(),
                             commentsCount = it.get("num_comments")?.asInt(),
                             attachments = listOf(Attachment(

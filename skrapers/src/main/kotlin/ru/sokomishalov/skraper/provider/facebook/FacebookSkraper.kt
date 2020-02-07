@@ -67,8 +67,8 @@ class FacebookSkraper @JvmOverloads constructor(
 
             Post(
                     id = id,
-                    caption = it.getCaptionByUserContentWrapper(),
-                    publishTimestamp = it.getPublishedAtByUserContentWrapper(),
+                    text = it.getCaptionByUserContentWrapper(),
+                    publishedAt = it.getPublishedAtByUserContentWrapper(),
                     rating = node.extractReactionCount(),
                     commentsCount = node.extractCommentsCount(),
                     attachments = it.getAttachmentsByUserContentWrapper()

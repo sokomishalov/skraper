@@ -61,8 +61,8 @@ class PikabuSkraper(
 
             Post(
                     id = it.parseId(),
-                    caption = String(caption.toByteArray(UTF_8)),
-                    publishTimestamp = it.parsePublishDate(),
+                    text = String(caption.toByteArray(UTF_8)),
+                    publishedAt = it.parsePublishDate(),
                     rating = it.parseRating(),
                     commentsCount = it.parseCommentsCount(),
                     attachments = storyBlocks.parseMediaAttachments()

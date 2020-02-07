@@ -57,8 +57,8 @@ class VkSkraper @JvmOverloads constructor(
         return posts.map {
             Post(
                     id = it.extractId(),
-                    caption = it.extractCaption(),
-                    publishTimestamp = it.extractPublishedDate(),
+                    text = it.extractCaption(),
+                    publishedAt = it.extractPublishedDate(),
                     rating = it.extractLikes(),
                     commentsCount = it.extractReplies(),
                     attachments = it.extractAttachments()

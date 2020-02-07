@@ -67,8 +67,8 @@ class NinegagSkraper @JvmOverloads constructor(
 
             Post(
                     id = p["id"]?.asText().orEmpty(),
-                    caption = p["title"]?.asText(),
-                    publishTimestamp = p["creationTs"]?.asLong()?.times(1000),
+                    text = p["title"]?.asText(),
+                    publishedAt = p["creationTs"]?.asLong()?.times(1000),
                     rating = p.run {
                         val up = get("upVoteCount")?.asInt()
                         val down = get("downVoteCount")?.asInt()

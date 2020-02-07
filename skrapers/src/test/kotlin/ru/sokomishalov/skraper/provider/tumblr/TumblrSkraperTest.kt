@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.model
+package ru.sokomishalov.skraper.provider.tumblr
 
-/**
- * Represents a provider attachment.
- * @property url attachment url
- * @property type of attachment
- * @property aspectRatio width to height ratio
- */
-data class Attachment(
-        val url: String,
-        val type: AttachmentType,
-        val aspectRatio: Double
-)
+import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.provider.SkraperTck
+
+class TumblrSkraperTest : SkraperTck() {
+    override val skraper: Skraper = TumblrSkraper(client = client)
+    override val uri: String = "memegeeks"
+}

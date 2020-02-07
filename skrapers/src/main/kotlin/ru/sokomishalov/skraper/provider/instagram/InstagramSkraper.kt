@@ -55,8 +55,8 @@ class InstagramSkraper @JvmOverloads constructor(
         return postsNodes.map {
             Post(
                     id = it.parseId(),
-                    caption = it.parseCaption(),
-                    publishTimestamp = it.parsePublishedAt(),
+                    text = it.parseCaption(),
+                    publishedAt = it.parsePublishedAt(),
                     rating = it.parseLikesCount(),
                     commentsCount = it.parseCommentsCount(),
                     attachments = it.parseAttachments()
