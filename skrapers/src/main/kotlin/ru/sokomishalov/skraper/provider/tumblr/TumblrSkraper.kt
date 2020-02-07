@@ -11,9 +11,11 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
+import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ENGLISH
@@ -58,35 +60,65 @@ class TumblrSkraper(
 
     private fun Element.extractId(): String {
         return attr("data-post-id")
+                .ifBlank { attr("id") }
     }
 
     private fun Element.extractPublishedDate(): Long? {
-        return getSingleElementByClassOrNull("post-date")
-                ?.wholeText()
-                ?.let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }
-                ?.atStartOfDay()
-                ?.toEpochSecond(UTC)
-                ?.times(1000)
+        val postDate = getSingleElementByClassOrNull("post-date")
+        val timePosted = getSingleElementByClassOrNull("time-posted")
+
+        return when {
+
+            postDate != null -> postDate
+                    .wholeText()
+                    .let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }
+                    ?.atStartOfDay()
+                    ?.toEpochSecond(UTC)
+                    ?.times(1000)
+
+            timePosted != null -> timePosted
+                    .attr("title")
+                    .replace("am", "AM")
+                    .replace("pm", "PM")
+                    .let { runCatching { LocalDateTime.parse(it, DATE_TIME_FORMATTER) }.getOrNull() }
+                    ?.toEpochSecond(UTC)
+                    ?.times(1000)
+
+            else -> null
+        }
     }
 
     private fun Element.extractNotes(): Int? {
-        return getSingleElementByClassOrNull("post-notes")
+        val notesNode = getSingleElementByClassOrNull("post-notes")
+                ?: getSingleElementByClassOrNull("note-count")
+
+        return notesNode
                 ?.wholeText()
                 ?.split(" ")
                 ?.firstOrNull()
+                ?.replace(",", "")
+                ?.replace(".", "")
                 ?.toIntOrNull()
                 ?: 0
     }
 
     private fun Element.extractAttachments(): List<Attachment> {
         return getElementsByTag("figure").map { f ->
+            val video = f.getSingleElementByTagOrNull("video")
             val img = f.getSingleElementByTagOrNull("img")
+
             Attachment(
-                    type = IMAGE,
-                    url = img?.attr("src").orEmpty(),
-                    aspectRatio = img.let {
-                        val width = it?.attr("width")?.toDoubleOrNull()
-                        val height = it?.attr("height")?.toDoubleOrNull()
+                    type = when {
+                        video != null -> VIDEO
+                        else -> IMAGE
+                    },
+                    url = when {
+                        video != null -> video.getSingleElementByTagOrNull("source")?.attr("src").orEmpty()
+                        else -> img?.attr("src").orEmpty()
+                    },
+                    aspectRatio = f.run {
+                        val width = attr("data-orig-width")?.toDoubleOrNull()
+                        val height = attr("data-orig-height")?.toDoubleOrNull()
                         when {
                             width != null && height != null -> width / height
                             else -> DEFAULT_POSTS_ASPECT_RATIO
@@ -98,5 +130,6 @@ class TumblrSkraper(
 
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d'th,' yyyy").withLocale(ENGLISH)
+        private val DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a, EEEE, MMMM d, yyyy").withLocale(ENGLISH)
     }
 }
