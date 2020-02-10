@@ -65,18 +65,18 @@ Each scraper is a class which implements [Skraper](skraper-core/src/main/kotlin/
 interface Skraper {
     val baseUrl: String
     val client: SkraperClient get() = DefaultBlockingSkraperClient
-    suspend fun getLatestPosts(uri: String, limit: Int = 100): List<Post>
-    suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize = ImageSize.SMALL): String?
-    suspend fun getLogoUrl(imageSize: ImageSize = ImageSize.SMALL): String? = "${baseUrl}/favicon.ico"
+    suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+    suspend fun getLogoUrl(path: String, imageSize: ImageSize = ImageSize.SMALL): String?
+    suspend fun getProviderLogoUrl(imageSize: ImageSize = ImageSize.SMALL): String? = "${baseUrl}/favicon.ico"
 }
 ```
 
-### The latest user/channel/trend posts
+### Scrape user/community/channel/topic/trend posts
 To scrape the latest posts for specific user, channel or trend use skraper like that: 
 ```kotlin
 fun main() = runBlocking {
     val skraper = FacebookSkraper()
-    val posts = skraper.getLatestPosts(uri = "/memes", limit = 2)
+    val posts = skraper.getPosts(path = "/memes", limit = 2)
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 }
 ```
@@ -85,8 +85,8 @@ Received data structure is similar to each other provider's. Output data example
 [
   {
     "id" : "5029851093699104",
-    "caption" : "gotta love em!",
-    "publishTimestamp" : 1580744400000,
+    "text" : "gotta love em!",
+    "publishedAt" : 1580744400000,
     "rating" : 79,
     "commentsCount" : 3,
     "attachments" : [ {
@@ -96,8 +96,8 @@ Received data structure is similar to each other provider's. Output data example
     } ]
   }, {
     "id" : "4990218157662398",
-    "caption" : "Interesting",
-    "publishTimestamp" : 1580742000000,
+    "text" : "Interesting",
+    "publishedAt" : 1580742000000,
     "rating" : 3092,
     "commentsCount" : 514,
     "attachments" : [ {
@@ -111,12 +111,12 @@ Received data structure is similar to each other provider's. Output data example
 
 You can see the full model structure for posts and others [here](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/model)
 
-### Get user/channel/trend logo
+### Scrape user/community/channel/topic/trend logo
 It is possible to scrape user/channel/trend logo for some purposes:
 ```kotlin
 fun main() = runBlocking {
     val skraper = TwitterSkraper()
-    val pageLogo = skraper.getPageLogoUrl(uri = "/memes")
+    val pageLogo = skraper.getLogoUrl(path = "/memes")
     println(pageLogo)
 }
 ```
@@ -126,13 +126,13 @@ Output:
 https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_400x400.jpg
 ```
 
-### Get provider logo
+### Scrape provider logo
 It is also possible to scrape provider logo for some purposes:
 
 ```kotlin
 fun main() = runBlocking {
     val skraper = InstagramSkraper()
-    val logo = skraper.getLogoUrl()
+    val logo = skraper.getProviderLogoUrl()
     println(logo)
 }
 ```

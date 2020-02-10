@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package ru.sokomishalov.skraper.provider.tumblr
 
 import org.jsoup.nodes.Document
@@ -36,24 +38,37 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale.ENGLISH
 
 class TumblrSkraper(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://tumblr.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://tumblr.com"
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val document = getNonUserPage(path = path)
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getPage(uri)
-
-        return document
-                ?.getSingleElementByClassOrNull("user-avatar")
-                ?.getSingleElementByTagOrNull("img")
-                ?.attr("src")
+        return document.extractPosts(limit)
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = getPage(uri)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getNonUserPage(path = path)
 
-        val articles = document
+        return document.extractLogo()
+    }
+
+    internal suspend fun getUserPage(username: String): Document? = client.fetchDocument(baseUrl.replace("://", "://${username}."))
+
+    private suspend fun getNonUserPage(path: String): Document? {
+        return when {
+            path.contains("dashboard/blog/", ignoreCase = true) -> {
+                val username = path.substringAfter("dashboard/blog/").substringBefore("/")
+                return getUserPage(username = username)
+            }
+
+            else -> client.fetchDocument("${baseUrl}${path}")
+        }
+    }
+
+    internal fun Document?.extractPosts(limit: Int): List<Post> {
+        val articles = this
                 ?.getElementsByTag("article")
                 ?.take(limit)
                 .orEmpty()
@@ -70,8 +85,11 @@ class TumblrSkraper(
         }
     }
 
-    private suspend fun getPage(uri: String): Document? {
-        return client.fetchDocument("https://${uri}.tumblr.com")
+    internal fun Document?.extractLogo(): String? {
+        return this
+                ?.getSingleElementByClassOrNull("user-avatar")
+                ?.getSingleElementByTagOrNull("img")
+                ?.attr("src")
     }
 
     private fun Element.extractId(): String {
@@ -90,7 +108,6 @@ class TumblrSkraper(
         val timePosted = getSingleElementByClassOrNull("time-posted")
 
         return when {
-
             postDate != null -> postDate
                     .wholeText()
                     .let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }

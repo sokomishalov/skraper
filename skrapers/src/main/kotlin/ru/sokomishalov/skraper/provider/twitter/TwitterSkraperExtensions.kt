@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper
+package ru.sokomishalov.skraper.provider.twitter
 
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.SMALL
+import ru.sokomishalov.skraper.model.Post
+
 
 /**
  * @author sokomishalov
  */
 
-suspend fun Skraper.getPageLogoByteArray(uri: String, imageSize: ImageSize = SMALL): ByteArray? = getPageLogoUrl(uri, imageSize)?.let { client.fetchBytes(it) }
+suspend fun TwitterSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
+    return getPosts(path = username.buildUserPath(), limit = limit)
+}
 
-suspend fun Skraper.getLogoByteArray(imageSize: ImageSize = SMALL): ByteArray? = getProviderLogoUrl(imageSize)?.let { client.fetchBytes(it) }
+suspend fun TwitterSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
+    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+}
 
-
+private fun String.buildUserPath(): String = "/${this}"

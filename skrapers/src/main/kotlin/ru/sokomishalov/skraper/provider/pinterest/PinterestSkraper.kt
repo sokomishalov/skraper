@@ -20,8 +20,8 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.ImageSize
@@ -36,62 +36,106 @@ import kotlin.text.Charsets.UTF_8
 /**
  * @author sokomishalov
  */
-class PinterestSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class PinterestSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://pinterest.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://pinterest.com"
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val infoJsonNode = getUserJson(path = path)
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val infoJsonNode = getUserJson(uri)
-
-        val feedList = infoJsonNode
-                .get("resourceResponses")
-                ?.get(1)
-                ?.get("response")
-                ?.get("data")
-                ?.asIterable()
-                ?.toList()
-                .orEmpty()
+        val feedList = infoJsonNode.extractFeed(limit)
 
         return feedList
                 .map {
-                    val imageInfo = it["images"]["orig"]
+                    val imageInfo = it.get("images")?.get("orig")
                     Post(
-                            id = it["id"]?.asText().orEmpty(),
-                            text = it["description"]?.asText(),
-                            publishedAt = ZonedDateTime.parse(it["created_at"]?.asText(), DATE_FORMATTER).toInstant().toEpochMilli(),
-                            rating = it.get("aggregated_pin_data")?.get("aggregated_stats")?.get("saves")?.asInt(),
-                            commentsCount = it["comment_count"]?.asInt(),
+                            id = it.extractId(),
+                            text = it.extractText(),
+                            publishedAt = it.extractPublishDate(),
+                            rating = it.extractRating(),
+                            commentsCount = it.extractCommentsCount(),
                             attachments = listOf(Attachment(
                                     type = IMAGE,
-                                    url = imageInfo["url"]?.asText().orEmpty(),
-                                    aspectRatio = imageInfo["width"].asDouble() / imageInfo["height"].asDouble()
+                                    url = imageInfo?.get("url")?.asText().orEmpty(),
+                                    aspectRatio = imageInfo.run {
+                                        val width = this?.get("width")?.asDouble()
+                                        val height = this?.get("height")?.asDouble()
+                                        when {
+                                            width != null && height != null -> width / height
+                                            else -> DEFAULT_POSTS_ASPECT_RATIO
+                                        }
+                                    }
                             ))
                     )
                 }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val infoJsonNode = getUserJson(uri)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val infoJsonNode = getUserJson(path = path)
 
-        val owner = infoJsonNode["resourceResponses"]
-                ?.first()
+        val json = infoJsonNode["resourceResponses"]
+                ?.firstOrNull()
                 ?.get("response")
                 ?.get("data")
-                ?.get("owner")
+
+        return json.extractLogo(imageSize = imageSize)
+    }
+
+    private suspend fun getUserJson(path: String): JsonNode {
+        val webPage = client.fetchDocument("$baseUrl$path")
+        val infoJson = webPage?.getElementById("initial-state")?.html()?.toByteArray(UTF_8)
+        return infoJson.aReadJsonNodes()
+    }
+
+    private fun JsonNode.extractId(): String {
+        return this["id"]
+                ?.asText()
+                .orEmpty()
+    }
+
+    private fun JsonNode.extractText(): String? {
+        return this["description"]
+                ?.asText()
+    }
+
+    private fun JsonNode.extractPublishDate(): Long? {
+        return this["created_at"]
+                ?.asText()
+                ?.let { ZonedDateTime.parse(it, DATE_FORMATTER).toInstant().toEpochMilli() }
+    }
+
+    private fun JsonNode.extractRating(): Int? {
+        return get("aggregated_pin_data")
+                ?.get("aggregated_stats")
+                ?.get("saves")
+                ?.asInt()
+    }
+
+    private fun JsonNode.extractCommentsCount(): Int? {
+        return this["comment_count"]
+                ?.asInt()
+    }
+
+    private fun JsonNode.extractFeed(limit: Int): List<JsonNode> {
+        return get("resourceResponses")
+                ?.get(1)
+                ?.get("response")
+                ?.get("data")
+                ?.toList()
+                ?.take(limit)
+                .orEmpty()
+    }
+
+    private fun JsonNode?.extractLogo(imageSize: ImageSize): String? {
+        val owner = this?.get("owner")
+        val user = this?.get("user")
 
         return when (imageSize) {
             SMALL -> owner?.get("image_medium_url")?.asText()
             MEDIUM -> owner?.get("image_small_url")?.asText()
             LARGE -> owner?.get("image_xlarge_url")?.asText()
-        }
-    }
-
-    private suspend fun getUserJson(uri: String): JsonNode {
-        val webPage = client.fetchDocument("$baseUrl/${uri.uriCleanUp()}")
-        val infoJson = webPage?.getElementById("initial-state")?.html()?.toByteArray(UTF_8)
-        return infoJson.aReadJsonNodes()
+        } ?: user?.get("image_xlarge_url")?.asText()
     }
 
     companion object {

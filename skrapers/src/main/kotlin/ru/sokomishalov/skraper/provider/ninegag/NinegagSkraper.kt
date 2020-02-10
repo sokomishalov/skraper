@@ -15,13 +15,14 @@
  */
 package ru.sokomishalov.skraper.provider.ninegag
 
+import com.fasterxml.jackson.databind.JsonNode
 import org.apache.commons.text.StringEscapeUtils
+import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -33,37 +34,19 @@ import kotlin.text.Charsets.UTF_8
 /**
  * @author sokomishalov
  */
-class NinegagSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class NinegagSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://9gag.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://9gag.com"
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val webPage = getUserPage(path = path)
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = getUserPage(uri)
-
-        val dataJson = webPage
-                ?.getElementsByTag("script")
-                ?.firstOrNull { it.html().startsWith("window._config") }
-                ?.html()
-                ?.removePrefix("window._config = JSON.parse(\"")
-                ?.removeSuffix("\");")
-                ?.let { StringEscapeUtils.unescapeJson(it) }
-                ?.toByteArray(UTF_8)
-                ?.aReadJsonNodes()
-
-        val posts = dataJson
-                ?.get("data")
-                ?.get("posts")
-                ?.toList()
-                .orEmpty()
+        val dataJson = webPage.extractJsonData()
+        val posts = dataJson.getPosts().take(limit)
 
         return posts.map { p ->
-            val isVideo = p
-                    .get("images")
-                    ?.get("image460sv")
-                    ?.get("duration")
-                    ?.asInt() != null
+            val isVideo = p.isVideo()
 
             Post(
                     id = p["id"]?.asText().orEmpty(),
@@ -95,8 +78,8 @@ class NinegagSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getUserPage(uri)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getUserPage(path = path)
 
         return document
                 ?.head()
@@ -105,5 +88,32 @@ class NinegagSkraper @JvmOverloads constructor(
                 ?.attr("href")
     }
 
-    private suspend fun getUserPage(uri: String) = client.fetchDocument("$baseUrl/${uri.uriCleanUp()}")
+    private suspend fun getUserPage(path: String) = client.fetchDocument("$baseUrl$path")
+
+    private fun JsonNode?.getPosts(): List<JsonNode> {
+        return this
+                ?.get("data")
+                ?.get("posts")
+                ?.toList()
+                .orEmpty()
+    }
+
+    private suspend fun Document?.extractJsonData(): JsonNode? {
+        return this
+                ?.getElementsByTag("script")
+                ?.firstOrNull { it.html().startsWith("window._config") }
+                ?.html()
+                ?.removePrefix("window._config = JSON.parse(\"")
+                ?.removeSuffix("\");")
+                ?.let { StringEscapeUtils.unescapeJson(it) }
+                ?.toByteArray(UTF_8)
+                ?.aReadJsonNodes()
+    }
+
+    private fun JsonNode.isVideo(): Boolean {
+        return get("images")
+                ?.get("image460sv")
+                ?.get("duration")
+                ?.asInt() != null
+    }
 }

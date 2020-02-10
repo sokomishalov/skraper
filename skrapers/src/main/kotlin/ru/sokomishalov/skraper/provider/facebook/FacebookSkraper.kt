@@ -27,7 +27,6 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByAttributeOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -39,14 +38,35 @@ import kotlin.text.Charsets.UTF_8
 /**
  * @author sokomishalov
  */
-class FacebookSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class FacebookSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://facebook.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://facebook.com"
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val document = getPage(path = path)
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getPage(uri)
+        val elements = document.extractPosts(limit)
+        val jsonData = document.extractJsonData()
+        val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
+
+        return elements.map {
+            val id = it.extractId()
+            val node = metaInfoJsonMap[id]
+
+            Post(
+                    id = id,
+                    text = it.extractText(),
+                    publishedAt = it.extractPublishDateTime(),
+                    rating = node.extractReactionCount(),
+                    commentsCount = node.extractCommentsCount(),
+                    attachments = it.extractAttachments()
+            )
+        }
+    }
+
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getPage(path = path)
 
         return document
                 ?.getElementsByAttributeValue("property", "og:image")
@@ -54,31 +74,8 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.attr("content")
     }
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = getPage(uri)
 
-        val elements = document.extractPosts(limit)
-        val jsonData = document.extractJsonData()
-        val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
-
-        return elements.map {
-            val id = it.getIdByUserContentWrapper()
-            val node = metaInfoJsonMap[id]
-
-            Post(
-                    id = id,
-                    text = it.getCaptionByUserContentWrapper(),
-                    publishedAt = it.getPublishedAtByUserContentWrapper(),
-                    rating = node.extractReactionCount(),
-                    commentsCount = node.extractCommentsCount(),
-                    attachments = it.getAttachmentsByUserContentWrapper()
-            )
-        }
-    }
-
-    private suspend fun getPage(uri: String): Document? {
-        return client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}/posts")
-    }
+    private suspend fun getPage(path: String): Document? = client.fetchDocument("$baseUrl$path")
 
     private fun JsonNode?.prepareMetaInfoMap(): Map<String, JsonNode> {
         return this
@@ -115,21 +112,21 @@ class FacebookSkraper @JvmOverloads constructor(
                 .orEmpty()
     }
 
-    private fun Element.getIdByUserContentWrapper(): String {
+    private fun Element.extractId(): String {
         return getElementsByAttributeValue("name", "ft_ent_identifier")
                 ?.firstOrNull()
                 ?.attr("value")
                 .orEmpty()
     }
 
-    private fun Element.getCaptionByUserContentWrapper(): String? {
+    private fun Element.extractText(): String? {
         return getSingleElementByClassOrNull("userContent")
                 ?.getSingleElementByTagOrNull("p")
                 ?.wholeText()
                 ?.toString()
     }
 
-    private fun Element.getPublishedAtByUserContentWrapper(): Long? {
+    private fun Element.extractPublishDateTime(): Long? {
         return getSingleElementByAttributeOrNull("data-utime")
                 ?.attr("data-utime")
                 ?.toLongOrNull()
@@ -150,7 +147,7 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.asInt()
     }
 
-    private fun Element.getAttachmentsByUserContentWrapper(): List<Attachment> {
+    private fun Element.extractAttachments(): List<Attachment> {
         val videoElement = getSingleElementByTagOrNull("video")
 
         return when {

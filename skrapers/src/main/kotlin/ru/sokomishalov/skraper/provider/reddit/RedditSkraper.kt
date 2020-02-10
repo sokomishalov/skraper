@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package ru.sokomishalov.skraper.provider.reddit
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -21,76 +23,112 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
-class RedditSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class RedditSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://reddit.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://reddit.com"
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val response = client.fetchJson("${baseUrl}${path}.json?limit=${limit}")
 
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val response = client.fetchJson("$baseUrl/${uri.uriCleanUp()}/hot.json?limit=${limit}")
-
-        val posts = response
-                .get("data")
-                ?.get("children")
-                .children()
-                .mapNotNull { it["data"] }
+        val posts = response.extractPostNodes()
 
         return posts
                 .map {
                     Post(
-                            id = it.get("id").asText().orEmpty(),
-                            text = it.get("title").asText(),
-                            publishedAt = it.get("created_utc")?.asLong()?.times(1000),
-                            rating = it.get("score")?.asInt(),
-                            commentsCount = it.get("num_comments")?.asInt(),
-                            attachments = listOf(Attachment(
-                                    url = it.get("url").asText().orEmpty(),
-                                    type = when {
-                                        it["media"].isEmpty.not() -> VIDEO
-                                        else -> IMAGE
-                                    },
-                                    aspectRatio = it
-                                            .get("preview")
-                                            ?.get("images")
-                                            ?.children()
-                                            ?.firstOrNull()
-                                            ?.get("source")
-                                            .run {
-                                                val width = this?.get("width")?.asDouble()
-                                                val height = this?.get("height")?.asDouble()
-
-                                                when {
-                                                    width != null && height != null -> width / height
-                                                    else -> DEFAULT_POSTS_ASPECT_RATIO
-                                                }
-                                            }
-                            ))
+                            id = it.extractId(),
+                            text = it.extractText(),
+                            publishedAt = it.extractPublishDate(),
+                            rating = it.extractRating(),
+                            commentsCount = it.extractCommentsCount(),
+                            attachments = it.extractAttachments()
                     )
                 }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val response = client.fetchJson("$baseUrl/${uri.uriCleanUp()}/about.json")
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val response = client.fetchJson("${baseUrl}${path}/about.json")
 
-        val communityIcon = response["data"].get("community_icon").asText()
-        val imgIcon = response["data"].get("icon_img").asText()
-
-        return communityIcon?.ifBlank { imgIcon }
+        return response.extractCommunityIcon().ifEmpty { response.extractIcon() }
     }
 
-    private fun JsonNode?.children(): List<JsonNode> {
-        return this
-                ?.elements()
-                ?.asSequence()
-                ?.toList()
+    private fun JsonNode.extractId(): String {
+        return get("id")
+                .asText()
                 .orEmpty()
     }
+
+    private fun JsonNode.extractText(): String? {
+        return get("title")
+                .asText()
+    }
+
+    private fun JsonNode.extractCommentsCount(): Int? {
+        return get("num_comments")
+                ?.asInt()
+    }
+
+    private fun JsonNode.extractRating(): Int? {
+        return get("score")
+                ?.asInt()
+    }
+
+    private fun JsonNode.extractPublishDate(): Long? {
+        return get("created_utc")
+                ?.asLong()
+                ?.times(1000)
+    }
+
+    private fun JsonNode.extractAttachments(): List<Attachment> {
+        return listOf(Attachment(
+                url = get("url").asText().orEmpty(),
+                type = when {
+                    this["media"].isEmpty.not() -> VIDEO
+                    else -> IMAGE
+                },
+                aspectRatio = get("preview")
+                        ?.get("images")
+                        ?.toList()
+                        ?.firstOrNull()
+                        ?.get("source")
+                        .let { jn ->
+                            val width = jn?.get("width")?.asDouble()
+                            val height = jn?.get("height")?.asDouble()
+
+                            when {
+                                width != null && height != null -> width / height
+                                else -> DEFAULT_POSTS_ASPECT_RATIO
+                            }
+                        }
+        ))
+    }
+
+    private fun JsonNode.extractCommunityIcon(): String {
+        return this["data"]
+                ?.get("community_icon")
+                ?.asText()
+                .orEmpty()
+    }
+
+    private fun JsonNode.extractIcon(): String {
+        return this["data"]
+                ?.get("icon_img")
+                ?.asText()
+                .orEmpty()
+    }
+
+    private fun JsonNode.extractPostNodes(): List<JsonNode> {
+        return get("data")
+                ?.get("children")
+                ?.toList()
+                .orEmpty()
+                .mapNotNull { it["data"] }
+    }
+
 }

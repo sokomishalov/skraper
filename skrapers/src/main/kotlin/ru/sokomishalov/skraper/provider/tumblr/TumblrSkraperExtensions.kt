@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.instagram
+package ru.sokomishalov.skraper.provider.tumblr
 
-import org.junit.Test
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.Post
+
 
 /**
  * @author sokomishalov
  */
-class InstagramSkraperTest : SkraperTck() {
-    override val skraper: InstagramSkraper = InstagramSkraper(client = client)
-    override val path: String = "/memes"
-    private val username: String = "memes"
 
-    @Test
-    fun `Check user posts`() {
-        assertPosts { skraper.getUserPosts(username = username) }
-    }
+suspend fun TumblrSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
+    return getUserPage(username = username).extractPosts(limit = limit)
+}
 
-    @Test
-    fun `Check user logo`() {
-        assertLogo { skraper.getUserLogoUrl(username = username) }
-    }
+suspend fun TumblrSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
+    return getUserPage(username = username).extractLogo()
 }

@@ -22,7 +22,6 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -32,14 +31,13 @@ import ru.sokomishalov.skraper.model.Post
 /**
  * @author sokomishalov
  */
-class IFunnySkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class IFunnySkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://ifunny.co"
 ) : Skraper {
 
-    override val baseUrl: String = "https://ifunny.co"
-
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = getTopicPage(uri)
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val document = getPage(path = path)
 
         val posts = document
                 ?.getElementsByClass("stream__item")
@@ -74,11 +72,14 @@ class IFunnySkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        return getProviderLogoUrl(imageSize)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getPage(path = path)
+
+        return document
+                ?.getElementsByAttributeValue("property", "og:image")
+                ?.firstOrNull()
+                ?.attr("content")
     }
 
-    private suspend fun getTopicPage(uri: String): Document? {
-        return client.fetchDocument("${baseUrl}/${uri.uriCleanUp()}")
-    }
+    private suspend fun getPage(path: String): Document? = client.fetchDocument("${baseUrl}${path}")
 }

@@ -15,13 +15,25 @@
  */
 package ru.sokomishalov.skraper.provider.pinterest
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class PinterestSkraperTest : SkraperTck() {
-    override val skraper: Skraper = PinterestSkraper(client = client)
-    override val uri: String = "/levato/meme"
+    override val skraper: PinterestSkraper = PinterestSkraper(client = client)
+    override val path: String = "/levato"
+    private val username: String = "levato"
+    private val topic: String = "meme"
+
+    @Test
+    fun `Check user posts`() {
+        assertPosts { skraper.getUserPosts(username = username, topic = topic) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
 }

@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.internal.consts
+package ru.sokomishalov.skraper.provider.facebook
 
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.SMALL
+import ru.sokomishalov.skraper.model.Post
+
 
 /**
  * @author sokomishalov
  */
 
-const val DEFAULT_POSTS_LIMIT: Int = 50
-const val DEFAULT_POSTS_ASPECT_RATIO: Double = 1.0
-val DEFAULT_LOGO_SIZE: ImageSize = SMALL
+suspend fun FacebookSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
+    return getPosts(path = username.buildUserPath(), limit = limit)
+}
+
+suspend fun FacebookSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
+    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+}
+
+
+private fun String.buildUserPath(): String = "/${this}/posts"

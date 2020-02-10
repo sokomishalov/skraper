@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.vk
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 
@@ -23,6 +23,28 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  * @author sokomishalov
  */
 class VkSkraperTest : SkraperTck() {
-    override val skraper: Skraper = VkSkraper(client = client)
-    override val uri: String = "/komment"
+    override val skraper: VkSkraper = VkSkraper(client = client)
+    override val path: String = "/durov"
+    private val username: String = "durov"
+    private val community: String = "komment"
+
+    @Test
+    fun `Check user posts`() {
+        assertPosts { skraper.getUserPosts(username = username) }
+    }
+
+    @Test
+    fun `Check community posts`() {
+        assertPosts { skraper.getCommunityPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community logo`() {
+        assertLogo { skraper.getCommunityLogoUrl(community = community) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
 }

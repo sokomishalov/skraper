@@ -19,11 +19,11 @@ package ru.sokomishalov.skraper.client.spring
 
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToMono
+import org.springframework.web.reactive.function.client.awaitBodyOrNull
+import org.springframework.web.reactive.function.client.awaitExchange
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.skraper.SkraperClient
 
@@ -39,10 +39,8 @@ class SpringReactiveSkraperClient(
                 .get()
                 .uri(url)
                 .headers { headers.forEach { (k, v) -> it[k] = v } }
-                .exchange()
-                .awaitFirstOrNull()
-                ?.bodyToMono<ByteArray>()
-                ?.awaitFirstOrNull()
+                .awaitExchange()
+                .awaitBodyOrNull()
     }
 
     companion object {

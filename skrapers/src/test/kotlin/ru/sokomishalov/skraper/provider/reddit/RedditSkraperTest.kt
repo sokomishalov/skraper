@@ -15,13 +15,51 @@
  */
 package ru.sokomishalov.skraper.provider.reddit
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class RedditSkraperTest : SkraperTck() {
-    override val skraper: Skraper = RedditSkraper(client = client)
-    override val uri: String = "/r/memes"
+    override val skraper: RedditSkraper = RedditSkraper(client = client)
+    override val path: String = "/r/memes"
+    private val community: String = "r/memes"
+    private val username: String = "u/ShittyMorph"
+
+
+    @Test
+    fun `Check community hot posts`() {
+        assertPosts { skraper.getCommunityHotPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community new posts`() {
+        assertPosts { skraper.getCommunityNewPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community rising posts`() {
+        assertPosts { skraper.getCommunityRisingPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community controversial posts`() {
+        assertPosts { skraper.getCommunityControversialPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community top posts`() {
+        assertPosts { skraper.getCommunityTopPosts(community = community) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
+
+    @Test
+    fun `Check community logo`() {
+        assertLogo { skraper.getCommunityLogoUrl(community = community) }
+    }
 }

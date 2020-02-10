@@ -23,7 +23,8 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -35,13 +36,12 @@ import java.time.format.DateTimeFormatter
 import kotlin.text.Charsets.UTF_8
 
 class PikabuSkraper(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://pikabu.ru"
 ) : Skraper {
 
-    override val baseUrl: String = "https://pikabu.ru"
-
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = getUserPage(uri)
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val document = getPage(path = path)
 
         val stories = document
                 ?.getElementsByTag("article")
@@ -60,18 +60,18 @@ class PikabuSkraper(
             }
 
             Post(
-                    id = it.parseId(),
+                    id = it.extractId(),
                     text = String(caption.toByteArray(UTF_8)),
-                    publishedAt = it.parsePublishDate(),
-                    rating = it.parseRating(),
-                    commentsCount = it.parseCommentsCount(),
-                    attachments = storyBlocks.parseMediaAttachments()
+                    publishedAt = it.extractPublishDate(),
+                    rating = it.extractRating(),
+                    commentsCount = it.extractCommentsCount(),
+                    attachments = storyBlocks.extractMediaAttachments()
             )
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getUserPage(uri)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getPage(path = path)
 
         return document
                 ?.getElementsByAttributeValue("property", "og:image")
@@ -79,47 +79,40 @@ class PikabuSkraper(
                 ?.attr("content")
     }
 
-    private suspend fun getUserPage(uri: String): Document? {
-        return client.fetchDocument(url = "${baseUrl}/${uri.uriCleanUp()}", charset = Charset.forName("windows-1251"))
-    }
+    private suspend fun getPage(path: String): Document? = client.fetchDocument(url = "$baseUrl$path", charset = Charset.forName("windows-1251"))
 
-    private fun Element.parseId(): String {
-        return getElementsByClass("story__title-link")
-                .firstOrNull()
+    private fun Element.extractId(): String {
+        return getSingleElementByClassOrNull("story__title-link")
                 ?.attr("href")
                 ?.substringAfter("${baseUrl}/story/")
                 .orEmpty()
     }
 
     private fun Element.parseTitle(): String {
-        return getElementsByClass("story__title-link")
-                .firstOrNull()
+        return getSingleElementByClassOrNull("story__title-link")
                 ?.wholeText()
                 .orEmpty()
     }
 
-    private fun Element.parsePublishDate(): Long? {
-        return getElementsByTag("time")
-                .firstOrNull()
+    private fun Element.extractPublishDate(): Long? {
+        return getSingleElementByTagOrNull("time")
                 ?.attr("datetime")
                 ?.run { ZonedDateTime.parse(this, DATE_FORMATTER).toEpochSecond().times(1000) }
     }
 
-    private fun Element.parseRating(): Int? {
-        return getElementsByClass("story__rating-count")
-                .firstOrNull()
+    private fun Element.extractRating(): Int? {
+        return getSingleElementByClassOrNull("story__rating-count")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
-    private fun Element.parseCommentsCount(): Int? {
-        return getElementsByClass("story__comments-link-count")
-                .firstOrNull()
+    private fun Element.extractCommentsCount(): Int? {
+        return getSingleElementByClassOrNull("story__comments-link-count")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
-    private fun Elements.parseMediaAttachments(): List<Attachment> {
+    private fun Elements.extractMediaAttachments(): List<Attachment> {
         return mapNotNull { b ->
             when {
                 "story-block_type_image" in b.classNames() -> {

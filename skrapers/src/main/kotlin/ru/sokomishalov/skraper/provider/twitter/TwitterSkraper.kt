@@ -26,7 +26,6 @@ import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -37,21 +36,20 @@ import ru.sokomishalov.skraper.model.Post
 /**
  * @author sokomishalov
  */
-class TwitterSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class TwitterSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://twitter.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://twitter.com"
-
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val webPage = getUserPage(uri)
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val webPage = getUserPage(path = path)
 
         val posts = webPage
                 ?.body()
                 ?.getElementById("stream-items-id")
                 ?.getElementsByClass("stream-item")
                 ?.take(limit)
-                ?.map { it.getSingleElementByClass("tweet") }
+                ?.mapNotNull { it.getSingleElementByClassOrNull("tweet") }
                 .orEmpty()
 
         return posts.map {
@@ -66,8 +64,8 @@ class TwitterSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getUserPage(uri)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getUserPage(path = path)
 
         return document
                 ?.body()
@@ -75,9 +73,8 @@ class TwitterSkraper @JvmOverloads constructor(
                 ?.attr("src")
     }
 
-    private suspend fun getUserPage(uri: String): Document? {
-        return client.fetchDocument("$baseUrl/${uri.uriCleanUp()}")
-    }
+    private suspend fun getUserPage(path: String): Document? = client.fetchDocument("$baseUrl$path")
+
 
     private fun Element.extractIdFromTweet(): String {
         return getSingleElementByClassOrNull("js-stream-tweet")

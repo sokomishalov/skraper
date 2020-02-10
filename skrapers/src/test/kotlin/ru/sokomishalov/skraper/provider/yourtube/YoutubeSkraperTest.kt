@@ -15,11 +15,26 @@
  */
 package ru.sokomishalov.skraper.provider.yourtube
 
-import ru.sokomishalov.skraper.Skraper
+import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
+import ru.sokomishalov.skraper.provider.youtube.getUserLogoUrl
+import ru.sokomishalov.skraper.provider.youtube.getUserPosts
 
 class YoutubeSkraperTest : SkraperTck() {
-    override val skraper: Skraper = YoutubeSkraper(client = client)
-    override val uri: String = "/user/JUGRuVideo"
+    override val skraper: YoutubeSkraper = YoutubeSkraper(client = client)
+    override val path: String = "/user/VineAholic"
+    private val username: String = "VineAholic"
+
+
+    @Test
+    fun `Check user posts`() {
+        assertPosts { skraper.getUserPosts(username = username) }
+    }
+
+    @Test
+    fun `Check user logo`() {
+        assertLogo { skraper.getUserLogoUrl(username = username) }
+    }
+
 }

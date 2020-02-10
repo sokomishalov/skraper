@@ -22,7 +22,6 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
-import ru.sokomishalov.skraper.internal.url.uriCleanUp
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
@@ -34,14 +33,13 @@ import java.time.chrono.ChronoPeriod
 import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.TemporalAmount
 
-class YoutubeSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient
+class YoutubeSkraper(
+        override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: String = "https://www.youtube.com"
 ) : Skraper {
 
-    override val baseUrl: String = "https://www.youtube.com"
-
-    override suspend fun getLatestPosts(uri: String, limit: Int): List<Post> {
-        val document = getUserPage(uri)
+    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+        val document = getUserPage(path = path)
 
         val videos = document
                 ?.getElementsByClass("yt-lockup-video")
@@ -64,8 +62,8 @@ class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageLogoUrl(uri: String, imageSize: ImageSize): String? {
-        val document = getUserPage(uri)
+    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+        val document = getUserPage(path = path)
 
         return document
                 ?.getElementsByAttributeValue("rel", "image_src")
@@ -73,14 +71,7 @@ class YoutubeSkraper @JvmOverloads constructor(
                 ?.attr("href")
     }
 
-    private suspend fun getUserPage(uri: String): Document? {
-        val finalUri = when {
-            uri.endsWith("/videos") -> "${uri.uriCleanUp()}?gl=EN&hl=en"
-            else -> "${uri.uriCleanUp()}/videos?gl=EN&hl=en"
-        }
-
-        return client.fetchDocument("${baseUrl}/${finalUri}")
-    }
+    private suspend fun getUserPage(path: String): Document? = client.fetchDocument("$baseUrl$path?gl=EN&hl=en")
 
     private fun Element?.parseId(): String {
         return this
