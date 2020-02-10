@@ -71,6 +71,9 @@ interface Skraper {
 }
 ```
 
+Also, there are some provider-specific kotlin extensions for implementations. 
+You are able to find them out at provider implementation package. 
+
 ### Scrape user/community/channel/topic/trend posts
 To scrape the latest posts for specific user, channel or trend use skraper like that: 
 ```kotlin
