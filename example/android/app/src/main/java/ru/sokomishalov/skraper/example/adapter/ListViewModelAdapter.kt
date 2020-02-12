@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import ru.sokomishalov.skraper.example.R
-import ru.sokomishalov.skraper.example.model.ListViewModel
+import ru.sokomishalov.skraper.model.Post
 
 class ListViewModelAdapter(
     private val context: Context,
-    private val listModelArrayList: List<ListViewModel>
+    private val listModelArrayList: List<Post>
 ) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
@@ -28,8 +28,8 @@ class ListViewModelAdapter(
             vh = view.tag as ViewHolder
         }
 
-        vh.tvTitle.text = listModelArrayList[position].title
-        vh.tvContent.text = listModelArrayList[position].content
+        vh.tvTitle.text = listModelArrayList[position].id
+        vh.tvContent.text = listModelArrayList[position].text
         return view
     }
 

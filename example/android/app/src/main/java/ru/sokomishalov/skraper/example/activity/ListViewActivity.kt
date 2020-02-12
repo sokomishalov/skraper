@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.widget.AdapterView
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.runBlocking
 import ru.sokomishalov.skraper.example.R
 import ru.sokomishalov.skraper.example.adapter.ListViewModelAdapter
-import ru.sokomishalov.skraper.example.utils.VIEW_MODELS
+import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
+import ru.sokomishalov.skraper.provider.ninegag.getHotPosts
 
 class ListViewActivity : AppCompatActivity() {
 
@@ -16,7 +18,9 @@ class ListViewActivity : AppCompatActivity() {
 
         val listView = findViewById<ListView>(R.id.sample_listVw)
 
-        val listViewAdapter = ListViewModelAdapter(this, VIEW_MODELS)
+        val items = runBlocking { NinegagSkraper().getHotPosts(limit = 2) }
+
+        val listViewAdapter = ListViewModelAdapter(this, items)
 
         listView.adapter = listViewAdapter
         listView.onItemClickListener = AdapterView.OnItemClickListener { _, _, _, _ -> }
