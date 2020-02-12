@@ -16,7 +16,7 @@
 package ru.sokomishalov.skraper.provider.ninegag
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.apache.commons.text.StringEscapeUtils
+import org.apache.commons.lang3.StringEscapeUtils.unescapeJson
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
@@ -105,7 +105,7 @@ class NinegagSkraper(
                 ?.html()
                 ?.removePrefix("window._config = JSON.parse(\"")
                 ?.removeSuffix("\");")
-                ?.let { StringEscapeUtils.unescapeJson(it) }
+                ?.let { unescapeJson(it) }
                 ?.toByteArray(UTF_8)
                 ?.aReadJsonNodes()
     }
