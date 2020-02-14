@@ -15,9 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.tumblr
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -29,6 +27,6 @@ suspend fun TumblrSkraper.getUserPosts(username: String, limit: Int = DEFAULT_PO
     return getUserPage(username = username).extractPosts(limit = limit)
 }
 
-suspend fun TumblrSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
+suspend fun TumblrSkraper.getUserLogoUrl(username: String): String? {
     return getUserPage(username = username).extractLogo()
 }

@@ -40,7 +40,7 @@ class InstagramSkraper(
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
         val account = getUserInfo(path = path)
 
-        return getPostsByUserId(account["id"].asLong(), limit)
+        return getPostsByUserId(account?.get("id")?.asLong(), limit)
     }
 
     override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
@@ -48,18 +48,18 @@ class InstagramSkraper(
 
         return when (imageSize) {
             SMALL,
-            MEDIUM -> account["profile_pic_url"].asText()
-            LARGE -> account["profile_pic_url_hd"].asText()
+            MEDIUM -> account?.get("profile_pic_url")?.asText()
+            LARGE -> account?.get("profile_pic_url_hd")?.asText()
         }
     }
 
-    private suspend fun getUserInfo(path: String): JsonNode = client.fetchJson("$baseUrl$path/?__a=1")["graphql"]["user"]
+    private suspend fun getUserInfo(path: String): JsonNode? = client.fetchJson("$baseUrl$path/?__a=1")?.get("graphql")?.get("user")
 
-    internal suspend fun getPostsByUserId(userId: Long, limit: Int): List<Post> {
+    internal suspend fun getPostsByUserId(userId: Long?, limit: Int): List<Post> {
         val data = client.fetchJson("$baseUrl/graphql/query/?query_id=$QUERY_ID&id=${userId}&first=${limit}")
 
         val postsNodes = data
-                .get("data")
+                ?.get("data")
                 ?.get("user")
                 ?.get("edge_owner_to_timeline_media")
                 ?.get("edges")

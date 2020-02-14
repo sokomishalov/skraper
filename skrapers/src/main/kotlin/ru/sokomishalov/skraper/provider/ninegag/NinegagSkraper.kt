@@ -16,13 +16,13 @@
 package ru.sokomishalov.skraper.provider.ninegag
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.apache.commons.lang3.StringEscapeUtils.unescapeJson
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
+import ru.sokomishalov.skraper.internal.string.unescapeJson
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -105,7 +105,7 @@ class NinegagSkraper(
                 ?.html()
                 ?.removePrefix("window._config = JSON.parse(\"")
                 ?.removeSuffix("\");")
-                ?.let { unescapeJson(it) }
+                ?.unescapeJson()
                 ?.toByteArray(UTF_8)
                 ?.aReadJsonNodes()
     }

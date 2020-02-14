@@ -19,6 +19,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import ru.sokomishalov.skraper.*
 import kotlin.math.abs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -28,7 +29,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Fetch byte array assertions`() = runBlocking {
-        val bytes = client.fetchBytes("https://www.wikipedia.org/")
+        val bytes = client.fetch("https://www.wikipedia.org/")
 
         assertTrue { bytes != null }
         assertTrue { bytes!!.isNotEmpty() }
@@ -36,7 +37,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Redirect to https assertion`() = runBlocking {
-        val bytes = client.fetchBytes("http://twitter.com/")
+        val bytes = client.fetch("http://twitter.com/")
 
         assertTrue { bytes != null }
         assertTrue { bytes!!.isNotEmpty() }
@@ -55,6 +56,7 @@ abstract class SkraperClientTck {
         val user = "sokomishalov"
         val reposJson = client.fetchJson("https://api.github.com/users/$user/repos")
 
+        assertNotNull(reposJson)
         assertTrue { reposJson.isArray }
         assertTrue { reposJson[0]["owner"]["login"].asText().toLowerCase() == user }
     }

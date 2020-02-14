@@ -85,7 +85,7 @@ internal fun InputStream.getRemoteImageInfo(): SimpleImageInfo = use {
                 //TIFF
                 (c1 == 'M'.toInt() && c2 == 'M'.toInt() && c3 == 0 && c4 == 42) || (c1 == 'I'.toInt() && c2 == 'I'.toInt() && c3 == 42 && c4 == 0) -> {
                     val bigEndian = c1 == 'M'.toInt()
-                    var ifd = 0
+                    val ifd: Int
                     val entries: Int
                     ifd = readInt(4, bigEndian)
                     skip(ifd - 8.toLong())

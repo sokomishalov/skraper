@@ -39,23 +39,22 @@ class RedditSkraper(
 
         val posts = response.extractPostNodes()
 
-        return posts
-                .map {
-                    Post(
-                            id = it.extractId(),
-                            text = it.extractText(),
-                            publishedAt = it.extractPublishDate(),
-                            rating = it.extractRating(),
-                            commentsCount = it.extractCommentsCount(),
-                            attachments = it.extractAttachments()
-                    )
-                }
+        return posts.map {
+            Post(
+                    id = it.extractId(),
+                    text = it.extractText(),
+                    publishedAt = it.extractPublishDate(),
+                    rating = it.extractRating(),
+                    commentsCount = it.extractCommentsCount(),
+                    attachments = it.extractAttachments()
+            )
+        }
     }
 
     override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
         val response = client.fetchJson("${baseUrl}${path}/about.json")
 
-        return response.extractCommunityIcon().ifEmpty { response.extractIcon() }
+        return response?.extractCommunityIcon() ?: response?.extractIcon()
     }
 
     private fun JsonNode.extractId(): String {
@@ -109,22 +108,24 @@ class RedditSkraper(
         ))
     }
 
-    private fun JsonNode.extractCommunityIcon(): String {
-        return this["data"]
+    private fun JsonNode?.extractCommunityIcon(): String? {
+        return this
+                ?.get("data")
                 ?.get("community_icon")
                 ?.asText()
-                .orEmpty()
+                ?.ifEmpty { null }
     }
 
-    private fun JsonNode.extractIcon(): String {
+    private fun JsonNode.extractIcon(): String? {
         return this["data"]
                 ?.get("icon_img")
                 ?.asText()
-                .orEmpty()
+                ?.ifEmpty { null }
     }
 
-    private fun JsonNode.extractPostNodes(): List<JsonNode> {
-        return get("data")
+    private fun JsonNode?.extractPostNodes(): List<JsonNode> {
+        return this
+                ?.get("data")
                 ?.get("children")
                 ?.toList()
                 .orEmpty()
