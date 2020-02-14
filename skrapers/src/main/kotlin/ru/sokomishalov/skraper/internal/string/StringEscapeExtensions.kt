@@ -27,11 +27,11 @@ internal fun String.unescapeJson(): String {
                 'u' -> {
                     val hex = StringBuilder()
                     if (i + 4 > length) {
-                        throw RuntimeException("Not enough unicode digits! ")
+                        throw RuntimeException("Not enough unicode digits!")
                     }
                     substring(i, i + 4).toCharArray().forEach { x ->
-                        if (!Character.isLetterOrDigit(x)) throw RuntimeException("Bad character in unicode escape.")
-                        hex.append(Character.toLowerCase(x))
+                        if (x.isLetterOrDigit().not()) throw RuntimeException("Bad character in unicode escape.")
+                        hex.append(x.toLowerCase())
                     }
                     i += 4
                     val code = hex.toString().toInt(16)

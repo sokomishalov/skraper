@@ -5,27 +5,53 @@ Skraper
 [![Apache License 2](https://img.shields.io/badge/license-ASF2-blue.svg)](https://choosealicense.com/licenses/apache-2.0/)
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
-## Overview
-Allows scraping posts with media and other meta info from various sources without any authorization or full page rendering.
-
+# Overview
+Scrapes posts with media and other meta info from various sources without any authorization or full page rendering.
 Based on Kotlin/JVM coroutines and jsoup.
 
+# Cli tool
+Build tool
+```bash
+./mvnw verify -DskipTests=true
+```
 
-## Scrapers
-List of implemented scrapers looks like this so far:
-- [RedditSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/reddit/RedditSkraper.kt) - [Reddit](https://www.reddit.com)  scraper
-- [FacebookSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/facebook/FacebookSkraper.kt) - [Facebook](https://www.facebook.com) scraper 
-- [InstagramSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/instagram/InstagramSkraper.kt) - [Instagram](https://www.instagram.com) scraper
-- [TwitterSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/twitter/TwitterSkraper.kt) - [Twitter](https://twitter.com) scraper
-- [YoutubeSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/youtube/YoutubeSkraper.kt) - [YouTube](https://youtube.com) scraper
-- [NinegagSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ninegag/NinegagSkraper.kt) - [9gag](https://9gag.com) scraper
-- [PinterestSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pinterest/PinterestSkraper.kt) - [Pinterest](https://www.pinterest.com) scraper
-- [TumblrSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/tumblr/TumblrSkraper.kt) - [Tumblr](https://tumblr.com) scraper
-- [IFunnySkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ifunny/IFunnySkraper.kt) - [IFunny](https://ifunny.co) scraper
-- [VkSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/vk/VkSkraper.kt) - [VK](https://vk.com) scraper
-- [PikabuSkraper](./skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pikabu/PikabuSkraper.kt) - [Pikabu](https://pikabu.ru) scraper
+Usage:
+```bash
+java -jar cli/target/cli.jar --help
+```
+```text
+usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT]
 
+optional arguments:
+  -h, --help        show this help message and exit
+
+  -n LIMIT,         posts limit
+  --limit LIMIT
+
+  -t TYPE,          output type, options: [log, csv, json, xml, yaml]
+  --type TYPE
+
+  -o OUTPUT,        output path
+  --output OUTPUT
+
+
+positional arguments:
+  PROVIDER          skraper provider, options: [reddit, facebook, instagram,
+                    twitter, youtube, ninegag, pinterest, tumblr, ifunny, vk,
+                    pikabu]
+
+  PATH              path to user/community/channel/topic/trend
+```
+
+Examples:
+```bash
+java -jar cli/target/cli.jar ninegag /hot 
+java -jar cli/target/cli.jar reddit /r/memes -n 5 -t csv -o ./reddit/posts
+```
+
+# Kotlin Library
 ## Distribution
+Maven:
 ```xml
 <repositories>
     <repository>
@@ -37,15 +63,25 @@ List of implemented scrapers looks like this so far:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>${skraper.version}</version>
+        <version>0.1.2</version>
     </dependency>
 </dependencies>
 ```
 
+Gradle kotlin dsl:
+```kotlin
+repositories {
+    maven { url("https://jitpack.io") }
+}
+dependencies {
+    implementation("com.github.sokomishalov.skraper:skrapers:0.1.2")
+}
+```
+
 ## Usage
 ### Instantiate specific scraper
-**Important moment:** it is highly recommended not to use [DefaultBlockingClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
-There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
+**Important moment:** it is highly recommended not to use [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
+There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
 To use them you just have to put required dependencies in the classpath.
 After that usage as simple as is:
 ```kotlin
@@ -53,14 +89,14 @@ val skraper = InstagramSkraper(client = ReactorNettySkraperClient())
 ``` 
 
 Current http-client implementation list:
-- [DefaultBlockingClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) - simple java.net.* blocking api implementation
-- [ReactorNettySkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
-- [OkHttp3SkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
-- [SpringReactiveSkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring webclient](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
-- [KtorSkraperClient](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor client jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
+- [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) - simple java.net.* blocking api implementation
+- [ReactorNettySkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
+- [OkHttp3SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
+- [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring webclient](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
+- [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor client jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
 
 ### Available methods
-Each scraper is a class which implements [Skraper](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
+Each scraper is a class which implements [Skraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
 ```kotlin
 interface Skraper {
     val baseUrl: String
@@ -112,7 +148,7 @@ Received data structure is similar to each other provider's. Output data example
 ]
 ```
 
-You can see the full model structure for posts and others [here](skraper-core/src/main/kotlin/ru/sokomishalov/skraper/model)
+You can see the full model structure for posts and others [here](skrapers/src/main/kotlin/ru/sokomishalov/skraper/model)
 
 ### Scrape user/community/channel/topic/trend logo
 It is possible to scrape user/channel/trend logo for some purposes:

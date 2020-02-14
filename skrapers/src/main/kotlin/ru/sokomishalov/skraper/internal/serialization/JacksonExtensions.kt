@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature.*
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 
@@ -37,7 +36,6 @@ suspend fun ByteArray?.aReadJsonNodes(): JsonNode {
 
 private val INTERNAL_SKRAPER_OBJECT_MAPPER: ObjectMapper by lazy {
     ObjectMapper()
-            .registerKotlinModule()
             .enable(
                     READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE,
                     READ_ENUMS_USING_TO_STRING,
