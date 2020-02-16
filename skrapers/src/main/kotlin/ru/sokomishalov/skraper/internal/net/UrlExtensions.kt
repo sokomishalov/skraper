@@ -26,6 +26,7 @@ import java.net.URL
  * @author sokomishalov
  */
 
+@PublishedApi
 internal suspend fun URL.openStreamForRedirectable(headers: Map<String, String> = emptyMap()): InputStream {
     return withContext(IO) {
         val conn = openConnection() as HttpURLConnection
