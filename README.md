@@ -9,6 +9,10 @@ Skraper
 Scrapes posts with media and other meta info from various sources without any authorization or full page rendering.
 Based on Kotlin/JVM coroutines and jsoup.
 
+Repository contains:
+- [Cli tool](#cli-tool)
+- [Kotlin library](#kotlin-library)
+
 # Cli tool
 Build tool
 ```bash
