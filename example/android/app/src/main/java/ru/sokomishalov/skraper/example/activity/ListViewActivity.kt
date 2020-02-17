@@ -8,8 +8,14 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.okhttp3.OkHttp3SkraperClient
 import ru.sokomishalov.skraper.example.R
 import ru.sokomishalov.skraper.example.adapter.ListViewModelAdapter
+import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
+import ru.sokomishalov.skraper.provider.facebook.getUserPosts
+import ru.sokomishalov.skraper.provider.instagram.InstagramSkraper
+import ru.sokomishalov.skraper.provider.instagram.getUserPosts
 import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
-import ru.sokomishalov.skraper.provider.ninegag.getHotPosts
+import ru.sokomishalov.skraper.provider.ninegag.getTagPosts
+import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
+import ru.sokomishalov.skraper.provider.twitter.getUserPosts
 import kotlin.coroutines.CoroutineContext
 
 class ListViewActivity : AppCompatActivity(), CoroutineScope {
@@ -18,10 +24,6 @@ class ListViewActivity : AppCompatActivity(), CoroutineScope {
 
     private val job: Job = Job()
     private val listViewAdapter: ListViewModelAdapter = ListViewModelAdapter(context = this, data = mutableListOf())
-
-    private val client: SkraperClient = OkHttp3SkraperClient()
-    private val limit: Int = 2
-    private val skraper: NinegagSkraper = NinegagSkraper(client = client)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,14 +35,24 @@ class ListViewActivity : AppCompatActivity(), CoroutineScope {
 
     private fun fetchItems() = launch {
         val items = withContext(Dispatchers.Default) {
-            skraper.getHotPosts(limit = limit)
-        }
+            listOf(
+                NinegagSkraper(client = DEFAULT_CLIENT).getTagPosts(tag = "meme", limit = DEFAULT_LIMIT),
+                TwitterSkraper(client = DEFAULT_CLIENT).getUserPosts(username = "memes", limit = DEFAULT_LIMIT),
+                FacebookSkraper(client = DEFAULT_CLIENT).getUserPosts(username = "memes", limit = DEFAULT_LIMIT),
+                InstagramSkraper(client = DEFAULT_CLIENT).getUserPosts(username = "memes", limit = DEFAULT_LIMIT)
+            )
+        }.flatten()
         listViewAdapter + items
     }
 
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
+    }
+
+    companion object {
+        private const val DEFAULT_LIMIT: Int = 5
+        private val DEFAULT_CLIENT: SkraperClient = OkHttp3SkraperClient()
     }
 }
 
