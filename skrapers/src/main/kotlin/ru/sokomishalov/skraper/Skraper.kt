@@ -54,5 +54,5 @@ interface Skraper {
      * @param imageSize choice for specific logo size if it's possible
      * @return provider logo url
      */
-    suspend fun getProviderLogoUrl(imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? = "${baseUrl}/favicon.ico"
+    suspend fun getProviderLogoUrl(imageSize: ImageSize = DEFAULT_LOGO_SIZE): String = "${baseUrl}/favicon.ico"
 }
