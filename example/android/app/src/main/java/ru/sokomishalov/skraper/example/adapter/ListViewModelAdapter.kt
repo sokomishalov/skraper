@@ -11,7 +11,7 @@ import ru.sokomishalov.skraper.model.Post
 
 class ListViewModelAdapter(
     private val context: Context,
-    private val listModelArrayList: List<Post>
+    private val data: MutableList<Post>
 ) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
@@ -28,16 +28,21 @@ class ListViewModelAdapter(
             vh = view.tag as ViewHolder
         }
 
-        vh.tvTitle.text = listModelArrayList[position].id
-        vh.tvContent.text = listModelArrayList[position].text
+        vh.tvTitle.text = data[position].id
+        vh.tvContent.text = data[position].text
         return view
     }
 
-    override fun getItem(position: Int): Any = listModelArrayList[position]
+    override fun getItem(position: Int): Any = data[position]
 
     override fun getItemId(position: Int): Long = position.toLong()
 
-    override fun getCount(): Int = listModelArrayList.size
+    override fun getCount(): Int = data.size
+
+    operator fun plus(posts: List<Post>) {
+        data += posts
+        notifyDataSetChanged()
+    }
 }
 
 private class ViewHolder(view: View?) {
