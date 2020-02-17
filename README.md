@@ -67,7 +67,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.1.3</version>
+        <version>0.1.4</version>
     </dependency>
 </dependencies>
 ```
@@ -78,7 +78,7 @@ repositories {
     maven { url("https://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.1.3")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.1.4")
 }
 ```
 
