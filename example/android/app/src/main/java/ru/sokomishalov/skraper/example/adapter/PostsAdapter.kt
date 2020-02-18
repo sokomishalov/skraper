@@ -1,7 +1,6 @@
 package ru.sokomishalov.skraper.example.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,16 +35,15 @@ class PostsAdapter(
 
         if (attachment != null) {
             when (attachment.type) {
-                IMAGE -> {
+                IMAGE -> with(vh.image) {
                     Picasso
                         .get()
                         .load(attachment.url)
-                        .into(vh.image)
+                        .into(this)
                 }
-                VIDEO -> {
-                    Log.i("Kek", attachment.url)
-                    vh.video.setVideoPath(attachment.url)
-                    vh.video.start()
+                VIDEO -> with(vh.video) {
+                    setVideoPath(attachment.url)
+                    start()
                 }
             }
         }
