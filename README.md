@@ -83,6 +83,9 @@ dependencies {
 ```
 
 ## Usage
+### Demo
+You may take a look on library usage in this [android sample app](example/android)
+
 ### Instantiate specific scraper
 **Important moment:** it is highly recommended not to use [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
 There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
