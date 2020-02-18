@@ -32,3 +32,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Android ###
+local.properties
+/build
+/captures
+.externalNativeBuild
+.cxx

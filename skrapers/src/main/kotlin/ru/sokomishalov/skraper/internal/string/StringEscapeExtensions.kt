@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("unused")
+
 package ru.sokomishalov.skraper.internal.string
 
+import org.jsoup.nodes.Entities
+
 /**
- * muchas gracias
- * @see <a href="https://stackoverflow.com/a/49831779/5843129">link</a>
- *
  * @author sokomishalov
  */
 
+// https://stackoverflow.com/a/49831779/5843129
 @PublishedApi
 internal fun String.unescapeJson(): String {
     val builder = StringBuilder()
@@ -57,4 +59,9 @@ internal fun String.unescapeJson(): String {
         } else builder.append(delimiter)
     }
     return builder.toString()
+}
+
+@PublishedApi
+internal fun String.unescapeHtml(): String {
+    return Entities.unescape(this)
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   android:paddingBottom="12dp">
+
+    <ImageView
+            android:id="@+id/image_attachment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+    />
+
+    <VideoView
+            android:id="@+id/video_attachment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+    />
+
+
+    <TextView android:id="@+id/post_text"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="8dp"
+              android:layout_marginLeft="8dp"
+              android:layout_marginStart="8dp"
+              app:layout_constraintEnd_toEndOf="@+id/image_attachment"
+              app:layout_constraintStart_toStartOf="@+id/image_attachment"
+              app:layout_constraintTop_toBottomOf="@+id/image_attachment"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
