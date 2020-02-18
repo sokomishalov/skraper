@@ -66,5 +66,5 @@ class PostsAdapter(
 private class ViewHolder(view: View) {
     val video: VideoView = view.findViewById(R.id.video_attachment)
     val image: ImageView = view.findViewById(R.id.image_attachment)
-    val tvTitle: TextView = view.findViewById(R.id.tvContent)
+    val tvTitle: TextView = view.findViewById(R.id.post_text)
 }
