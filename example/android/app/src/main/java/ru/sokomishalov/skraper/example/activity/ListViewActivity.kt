@@ -40,8 +40,8 @@ class ListViewActivity : AppCompatActivity(), CoroutineScope {
                 TwitterSkraper(client = DEFAULT_CLIENT).getUserPosts(username = "memes", limit = DEFAULT_LIMIT),
                 FacebookSkraper(client = DEFAULT_CLIENT).getUserPosts(username = "memes", limit = DEFAULT_LIMIT),
                 InstagramSkraper(client = DEFAULT_CLIENT).getUserPosts(username = "memes", limit = DEFAULT_LIMIT)
-            )
-        }.flatten()
+            ).flatten()
+        }
         listViewAdapter + items
     }
 
