@@ -24,6 +24,20 @@ import ru.sokomishalov.skraper.model.ImageSize
  * @author sokomishalov
  */
 
-suspend fun Skraper.getLogoByteArray(path: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): ByteArray? = getLogoUrl(path = path, imageSize = imageSize)?.let { client.fetchBytes(it) }
+suspend fun Skraper.getLogoByteArray(
+        path: String,
+        imageSize: ImageSize = DEFAULT_LOGO_SIZE
+): ByteArray? {
+    return getLogoUrl(
+            path = path,
+            imageSize = imageSize
+    )?.let { client.fetchBytes(it) }
+}
 
-suspend fun Skraper.getProviderLogoByteArray(imageSize: ImageSize = DEFAULT_LOGO_SIZE): ByteArray? = getProviderLogoUrl(imageSize = imageSize).let { client.fetchBytes(it) }
+suspend fun Skraper.getProviderLogoByteArray(
+        imageSize: ImageSize = DEFAULT_LOGO_SIZE
+): ByteArray? {
+    return getProviderLogoUrl(
+            imageSize = imageSize
+    ).let { client.fetchBytes(it) }
+}
