@@ -13,40 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused")
-
 package ru.sokomishalov.skraper.internal.jsoup
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
-fun Element.getSingleElementByClass(name: String): Element {
-    return getElementsByClass(name).first()
-}
-
-fun Element.getSingleElementByClassOrNull(name: String): Element? {
+fun Element.getSingleElementByClass(name: String): Element? {
     return getElementsByClass(name).firstOrNull()
 }
 
-fun Element.getSingleElementByTag(name: String): Element {
-    return getElementsByTag(name).first()
-}
-
-fun Element.getSingleElementByTagOrNull(name: String): Element? {
+fun Element.getSingleElementByTag(name: String): Element? {
     return getElementsByTag(name).firstOrNull()
 }
 
-fun Element.getSingleElementByAttribute(name: String): Element {
-    return getElementsByAttribute(name).first()
-}
-
-fun Element.getSingleElementByAttributeOrNull(name: String): Element? {
+fun Element.getSingleElementByAttribute(name: String): Element? {
     return getElementsByAttribute(name).firstOrNull()
-}
-
-fun Element.getImageBackgroundUrl(): String {
-    val style = attr("style")
-    return style.substring(style.indexOf("http"), style.indexOf(")"))
 }
 
 fun Element.getStyleMap(): Map<String, String> {
@@ -55,16 +36,13 @@ fun Element.getStyleMap(): Map<String, String> {
         else -> attr("style")
                 .split(";")
                 .filter { it.isNotBlank() }
-                .map { ss ->
-                    val items = ss.split(":")
-                    items[0].trim() to items[1]
-                }
+                .map { it.substringBefore(":").trim() to it.substringAfter(":") }
                 .toMap()
     }
 }
 
 fun Element.getStyle(name: String): String? {
-    return this.getStyleMap()[name]
+    return getStyleMap()[name]
 }
 
 fun Element.removeLinks(): String? {

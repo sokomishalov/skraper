@@ -23,8 +23,8 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -82,32 +82,32 @@ class PikabuSkraper(
     private suspend fun getPage(path: String): Document? = client.fetchDocument(url = "$baseUrl$path", charset = Charset.forName("windows-1251"))
 
     private fun Element.extractId(): String {
-        return getSingleElementByClassOrNull("story__title-link")
+        return getSingleElementByClass("story__title-link")
                 ?.attr("href")
                 ?.substringAfter("${baseUrl}/story/")
                 .orEmpty()
     }
 
     private fun Element.parseTitle(): String {
-        return getSingleElementByClassOrNull("story__title-link")
+        return getSingleElementByClass("story__title-link")
                 ?.wholeText()
                 .orEmpty()
     }
 
     private fun Element.extractPublishDate(): Long? {
-        return getSingleElementByTagOrNull("time")
+        return getSingleElementByTag("time")
                 ?.attr("datetime")
                 ?.run { ZonedDateTime.parse(this, DATE_FORMATTER).toEpochSecond().times(1000) }
     }
 
     private fun Element.extractRating(): Int? {
-        return getSingleElementByClassOrNull("story__rating-count")
+        return getSingleElementByClass("story__rating-count")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
     private fun Element.extractCommentsCount(): Int? {
-        return getSingleElementByClassOrNull("story__comments-link-count")
+        return getSingleElementByClass("story__comments-link-count")
                 ?.wholeText()
                 ?.toIntOrNull()
     }

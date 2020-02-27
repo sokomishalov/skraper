@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
@@ -88,7 +88,7 @@ class YoutubeSkraper(
 
     private fun Element?.parsePublishDate(): Long? {
         return this
-                ?.getSingleElementByClassOrNull("yt-lockup-meta-info")
+                ?.getSingleElementByClass("yt-lockup-meta-info")
                 ?.getElementsByTag("li")
                 ?.getOrNull(1)
                 ?.wholeText()

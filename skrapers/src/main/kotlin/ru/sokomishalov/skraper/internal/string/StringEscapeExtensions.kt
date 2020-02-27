@@ -18,6 +18,8 @@
 package ru.sokomishalov.skraper.internal.string
 
 import org.jsoup.nodes.Entities
+import java.net.URLDecoder
+import kotlin.text.Charsets.UTF_8
 
 /**
  * @author sokomishalov
@@ -64,4 +66,9 @@ internal fun String.unescapeJson(): String {
 @PublishedApi
 internal fun String.unescapeHtml(): String {
     return Entities.unescape(this)
+}
+
+@PublishedApi
+internal fun String.unescapeUrl(): String {
+    return URLDecoder.decode(this.replace("%u2026", "..."), UTF_8.name())
 }

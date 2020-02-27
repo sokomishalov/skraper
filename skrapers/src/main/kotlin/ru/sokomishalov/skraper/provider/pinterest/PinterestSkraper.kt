@@ -30,7 +30,6 @@ import ru.sokomishalov.skraper.model.Post
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
-import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -46,35 +45,35 @@ class PinterestSkraper(
 
         val feedList = infoJsonNode.extractFeed(limit)
 
-        return feedList
-                .map {
-                    val imageInfo = it.get("images")?.get("orig")
-                    Post(
-                            id = it.extractId(),
-                            text = it.extractText(),
-                            publishedAt = it.extractPublishDate(),
-                            rating = it.extractRating(),
-                            commentsCount = it.extractCommentsCount(),
-                            attachments = listOf(Attachment(
-                                    type = IMAGE,
-                                    url = imageInfo?.get("url")?.asText().orEmpty(),
-                                    aspectRatio = imageInfo.run {
-                                        val width = this?.get("width")?.asDouble()
-                                        val height = this?.get("height")?.asDouble()
-                                        when {
-                                            width != null && height != null -> width / height
-                                            else -> DEFAULT_POSTS_ASPECT_RATIO
-                                        }
-                                    }
-                            ))
-                    )
-                }
+        return feedList.map {
+            val imageInfo = it.get("images")?.get("orig")
+            Post(
+                    id = it.extractId(),
+                    text = it.extractText(),
+                    publishedAt = it.extractPublishDate(),
+                    rating = it.extractRating(),
+                    commentsCount = it.extractCommentsCount(),
+                    attachments = listOf(Attachment(
+                            type = IMAGE,
+                            url = imageInfo?.get("url")?.asText().orEmpty(),
+                            aspectRatio = imageInfo.run {
+                                val width = this?.get("width")?.asDouble()
+                                val height = this?.get("height")?.asDouble()
+                                when {
+                                    width != null && height != null -> width / height
+                                    else -> DEFAULT_POSTS_ASPECT_RATIO
+                                }
+                            }
+                    ))
+            )
+        }
     }
 
     override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
         val infoJsonNode = getUserJson(path = path)
 
-        val json = infoJsonNode["resourceResponses"]
+        val json = infoJsonNode
+                ?.get("resourceResponses")
                 ?.firstOrNull()
                 ?.get("response")
                 ?.get("data")
@@ -82,9 +81,9 @@ class PinterestSkraper(
         return json.extractLogo(imageSize = imageSize)
     }
 
-    private suspend fun getUserJson(path: String): JsonNode {
+    private suspend fun getUserJson(path: String): JsonNode? {
         val webPage = client.fetchDocument("$baseUrl$path")
-        val infoJson = webPage?.getElementById("initial-state")?.html()?.toByteArray(UTF_8)
+        val infoJson = webPage?.getElementById("initial-state")?.html()
         return infoJson.aReadJsonNodes()
     }
 
@@ -117,8 +116,9 @@ class PinterestSkraper(
                 ?.asInt()
     }
 
-    private fun JsonNode.extractFeed(limit: Int): List<JsonNode> {
-        return get("resourceResponses")
+    private fun JsonNode?.extractFeed(limit: Int): List<JsonNode> {
+        return this
+                ?.get("resourceResponses")
                 ?.get(1)
                 ?.get("response")
                 ?.get("data")

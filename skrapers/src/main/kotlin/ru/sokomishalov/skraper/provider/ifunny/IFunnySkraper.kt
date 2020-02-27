@@ -47,8 +47,8 @@ class IFunnySkraper(
         return posts.mapNotNull {
             val a = it.getSingleElementByTag("a")
 
-            val img = a.getSingleElementByTag("img")
-            val link = a.attr("href")
+            val img = a?.getSingleElementByTag("img")
+            val link = a?.attr("href").orEmpty()
 
             val video = "video" in link || "gif" in link
             Post(
@@ -56,7 +56,7 @@ class IFunnySkraper(
                     attachments = listOf(Attachment(
                             url = when {
                                 video -> "${baseUrl}${link}"
-                                else -> img.attr("data-src")
+                                else -> img?.attr("data-src").orEmpty()
                             },
                             type = when {
                                 video -> VIDEO

@@ -37,14 +37,14 @@ interface Skraper {
     val client: SkraperClient get() = DefaultBlockingSkraperClient
 
     /**
-     * @param path page specific url path
+     * @param path page specific url path (should start with "/")
      * @param limit for an amount of posts to return
      * @return list of posts
      */
     suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
 
     /**
-     * @param path page specific url path
+     * @param path page specific url path (should start with "/")
      * @param imageSize choice for specific logo size if it's possible
      * @return page logo url
      */

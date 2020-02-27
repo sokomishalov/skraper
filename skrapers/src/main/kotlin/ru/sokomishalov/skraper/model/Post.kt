@@ -18,7 +18,7 @@ package ru.sokomishalov.skraper.model
 /**
  * Represents a provider post.
  * @property id provider's internal id
- * @property text concatenated text
+ * @property text title and/or description
  * @property publishedAt publish timestamp in nanos *(nullable - such data may not exist on the provider's page)
  * @property rating rating (likes) count *(nullable - such data may not exist on the provider's page)
  * @property commentsCount comments count *(nullable - such data may not exist on the provider's page)

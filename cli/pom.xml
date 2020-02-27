@@ -7,11 +7,11 @@
     <parent>
         <groupId>ru.sokomishalov.skraper</groupId>
         <artifactId>skraper-parent</artifactId>
-        <version>0.1.4</version>
+        <version>0.1.5</version>
     </parent>
 
     <artifactId>cli</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
 
     <properties>
         <maven.skip.deploy>true</maven.skip.deploy>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>ru.sokomishalov.skraper</groupId>
             <artifactId>skrapers</artifactId>
-            <version>0.1.4</version>
+            <version>0.1.5</version>
         </dependency>
         <dependency>
             <groupId>com.xenomachina</groupId>
