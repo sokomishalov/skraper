@@ -35,14 +35,19 @@ suspend fun SkraperClient.fetchBytes(
         url: String,
         headers: Map<String, String> = emptyMap()
 ): ByteArray? {
-    return runCatching { fetch(url = url, headers = headers) }.getOrNull()
+    return runCatching {
+        fetch(url = url, headers = headers)
+    }.getOrNull()
 }
 
 suspend fun SkraperClient.fetchJson(
         url: String,
         headers: Map<String, String> = emptyMap()
 ): JsonNode? {
-    return runCatching { fetch(url = url, headers = headers).aReadJsonNodes() }.getOrNull()
+    return runCatching {
+        fetch(url = url, headers = headers)
+                .aReadJsonNodes()
+    }.getOrNull()
 }
 
 suspend fun SkraperClient.fetchDocument(
@@ -50,7 +55,11 @@ suspend fun SkraperClient.fetchDocument(
         headers: Map<String, String> = emptyMap(),
         charset: Charset = UTF_8
 ): Document? {
-    return runCatching { fetch(url = url, headers = headers)?.run { withContext(IO) { Jsoup.parse(toString(charset)) } } }.getOrNull()
+    return runCatching {
+        fetch(url = url, headers = headers)?.run {
+            withContext(IO) { Jsoup.parse(toString(charset)) }
+        }
+    }.getOrNull()
 }
 
 suspend fun SkraperClient.fetchAspectRatio(
@@ -58,6 +67,12 @@ suspend fun SkraperClient.fetchAspectRatio(
         headers: Map<String, String> = emptyMap(),
         orElse: Double = DEFAULT_POSTS_ASPECT_RATIO
 ): Double {
-    return runCatching { withContext(IO) { openStream(url = url, headers = headers)!!.getRemoteImageInfo().run { width.toDouble() / height.toDouble() } } }.getOrElse { orElse }
+    return runCatching {
+        withContext(IO) {
+            openStream(url = url, headers = headers)
+                    ?.getRemoteImageInfo()
+                    ?.run { width.toDouble() / height.toDouble() }
+        }
+    }.getOrNull() ?: orElse
 
 }
