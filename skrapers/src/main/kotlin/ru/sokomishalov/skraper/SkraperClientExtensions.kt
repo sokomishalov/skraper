@@ -20,9 +20,9 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.image.getRemoteImageInfo
-import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
+import ru.sokomishalov.skraper.internal.image.imageDimensions
+import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
+import ru.sokomishalov.skraper.model.URLString
 import java.nio.charset.Charset
 import kotlin.text.Charsets.UTF_8
 
@@ -31,48 +31,34 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 
-suspend fun SkraperClient.fetchBytes(
-        url: String,
-        headers: Map<String, String> = emptyMap()
-): ByteArray? {
+suspend fun SkraperClient.fetchBytes(url: URLString, headers: Map<String, String> = emptyMap()): ByteArray? {
     return runCatching {
         fetch(url = url, headers = headers)
     }.getOrNull()
 }
 
-suspend fun SkraperClient.fetchJson(
-        url: String,
-        headers: Map<String, String> = emptyMap()
-): JsonNode? {
-    return runCatching {
-        fetch(url = url, headers = headers)
-                .aReadJsonNodes()
-    }.getOrNull()
-}
-
-suspend fun SkraperClient.fetchDocument(
-        url: String,
-        headers: Map<String, String> = emptyMap(),
-        charset: Charset = UTF_8
-): Document? {
+suspend fun SkraperClient.fetchJson(url: URLString, headers: Map<String, String> = emptyMap()): JsonNode? {
     return runCatching {
         fetch(url = url, headers = headers)?.run {
-            withContext(IO) { Jsoup.parse(toString(charset)) }
+            readJsonNodes()
         }
     }.getOrNull()
 }
 
-suspend fun SkraperClient.fetchAspectRatio(
-        url: String,
-        headers: Map<String, String> = emptyMap(),
-        orElse: Double = DEFAULT_POSTS_ASPECT_RATIO
-): Double {
+suspend fun SkraperClient.fetchDocument(url: URLString, headers: Map<String, String> = emptyMap(), charset: Charset = UTF_8): Document? {
+    return runCatching {
+        fetch(url = url, headers = headers)?.run {
+            Jsoup.parse(toString(charset))
+        }
+    }.getOrNull()
+}
+
+suspend fun SkraperClient.fetchAspectRatio(url: URLString, headers: Map<String, String> = emptyMap(), defaultValue: Double = 1.0): Double {
     return runCatching {
         withContext(IO) {
             openStream(url = url, headers = headers)
-                    ?.getRemoteImageInfo()
-                    ?.run { width.toDouble() / height.toDouble() }
+                    ?.imageDimensions
+                    ?.run { first.toDouble() / second.toDouble() }
         }
-    }.getOrNull() ?: orElse
-
+    }.getOrNull() ?: defaultValue
 }

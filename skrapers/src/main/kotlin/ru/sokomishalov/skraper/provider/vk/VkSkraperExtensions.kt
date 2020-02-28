@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.vk
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -26,22 +25,17 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 suspend fun VkSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(), limit = limit)
+    return getPosts(path = "/${username}", limit = limit)
 }
 
 suspend fun VkSkraper.getCommunityPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(), limit = limit)
+    return getPosts(path = "/${community}", limit = limit)
 }
 
-suspend fun VkSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+suspend fun VkSkraper.getUserInfo(username: String): PageInfo? {
+    return getPageInfo(path = "/${username}")
 }
 
-suspend fun VkSkraper.getCommunityLogoUrl(community: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = community.buildUserPath(), imageSize = imageSize)
+suspend fun VkSkraper.getCommunityInfo(community: String): PageInfo? {
+    return getPageInfo(path = "/${community}")
 }
-
-
-private fun String.buildUserPath(): String = "/${this}"
-
-private fun String.buildCommunityPath(): String = "/${this}"

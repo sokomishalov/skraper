@@ -54,12 +54,12 @@ class RedditSkraperTest : SkraperTck() {
     }
 
     @Test
-    fun `Check user logo`() {
-        assertLogo { skraper.getUserLogoUrl(username = username) }
+    fun `Check user info`() {
+        assertPageInfo { skraper.getUserInfo(username = username) }
     }
 
     @Test
-    fun `Check community logo`() {
-        assertLogo { skraper.getCommunityLogoUrl(community = community) }
+    fun `Check community info`() {
+        assertPageInfo { skraper.getCommunityInfo(community = community) }
     }
 }

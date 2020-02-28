@@ -32,7 +32,7 @@ class TwitterSkraperTest : SkraperTck() {
     }
 
     @Test
-    fun `Check user logo`() {
-        assertLogo { skraper.getUserLogoUrl(username = username) }
+    fun `Check user info`() {
+        assertPageInfo { skraper.getUserInfo(username = username) }
     }
 }

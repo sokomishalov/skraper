@@ -21,12 +21,10 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
-import java.lang.System.currentTimeMillis
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
+import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Duration
 import java.time.Period
 import java.time.chrono.ChronoPeriod
@@ -35,65 +33,85 @@ import java.time.temporal.TemporalAmount
 
 class YoutubeSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://www.youtube.com"
+        override val baseUrl: URLString = "https://www.youtube.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val document = getUserPage(path = path)
+        val page = getUserPage(path = path)
 
-        val videos = document
+        val videos = page
                 ?.getElementsByClass("yt-lockup-video")
                 ?.take(limit)
                 .orEmpty()
 
         return videos.map {
-            val linkElement = it.getElementsByClass("yt-uix-tile-link").firstOrNull()
+            val linkElement = it.getFirstElementByClass("yt-uix-tile-link")
 
             Post(
-                    id = linkElement.parseId(),
-                    text = linkElement.parseCaption(),
-                    publishedAt = it.parsePublishDate(),
-                    attachments = listOf(Attachment(
-                            url = "${baseUrl}${linkElement?.attr("href")}",
-                            type = VIDEO,
-                            aspectRatio = YOUTUBE_DEFAULT_VIDEO_ASPECT_RATIO
-                    ))
+                    id = linkElement.extractPostId(),
+                    text = linkElement.extractPostCaption(),
+                    viewsCount = it.extractPostViewsCount(),
+                    publishedAt = it.extractPostPublishDate(),
+                    media = linkElement.extractPostVideo()
             )
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
-        val document = getUserPage(path = path)
+    override suspend fun getPageInfo(path: String): PageInfo? {
+        val page = getUserPage(path = path)
 
-        return document
-                ?.getElementsByAttributeValue("rel", "image_src")
-                ?.firstOrNull()
-                ?.attr("href")
+        return page?.run {
+            PageInfo(
+                    nick = extractPageNick(),
+                    name = extractPageName(),
+                    description = extractPageDescription(),
+                    followersCount = extractFollowersCount(),
+                    avatarsMap = extractPageAvatarsMap(),
+                    coversMap = extractPageCoversMap()
+            )
+        }
     }
 
-    private suspend fun getUserPage(path: String): Document? = client.fetchDocument("$baseUrl$path?gl=EN&hl=en")
+    private suspend fun getUserPage(path: String): Document? {
+        return client.fetchDocument(url = baseUrl.buildFullURL(
+                path = path,
+                queryParams = mapOf("gl" to "EN", "hl" to "en")
+        ))
+    }
 
-    private fun Element?.parseId(): String {
+    private fun Element?.extractPostId(): String {
         return this
                 ?.attr("href")
                 ?.substringAfter("/watch?v=")
                 .orEmpty()
     }
 
-    private fun Element?.parseCaption(): String {
+    private fun Element?.extractPostCaption(): String {
         return this
                 ?.attr("title")
                 .orEmpty()
     }
 
-    private fun Element?.parsePublishDate(): Long? {
+    private fun Element?.extractPostViewsCount(): Int? {
         return this
-                ?.getSingleElementByClass("yt-lockup-meta-info")
+                ?.getFirstElementByClass("yt-lockup-meta-info")
                 ?.getElementsByTag("li")
                 ?.getOrNull(1)
                 ?.wholeText()
+                ?.replace("views", "")
+                ?.replace(",", "")
+                ?.trim()
+                ?.toIntOrNull()
+    }
+
+    private fun Element?.extractPostPublishDate(): Long? {
+        return this
+                ?.getFirstElementByClass("yt-lockup-meta-info")
+                ?.getElementsByTag("li")
+                ?.getOrNull(0)
+                ?.wholeText()
                 ?.let {
-                    val now = currentTimeMillis()
+                    val now = currentUnixTimestamp()
 
                     val amount = it.split(" ")
                             .firstOrNull()
@@ -117,11 +135,74 @@ class YoutubeSkraper(
                         is ChronoPeriod -> Duration.ofDays(temporalAmount.get(DAYS)).toMillis()
                         else -> 0
                     }
-                    now - millisAgo
+                    now - (millisAgo / 1000)
                 }
     }
 
-    companion object {
-        private const val YOUTUBE_DEFAULT_VIDEO_ASPECT_RATIO = 210 / 117.5
+    private fun Element?.extractPostVideo(): List<MediaItem> {
+        return listOf(Video(
+                url = "$baseUrl${this?.attr("href")}"
+        ))
+    }
+
+    private fun Document.extractPageNick(): String? {
+        return this
+                .getFirstElementByClass("channel-header-profile-image-container")
+                ?.attr("href")
+                ?.removeSuffix("/")
+                ?.substringAfterLast("/")
+    }
+
+    private fun Document.extractPageName(): String? {
+        return this
+                .getFirstElementByClass("branded-page-header-title-link")
+                ?.attr("title")
+    }
+
+    private fun Document.extractPageDescription(): String? {
+        return this
+                .getFirstElementByAttributeValue("name", "description")
+                ?.attr("content")
+    }
+
+    private fun Document.extractFollowersCount(): Int? {
+        return this
+                .getFirstElementByClass("yt-subscription-button-subscriber-count-branded-horizontal")
+                ?.wholeText()
+                ?.let {
+                    when {
+                        it.endsWith("K") -> it.replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
+                        it.endsWith("M", ignoreCase = true) -> it.replace("M", "").replace(".", "").toIntOrNull()?.times(1_000_000)
+                        it.endsWith("B", ignoreCase = true) -> it.replace("B", "").replace(".", "").toIntOrNull()?.times(1_000_000_000)
+                        else -> it.replace(".", "").toIntOrNull()
+                    }
+                }
+    }
+
+    private fun Document.extractPageAvatarsMap(): Map<MediaSize, Image> {
+        return singleImageMap(url = this
+                .getElementsByAttributeValue("rel", "image_src")
+                ?.firstOrNull()
+                ?.attr("href")
+        )
+    }
+
+    private fun Document.extractPageCoversMap(): Map<MediaSize, Image> {
+        val urls = this
+                .getElementById("gh-banner")
+                ?.html()
+                ?.split("\n")
+                ?.filter { it.contains("background-image") }
+                ?.map {
+                    val link = it.substringAfter("url(", "").substringBeforeLast(");", "")
+                    "https:${link}"
+                }
+                .orEmpty()
+
+        return mapOf(
+                SMALL to urls.getOrElse(0) { "" }.toImage(),
+                MEDIUM to urls.getOrElse(1) { "" }.toImage(),
+                LARGE to urls.getOrElse(2) { "" }.toImage()
+        )
     }
 }

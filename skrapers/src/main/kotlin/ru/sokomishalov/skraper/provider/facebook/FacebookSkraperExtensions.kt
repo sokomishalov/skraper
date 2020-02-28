@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.facebook
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -29,6 +28,6 @@ suspend fun FacebookSkraper.getUserPosts(username: String, limit: Int = DEFAULT_
     return getPosts(path = "/${username}/posts", limit = limit)
 }
 
-suspend fun FacebookSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = "/${username}/posts", imageSize = imageSize)
+suspend fun FacebookSkraper.getUserPageInfo(username: String): PageInfo? {
+    return getPageInfo(path = "/${username}")
 }

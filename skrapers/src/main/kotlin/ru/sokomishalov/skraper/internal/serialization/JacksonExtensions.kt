@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE", "unused")
+
 package ru.sokomishalov.skraper.internal.serialization
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
@@ -24,8 +26,6 @@ import com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUM
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature.*
 import com.fasterxml.jackson.databind.node.MissingNode
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import kotlin.text.Charsets.UTF_8
 
 
@@ -33,7 +33,52 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 
-private val INTERNAL_SKRAPER_OBJECT_MAPPER: ObjectMapper by lazy {
+@PublishedApi
+internal inline fun ByteArray?.readJsonNodes(): JsonNode? {
+    return OBJECT_MAPPER.readTree(this)
+}
+
+@PublishedApi
+internal inline fun String?.readJsonNodes(): JsonNode? {
+    return this?.toByteArray(UTF_8)?.readJsonNodes()
+}
+
+internal fun JsonNode.getByKeyContaining(keyPart: String): JsonNode? {
+    return fields()
+            ?.asSequence()
+            ?.find { keyPart in it.key }
+            ?.value
+}
+
+internal fun JsonNode.getFirstByPath(vararg paths: String, delimiter: String = "."): JsonNode? {
+    return paths
+            .map { this.at("/${it.replace(delimiter, "/")}") }
+            .firstOrNull { it !is MissingNode }
+}
+
+internal fun JsonNode.getByPath(path: String, delimiter: String = "."): JsonNode? {
+    return at("/${path.replace(delimiter, "/")}")?.takeIf { it !is MissingNode }
+}
+
+internal inline fun JsonNode.getInt(path: String): Int? {
+    return getByPath(path)?.asInt()
+}
+
+internal inline fun JsonNode.getString(path: String): String? {
+    return getByPath(path)?.asText()
+}
+
+internal inline fun JsonNode.getLong(path: String): Long? {
+    return getByPath(path)?.asLong()
+}
+
+internal inline fun JsonNode.getDouble(path: String): Double? {
+    return getByPath(path)?.asDouble()
+}
+
+
+@PublishedApi
+internal val OBJECT_MAPPER: ObjectMapper by lazy {
     ObjectMapper()
             .enable(
                     ALLOW_SINGLE_QUOTES,
@@ -65,33 +110,4 @@ private val INTERNAL_SKRAPER_OBJECT_MAPPER: ObjectMapper by lazy {
                     FAIL_ON_TRAILING_TOKENS
             )
             .setSerializationInclusion(NON_NULL)
-}
-
-@PublishedApi
-internal suspend fun ByteArray?.aReadJsonNodes(): JsonNode? {
-    return this?.let {
-        withContext(IO) {
-            INTERNAL_SKRAPER_OBJECT_MAPPER.readTree(it)
-        }
-    }
-}
-
-@PublishedApi
-internal suspend fun String?.aReadJsonNodes(): JsonNode? {
-    return this
-            ?.toByteArray(UTF_8)
-            .aReadJsonNodes()
-}
-
-internal fun JsonNode.getByKeyContaining(keyPart: String): JsonNode? {
-    return fields()
-            ?.asSequence()
-            ?.find { it.key.contains(keyPart) }
-            ?.value
-}
-
-internal fun JsonNode.getFirstByPath(vararg paths: String, delimiter: String = "."): JsonNode? {
-    return paths
-            .map { this.at("/${it.replace(delimiter, "/")}") }
-            .firstOrNull { it !is MissingNode }
 }

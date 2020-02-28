@@ -80,7 +80,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.1.5</version>
+        <version>0.2.0</version>
     </dependency>
 </dependencies>
 ```
@@ -91,7 +91,7 @@ repositories {
     maven { url("https://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.1.5")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.2.0")
 }
 ```
 
@@ -119,11 +119,11 @@ Current http-client implementation list:
 Each scraper is a class which implements [Skraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
 ```kotlin
 interface Skraper {
-    val baseUrl: String
+    val baseUrl: URLString
     val client: SkraperClient get() = DefaultBlockingSkraperClient
+    suspend fun getProviderInfo(): ProviderInfo?
+    suspend fun getPageInfo(path: String): PageInfo?
     suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
-    suspend fun getLogoUrl(path: String, imageSize: ImageSize = ImageSize.SMALL): String?
-    suspend fun getProviderLogoUrl(imageSize: ImageSize = ImageSize.SMALL): String? = "${baseUrl}/favicon.ico"
 }
 ```
 
@@ -135,7 +135,7 @@ To scrape the latest posts for specific user, channel or trend use skraper like 
 ```kotlin
 fun main() = runBlocking {
     val skraper = FacebookSkraper()
-    val posts = skraper.getPosts(path = "/memes", limit = 2)
+    val posts = skraper.getUserPosts(username = "memes", limit = 2) // extension for getPosts()
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 }
 ```
@@ -170,33 +170,74 @@ Received data structure is similar to each other provider's. Output data example
 
 You can see the full model structure for posts and others [here](skrapers/src/main/kotlin/ru/sokomishalov/skraper/model)
 
-### Scrape user/community/channel/topic/trend logo
-It is possible to scrape user/channel/trend logo for some purposes:
+### Scrape user/community/channel/topic/trend info
+It is possible to scrape user/channel/trend info for some purposes:
 ```kotlin
 fun main() = runBlocking {
     val skraper = TwitterSkraper()
-    val pageLogo = skraper.getLogoUrl(path = "/memes")
-    println(pageLogo)
+    val pageInfo = skraper.getUserInfo(username = "memes") // extension for `getPageInfo()`
+    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(pageInfo))
 }
 ```
 
 Output:
-```text
-https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_400x400.jpg
+```json5
+{
+  "nick" : "memes",
+  "name" : "Memes.com",
+  "description" : "http://memes.com is your number one website for the funniest content on the web. You will find funny pictures, funny memes and much more.",
+  "postsCount" : 10848,
+  "followersCount" : 154718,
+  "avatarsMap" : {
+    "SMALL" : {
+      "url" : "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
+    },
+    "MEDIUM" : {
+      "url" : "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
+    },
+    "LARGE" : {
+      "url" : "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
+    }
+  },
+  "coversMap" : {
+    "SMALL" : {
+      "url" : "https://abs.twimg.com/images/themes/theme1/bg.png"
+    },
+    "MEDIUM" : {
+      "url" : "https://abs.twimg.com/images/themes/theme1/bg.png"
+    },
+    "LARGE" : {
+      "url" : "https://abs.twimg.com/images/themes/theme1/bg.png"
+    }
+  }
+}
 ```
 
 ### Scrape provider logo
-It is also possible to scrape provider logo for some purposes:
+It is also possible to scrape provider info for some purposes:
 
 ```kotlin
 fun main() = runBlocking {
     val skraper = InstagramSkraper()
-    val logo = skraper.getProviderLogoUrl()
-    println(logo)
+    val info = skraper.getProviderInfo()
+    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(info))
 }
 ```
 
 Output:
-```text
-https://instagram.com/favicon.ico
+```json5
+{
+  "name" : "Instagram",
+  "logoMap" : {
+    "SMALL" : {
+      "url" : "https://instagram.com/favicon.ico"
+    },
+    "MEDIUM" : {
+      "url" : "https://instagram.com/favicon.ico"
+    },
+    "LARGE" : {
+      "url" : "https://instagram.com/favicon.ico"
+    }
+  }
+}
 ```

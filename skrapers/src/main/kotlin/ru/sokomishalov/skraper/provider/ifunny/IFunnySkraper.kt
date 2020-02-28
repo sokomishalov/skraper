@@ -15,71 +15,100 @@
  */
 package ru.sokomishalov.skraper.provider.ifunny
 
+import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.serialization.getByPath
+import ru.sokomishalov.skraper.internal.serialization.getString
+import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
+import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.MediaSize.*
 
 /**
  * @author sokomishalov
  */
 class IFunnySkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://ifunny.co"
+        override val baseUrl: URLString = "https://ifunny.co"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val document = getPage(path = path)
+        val page = getPage(path = path)
 
-        val posts = document
+        val posts = page
                 ?.getElementsByClass("stream__item")
                 ?.take(limit)
                 .orEmpty()
 
         return posts.mapNotNull {
-            val a = it.getSingleElementByTag("a")
+            val a = it.getFirstElementByTag("a")
 
-            val img = a?.getSingleElementByTag("img")
+            val img = a?.getFirstElementByTag("img")
             val link = a?.attr("href").orEmpty()
 
-            val video = "video" in link || "gif" in link
+            val isVideo = "video" in link || "gif" in link
+
+            val aspectRatio = it
+                    .attr("data-ratio")
+                    .toDoubleOrNull()
+                    ?.let { r -> 1.0 / r }
+
             Post(
                     id = link.substringBeforeLast("?").substringAfterLast("/"),
-                    attachments = listOf(Attachment(
-                            url = when {
-                                video -> "${baseUrl}${link}"
-                                else -> img?.attr("data-src").orEmpty()
-                            },
-                            type = when {
-                                video -> VIDEO
-                                else -> IMAGE
-                            },
-                            aspectRatio = it
-                                    .attr("data-ratio")
-                                    .toDoubleOrNull()
-                                    ?.let { r -> 1.0 / r }
-                                    ?: DEFAULT_POSTS_ASPECT_RATIO
-                    ))
+                    media = listOf(
+                            when {
+                                isVideo -> Video(
+                                        url = "${baseUrl}${link}",
+                                        aspectRatio = aspectRatio
+                                )
+                                else -> Image(
+                                        url = img?.attr("data-src").orEmpty(),
+                                        aspectRatio = aspectRatio
+                                )
+                            }
+                    )
             )
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
-        val document = getPage(path = path)
+    override suspend fun getPageInfo(path: String): PageInfo? {
+        val page = getPage(path = path)
 
-        return document
-                ?.getElementsByAttributeValue("property", "og:image")
-                ?.firstOrNull()
-                ?.attr("content")
+        val json = page.extractInitialJson()
+
+        return json?.run {
+            PageInfo(
+                    nick = getString("nick"),
+                    description = getString("about"),
+                    avatarsMap = getByPath("photo.thumb")?.run {
+                        mapOf(
+                                SMALL to getString("small_url").orEmpty().toImage(),
+                                MEDIUM to getString("medium_url").orEmpty().toImage(),
+                                LARGE to getString("large_url").orEmpty().toImage()
+                        )
+                    } ?: singleImageMap(url = getByPath("photo.url")?.asText().orEmpty()),
+                    coversMap = singleImageMap(url = getString("coverUrl"))
+            )
+        }
     }
 
-    private suspend fun getPage(path: String): Document? = client.fetchDocument("${baseUrl}${path}")
+    private fun Document?.extractInitialJson(): JsonNode? {
+        val textJson = this
+                ?.getElementsByTag("script")
+                ?.find { "__INITIAL_STATE__" in it.html() }
+                ?.html()
+                ?.removePrefix("window.__INITIAL_STATE__ = ")
+                ?.removeSuffix(";")
+
+        return textJson?.run { readJsonNodes() }?.getByPath("user.data")
+    }
+
+
+    private suspend fun getPage(path: String): Document? {
+        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+    }
 }

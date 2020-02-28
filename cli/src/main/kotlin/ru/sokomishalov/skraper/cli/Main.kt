@@ -54,9 +54,9 @@ fun main(args: Array<String>) = mainBody(columns = 150) {
 
     val content = when (parsedArgs.outputType) {
         LOG -> posts.joinToString("\n") { it.toString() }.also { println(it) }
-        JSON -> JsonMapper().apply { registerKotlinModule() }.writerWithDefaultPrettyPrinter().writeValueAsString(posts)
-        XML -> XmlMapper().apply { registerKotlinModule() }.writerWithDefaultPrettyPrinter().writeValueAsString(posts)
-        YAML -> YAMLMapper().apply { registerKotlinModule() }.writerWithDefaultPrettyPrinter().writeValueAsString(posts)
+        JSON -> JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)
+        XML -> XmlMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)
+        YAML -> YAMLMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)
         CSV -> {
             val mapper = CsvMapper().apply {
                 registerKotlinModule()
@@ -67,9 +67,10 @@ fun main(args: Array<String>) = mainBody(columns = 150) {
                             jgen.writeStringField("ID", item.id)
                             jgen.writeStringField("Text", item.text)
                             jgen.writeStringField("Published at", item.publishedAt?.toString(10))
-                            jgen.writeNumberField("Rating", item.rating ?: 0)
-                            jgen.writeNumberField("Comments count", item.commentsCount ?: 0)
-                            jgen.writeStringField("Attachments", item.attachments.joinToString("   ") { it.url })
+                            jgen.writeStringField("Rating", item.rating?.toString(10).orEmpty())
+                            jgen.writeStringField("Comments count", item.commentsCount?.toString(10).orEmpty())
+                            jgen.writeStringField("Views count", item.viewsCount?.toString(10).orEmpty())
+                            jgen.writeStringField("Media", item.media.joinToString("   ") { it.url })
                             jgen.writeEndObject()
                         }
                     })
@@ -83,7 +84,8 @@ fun main(args: Array<String>) = mainBody(columns = 150) {
                     .addColumn("Published at")
                     .addColumn("Rating")
                     .addColumn("Comments count")
-                    .addColumn("Attachments")
+                    .addColumn("Views count")
+                    .addColumn("Media")
                     .build()
                     .withHeader()
 

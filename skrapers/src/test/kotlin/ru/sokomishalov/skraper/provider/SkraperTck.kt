@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MemberVisibilityCanBePrivate")
+@file:Suppress("MemberVisibilityCanBePrivate", "BlockingMethodInNonBlockingContext")
 
 package ru.sokomishalov.skraper.provider
 
-import com.fasterxml.jackson.databind.json.JsonMapper
-import kotlinx.coroutines.Dispatchers.IO
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
+import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.model.ProviderInfo
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 
 /**
@@ -38,13 +39,14 @@ import ru.sokomishalov.skraper.model.Post
 abstract class SkraperTck {
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
+        private val LOGGER: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
+        private val MAPPER: ObjectMapper = ObjectMapper().setSerializationInclusion(NON_NULL)
     }
 
     protected abstract val skraper: Skraper
     protected abstract val path: String
 
-    protected val client: SkraperClient = ReactorNettySkraperClient()
+    protected val client: SkraperClient = KtorSkraperClient()
 
     @Test
     fun `Check posts`() {
@@ -52,34 +54,50 @@ abstract class SkraperTck {
     }
 
     @Test
-    fun `Check page logo`() {
-        assertLogo { getLogoUrl(path = path) }
+    fun `Check page info`() {
+        assertPageInfo { getPageInfo(path = path) }
     }
 
     @Test
-    fun `Check provider logo`() {
-        assertLogo { getProviderLogoUrl() }
+    fun `Check provider info`() {
+        assertProviderInfo { getProviderInfo() }
     }
 
     protected fun assertPosts(action: suspend Skraper.() -> List<Post>) = runBlocking {
-        val posts = skraper.action()
+        val posts = logAction { skraper.action() }
 
-        withContext(IO) { log.info(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)) }
-
-        assertTrue(posts.isNotEmpty())
+        assertTrue { posts.isNotEmpty() }
         posts.forEach {
             assertNotNull(it.id)
-            it.attachments.forEach { a ->
-                assertNotNull(a.type)
+            it.media.forEach { a ->
                 assertTrue(a.url.isNotBlank())
-                assertTrue(a.aspectRatio > 0.0001)
             }
         }
     }
 
-    protected fun assertLogo(action: suspend Skraper.() -> String?) = runBlocking {
-        val url = skraper.action()
-        log.info(url)
-        assertNotNull(url)
+    protected fun assertPageInfo(action: suspend Skraper.() -> PageInfo?) = runBlocking {
+        val pageInfo = logAction { skraper.action() }
+        assertNotNull(pageInfo)
+        assertNotNull(pageInfo.nick)
+        assertTrue { pageInfo.avatarsMap.isNotEmpty() }
+        pageInfo.avatarsMap.forEach {
+            assertTrue { it.value.url.isNotEmpty() }
+        }
+    }
+
+    protected fun assertProviderInfo(action: suspend Skraper.() -> ProviderInfo?) = runBlocking {
+        val providerInfo = logAction { skraper.action() }
+        assertNotNull(providerInfo)
+        assertNotNull(providerInfo.name)
+        assertTrue { providerInfo.logoMap.isNotEmpty() }
+        providerInfo.logoMap.forEach {
+            assertTrue { it.value.url.isNotEmpty() }
+        }
+    }
+
+    private suspend fun <T> logAction(action: suspend Skraper.() -> T): T {
+        return skraper.action().also {
+            LOGGER.info(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(it))
+        }
     }
 }

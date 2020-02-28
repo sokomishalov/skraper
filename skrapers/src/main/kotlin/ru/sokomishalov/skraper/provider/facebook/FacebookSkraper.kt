@@ -22,16 +22,13 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByAttribute
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.number.div
+import ru.sokomishalov.skraper.internal.serialization.getByPath
+import ru.sokomishalov.skraper.internal.serialization.getInt
+import ru.sokomishalov.skraper.internal.serialization.getString
+import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
+import ru.sokomishalov.skraper.model.*
 
 
 /**
@@ -39,55 +36,62 @@ import ru.sokomishalov.skraper.model.Post
  */
 class FacebookSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://facebook.com"
+        override val baseUrl: URLString = "https://facebook.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
         val document = getPage(path = path)
 
-        val elements = document.extractPosts(limit)
+        val posts = document.extractPosts(limit)
         val jsonData = document.extractJsonData()
         val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
 
-        return elements.map {
-            val id = it.extractId()
-            val node = metaInfoJsonMap[id]
+        return posts.map {
+            val id = it.extractPostId()
+            val metaInfoJson = metaInfoJsonMap[id]
 
             Post(
                     id = id,
-                    text = it.extractText(),
-                    publishedAt = it.extractPublishDateTime(),
-                    rating = node.extractReactionCount(),
-                    commentsCount = node.extractCommentsCount(),
-                    attachments = it.extractAttachments()
+                    text = it.extractPostText(),
+                    publishedAt = it.extractPostPublishDateTime(),
+                    rating = metaInfoJson.extractPostReactionCount(),
+                    commentsCount = metaInfoJson.extractPostCommentsCount(),
+                    viewsCount = metaInfoJson.extractPostViewsCount(),
+                    media = it.extractPostAttachments()
             )
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
-        val document = getPage(path = path)
+    override suspend fun getPageInfo(path: String): PageInfo? {
+        val page = getPage(path = path)
+        return page?.run {
+            val profileElement = getFirstElementByClass("stat_elem")
+            val jsonData = extractJsonData()
 
-        return document
-                ?.getElementsByAttributeValue("property", "og:image")
-                ?.firstOrNull()
-                ?.attr("content")
+            PageInfo(
+                    nick = profileElement?.extractPageName(),
+                    description = profileElement?.extractPageDescription(),
+                    avatarsMap = singleImageMap(url = extractPageLogo()),
+                    coversMap = singleImageMap(url = jsonData.extractPageCover())
+            )
+        }
     }
 
-
-    private suspend fun getPage(path: String): Document? = client.fetchDocument("$baseUrl$path")
+    private suspend fun getPage(path: String): Document? {
+        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+    }
 
     private fun JsonNode?.prepareMetaInfoMap(): Map<String, JsonNode> {
         return this
                 ?.get("pre_display_requires")
-                ?.toList()
                 ?.map { it.findPath("__bbox") }
-                ?.mapNotNull { it?.get("result")?.get("data")?.get("feedback") }
-                ?.map { it["share_fbid"].asText() to it }
+                ?.mapNotNull { it?.getByPath("result.data.feedback") }
+                ?.map { it.getString("share_fbid").orEmpty() to it }
                 ?.toMap()
                 .orEmpty()
     }
 
-    private suspend fun Document?.extractJsonData(): JsonNode? {
+    private fun Document?.extractJsonData(): JsonNode? {
         val infoJsonPrefix = "new (require(\"ServerJS\"))().handle("
         val infoJsonSuffix = ");"
 
@@ -98,86 +102,98 @@ class FacebookSkraper(
                     html()
                             .removePrefix(infoJsonPrefix)
                             .removeSuffix(infoJsonSuffix)
-                            .aReadJsonNodes()
+                            .readJsonNodes()
                 }
     }
 
     private fun Document?.extractPosts(limit: Int): List<Element> {
         return this
                 ?.getElementsByClass("userContentWrapper")
-                ?.toList()
                 ?.take(limit)
                 .orEmpty()
     }
 
-    private fun Element.extractId(): String {
-        return getElementsByAttributeValue("name", "ft_ent_identifier")
-                ?.firstOrNull()
+    private fun Element.extractPostId(): String {
+        return getFirstElementByAttributeValue("name", "ft_ent_identifier")
                 ?.attr("value")
                 .orEmpty()
     }
 
-    private fun Element.extractText(): String? {
-        return getSingleElementByClass("userContent")
-                ?.getSingleElementByTag("p")
+    private fun Element.extractPostText(): String? {
+        return getFirstElementByClass("userContent")
+                ?.getFirstElementByTag("p")
                 ?.wholeText()
                 ?.toString()
     }
 
-    private fun Element.extractPublishDateTime(): Long? {
-        return getSingleElementByAttribute("data-utime")
+    private fun Element.extractPostPublishDateTime(): Long? {
+        return getFirstElementByAttribute("data-utime")
                 ?.attr("data-utime")
                 ?.toLongOrNull()
-                ?.times(1000)
     }
 
-    private fun JsonNode?.extractReactionCount(): Int? {
+    private fun JsonNode?.extractPostReactionCount(): Int? {
         return this
-                ?.get("reaction_count")
-                ?.get("count")
-                ?.asInt()
+                ?.getInt("reaction_count.count")
     }
 
-    private fun JsonNode?.extractCommentsCount(): Int? {
+    private fun JsonNode?.extractPostCommentsCount(): Int? {
         return this
-                ?.get("display_comments_count")
-                ?.get("count")
-                ?.asInt()
+                ?.getInt("display_comments_count.count")
     }
 
-    private fun Element.extractAttachments(): List<Attachment> {
-        val videoElement = getSingleElementByTag("video")
+    private fun JsonNode?.extractPostViewsCount(): Int? {
+        return this
+                ?.getInt("seen_by_count.count")
+
+    }
+
+    private fun JsonNode?.extractPageCover(): String? {
+        return this
+                ?.findPath("coverPhotoData")
+                ?.getString("uri")
+    }
+
+    private fun Document.extractPageLogo(): String? {
+        return getFirstElementByAttributeValue("property", "og:image")
+                ?.attr("content")
+    }
+
+    private fun Element.extractPageDescription(): String {
+        return getElementsByTag("span")
+                ?.getOrNull(1)
+                ?.wholeText()
+                .orEmpty()
+    }
+
+    private fun Element.extractPageName(): String {
+        return getFirstElementByTag("span")
+                ?.parent()
+                ?.wholeText()
+                .orEmpty()
+    }
+
+    private fun Element.extractPostAttachments(): List<MediaItem> {
+        val videoElement = getFirstElementByTag("video")
 
         return when {
-            videoElement != null -> listOf(Attachment(
-                    type = VIDEO,
-                    url = getElementsByAttributeValueContaining("id", "feed_subtitle")
-                            .firstOrNull()
-                            ?.getSingleElementByTag("a")
+            videoElement != null -> listOf(Video(
+                    url = getFirstElementByAttributeValueContaining("id", "feed_subtitle")
+                            ?.getFirstElementByTag("a")
                             ?.attr("href")
                             ?.let { "${baseUrl}${it}" }
                             .orEmpty(),
                     aspectRatio = videoElement
                             .attr("data-original-aspect-ratio")
-                            .toDoubleOrNull()
-                            ?: DEFAULT_POSTS_ASPECT_RATIO
+                            ?.toDoubleOrNull()
             ))
 
-            else -> getSingleElementByClass("uiScaledImageContainer")
-                    ?.getSingleElementByTag("img")
+            else -> getFirstElementByClass("uiScaledImageContainer")
+                    ?.getFirstElementByTag("img")
                     ?.run {
-                        val url = attr("src")
-                        val width = attr("width").toDoubleOrNull()
-                        val height = attr("height").toDoubleOrNull()
-
-                        listOf(Attachment(
-                                type = IMAGE,
-                                url = url,
-                                aspectRatio = when {
-                                    width != null && height != null -> width / height
-                                    else -> DEFAULT_POSTS_ASPECT_RATIO
-                                }
-
+                        listOf(Image(
+                                url = attr("src"),
+                                aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
                         ))
                     }
                     ?: emptyList()

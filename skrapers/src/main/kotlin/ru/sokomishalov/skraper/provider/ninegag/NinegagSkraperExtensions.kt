@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.ninegag
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 /**
@@ -37,22 +36,17 @@ suspend fun NinegagSkraper.getFreshPosts(limit: Int = DEFAULT_POSTS_LIMIT): List
 }
 
 suspend fun NinegagSkraper.getTopicHotPosts(topic: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = topic.buildTopicPath(type = "hot"), limit = limit)
+    return getPosts(path = "/${topic}/${"hot"}", limit = limit)
 }
 
 suspend fun NinegagSkraper.getTopicFreshPosts(topic: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = topic.buildTopicPath(type = "fresh"), limit = limit)
+    return getPosts(path = "/${topic}/${"fresh"}", limit = limit)
 }
 
 suspend fun NinegagSkraper.getTagPosts(tag: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = tag.buildTagPath(), limit = limit)
+    return getPosts(path = "/tag/${tag}", limit = limit)
 }
 
-suspend fun NinegagSkraper.getTopicLogoUrl(topic: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = topic.buildTopicPath(), imageSize = imageSize)
+suspend fun NinegagSkraper.getTopicInfo(topic: String): PageInfo? {
+    return getPageInfo(path = "/${topic}/${""}")
 }
-
-
-private fun String.buildTopicPath(type: String = ""): String = "/${this}/${type}"
-
-private fun String.buildTagPath(): String = "/tag/${this}"

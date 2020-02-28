@@ -16,10 +16,8 @@
 package ru.sokomishalov.skraper
 
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.model.*
 
 /**
  * @author sokomishalov
@@ -29,7 +27,7 @@ interface Skraper {
     /**
      * @return provider base url
      */
-    val baseUrl: String
+    val baseUrl: URLString
 
     /**
      * @return http client for fetching web pages, images and json from network
@@ -37,22 +35,23 @@ interface Skraper {
     val client: SkraperClient get() = DefaultBlockingSkraperClient
 
     /**
+     * @return provider info
+     */
+    suspend fun getProviderInfo(): ProviderInfo? = ProviderInfo(
+            name = this::class.java.simpleName.removeSuffix("Skraper"),
+            logoMap = singleImageMap(url = baseUrl.buildFullURL(path = "/favicon.ico"))
+    )
+
+    /**
+     * @param path page specific url path (should start with "/")
+     * @return page info
+     */
+    suspend fun getPageInfo(path: String): PageInfo?
+
+    /**
      * @param path page specific url path (should start with "/")
      * @param limit for an amount of posts to return
      * @return list of posts
      */
     suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
-
-    /**
-     * @param path page specific url path (should start with "/")
-     * @param imageSize choice for specific logo size if it's possible
-     * @return page logo url
-     */
-    suspend fun getLogoUrl(path: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String?
-
-    /**
-     * @param imageSize choice for specific logo size if it's possible
-     * @return provider logo url
-     */
-    suspend fun getProviderLogoUrl(imageSize: ImageSize = DEFAULT_LOGO_SIZE): String = "${baseUrl}/favicon.ico"
 }

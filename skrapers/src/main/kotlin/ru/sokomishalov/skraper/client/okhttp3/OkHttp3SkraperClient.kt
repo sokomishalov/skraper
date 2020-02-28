@@ -23,6 +23,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.*
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.model.URLString
 import java.io.IOException
 import kotlin.coroutines.resumeWithException
 
@@ -36,7 +37,7 @@ class OkHttp3SkraperClient(
         private val client: OkHttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
+    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
         val request = Request
                 .Builder()
                 .url(url)
@@ -56,7 +57,7 @@ class OkHttp3SkraperClient(
                 .build()
     }
 
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun Call.await(): Response {
         return suspendCancellableCoroutine { continuation ->
             enqueue(object : Callback {

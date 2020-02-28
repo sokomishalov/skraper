@@ -18,16 +18,24 @@ package ru.sokomishalov.skraper.internal.jsoup
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
-fun Element.getSingleElementByClass(name: String): Element? {
+fun Element.getFirstElementByClass(name: String): Element? {
     return getElementsByClass(name).firstOrNull()
 }
 
-fun Element.getSingleElementByTag(name: String): Element? {
+fun Element.getFirstElementByTag(name: String): Element? {
     return getElementsByTag(name).firstOrNull()
 }
 
-fun Element.getSingleElementByAttribute(name: String): Element? {
+fun Element.getFirstElementByAttribute(name: String): Element? {
     return getElementsByAttribute(name).firstOrNull()
+}
+
+fun Element.getFirstElementByAttributeValue(name: String, value: String): Element? {
+    return getElementsByAttributeValue(name, value).firstOrNull()
+}
+
+fun Element.getFirstElementByAttributeValueContaining(name: String, valuePart: String): Element? {
+    return getElementsByAttributeValueContaining(name, valuePart).firstOrNull()
 }
 
 fun Element.getStyleMap(): Map<String, String> {
@@ -43,6 +51,20 @@ fun Element.getStyleMap(): Map<String, String> {
 
 fun Element.getStyle(name: String): String? {
     return getStyleMap()[name]
+}
+
+fun Element.getBackgroundImageStyle(): String {
+    return this
+            .getStyle("background-image")
+            .orEmpty()
+            .trim()
+            .removeSurrounding("url(", ")")
+}
+
+fun Element.getFirstAttr(vararg attrs: String): String? {
+    return attributes()
+            .firstOrNull { it.key in attrs }
+            ?.value
 }
 
 fun Element.removeLinks(): String? {

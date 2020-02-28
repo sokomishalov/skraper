@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.youtube
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -26,11 +25,9 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 suspend fun YoutubeSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(), limit = limit)
+    return getPosts(path = "/user/${username}/videos", limit = limit)
 }
 
-suspend fun YoutubeSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+suspend fun YoutubeSkraper.getUserInfo(username: String): PageInfo? {
+    return getPageInfo(path = "/user/${username}")
 }
-
-private fun String.buildUserPath(): String = "/user/${this.removeSuffix("/videos")}/videos"

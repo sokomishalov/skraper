@@ -20,13 +20,10 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.*
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.number.div
+import ru.sokomishalov.skraper.internal.serialization.*
+import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.MediaSize.*
 
 
 /**
@@ -34,7 +31,7 @@ import ru.sokomishalov.skraper.model.Post
  */
 class InstagramSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://instagram.com"
+        override val baseUrl: URLString = "https://instagram.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -43,48 +40,62 @@ class InstagramSkraper(
         return getPostsByUserId(account?.get("id")?.asLong(), limit)
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+    override suspend fun getPageInfo(path: String): PageInfo? {
         val account = getUserInfo(path = path)
 
-        return when (imageSize) {
-            SMALL,
-            MEDIUM -> account?.get("profile_pic_url")?.asText()
-            LARGE -> account?.get("profile_pic_url_hd")?.asText()
+        return account?.run {
+            PageInfo(
+                    nick = getString("username"),
+                    name = getString("full_name"),
+                    description = getString("biography"),
+                    avatarsMap = mapOf(
+                            SMALL to getString("profile_pic_url").orEmpty().toImage(),
+                            MEDIUM to getString("profile_pic_url").orEmpty().toImage(),
+                            LARGE to getString("profile_pic_url_hd").orEmpty().toImage()
+                    )
+            )
         }
     }
 
-    private suspend fun getUserInfo(path: String): JsonNode? = client.fetchJson("$baseUrl$path/?__a=1")?.get("graphql")?.get("user")
+    private suspend fun getUserInfo(path: String): JsonNode? {
+        val json = client.fetchJson(url = baseUrl.buildFullURL(
+                path = path,
+                queryParams = mapOf("__a" to 1)
+        ))
+
+        return json?.getByPath("graphql.user")
+    }
 
     internal suspend fun getPostsByUserId(userId: Long?, limit: Int): List<Post> {
-        val data = client.fetchJson("$baseUrl/graphql/query/?query_id=$QUERY_ID&id=${userId}&first=${limit}")
+        val data = client.fetchJson(url = baseUrl.buildFullURL(
+                path = "/graphql/query/",
+                queryParams = mapOf("query_id" to QUERY_ID, "id" to userId, "first" to limit)
+        ))
 
         val postsNodes = data
-                ?.get("data")
-                ?.get("user")
-                ?.get("edge_owner_to_timeline_media")
-                ?.get("edges")
+                ?.getByPath("data.user.edge_owner_to_timeline_media.edges")
                 ?.map { it["node"] }
                 .orEmpty()
 
         return postsNodes.map {
             Post(
-                    id = it.parseId(),
-                    text = it.parseCaption(),
-                    publishedAt = it.parsePublishedAt(),
-                    rating = it.parseLikesCount(),
-                    commentsCount = it.parseCommentsCount(),
-                    attachments = it.parseAttachments()
+                    id = it.extractPostId(),
+                    text = it.extractPostCaption(),
+                    publishedAt = it.extractPostPublishedAt(),
+                    rating = it.extractPostLikesCount(),
+                    commentsCount = it.extractPostCommentsCount(),
+                    media = it.extractPostAttachments()
             )
         }
     }
 
-    private fun JsonNode.parseId(): String {
+    private fun JsonNode.extractPostId(): String {
         return get("id")
                 ?.asText()
                 .orEmpty()
     }
 
-    private fun JsonNode.parseCaption(): String {
+    private fun JsonNode.extractPostCaption(): String {
         return get("edge_media_to_caption")
                 ?.get("edges")
                 ?.get(0)
@@ -94,40 +105,35 @@ class InstagramSkraper(
                 .orEmpty()
     }
 
-    private fun JsonNode.parsePublishedAt(): Long? {
-        return get("taken_at_timestamp")
-                ?.asLong()
-                ?.times(1000)
+    private fun JsonNode.extractPostPublishedAt(): Long? {
+        return getLong("taken_at_timestamp")
     }
 
-    private fun JsonNode.parseLikesCount(): Int? {
-        return get("edge_media_preview_like")
-                ?.get("count")
-                ?.asInt()
+    private fun JsonNode.extractPostLikesCount(): Int? {
+        return getInt("edge_media_preview_like.count")
     }
 
-    private fun JsonNode.parseCommentsCount(): Int? {
-        return get("edge_media_to_comment")
-                ?.get("count")
-                ?.asInt()
+    private fun JsonNode.extractPostCommentsCount(): Int? {
+        return getInt("edge_media_to_comment.count")
     }
 
-    private fun JsonNode.parseAttachments(): List<Attachment> {
+    private fun JsonNode.extractPostAttachments(): List<MediaItem> {
         val isVideo = this["is_video"].asBoolean()
 
-        return listOf(Attachment(
-                type = when {
-                    isVideo -> VIDEO
-                    else -> IMAGE
-                },
-                url = when {
-                    isVideo -> "https://instagram.com/p/${this["shortcode"].asText()}"
-                    else -> this["display_url"].asText()
-                },
-                aspectRatio = this["dimensions"]
-                        ?.let { d -> d["width"].asDouble() / d["height"].asDouble() }
-                        ?: DEFAULT_POSTS_ASPECT_RATIO
-        ))
+        val aspectRatio = this["dimensions"]?.run { getDouble("width") / getDouble("height") }
+
+        return listOf(
+                when {
+                    isVideo -> Video(
+                            url = "${baseUrl}/p/${getString("shortcode")}",
+                            aspectRatio = aspectRatio
+                    )
+                    else -> Image(
+                            url = getString("display_url").orEmpty(),
+                            aspectRatio = aspectRatio
+                    )
+                }
+        )
     }
 
     companion object {

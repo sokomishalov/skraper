@@ -15,13 +15,4 @@
  */
 package ru.sokomishalov.skraper.internal.consts
 
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.SMALL
-
-/**
- * @author sokomishalov
- */
-
-const val DEFAULT_POSTS_LIMIT: Int = 50
-const val DEFAULT_POSTS_ASPECT_RATIO: Double = 1.0
-val DEFAULT_LOGO_SIZE: ImageSize = SMALL
+internal const val DEFAULT_POSTS_LIMIT: Int = 50

@@ -15,14 +15,8 @@
  */
 package ru.sokomishalov.skraper.model
 
-/**
- * Represents a provider attachment.
- * @property url attachment url
- * @property type of attachment
- * @property aspectRatio width to height ratio
- */
-data class Attachment(
-        val url: String,
-        val type: AttachmentType,
-        val aspectRatio: Double
-)
+enum class MediaSize {
+    SMALL,
+    MEDIUM,
+    LARGE
+}

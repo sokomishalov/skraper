@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.pikabu
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -38,38 +37,33 @@ suspend fun PikabuSkraper.getNewPosts(limit: Int = DEFAULT_POSTS_LIMIT): List<Po
 }
 
 suspend fun PikabuSkraper.getCommunityHotPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(), limit = limit)
+    return getPosts(path = "/community/${community}/${""}", limit = limit)
 }
 
 suspend fun PikabuSkraper.getCommunityBestPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(type = "best"), limit = limit)
+    return getPosts(path = "/community/${community}/${"best"}", limit = limit)
 }
 
 suspend fun PikabuSkraper.getCommunityNewPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(type = "new"), limit = limit)
+    return getPosts(path = "/community/${community}/${"new"}", limit = limit)
 }
 
 suspend fun PikabuSkraper.getUserLatestPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(), limit = limit)
+    return getPosts(path = "/@${username.removePrefix("@")}/${""}", limit = limit)
 }
 
 suspend fun PikabuSkraper.getUserBestPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(type = "rating"), limit = limit)
+    return getPosts(path = "/@${username.removePrefix("@")}/${"rating"}", limit = limit)
 }
 
 suspend fun PikabuSkraper.getUserOwnPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(type = "mine"), limit = limit)
+    return getPosts(path = "/@${username.removePrefix("@")}/${"mine"}", limit = limit)
 }
 
-suspend fun PikabuSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+suspend fun PikabuSkraper.getUserInfo(username: String): PageInfo? {
+    return getPageInfo(path = "/@${username.removePrefix("@")}/${""}")
 }
 
-suspend fun PikabuSkraper.getCommunityLogoUrl(community: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = community.buildCommunityPath(), imageSize = imageSize)
+suspend fun PikabuSkraper.getCommunityInfo(community: String): PageInfo? {
+    return getPageInfo(path = "/community/${community}/${""}")
 }
-
-
-private fun String.buildCommunityPath(type: String = ""): String = "/community/${this}/${type}"
-
-private fun String.buildUserPath(type: String = ""): String = "/@${this.removePrefix("@")}/${type}"
