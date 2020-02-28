@@ -23,7 +23,6 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
 import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
@@ -49,7 +48,7 @@ class TwitterSkraper(
                 ?.getElementById("stream-items-id")
                 ?.getElementsByClass("stream-item")
                 ?.take(limit)
-                ?.mapNotNull { it.getSingleElementByClassOrNull("tweet") }
+                ?.mapNotNull { it.getSingleElementByClass("tweet") }
                 .orEmpty()
 
         return posts.map {
@@ -77,43 +76,43 @@ class TwitterSkraper(
 
 
     private fun Element.extractIdFromTweet(): String {
-        return getSingleElementByClassOrNull("js-stream-tweet")
+        return getSingleElementByClass("js-stream-tweet")
                 ?.attr("data-tweet-id")
                 .orEmpty()
     }
 
     private fun Element.extractCaptionFromTweet(): String? {
-        return getSingleElementByClassOrNull("tweet-text")
+        return getSingleElementByClass("tweet-text")
                 ?.removeLinks()
     }
 
     private fun Element.extractPublishedAtFromTweet(): Long? {
-        return getSingleElementByClassOrNull("js-short-timestamp")
+        return getSingleElementByClass("js-short-timestamp")
                 ?.attr("data-time-ms")
                 ?.toLong()
     }
 
     private fun Element.extractLikes(): Int? {
-        return getSingleElementByClassOrNull("ProfileTweet-action--favorite")
-                ?.getSingleElementByClassOrNull("ProfileTweet-actionCount")
+        return getSingleElementByClass("ProfileTweet-action--favorite")
+                ?.getSingleElementByClass("ProfileTweet-actionCount")
                 ?.attr("data-tweet-stat-count")
                 ?.toIntOrNull()
     }
 
     private fun Element.extractReplies(): Int? {
-        return getSingleElementByClassOrNull("ProfileTweet-action--reply")
-                ?.getSingleElementByClassOrNull("ProfileTweet-actionCount")
+        return getSingleElementByClass("ProfileTweet-action--reply")
+                ?.getSingleElementByClass("ProfileTweet-actionCount")
                 ?.attr("data-tweet-stat-count")
                 ?.toIntOrNull()
     }
 
     private fun Element.extractAttachmentsFromTweet(): List<Attachment> {
         val imagesElements = getElementsByClass("AdaptiveMedia-photoContainer")
-        val videosElement = getSingleElementByClassOrNull("AdaptiveMedia-videoContainer")
+        val videosElement = getSingleElementByClass("AdaptiveMedia-videoContainer")
 
         return when {
             imagesElements.isNotEmpty() -> {
-                val aspectRatio = getSingleElementByClassOrNull("AdaptiveMedia-singlePhoto")
+                val aspectRatio = getSingleElementByClass("AdaptiveMedia-singlePhoto")
                         ?.getStyle("padding-top")
                         ?.substringAfter("calc(")
                         ?.substringBefore("* 100%")
@@ -134,7 +133,7 @@ class TwitterSkraper(
                             url = "${baseUrl}/i/status/${extractIdFromTweet()}",
                             type = VIDEO,
                             aspectRatio = videosElement
-                                    .getSingleElementByClassOrNull("PlayableMedia-player")
+                                    .getSingleElementByClass("PlayableMedia-player")
                                     ?.getStyle("padding-bottom")
                                     ?.removeSuffix("%")
                                     ?.toDoubleOrNull()

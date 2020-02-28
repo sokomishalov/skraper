@@ -26,12 +26,9 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 suspend fun FacebookSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(), limit = limit)
+    return getPosts(path = "/${username}/posts", limit = limit)
 }
 
 suspend fun FacebookSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+    return getLogoUrl(path = "/${username}/posts", imageSize = imageSize)
 }
-
-
-private fun String.buildUserPath(): String = "/${this}/posts"

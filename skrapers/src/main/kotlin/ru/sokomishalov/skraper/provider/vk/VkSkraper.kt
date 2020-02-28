@@ -24,7 +24,10 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
+import ru.sokomishalov.skraper.internal.jsoup.getStyle
+import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -68,8 +71,8 @@ class VkSkraper(
         val document = getUserPage(path = path)
 
         return document
-                ?.getSingleElementByClassOrNull("profile_panel")
-                ?.getSingleElementByTagOrNull("img")
+                ?.getSingleElementByClass("profile_panel")
+                ?.getSingleElementByTag("img")
                 ?.attr("src")
     }
 
@@ -82,12 +85,12 @@ class VkSkraper(
     }
 
     private fun Element.extractCaption(): String? {
-        return getSingleElementByClassOrNull("pi_text")
+        return getSingleElementByClass("pi_text")
                 ?.removeLinks()
     }
 
     private fun Element.extractPublishedDate(): Long? {
-        return getSingleElementByClassOrNull("wi_date")
+        return getSingleElementByClass("wi_date")
                 ?.wholeText()
                 ?.run {
                     val localDate = runCatching {
@@ -133,19 +136,19 @@ class VkSkraper(
     }
 
     private fun Element.extractLikes(): Int? {
-        return getSingleElementByClassOrNull("v_like")
+        return getSingleElementByClass("v_like")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
     private fun Element.extractReplies(): Int? {
-        return getSingleElementByClassOrNull("v_replies")
+        return getSingleElementByClass("v_replies")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
     private fun Element.extractAttachments(): List<Attachment> {
-        val thumbElement = getSingleElementByClassOrNull("thumbs_map_helper")
+        val thumbElement = getSingleElementByClass("thumbs_map_helper")
 
         return thumbElement
                 ?.getElementsByClass("thumb_map_img")
@@ -155,7 +158,10 @@ class VkSkraper(
                     Attachment(
                             url = when {
                                 isVideo -> "${baseUrl}${it.attr("href")}"
-                                else -> runCatching { it.getImageBackgroundUrl() }.getOrNull().orEmpty()
+                                else -> it.getStyle("background-image")
+                                        .orEmpty()
+                                        .trim()
+                                        .removeSurrounding("url(", ")")
                             },
                             type = when {
                                 isVideo -> VIDEO

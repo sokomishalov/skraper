@@ -18,6 +18,7 @@ package ru.sokomishalov.skraper.cli
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
+import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
 import ru.sokomishalov.skraper.provider.ifunny.IFunnySkraper
 import ru.sokomishalov.skraper.provider.instagram.InstagramSkraper
 import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
@@ -39,6 +40,7 @@ enum class Provider(val skraper: Skraper) {
     YOUTUBE(YoutubeSkraper(client = DEFAULT_CLIENT)),
     NINEGAG(NinegagSkraper(client = DEFAULT_CLIENT)),
     PINTEREST(PinterestSkraper(client = DEFAULT_CLIENT)),
+    FLICKR(FlickrSkraper(client = DEFAULT_CLIENT)),
     TUMBLR(TumblrSkraper(client = DEFAULT_CLIENT)),
     IFUNNY(IFunnySkraper(client = DEFAULT_CLIENT)),
     VK(VkSkraper(client = DEFAULT_CLIENT)),

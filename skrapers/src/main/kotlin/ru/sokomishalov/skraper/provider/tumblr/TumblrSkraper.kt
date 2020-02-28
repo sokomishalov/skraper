@@ -24,8 +24,8 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
@@ -87,8 +87,8 @@ class TumblrSkraper(
 
     internal fun Document?.extractLogo(): String? {
         return this
-                ?.getSingleElementByClassOrNull("user-avatar")
-                ?.getSingleElementByTagOrNull("img")
+                ?.getSingleElementByClass("user-avatar")
+                ?.getSingleElementByTag("img")
                 ?.attr("src")
     }
 
@@ -104,8 +104,8 @@ class TumblrSkraper(
     }
 
     private fun Element.extractPublishedDate(): Long? {
-        val postDate = getSingleElementByClassOrNull("post-date")
-        val timePosted = getSingleElementByClassOrNull("time-posted")
+        val postDate = getSingleElementByClass("post-date")
+        val timePosted = getSingleElementByClass("time-posted")
 
         return when {
             postDate != null -> postDate
@@ -128,8 +128,8 @@ class TumblrSkraper(
     }
 
     private fun Element.extractNotes(): Int? {
-        val notesNode = getSingleElementByClassOrNull("post-notes")
-                ?: getSingleElementByClassOrNull("note-count")
+        val notesNode = getSingleElementByClass("post-notes")
+                ?: getSingleElementByClass("note-count")
 
         return notesNode
                 ?.wholeText()
@@ -143,8 +143,8 @@ class TumblrSkraper(
 
     private fun Element.extractAttachments(): List<Attachment> {
         return getElementsByTag("figure").mapNotNull { f ->
-            val video = f.getSingleElementByTagOrNull("video")
-            val img = f.getSingleElementByTagOrNull("img")
+            val video = f.getSingleElementByTag("video")
+            val img = f.getSingleElementByTag("img")
 
             Attachment(
                     type = when {
@@ -153,7 +153,7 @@ class TumblrSkraper(
                         else -> return@mapNotNull null
                     },
                     url = when {
-                        video != null -> video.getSingleElementByTagOrNull("source")?.attr("src").orEmpty()
+                        video != null -> video.getSingleElementByTag("source")?.attr("src").orEmpty()
                         else -> img?.attr("src").orEmpty()
                     },
                     aspectRatio = f.run {

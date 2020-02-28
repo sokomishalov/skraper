@@ -6,12 +6,26 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 # Overview
-Scrapes posts with media and other meta info from various sources without any authorization or full page rendering.
-Based on Kotlin/JVM coroutines and jsoup.
+Cli tool and kotlin library which allow scraping posts with media and other meta info from various sources without 
+any authorization or full page rendering. Based on Kotlin/JVM coroutines and JSoup.
 
 Repository contains:
 - [Cli tool](#cli-tool)
 - [Kotlin library](#kotlin-library)
+
+Current list of implemented sources:
+- [Reddit](https://reddit.com)
+- [Facebook](https://facebook.com)
+- [Instagram](https://instagram.com)
+- [Twitter](https://twitter.com)
+- [Youtube](https://youtube.com)
+- [9GAG](https://9gag.com)
+- [Pinterest](https://pinterest.com)
+- [Flickr](https://flickr.com)
+- [Tumblr](https://tumblr.com)
+- [IFunny](https://ifunny.co)
+- [VK](https://vk.com)
+- [Pikabu](https://pikabu.ru)
 
 # Cli tool
 Build tool
@@ -40,8 +54,7 @@ optional arguments:
 
 
 positional arguments:
-  PROVIDER          skraper provider, options: [reddit, facebook, instagram,
-                    twitter, youtube, ninegag, pinterest, tumblr, ifunny, vk,
+  PROVIDER          skraper provider, options: [reddit, facebook, instagram, twitter, youtube, ninegag, pinterest, flickr, tumblr, ifunny, vk,
                     pikabu]
 
   PATH              path to user/community/channel/topic/trend
@@ -67,7 +80,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.1.4</version>
+        <version>0.1.5</version>
     </dependency>
 </dependencies>
 ```
@@ -78,7 +91,7 @@ repositories {
     maven { url("https://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.1.4")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.1.5")
 }
 ```
 

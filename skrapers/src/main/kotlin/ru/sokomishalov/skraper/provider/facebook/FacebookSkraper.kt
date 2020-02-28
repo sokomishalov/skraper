@@ -23,16 +23,15 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByAttributeOrNull
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClassOrNull
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTagOrNull
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByAttribute
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
 import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
 import ru.sokomishalov.skraper.model.Attachment
 import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
-import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -99,7 +98,6 @@ class FacebookSkraper(
                     html()
                             .removePrefix(infoJsonPrefix)
                             .removeSuffix(infoJsonSuffix)
-                            .toByteArray(UTF_8)
                             .aReadJsonNodes()
                 }
     }
@@ -120,14 +118,14 @@ class FacebookSkraper(
     }
 
     private fun Element.extractText(): String? {
-        return getSingleElementByClassOrNull("userContent")
-                ?.getSingleElementByTagOrNull("p")
+        return getSingleElementByClass("userContent")
+                ?.getSingleElementByTag("p")
                 ?.wholeText()
                 ?.toString()
     }
 
     private fun Element.extractPublishDateTime(): Long? {
-        return getSingleElementByAttributeOrNull("data-utime")
+        return getSingleElementByAttribute("data-utime")
                 ?.attr("data-utime")
                 ?.toLongOrNull()
                 ?.times(1000)
@@ -148,14 +146,14 @@ class FacebookSkraper(
     }
 
     private fun Element.extractAttachments(): List<Attachment> {
-        val videoElement = getSingleElementByTagOrNull("video")
+        val videoElement = getSingleElementByTag("video")
 
         return when {
             videoElement != null -> listOf(Attachment(
                     type = VIDEO,
                     url = getElementsByAttributeValueContaining("id", "feed_subtitle")
                             .firstOrNull()
-                            ?.getSingleElementByTagOrNull("a")
+                            ?.getSingleElementByTag("a")
                             ?.attr("href")
                             ?.let { "${baseUrl}${it}" }
                             .orEmpty(),
@@ -165,8 +163,8 @@ class FacebookSkraper(
                             ?: DEFAULT_POSTS_ASPECT_RATIO
             ))
 
-            else -> getSingleElementByClassOrNull("uiScaledImageContainer")
-                    ?.getSingleElementByTagOrNull("img")
+            else -> getSingleElementByClass("uiScaledImageContainer")
+                    ?.getSingleElementByTag("img")
                     ?.run {
                         val url = attr("src")
                         val width = attr("width").toDoubleOrNull()

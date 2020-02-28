@@ -37,7 +37,7 @@ import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter.ofPattern
 import kotlin.text.Charsets.UTF_8
 
-fun main(args: Array<String>): Unit = mainBody {
+fun main(args: Array<String>) = mainBody(columns = 150) {
     val parsedArgs = ArgParser(when {
         args.isEmpty() -> arrayOf("--help")
         else -> args

@@ -28,7 +28,6 @@ import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
 import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.ImageSize
 import ru.sokomishalov.skraper.model.Post
-import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -106,7 +105,6 @@ class NinegagSkraper(
                 ?.removePrefix("window._config = JSON.parse(\"")
                 ?.removeSuffix("\");")
                 ?.unescapeJson()
-                ?.toByteArray(UTF_8)
                 ?.aReadJsonNodes()
     }
 
