@@ -54,12 +54,9 @@
                     <version>3.0</version>
                     <configuration>
                         <header>header.txt</header>
-                        <excludes>
-                            <exclude>LICENSE.md</exclude>
-                            <exclude>*.xml</exclude>
-                            <exclude>*.properties</exclude>
-                            <exclude>*.yml</exclude>
-                        </excludes>
+                        <includes>
+                            <include>**/*.kt</include>
+                        </includes>
                     </configuration>
                 </plugin>
             </plugins>
