@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.reddit
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -26,34 +25,29 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 suspend fun RedditSkraper.getCommunityHotPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(), limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/${""}", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityNewPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(type = "new"), limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/${"new"}", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityRisingPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(type = "rising"), limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/${"rising"}", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityControversialPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(type = "controversial"), limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/${"controversial"}", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityTopPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = community.buildCommunityPath(type = "top"), limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/${"top"}", limit = limit)
 }
 
-suspend fun RedditSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+suspend fun RedditSkraper.getUserInfo(username: String): PageInfo? {
+    return getPageInfo("/user/${username.removePrefix("u/")}")
 }
 
-suspend fun RedditSkraper.getCommunityLogoUrl(community: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = community.buildCommunityPath(), imageSize = imageSize)
+suspend fun RedditSkraper.getCommunityInfo(community: String): PageInfo? {
+    return getPageInfo("/r/${community.removePrefix("r/")}")
 }
-
-
-private fun String.buildCommunityPath(type: String = ""): String = "/r/${this.removePrefix("r/")}/${type}"
-
-private fun String.buildUserPath(): String = "/user/${this.removePrefix("u/")}"

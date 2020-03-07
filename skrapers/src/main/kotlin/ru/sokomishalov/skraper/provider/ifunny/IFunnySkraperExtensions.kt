@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.ifunny
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 /**
@@ -25,19 +24,13 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 suspend fun IFunnySkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(), limit = limit)
+    return getPosts(path = "/user/${username}", limit = limit)
 }
 
 suspend fun IFunnySkraper.getCatalogLatestPosts(catalog: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = catalog.buildCatalogPath(), limit = limit)
+    return getPosts(path = "/${catalog}", limit = limit)
 }
 
-suspend fun IFunnySkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+suspend fun IFunnySkraper.getUserInfo(username: String): PageInfo? {
+    return getPageInfo(path = "/user/${username}")
 }
-
-
-private fun String.buildUserPath(): String = "/user/${this}"
-
-private fun String.buildCatalogPath(): String = "/${this}"
-

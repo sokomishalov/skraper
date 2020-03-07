@@ -19,6 +19,7 @@ package ru.sokomishalov.skraper.internal.string
 
 import org.jsoup.nodes.Entities
 import java.net.URLDecoder
+import java.net.URLEncoder
 import kotlin.text.Charsets.UTF_8
 
 /**
@@ -71,4 +72,9 @@ internal fun String.unescapeHtml(): String {
 @PublishedApi
 internal fun String.unescapeUrl(): String {
     return URLDecoder.decode(this.replace("%u2026", "..."), UTF_8.name())
+}
+
+@PublishedApi
+internal fun String.escapeUrl(): String {
+    return URLEncoder.encode(this, UTF_8.name())
 }

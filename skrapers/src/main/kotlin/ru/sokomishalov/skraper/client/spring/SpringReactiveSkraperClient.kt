@@ -26,6 +26,7 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import org.springframework.web.reactive.function.client.awaitExchange
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.model.URLString
 
 /**
  * @author sokomishalov
@@ -34,7 +35,7 @@ class SpringReactiveSkraperClient(
         private val webClient: WebClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
+    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
         return webClient
                 .get()
                 .uri(url)

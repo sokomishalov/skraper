@@ -16,19 +16,21 @@
 package ru.sokomishalov.skraper.model
 
 /**
- * Represents a provider post.
- * @property id provider's internal id
+ * Represents a provider some user/community/channel/topic/trend post.
+ * @property id provider's internal post id
  * @property text title and/or description
- * @property publishedAt publish timestamp in nanos *(nullable - such data may not exist on the provider's page)
- * @property rating rating (likes) count *(nullable - such data may not exist on the provider's page)
- * @property commentsCount comments count *(nullable - such data may not exist on the provider's page)
- * @property attachments images or videos
+ * @property publishedAt publish timestamp in nanos *(nullable - such data may not exist at all)
+ * @property rating rating (likes, pins, etc.) count *(nullable - such data may not exist at all)
+ * @property commentsCount comments count *(nullable - such data may not exist at all)
+ * @property viewsCount views count *(nullable - such data may not exist at all)
+ * @property media post media items
  */
 data class Post(
         val id: String,
         val text: String? = "",
-        val publishedAt: Long? = null,
+        val publishedAt: UnixTimestamp? = null,
         val rating: Int? = null,
         val commentsCount: Int? = null,
-        val attachments: List<Attachment> = emptyList()
+        val viewsCount: Int? = null,
+        val media: List<MediaItem> = emptyList()
 )

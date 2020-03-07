@@ -20,13 +20,10 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.*
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.number.div
+import ru.sokomishalov.skraper.internal.serialization.*
+import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
@@ -37,7 +34,7 @@ import java.util.Locale.ROOT
  */
 class PinterestSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://pinterest.com"
+        override val baseUrl: URLString = "https://pinterest.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -46,96 +43,100 @@ class PinterestSkraper(
         val feedList = infoJsonNode.extractFeed(limit)
 
         return feedList.map {
-            val imageInfo = it.get("images")?.get("orig")
             Post(
-                    id = it.extractId(),
-                    text = it.extractText(),
-                    publishedAt = it.extractPublishDate(),
-                    rating = it.extractRating(),
-                    commentsCount = it.extractCommentsCount(),
-                    attachments = listOf(Attachment(
-                            type = IMAGE,
-                            url = imageInfo?.get("url")?.asText().orEmpty(),
-                            aspectRatio = imageInfo.run {
-                                val width = this?.get("width")?.asDouble()
-                                val height = this?.get("height")?.asDouble()
-                                when {
-                                    width != null && height != null -> width / height
-                                    else -> DEFAULT_POSTS_ASPECT_RATIO
-                                }
-                            }
-                    ))
+                    id = it.extractPostId(),
+                    text = it.extractPostText(),
+                    publishedAt = it.extractPostPublishDate(),
+                    rating = it.extractPostRating(),
+                    commentsCount = it.extractPostCommentsCount(),
+                    media = it.extractPostMediaItems()
             )
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+    override suspend fun getPageInfo(path: String): PageInfo? {
         val infoJsonNode = getUserJson(path = path)
 
         val json = infoJsonNode
                 ?.get("resourceResponses")
                 ?.firstOrNull()
-                ?.get("response")
-                ?.get("data")
+                ?.getByPath("response.data")
 
-        return json.extractLogo(imageSize = imageSize)
+        return json?.run {
+            PageInfo(
+                    nick = getString("profile.username"),
+                    name = getString("profile.full_name"),
+                    description = getString("profile.about"),
+                    avatarsMap = extractLogoMap()
+            )
+        }
     }
 
     private suspend fun getUserJson(path: String): JsonNode? {
-        val webPage = client.fetchDocument("$baseUrl$path")
+        val webPage = client.fetchDocument(baseUrl.buildFullURL(path = path))
         val infoJson = webPage?.getElementById("initial-state")?.html()
-        return infoJson.aReadJsonNodes()
-    }
-
-    private fun JsonNode.extractId(): String {
-        return this["id"]
-                ?.asText()
-                .orEmpty()
-    }
-
-    private fun JsonNode.extractText(): String? {
-        return this["description"]
-                ?.asText()
-    }
-
-    private fun JsonNode.extractPublishDate(): Long? {
-        return this["created_at"]
-                ?.asText()
-                ?.let { ZonedDateTime.parse(it, DATE_FORMATTER).toInstant().toEpochMilli() }
-    }
-
-    private fun JsonNode.extractRating(): Int? {
-        return get("aggregated_pin_data")
-                ?.get("aggregated_stats")
-                ?.get("saves")
-                ?.asInt()
-    }
-
-    private fun JsonNode.extractCommentsCount(): Int? {
-        return this["comment_count"]
-                ?.asInt()
+        return infoJson.readJsonNodes()
     }
 
     private fun JsonNode?.extractFeed(limit: Int): List<JsonNode> {
         return this
                 ?.get("resourceResponses")
                 ?.get(1)
-                ?.get("response")
-                ?.get("data")
-                ?.toList()
+                ?.getByPath("response.data")
                 ?.take(limit)
                 .orEmpty()
     }
 
-    private fun JsonNode?.extractLogo(imageSize: ImageSize): String? {
-        val owner = this?.get("owner")
-        val user = this?.get("user")
+    private fun JsonNode.extractPostId(): String {
+        return this.getString("id").orEmpty()
+    }
 
-        return when (imageSize) {
-            SMALL -> owner?.get("image_medium_url")?.asText()
-            MEDIUM -> owner?.get("image_small_url")?.asText()
-            LARGE -> owner?.get("image_xlarge_url")?.asText()
-        } ?: user?.get("image_xlarge_url")?.asText()
+    private fun JsonNode.extractPostText(): String? {
+        return this.getString("description")
+    }
+
+    private fun JsonNode.extractPostPublishDate(): Long? {
+        return this.getString("created_at")?.let {
+            ZonedDateTime.parse(it, DATE_FORMATTER).toEpochSecond()
+        }
+    }
+
+    private fun JsonNode.extractPostRating(): Int? {
+        return getInt("aggregated_pin_data.aggregated_stats.saves")
+    }
+
+    private fun JsonNode.extractPostCommentsCount(): Int? {
+        return this.getInt("comment_count")
+    }
+
+    @Suppress("MoveVariableDeclarationIntoWhen")
+    private fun JsonNode.extractPostMediaItems(): List<MediaItem> {
+        val imageInfo = getByPath("images.orig")
+        return when (imageInfo) {
+            null -> getByPath("pin_thumbnail_urls")
+                    ?.mapNotNull { it.asText() }
+                    ?.map { Image(url = it) }
+                    .orEmpty()
+            else -> listOf(Image(
+                    url = imageInfo.getString("url").orEmpty(),
+                    aspectRatio = imageInfo.run {
+                        getDouble("width") / getDouble("height")
+                    }
+            ))
+        }
+    }
+
+    private fun JsonNode?.extractLogoMap(): Map<MediaSize, Image> {
+        val owner = this?.get("owner")
+
+        return when {
+            owner != null -> mapOf(
+                    SMALL to owner.getString("image_medium_url").orEmpty().toImage(),
+                    MEDIUM to owner.getString("image_small_url").orEmpty().toImage(),
+                    LARGE to owner.getString("image_xlarge_url").orEmpty().toImage()
+            )
+            else -> singleImageMap(url = this?.getString("user.image_xlarge_url"))
+        }
     }
 
     companion object {

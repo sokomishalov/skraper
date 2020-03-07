@@ -23,102 +23,98 @@ import java.io.InputStream
  *
  * Huge appreciation to jaimon mathew
  * @see <a href="http://blog.jaimon.co.uk/simpleimageinfo/SimpleImageInfo.java.html">link</a>
+ * @return width to height pair
  */
-internal fun InputStream.getRemoteImageInfo(): SimpleImageInfo = use {
-    val c1 = read()
-    val c2 = read()
-    var c3 = read()
+internal val InputStream.imageDimensions: Pair<Int, Int>
+    get() = use {
+        val c1 = read()
+        val c2 = read()
+        var c3 = read()
 
-    var height: Int = -1
-    var width: Int = -1
-    var mimeType: String? = null
-
-    when {
-        // GIF
-        c1 == 'G'.toInt() && c2 == 'I'.toInt() && c3 == 'F'.toInt() -> {
-            skip(3)
-            width = readInt(2, false)
-            height = readInt(2, false)
-            mimeType = "image/gif"
-        }
-
-        // JPG
-        c1 == 0xFF && c2 == 0xD8 -> {
-            while (c3 == 255) {
-                val marker = read()
-                val len = readInt(2, true)
-                if (marker in (192..194)) {
-                    skip(1)
-                    height = readInt(2, true)
-                    width = readInt(2, true)
-                    mimeType = "image/jpeg"
-                    break
-                }
-                skip(len - 2.toLong())
-                c3 = read()
+        return when {
+            // GIF
+            c1 == 'G'.toInt() && c2 == 'I'.toInt() && c3 == 'F'.toInt() -> {
+                skip(3)
+                val width = readInt(2, false)
+                val height = readInt(2, false)
+                width to height
             }
-        }
 
-        // PNG
-        c1 == 137 && c2 == 80 && c3 == 78 -> {
-            skip(15)
-            width = readInt(2, true)
-            skip(2)
-            height = readInt(2, true)
-            mimeType = "image/png"
-        }
-
-        // BMP
-        c1 == 66 && c2 == 77 -> {
-            skip(15)
-            width = readInt(2, false)
-            skip(2)
-            height = readInt(2, false)
-            mimeType = "image/bmp"
-        }
-
-        // Unknown
-        else -> {
-            val c4 = read()
-
-            when {
-                //TIFF
-                (c1 == 'M'.toInt() && c2 == 'M'.toInt() && c3 == 0 && c4 == 42) || (c1 == 'I'.toInt() && c2 == 'I'.toInt() && c3 == 42 && c4 == 0) -> {
-                    val bigEndian = c1 == 'M'.toInt()
-                    val ifd: Int
-                    val entries: Int
-                    ifd = readInt(4, bigEndian)
-                    skip(ifd - 8.toLong())
-                    entries = readInt(2, bigEndian)
-
-                    for (i in 1..entries) {
-                        val tag = readInt(2, bigEndian)
-                        val fieldType = readInt(2, bigEndian)
-                        val count = readInt(4, bigEndian).toLong()
-                        var valOffset: Int
-                        if (fieldType == 3 || fieldType == 8) {
-                            valOffset = readInt(2, bigEndian)
-                            skip(2)
-                        } else {
-                            valOffset = readInt(4, bigEndian)
-                        }
-                        if (tag == 256) {
-                            width = valOffset
-                        } else if (tag == 257) {
-                            height = valOffset
-                        }
-                        if (width != -1 && height != -1) {
-                            mimeType = "image/tiff"
-                            break
-                        }
+            // JPG
+            c1 == 0xFF && c2 == 0xD8 -> {
+                while (c3 == 255) {
+                    val marker = read()
+                    val len = readInt(2, true)
+                    if (marker in (192..194)) {
+                        skip(1)
+                        val height = readInt(2, true)
+                        val width = readInt(2, true)
+                        return@use width to height
                     }
+                    skip(len - 2.toLong())
+                    c3 = read()
+                }
+                -1 to -1
+            }
+
+            // PNG
+            c1 == 137 && c2 == 80 && c3 == 78 -> {
+                skip(15)
+                val width = readInt(2, true)
+                skip(2)
+                val height = readInt(2, true)
+                width to height
+            }
+
+            // BMP
+            c1 == 66 && c2 == 77 -> {
+                skip(15)
+                val width = readInt(2, false)
+                skip(2)
+                val height = readInt(2, false)
+                width to height
+            }
+
+            // Unknown
+            else -> {
+                val c4 = read()
+
+                when {
+                    //TIFF
+                    (c1 == 'M'.toInt() && c2 == 'M'.toInt() && c3 == 0 && c4 == 42) || (c1 == 'I'.toInt() && c2 == 'I'.toInt() && c3 == 42 && c4 == 0) -> {
+                        val bigEndian = c1 == 'M'.toInt()
+                        val ifd: Int
+                        val entries: Int
+                        ifd = readInt(4, bigEndian)
+                        skip(ifd - 8.toLong())
+                        entries = readInt(2, bigEndian)
+
+                        var width = -1
+                        var height = -1
+
+                        for (i in 1..entries) {
+                            val tag = readInt(2, bigEndian)
+                            val fieldType = readInt(2, bigEndian)
+                            val count = readInt(4, bigEndian).toLong()
+
+                            val valOffset = when (fieldType) {
+                                3, 8 -> readInt(2, bigEndian).apply { skip(2) }
+                                else -> readInt(4, bigEndian)
+                            }
+
+                            when (tag) {
+                                256 -> width = valOffset
+                                257 -> height = valOffset
+                            }
+                        }
+
+                        width to height
+                    }
+                    else -> -1 to -1
                 }
             }
         }
     }
-
-    SimpleImageInfo(width = width, height = height, mimeType = mimeType)
-}
 
 private fun InputStream.readInt(noOfBytes: Int, bigEndian: Boolean): Int {
     var ret = 0

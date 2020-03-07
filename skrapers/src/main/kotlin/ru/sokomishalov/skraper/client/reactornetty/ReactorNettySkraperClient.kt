@@ -22,6 +22,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.model.URLString
 
 /**
  * @author sokomishalov
@@ -30,7 +31,7 @@ class ReactorNettySkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: String, headers: Map<String, String>): ByteArray? {
+    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
         return client
                 .headers { headers.forEach { (k, v) -> it[k] = v } }
                 .get()

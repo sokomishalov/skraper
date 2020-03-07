@@ -23,7 +23,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class FacebookSkraperTest : SkraperTck() {
     override val skraper: FacebookSkraper = FacebookSkraper(client = client)
-    override val path: String = "/memes"
+    override val path: String = "/memes/posts"
     private val username: String = "memes"
 
     @Test
@@ -32,7 +32,7 @@ class FacebookSkraperTest : SkraperTck() {
     }
 
     @Test
-    fun `Check user logo`() {
-        assertLogo { skraper.getUserLogoUrl(username = username) }
+    fun `Check user page info`() {
+        assertPageInfo { skraper.getUserPageInfo(username = username) }
     }
 }

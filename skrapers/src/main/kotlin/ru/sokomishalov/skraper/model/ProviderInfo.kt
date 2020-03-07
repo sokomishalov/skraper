@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.internal.image
+package ru.sokomishalov.skraper.model
 
-data class SimpleImageInfo(
-        val height: Int,
-        val width: Int,
-        val mimeType: String?
+
+/**
+ * Represents a provider some short info.
+ * @property name provider name
+ * @property logoMap provider logos of various sizes
+ */
+data class ProviderInfo(
+        val name: String,
+        val logoMap: Map<MediaSize, Image> = emptyMap()
 )

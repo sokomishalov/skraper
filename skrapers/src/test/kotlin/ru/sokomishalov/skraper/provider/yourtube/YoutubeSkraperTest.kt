@@ -18,7 +18,7 @@ package ru.sokomishalov.skraper.provider.yourtube
 import org.junit.Test
 import ru.sokomishalov.skraper.provider.SkraperTck
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
-import ru.sokomishalov.skraper.provider.youtube.getUserLogoUrl
+import ru.sokomishalov.skraper.provider.youtube.getUserInfo
 import ru.sokomishalov.skraper.provider.youtube.getUserPosts
 
 class YoutubeSkraperTest : SkraperTck() {
@@ -33,8 +33,8 @@ class YoutubeSkraperTest : SkraperTck() {
     }
 
     @Test
-    fun `Check user logo`() {
-        assertLogo { skraper.getUserLogoUrl(username = username) }
+    fun `Check user info`() {
+        assertPageInfo { skraper.getUserInfo(username = username) }
     }
 
 }

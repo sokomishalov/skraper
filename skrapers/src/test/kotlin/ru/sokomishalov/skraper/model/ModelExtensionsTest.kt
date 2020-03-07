@@ -15,11 +15,16 @@
  */
 package ru.sokomishalov.skraper.model
 
-/**
- * @author sokomishalov
- */
-enum class ImageSize {
-    SMALL,
-    MEDIUM,
-    LARGE
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class ModelExtensionsTest {
+
+    @Test
+    fun buildFullURL() {
+        val baseURL = "https://www.youtube.com/"
+        val res = baseURL.buildFullURL(path = "user/VineAholic", queryParams = mapOf("gl" to "En", "hl" to "en"))
+
+        assertEquals("https://www.youtube.com/user/VineAholic?gl=En&hl=en", res)
+    }
 }

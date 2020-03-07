@@ -23,14 +23,11 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.number.div
+import ru.sokomishalov.skraper.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
@@ -39,31 +36,33 @@ import java.util.Locale.ENGLISH
 
 class TumblrSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://tumblr.com"
+        override val baseUrl: URLString = "https://tumblr.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val document = getNonUserPage(path = path)
+        val page = getNonUserPage(path = path)
 
-        return document.extractPosts(limit)
+        return page.extractPosts(limit)
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
-        val document = getNonUserPage(path = path)
+    override suspend fun getPageInfo(path: String): PageInfo? {
+        val page = getNonUserPage(path = path)
 
-        return document.extractLogo()
+        return page.extractPageInfo()
     }
 
-    internal suspend fun getUserPage(username: String): Document? = client.fetchDocument(baseUrl.replace("://", "://${username}."))
+    internal suspend fun getUserPage(username: String): Document? {
+        return client.fetchDocument(url = baseUrl.replace("://", "://${username}."))
+    }
 
     private suspend fun getNonUserPage(path: String): Document? {
         return when {
-            path.contains("dashboard/blog/", ignoreCase = true) -> {
-                val username = path.substringAfter("dashboard/blog/").substringBefore("/")
+            path.contains("/dashboard/blog/", ignoreCase = true) -> {
+                val username = path.substringAfter("/dashboard/blog/").substringBefore("/")
                 return getUserPage(username = username)
             }
 
-            else -> client.fetchDocument("${baseUrl}${path}")
+            else -> client.fetchDocument(url = baseUrl.buildFullURL(path = path))
         }
     }
 
@@ -75,37 +74,40 @@ class TumblrSkraper(
 
         return articles.map { a ->
             Post(
-                    id = a.extractId(),
-                    text = a.extractText(),
-                    publishedAt = a.extractPublishedDate(),
-                    rating = a.extractNotes(),
-                    commentsCount = a.extractNotes(),
-                    attachments = a.extractAttachments()
+                    id = a.extractPostId(),
+                    text = a.extractPostText(),
+                    publishedAt = a.extractPostPublishedDate(),
+                    rating = a.extractPostNotes(),
+                    commentsCount = a.extractPostNotes(),
+                    media = a.extractPostMediaItems()
             )
         }
     }
 
-    internal fun Document?.extractLogo(): String? {
-        return this
-                ?.getSingleElementByClass("user-avatar")
-                ?.getSingleElementByTag("img")
-                ?.attr("src")
+    internal fun Document?.extractPageInfo(): PageInfo {
+        return PageInfo(
+                nick = extractPageNick(),
+                name = extractPageName(),
+                description = extractPageDescription(),
+                avatarsMap = extractPageAvatarMap(),
+                coversMap = extractPageCoverMap()
+        )
     }
 
-    private fun Element.extractId(): String {
+    private fun Element.extractPostId(): String {
         return attr("data-post-id")
                 .ifBlank { attr("id") }
     }
 
-    private fun Element.extractText(): String? {
+    private fun Element.extractPostText(): String? {
         return getElementsByTag("figcaption")
                 .joinToString("\n") { it.wholeText().orEmpty() }
                 .substringAfter(":")
     }
 
-    private fun Element.extractPublishedDate(): Long? {
-        val postDate = getSingleElementByClass("post-date")
-        val timePosted = getSingleElementByClass("time-posted")
+    private fun Element.extractPostPublishedDate(): Long? {
+        val postDate = getFirstElementByClass("post-date")
+        val timePosted = getFirstElementByClass("time-posted")
 
         return when {
             postDate != null -> postDate
@@ -113,7 +115,6 @@ class TumblrSkraper(
                     .let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }
                     ?.atStartOfDay()
                     ?.toEpochSecond(UTC)
-                    ?.times(1000)
 
             timePosted != null -> timePosted
                     .attr("title")
@@ -121,15 +122,14 @@ class TumblrSkraper(
                     .replace("pm", "PM")
                     .let { runCatching { LocalDateTime.parse(it, DATE_TIME_FORMATTER) }.getOrNull() }
                     ?.toEpochSecond(UTC)
-                    ?.times(1000)
 
             else -> null
         }
     }
 
-    private fun Element.extractNotes(): Int? {
-        val notesNode = getSingleElementByClass("post-notes")
-                ?: getSingleElementByClass("note-count")
+    private fun Element.extractPostNotes(): Int? {
+        val notesNode = getFirstElementByClass("post-notes")
+                ?: getFirstElementByClass("note-count")
 
         return notesNode
                 ?.wholeText()
@@ -141,31 +141,58 @@ class TumblrSkraper(
                 ?: 0
     }
 
-    private fun Element.extractAttachments(): List<Attachment> {
+    private fun Element.extractPostMediaItems(): List<MediaItem> {
         return getElementsByTag("figure").mapNotNull { f ->
-            val video = f.getSingleElementByTag("video")
-            val img = f.getSingleElementByTag("img")
+            val video = f.getFirstElementByTag("video")
+            val img = f.getFirstElementByTag("img")
 
-            Attachment(
-                    type = when {
-                        video != null -> VIDEO
-                        img != null -> IMAGE
-                        else -> return@mapNotNull null
-                    },
-                    url = when {
-                        video != null -> video.getSingleElementByTag("source")?.attr("src").orEmpty()
-                        else -> img?.attr("src").orEmpty()
-                    },
-                    aspectRatio = f.run {
-                        val width = attr("data-orig-width")?.toDoubleOrNull()
-                        val height = attr("data-orig-height")?.toDoubleOrNull()
-                        when {
-                            width != null && height != null -> width / height
-                            else -> DEFAULT_POSTS_ASPECT_RATIO
-                        }
-                    }
-            )
+            val aspectRatio = f.attr("data-orig-width")?.toDoubleOrNull() / f.attr("data-orig-height")?.toDoubleOrNull()
+
+            when {
+                video != null -> Video(
+                        url = video.getFirstElementByTag("source")?.attr("src").orEmpty(),
+                        aspectRatio = aspectRatio
+                )
+                img != null -> Image(
+                        url = img.attr("src").orEmpty(),
+                        aspectRatio = aspectRatio
+                )
+                else -> null
+            }
         }
+    }
+
+    private fun Document?.extractPageNick(): String? {
+        return this
+                ?.getFirstElementByAttributeValue("name", "twitter:title")
+                ?.attr("content")
+    }
+
+    private fun Document?.extractPageName(): String? {
+        return this
+                ?.getFirstElementByAttributeValue("property", "og:title")
+                ?.attr("content")
+    }
+
+    private fun Document?.extractPageDescription(): String? {
+        return this
+                ?.getFirstElementByAttributeValue("property", "og:description")
+                ?.attr("content")
+    }
+
+    private fun Document?.extractPageAvatarMap(): Map<MediaSize, Image> {
+        return singleImageMap(url = this
+                ?.getFirstElementByClass("user-avatar")
+                ?.getFirstElementByTag("img")
+                ?.attr("src")
+        )
+    }
+
+    private fun Document?.extractPageCoverMap(): Map<MediaSize, Image> {
+        return singleImageMap(url = this
+                ?.getFirstElementByClass("cover")
+                ?.attr("data-bg-image")
+        )
     }
 
     companion object {

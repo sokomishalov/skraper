@@ -15,9 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.twitter
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_LOGO_SIZE
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
-import ru.sokomishalov.skraper.model.ImageSize
+import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
 
@@ -26,11 +25,9 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 suspend fun TwitterSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = username.buildUserPath(), limit = limit)
+    return getPosts(path = "/${username}", limit = limit)
 }
 
-suspend fun TwitterSkraper.getUserLogoUrl(username: String, imageSize: ImageSize = DEFAULT_LOGO_SIZE): String? {
-    return getLogoUrl(path = username.buildUserPath(), imageSize = imageSize)
+suspend fun TwitterSkraper.getUserInfo(username: String): PageInfo? {
+    return getPageInfo(path = "/${username}")
 }
-
-private fun String.buildUserPath(): String = "/${this}"

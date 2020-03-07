@@ -18,6 +18,7 @@ package ru.sokomishalov.skraper
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.internal.net.openStreamForRedirectable
+import ru.sokomishalov.skraper.model.URLString
 import java.io.InputStream
 import java.net.URL
 
@@ -26,10 +27,7 @@ import java.net.URL
  */
 interface SkraperClient {
 
-    suspend fun fetch(
-            url: String,
-            headers: Map<String, String> = emptyMap()
-    ): ByteArray? {
+    suspend fun fetch(url: URLString, headers: Map<String, String> = emptyMap()): ByteArray? {
         return withContext(IO) {
             openStream(url = url, headers = headers)
         }.use {
@@ -37,12 +35,10 @@ interface SkraperClient {
         }
     }
 
-    suspend fun openStream(
-            url: String,
-            headers: Map<String, String> = emptyMap()
-    ): InputStream? {
+    suspend fun openStream(url: String, headers: Map<String, String> = emptyMap()): InputStream? {
         return withContext(IO) {
             URL(url).openStreamForRedirectable(headers = headers)
         }
     }
+
 }

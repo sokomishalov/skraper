@@ -28,11 +28,6 @@ class FlickrSkraperTest : SkraperTck() {
     private val tag = "fun"
 
     @Test
-    fun `Check explore posts`() {
-        assertPosts { skraper.getExplorePosts() }
-    }
-
-    @Test
     fun `Check tag posts`() {
         assertPosts { skraper.getTagPosts(tag = tag) }
     }
@@ -43,7 +38,7 @@ class FlickrSkraperTest : SkraperTck() {
     }
 
     @Test
-    fun `Check user logo`() {
-        assertLogo { skraper.getUserLogoUrl(username = username) }
+    fun `Check user info`() {
+        assertPageInfo { skraper.getUserPageInfo(username = username) }
     }
 }

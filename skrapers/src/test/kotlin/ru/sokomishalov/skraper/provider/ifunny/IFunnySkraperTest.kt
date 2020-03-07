@@ -24,8 +24,9 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class IFunnySkraperTest : SkraperTck() {
     override val skraper: IFunnySkraper = IFunnySkraper(client = client)
-    override val path: String = "/memes"
+    override val path: String = "/user/memes"
     private val username: String = "memes"
+    private val catalog: String = "memes"
 
     @Test
     fun `Check user posts`() {
@@ -34,11 +35,11 @@ class IFunnySkraperTest : SkraperTck() {
 
     @Test
     fun `Check catalog posts`() {
-        assertPosts { skraper.getCatalogLatestPosts(catalog = username) }
+        assertPosts { skraper.getCatalogLatestPosts(catalog = catalog) }
     }
 
     @Test
-    fun `Check user logo`() {
-        assertLogo { skraper.getUserLogoUrl(username = username) }
+    fun `Check user info`() {
+        assertPageInfo { skraper.getUserInfo(username = username) }
     }
 }

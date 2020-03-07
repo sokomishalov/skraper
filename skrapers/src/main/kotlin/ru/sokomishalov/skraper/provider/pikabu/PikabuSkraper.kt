@@ -22,14 +22,9 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.number.div
+import ru.sokomishalov.skraper.model.*
 import java.nio.charset.Charset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -37,13 +32,13 @@ import kotlin.text.Charsets.UTF_8
 
 class PikabuSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://pikabu.ru"
+        override val baseUrl: URLString = "https://pikabu.ru"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val document = getPage(path = path)
+        val page = getPage(path = path)
 
-        val stories = document
+        val stories = page
                 ?.getElementsByTag("article")
                 ?.take(limit)
                 .orEmpty()
@@ -51,7 +46,7 @@ class PikabuSkraper(
         return stories.map {
             val storyBlocks = it.getElementsByClass("story-block")
 
-            val title = it.parseTitle()
+            val title = it.extractPostTitle()
             val text = storyBlocks.parseText()
 
             val caption = when {
@@ -60,96 +55,100 @@ class PikabuSkraper(
             }
 
             Post(
-                    id = it.extractId(),
+                    id = it.extractPostId(),
                     text = String(caption.toByteArray(UTF_8)),
-                    publishedAt = it.extractPublishDate(),
-                    rating = it.extractRating(),
-                    commentsCount = it.extractCommentsCount(),
-                    attachments = storyBlocks.extractMediaAttachments()
+                    publishedAt = it.extractPostPublishDate(),
+                    rating = it.extractPostRating(),
+                    commentsCount = it.extractPostCommentsCount(),
+                    media = storyBlocks.extractPostMediaItems()
             )
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
-        val document = getPage(path = path)
+    override suspend fun getPageInfo(path: String): PageInfo? {
+        val page = getPage(path = path)
+        val isCommunity = path.contains("community")
 
-        return document
-                ?.getElementsByAttributeValue("property", "og:image")
-                ?.firstOrNull()
-                ?.attr("content")
+        return when {
+            isCommunity -> PageInfo(
+                    nick = page.extractCommunityNick(),
+                    name = page.extractCommunityName(),
+                    postsCount = page.extractCommunityPostsCount(),
+                    followersCount = page.extractCommunityFollowersCount(),
+                    avatarsMap = singleImageMap(url = page.extractCommunityAvatar()),
+                    coversMap = singleImageMap(url = page.extractPageCover())
+            )
+            else -> PageInfo(
+                    nick = page.extractUserNick(),
+                    name = page.extractUserNick(),
+                    postsCount = page.extractUserPostsCount(),
+                    followersCount = page.extractUserFollowersCount(),
+                    avatarsMap = singleImageMap(url = page.extractUserAvatar()),
+                    coversMap = singleImageMap(url = page.extractPageCover())
+            )
+        }
     }
 
-    private suspend fun getPage(path: String): Document? = client.fetchDocument(url = "$baseUrl$path", charset = Charset.forName("windows-1251"))
+    private suspend fun getPage(path: String): Document? {
+        return client.fetchDocument(
+                url = baseUrl.buildFullURL(path = path),
+                charset = Charset.forName("windows-1251")
+        )
+    }
 
-    private fun Element.extractId(): String {
-        return getSingleElementByClass("story__title-link")
+    private fun Element.extractPostId(): String {
+        return getFirstElementByClass("story__title-link")
                 ?.attr("href")
                 ?.substringAfter("${baseUrl}/story/")
                 .orEmpty()
     }
 
-    private fun Element.parseTitle(): String {
-        return getSingleElementByClass("story__title-link")
+    private fun Element.extractPostTitle(): String {
+        return getFirstElementByClass("story__title-link")
                 ?.wholeText()
                 .orEmpty()
     }
 
-    private fun Element.extractPublishDate(): Long? {
-        return getSingleElementByTag("time")
+    private fun Element.extractPostPublishDate(): Long? {
+        return getFirstElementByTag("time")
                 ?.attr("datetime")
-                ?.run { ZonedDateTime.parse(this, DATE_FORMATTER).toEpochSecond().times(1000) }
+                ?.run { ZonedDateTime.parse(this, DATE_FORMATTER).toEpochSecond() }
     }
 
-    private fun Element.extractRating(): Int? {
-        return getSingleElementByClass("story__rating-count")
+    private fun Element.extractPostRating(): Int? {
+        return getFirstElementByClass("story__rating-count")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractCommentsCount(): Int? {
-        return getSingleElementByClass("story__comments-link-count")
+    private fun Element.extractPostCommentsCount(): Int? {
+        return getFirstElementByClass("story__comments-link-count")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
-    private fun Elements.extractMediaAttachments(): List<Attachment> {
+    private fun Elements.extractPostMediaItems(): List<MediaItem> {
         return mapNotNull { b ->
             when {
                 "story-block_type_image" in b.classNames() -> {
-                    Attachment(
-                            type = IMAGE,
+                    Image(
                             url = b
-                                    .getElementsByTag("img")
-                                    .firstOrNull()
-                                    ?.attr("data-src")
+                                    .getFirstElementByTag("img")
+                                    ?.getFirstAttr("data-src", "src")
                                     .orEmpty(),
                             aspectRatio = b
-                                    .getElementsByTag("rect")
-                                    .firstOrNull()
-                                    .run {
-                                        val width = this?.attr("width")?.toDoubleOrNull()
-                                        val height = this?.attr("height")?.toDoubleOrNull()
-
-                                        when {
-                                            width != null && height != null -> width / height
-                                            else -> DEFAULT_POSTS_ASPECT_RATIO
-                                        }
+                                    .getFirstElementByTag("rect")
+                                    ?.run {
+                                        attr("width")?.toDoubleOrNull() / attr("height")?.toDoubleOrNull()
                                     }
                     )
                 }
                 "story-block_type_video" in b.classNames() -> b
-                        .getElementsByAttributeValueContaining("data-type", "video")
-                        .firstOrNull()
-                        .run {
-                            Attachment(
-                                    type = VIDEO,
-                                    url = this
-                                            ?.attr("data-source")
-                                            .orEmpty(),
-                                    aspectRatio = this
-                                            ?.attr("data-ratio")
-                                            ?.toDoubleOrNull()
-                                            ?: DEFAULT_POSTS_ASPECT_RATIO
+                        .getFirstElementByAttributeValueContaining("data-type", "video")
+                        ?.run {
+                            Video(
+                                    url = attr("data-source").orEmpty(),
+                                    aspectRatio = attr("data-ratio")?.toDoubleOrNull()
                             )
                         }
 
@@ -157,6 +156,82 @@ class PikabuSkraper(
             }
         }
     }
+
+    private fun Document?.extractUserAvatar(): String? {
+        return this
+                ?.getFirstElementByClass("main")
+                ?.getFirstElementByClass("avatar")
+                ?.getFirstElementByTag("img")
+                ?.attr("data-src")
+    }
+
+    private fun Document?.extractCommunityAvatar(): String? {
+        return this
+                ?.getFirstElementByClass("community-avatar")
+                ?.getFirstElementByTag("img")
+                ?.attr("data-src")
+    }
+
+    private fun Document?.extractUserNick(): String? {
+        return this
+                ?.getFirstElementByClass("profile__nick")
+                ?.getFirstElementByTag("span")
+                ?.wholeText()
+    }
+
+    private fun Document?.extractCommunityNick(): String? {
+        return this
+                ?.getFirstElementByClass("community-header__controls")
+                ?.getFirstElementByTag("span")
+                ?.attr("data-link-name")
+    }
+
+    private fun Document?.extractCommunityName(): String {
+        return this
+                ?.getFirstElementByClass("community-header__title")
+                ?.wholeText()
+                .orEmpty()
+    }
+
+    private fun Document?.extractCommunityPostsCount(): Int? {
+        return this
+                ?.getFirstElementByAttributeValue("data-role", "stories_cnt")
+                ?.attr("data-value")
+                ?.toIntOrNull()
+    }
+
+    private fun Document?.extractCommunityFollowersCount(): Int? {
+        return this
+                ?.getFirstElementByAttributeValue("data-role", "subs_cnt")
+                ?.attr("data-value")
+                ?.toIntOrNull()
+    }
+
+    private fun Document?.extractUserFollowersCount(): Int? {
+        return this
+                ?.getElementsByClass("profile__digital")
+                ?.getOrNull(1)
+                ?.attr("aria-label")
+                ?.trim()
+                ?.toIntOrNull()
+    }
+
+    private fun Document?.extractUserPostsCount(): Int? {
+        return this
+                ?.getElementsByClass("profile__digital")
+                ?.getOrNull(3)
+                ?.getFirstElementByTag("b")
+                ?.wholeText()
+                ?.trim()
+                ?.toIntOrNull()
+    }
+
+    private fun Document?.extractPageCover(): String? {
+        return this
+                ?.getFirstElementByClass("background__placeholder")
+                ?.getBackgroundImageStyle()
+    }
+
 
     private fun Elements.parseText(): String {
         return filter { b -> "story-block_type_text" in b.classNames() }

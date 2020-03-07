@@ -58,7 +58,7 @@ class NinegagSkraperTest : SkraperTck() {
     }
 
     @Test
-    fun `Check topic logo`() {
-        assertLogo { skraper.getTopicLogoUrl(topic = topic) }
+    fun `Check topic info`() {
+        assertPageInfo { skraper.getTopicInfo(topic = topic) }
     }
 }

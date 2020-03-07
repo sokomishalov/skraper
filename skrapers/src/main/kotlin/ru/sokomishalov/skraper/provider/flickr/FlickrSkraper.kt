@@ -16,25 +16,22 @@
 package ru.sokomishalov.skraper.provider.flickr
 
 import com.fasterxml.jackson.databind.JsonNode
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getBackgroundImageStyle
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
-import ru.sokomishalov.skraper.internal.serialization.aReadJsonNodes
-import ru.sokomishalov.skraper.internal.serialization.getByKeyContaining
-import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
+import ru.sokomishalov.skraper.internal.number.div
+import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeHtml
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.ImageSize.*
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.MediaSize.*
 
 
 /**
@@ -42,7 +39,7 @@ import ru.sokomishalov.skraper.model.Post
  */
 class FlickrSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://flickr.com"
+        override val baseUrl: URLString = "https://flickr.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -55,9 +52,8 @@ class FlickrSkraper(
 
         val jsonPosts = page
                 .parseModelJson()
-                ?.getByKeyContaining("photo")
-                ?.get("_data")
-                ?.map { it["id"].asText().orEmpty() to it }
+                ?.findPath("_data")
+                ?.map { it.getString("id").orEmpty() to it }
                 ?.toMap()
                 .orEmpty()
 
@@ -70,28 +66,28 @@ class FlickrSkraper(
 
                 Post(
                         id = id,
-                        text = jsonPost?.extractText(),
-                        publishedAt = jsonPost?.extractPublishDate(),
-                        commentsCount = jsonPost?.extractCommentsCount(),
-                        rating = jsonPost?.extractRating(),
-                        attachments = listOf(Attachment(
-                                type = IMAGE,
+                        text = jsonPost?.extractPostText(),
+                        publishedAt = jsonPost?.extractPostPublishDate(),
+                        commentsCount = jsonPost?.extractPostCommentsCount(),
+                        viewsCount = jsonPost?.extractPostViewsCount(),
+                        rating = jsonPost?.extractPostRating(),
+                        media = listOf(Image(
                                 url = url,
-                                aspectRatio = domPost.extractAspectRatio()
+                                aspectRatio = domPost.extractPostAspectRatio()
                         ))
                 )
             }
             jsonPosts.isNotEmpty() -> jsonPosts.map {
                 Post(
                         id = it.key,
-                        text = it.value?.extractText(),
-                        publishedAt = it.value?.extractPublishDate(),
-                        commentsCount = it.value?.extractCommentsCount(),
-                        rating = it.value?.extractRating(),
-                        attachments = listOf(Attachment(
-                                type = IMAGE,
-                                url = it.value.extractAttachmentUrl(),
-                                aspectRatio = it.value.extractAspectRatio()
+                        text = it.value?.extractPostText(),
+                        publishedAt = it.value?.extractPostPublishDate(),
+                        commentsCount = it.value?.extractPostCommentsCount(),
+                        rating = it.value?.extractPostRating(),
+                        viewsCount = it.value?.extractPostViewsCount(),
+                        media = listOf(Image(
+                                url = it.value.extractPostAttachmentUrl(),
+                                aspectRatio = it.value.extractPostAspectRatio()
                         ))
                 )
             }
@@ -99,35 +95,28 @@ class FlickrSkraper(
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
+    override suspend fun getPageInfo(path: String): PageInfo? {
         val page = getPage(path = path)
+        val json = page.parseModelJson()
 
-        val photoUrls = page
-                .parseModelJson()
-                ?.get("owner")
-                ?.get("buddyicon")
-
-        return when {
-            photoUrls?.isEmpty?.not() ?: false -> {
-                val key = when (imageSize) {
-                    SMALL -> "small"
-                    MEDIUM -> "medium"
-                    LARGE -> "large"
-                }
-
-                photoUrls?.get(key)?.asText().orEmpty().let { "https:${it}" }
-            }
-            else -> page
-                    ?.getSingleElementByClass("avatar")
-                    .getBackgroundImage()
+        return json?.run {
+            PageInfo(
+                    nick = extractPageNick(),
+                    name = extractPageName(),
+                    description = extractPageDescription(),
+                    avatarsMap = extractPageLogoMap(),
+                    coversMap = extractPageCoverMap()
+            )
         }
     }
 
-    private suspend fun getPage(path: String): Document? = client.fetchDocument("$baseUrl$path")
+    private suspend fun getPage(path: String): Document? {
+        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+    }
 
-    private suspend fun Document?.parseModelJson(): JsonNode? {
+    private fun Document?.parseModelJson(): JsonNode? {
         val fullJson = this
-                ?.getSingleElementByClass("modelExport")
+                ?.getFirstElementByClass("modelExport")
                 ?.html()
                 ?.substringAfter("Y.ClientApp.init(")
                 ?.substringBefore(".then(function()")
@@ -136,68 +125,58 @@ class FlickrSkraper(
                 ?.replace("reqId: reqId,", "")
 
         return runCatching {
-            val json = fullJson
-                    ?.aReadJsonNodes()
-                    ?.get("modelExport")
-                    ?.get("main")
-                    ?.getByKeyContaining("models")
-
-            json?.firstOrNull()
+            fullJson
+                    ?.readJsonNodes()
+                    ?.getByPath("modelExport.main")
         }.getOrNull()
     }
 
     private fun Element?.getBackgroundImage(): String? {
         return this
-                ?.getStyle("background-image")
-                ?.trim()
-                ?.removeSurrounding("url(", ")")
+                ?.getBackgroundImageStyle()
                 ?.let { "https:$it" }
     }
 
-    private fun Element?.extractAspectRatio(): Double {
-        return run {
-            val width = getDimension("width")
-            val height = getDimension("height")
-
-            when {
-                width != null && height != null -> width / height
-                else -> DEFAULT_POSTS_ASPECT_RATIO
-            }
-        }
+    private fun Element?.extractPostAspectRatio(): Double? {
+        return getDimension("width") / getDimension("height")
     }
 
-    private fun Element?.getDimension(name: String): Double? {
+    private fun Element?.getDimension(styleName: String): Double? {
         return this
-                ?.getStyle(name)
+                ?.getStyle(styleName)
                 ?.trim()
                 ?.removeSuffix("px")
                 ?.toDoubleOrNull()
     }
 
-    private fun JsonNode.extractText(): String {
+    private fun JsonNode.extractPostText(): String {
         val title = get("title").unescapeNode()
         val description = get("description").unescapeNode()
 
         return "${title}\n\n${description}"
     }
 
-    private fun JsonNode.extractPublishDate(): Long? {
-        return getFirstByPath("stats.datePosted")
+    private fun JsonNode.extractPostPublishDate(): Long? {
+        return getByPath("stats.datePosted")
                 ?.asLong()
-                ?.times(1000)
     }
 
-    private fun JsonNode.extractRating(): Int? {
+    private fun JsonNode.extractPostRating(): Int? {
         return getFirstByPath("engagement.commentCount", "commentCount")
                 ?.asInt()
     }
 
-    private fun JsonNode.extractCommentsCount(): Int? {
+    private fun JsonNode.extractPostCommentsCount(): Int? {
         return getFirstByPath("engagement.faveCount", "faveCount")
                 ?.asInt()
     }
 
-    private fun JsonNode.extractAttachmentUrl(): String {
+    private fun JsonNode.extractPostViewsCount(): Int? {
+        return getFirstByPath("engagement.viewCount", "viewCount")
+                ?.asInt()
+    }
+
+    private fun JsonNode.extractPostAttachmentUrl(): String {
         return getFirstByPath("sizes.l", "sizes.m", "sizes.s")
                 ?.get("url")
                 ?.asText()
@@ -205,18 +184,56 @@ class FlickrSkraper(
                 .orEmpty()
     }
 
-    private fun JsonNode.extractAspectRatio(): Double {
+    private fun JsonNode.extractPostAspectRatio(): Double? {
         return getFirstByPath("sizes.l", "sizes.m", "sizes.s")
-                .run {
-                    val width = this?.get("width")?.asDouble()
-                    val height = this?.get("height")?.asDouble()
+                ?.run { getDouble("width") / getDouble("height") }
+    }
 
-                    when {
-                        width != null && height != null -> width / height
-                        else -> DEFAULT_POSTS_ASPECT_RATIO
-                    }
+    private fun JsonNode.extractPageDescription(): String? {
+        return this
+                .get("person-public-profile-models")
+                ?.firstOrNull()
+                ?.get("profileDescriptionExpanded")
+                ?.unescapeNode()
+                ?.let { Jsoup.parse(it).wholeText() }
+    }
 
-                }
+    private fun JsonNode.extractPageNick(): String? {
+        return this
+                .getFirstByPath("photostream-models", "person-models")
+                ?.firstOrNull()
+                ?.getFirstByPath("owner.pathAlias", "pathAlias")
+                ?.unescapeNode()
+    }
+
+    private fun JsonNode.extractPageName(): String? {
+        return this
+                .getFirstByPath("person-models", "photostream-models")
+                ?.firstOrNull()
+                ?.getFirstByPath("owner.username", "username")
+                ?.unescapeNode()
+    }
+
+    private fun JsonNode.extractPageCoverMap(): Map<MediaSize, Image> {
+        val coverPhotoUrls = findPath("coverPhotoUrls")
+        return mapOf(
+                SMALL to coverPhotoUrls?.getString("s").convertToImage(),
+                MEDIUM to coverPhotoUrls?.getString("l").convertToImage(),
+                LARGE to coverPhotoUrls?.getString("h").convertToImage()
+        )
+    }
+
+    private fun JsonNode.extractPageLogoMap(): Map<MediaSize, Image> {
+        val photoUrls = findPath("buddyicon")
+        return mapOf(
+                SMALL to photoUrls?.getString("small").convertToImage(),
+                MEDIUM to photoUrls?.getString("medium").convertToImage(),
+                LARGE to photoUrls?.getString("large").convertToImage()
+        )
+    }
+
+    private fun String?.convertToImage(): Image {
+        return this?.let { "https:${it}" }.orEmpty().toImage()
     }
 
     private fun JsonNode?.unescapeNode(): String {

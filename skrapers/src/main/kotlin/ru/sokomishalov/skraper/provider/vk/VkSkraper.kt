@@ -23,16 +23,8 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByTag
-import ru.sokomishalov.skraper.internal.jsoup.getStyle
-import ru.sokomishalov.skraper.internal.jsoup.removeLinks
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.model.*
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -44,53 +36,68 @@ import java.util.Locale.ENGLISH
  */
 class VkSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://vk.com"
+        override val baseUrl: URLString = "https://vk.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val document = getUserPage(path = path)
+        val page = getUserPage(path = path)
 
-        val posts = document
+        val posts = page
                 ?.getElementsByClass("wall_item")
                 ?.take(limit)
                 .orEmpty()
 
         return posts.map {
-            Post(
-                    id = it.extractId(),
-                    text = it.extractCaption(),
-                    publishedAt = it.extractPublishedDate(),
-                    rating = it.extractLikes(),
-                    commentsCount = it.extractReplies(),
-                    attachments = it.extractAttachments()
+            it.run {
+                Post(
+                        id = extractPostId(),
+                        text = extractPostCaption(),
+                        publishedAt = extractPostPublishedDate(),
+                        rating = extractPostLikes(),
+                        commentsCount = extractPostReplies(),
+                        viewsCount = extractViewsCount(),
+                        media = extractPostMediaItems()
+                )
+            }
+        }
+    }
+
+    override suspend fun getPageInfo(path: String): PageInfo? {
+        val page = getUserPage(path = path)
+
+        return page?.run {
+            PageInfo(
+                    nick = extractPageNick(),
+                    name = extractPageName(),
+                    description = extractDescription(),
+                    followersCount = extractFollowersCount(),
+                    postsCount = extractPostsCount(),
+                    avatarsMap = extractPageAvatarsMap(),
+                    coversMap = extractPageCoversMap()
             )
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
-        val document = getUserPage(path = path)
-
-        return document
-                ?.getSingleElementByClass("profile_panel")
-                ?.getSingleElementByTag("img")
-                ?.attr("src")
+    private suspend fun getUserPage(path: String): Document? {
+        return client.fetchDocument(
+                url = baseUrl.buildFullURL(path = path),
+                headers = mapOf("Accept-Language" to "en-US")
+        )
     }
 
-    private suspend fun getUserPage(path: String): Document? = client.fetchDocument(url = "$baseUrl$path", headers = mapOf("Accept-Language" to "en-US"))
-
-    private fun Element.extractId(): String {
+    private fun Element.extractPostId(): String {
         return getElementsByAttribute("data-post-id")
                 .attr("data-post-id")
                 .substringAfter("_")
     }
 
-    private fun Element.extractCaption(): String? {
-        return getSingleElementByClass("pi_text")
+    private fun Element.extractPostCaption(): String? {
+        return getFirstElementByClass("pi_text")
                 ?.removeLinks()
     }
 
-    private fun Element.extractPublishedDate(): Long? {
-        return getSingleElementByClass("wi_date")
+    private fun Element.extractPostPublishedDate(): Long? {
+        return getFirstElementByClass("wi_date")
                 ?.wholeText()
                 ?.run {
                     val localDate = runCatching {
@@ -129,53 +136,105 @@ class VkSkraper(
                         }
                     }.getOrNull()
 
-                    return localDate
-                            ?.toEpochSecond()
-                            ?.times(1000)
+                    return localDate?.toEpochSecond()
                 }
     }
 
-    private fun Element.extractLikes(): Int? {
-        return getSingleElementByClass("v_like")
+    private fun Element.extractPostLikes(): Int? {
+        return getFirstElementByClass("v_like")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractReplies(): Int? {
-        return getSingleElementByClass("v_replies")
+    private fun Element.extractPostReplies(): Int? {
+        return getFirstElementByClass("v_replies")
                 ?.wholeText()
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractAttachments(): List<Attachment> {
-        val thumbElement = getSingleElementByClass("thumbs_map_helper")
+    private fun Element.extractViewsCount(): Int? {
+        return getFirstElementByClass("item_views")
+                ?.attr("aria-label")
+                ?.replace("views", "")
+                ?.trim()
+                ?.toIntOrNull()
+    }
+
+    private fun Element.extractPostMediaItems(): List<MediaItem> {
+        val thumbElement = getFirstElementByClass("thumbs_map_helper")
 
         return thumbElement
                 ?.getElementsByClass("thumb_map_img")
                 ?.mapNotNull {
                     val isVideo = it.attr("data-video").isNotBlank()
+                    val aspectRatio = thumbElement
+                            .getStyle("padding-top")
+                            ?.removeSuffix("%")
+                            ?.toDoubleOrNull()
+                            ?.run { 100 / this }
 
-                    Attachment(
-                            url = when {
-                                isVideo -> "${baseUrl}${it.attr("href")}"
-                                else -> it.getStyle("background-image")
-                                        .orEmpty()
-                                        .trim()
-                                        .removeSurrounding("url(", ")")
-                            },
-                            type = when {
-                                isVideo -> VIDEO
-                                else -> IMAGE
-                            },
-                            aspectRatio = thumbElement
-                                    .getStyle("padding-top")
-                                    ?.removeSuffix("%")
-                                    ?.toDoubleOrNull()
-                                    ?.run { 100 / this }
-                                    ?: DEFAULT_POSTS_ASPECT_RATIO
-                    )
+                    when {
+                        isVideo -> Video(
+                                url = "${baseUrl}${it.attr("href")}",
+                                aspectRatio = aspectRatio
+                        )
+                        else -> Image(
+                                url = it.getBackgroundImageStyle(),
+                                aspectRatio = aspectRatio
+                        )
+                    }
                 }
                 .orEmpty()
+    }
+
+    private fun Document.extractPageNick(): String? {
+        return getFirstElementByAttributeValue("rel", "canonical")
+                ?.attr("href")
+                ?.substringAfterLast("/")
+    }
+
+    private fun Document.extractPageName(): String? {
+        return getFirstElementByClass("op_header")
+                ?.wholeText()
+    }
+
+    private fun Document.extractDescription(): String? {
+        return getFirstElementByClass("pp_status")
+                ?.wholeText()
+    }
+
+    private fun Document.extractFollowersCount(): Int? {
+        return getElementsByClass("pm_item")
+                .map { it.wholeText() }
+                .find { "Followers" in it }
+                ?.replace("Followers", "")
+                ?.replace(",", "")
+                ?.trim()
+                ?.toIntOrNull()
+    }
+
+    private fun Document.extractPostsCount(): Int? {
+        return getFirstElementByClass("slim_header_label")
+                ?.wholeText()
+                ?.replace("posts", "")
+                ?.replace(",", "")
+                ?.trim()
+                ?.toIntOrNull()
+    }
+
+    private fun Document.extractPageCoversMap(): Map<MediaSize, Image> {
+        return singleImageMap(url = this
+                .getFirstElementByClass("groupCover__image")
+                ?.getBackgroundImageStyle()
+        )
+    }
+
+    private fun Document.extractPageAvatarsMap(): Map<MediaSize, Image> {
+        return singleImageMap(url = this
+                .getFirstElementByClass("profile_panel")
+                ?.getFirstElementByTag("img")
+                ?.attr("src")
+        )
     }
 
     companion object {

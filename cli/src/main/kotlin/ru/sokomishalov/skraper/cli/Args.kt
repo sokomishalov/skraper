@@ -18,7 +18,6 @@ package ru.sokomishalov.skraper.cli
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 import ru.sokomishalov.skraper.cli.OutputType.LOG
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import java.io.File
 
 class Args(parser: ArgParser) {
@@ -34,8 +33,8 @@ class Args(parser: ArgParser) {
 
     val amount by parser.storing(
             "-n", "--limit",
-            help = "posts limit"
-    ) { toInt() }.default(DEFAULT_POSTS_LIMIT)
+            help = "posts limit (50 by default)"
+    ) { toInt() }.default(50)
 
     val outputType by parser.storing(
             "-t", "--type",

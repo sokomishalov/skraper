@@ -15,21 +15,21 @@
  */
 package ru.sokomishalov.skraper.provider.twitter
 
+import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_ASPECT_RATIO
-import ru.sokomishalov.skraper.internal.jsoup.getSingleElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.jsoup.removeLinks
-import ru.sokomishalov.skraper.model.Attachment
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
-import ru.sokomishalov.skraper.model.ImageSize
-import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
+import ru.sokomishalov.skraper.internal.serialization.getInt
+import ru.sokomishalov.skraper.internal.serialization.getString
+import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
+import ru.sokomishalov.skraper.model.*
 
 
 /**
@@ -37,108 +37,124 @@ import ru.sokomishalov.skraper.model.Post
  */
 class TwitterSkraper(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: String = "https://twitter.com"
+        override val baseUrl: URLString = "https://twitter.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val webPage = getUserPage(path = path)
+        val page = getUserPage(path = path)
 
-        val posts = webPage
+        val posts = page
                 ?.body()
                 ?.getElementById("stream-items-id")
                 ?.getElementsByClass("stream-item")
                 ?.take(limit)
-                ?.mapNotNull { it.getSingleElementByClass("tweet") }
+                ?.mapNotNull { it.getFirstElementByClass("tweet") }
                 .orEmpty()
 
         return posts.map {
             Post(
-                    id = it.extractIdFromTweet(),
-                    text = it.extractCaptionFromTweet(),
-                    rating = it.extractLikes(),
-                    commentsCount = it.extractReplies(),
-                    publishedAt = it.extractPublishedAtFromTweet(),
-                    attachments = it.extractAttachmentsFromTweet()
+                    id = it.extractTweetId(),
+                    text = it.extractTweetText(),
+                    rating = it.extractTweetLikes(),
+                    commentsCount = it.extractTweetReplies(),
+                    publishedAt = it.extractTweetPublishDate(),
+                    media = it.extractTweetAttachments()
             )
         }
     }
 
-    override suspend fun getLogoUrl(path: String, imageSize: ImageSize): String? {
-        val document = getUserPage(path = path)
+    override suspend fun getPageInfo(path: String): PageInfo? {
+        val page = getUserPage(path = path)
 
-        return document
-                ?.body()
-                ?.getSingleElementByClass("ProfileAvatar-image")
-                ?.attr("src")
+        val userJson = page
+                ?.extractJsonData()
+                ?.get("profile_user")
+
+        return userJson?.run {
+            PageInfo(
+                    nick = getString("screen_name"),
+                    name = getString("name"),
+                    description = getString("description"),
+                    postsCount = getInt("statuses_count"),
+                    followersCount = getInt("followers_count"),
+                    avatarsMap = singleImageMap(url = getFirstByPath("profile_image_url_https", "profile_image_url")?.asText()),
+                    coversMap = singleImageMap(url = getFirstByPath("profile_background_image_url_https", "profile_background_image_url")?.asText())
+            )
+        }
     }
 
-    private suspend fun getUserPage(path: String): Document? = client.fetchDocument("$baseUrl$path")
+    private suspend fun getUserPage(path: String): Document? {
+        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+    }
 
+    private fun Document?.extractJsonData(): JsonNode? {
+        return this
+                ?.getElementById("init-data")
+                ?.attr("value")
+                ?.readJsonNodes()
+    }
 
-    private fun Element.extractIdFromTweet(): String {
-        return getSingleElementByClass("js-stream-tweet")
+    private fun Element.extractTweetId(): String {
+        return getFirstElementByClass("js-stream-tweet")
                 ?.attr("data-tweet-id")
                 .orEmpty()
     }
 
-    private fun Element.extractCaptionFromTweet(): String? {
-        return getSingleElementByClass("tweet-text")
+    private fun Element.extractTweetText(): String? {
+        return getFirstElementByClass("tweet-text")
                 ?.removeLinks()
     }
 
-    private fun Element.extractPublishedAtFromTweet(): Long? {
-        return getSingleElementByClass("js-short-timestamp")
+    private fun Element.extractTweetPublishDate(): Long? {
+        return getFirstElementByClass("js-short-timestamp")
                 ?.attr("data-time-ms")
                 ?.toLong()
+                ?.div(1000)
     }
 
-    private fun Element.extractLikes(): Int? {
-        return getSingleElementByClass("ProfileTweet-action--favorite")
-                ?.getSingleElementByClass("ProfileTweet-actionCount")
+    private fun Element.extractTweetLikes(): Int? {
+        return getFirstElementByClass("ProfileTweet-action--favorite")
+                ?.getFirstElementByClass("ProfileTweet-actionCount")
                 ?.attr("data-tweet-stat-count")
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractReplies(): Int? {
-        return getSingleElementByClass("ProfileTweet-action--reply")
-                ?.getSingleElementByClass("ProfileTweet-actionCount")
+    private fun Element.extractTweetReplies(): Int? {
+        return getFirstElementByClass("ProfileTweet-action--reply")
+                ?.getFirstElementByClass("ProfileTweet-actionCount")
                 ?.attr("data-tweet-stat-count")
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractAttachmentsFromTweet(): List<Attachment> {
+    private fun Element.extractTweetAttachments(): List<MediaItem> {
         val imagesElements = getElementsByClass("AdaptiveMedia-photoContainer")
-        val videosElement = getSingleElementByClass("AdaptiveMedia-videoContainer")
+        val videosElement = getFirstElementByClass("AdaptiveMedia-videoContainer")
 
         return when {
             imagesElements.isNotEmpty() -> {
-                val aspectRatio = getSingleElementByClass("AdaptiveMedia-singlePhoto")
+                val aspectRatio = getFirstElementByClass("AdaptiveMedia-singlePhoto")
                         ?.getStyle("padding-top")
                         ?.substringAfter("calc(")
                         ?.substringBefore("* 100%")
                         ?.toDoubleOrNull()
                         ?.let { 1.0 / it }
-                        ?: DEFAULT_POSTS_ASPECT_RATIO
 
                 imagesElements.map { element ->
-                    Attachment(
+                    Image(
                             url = element.attr("data-image-url"),
-                            type = IMAGE,
                             aspectRatio = aspectRatio
                     )
                 }
             }
             videosElement != null -> listOf(
-                    Attachment(
-                            url = "${baseUrl}/i/status/${extractIdFromTweet()}",
-                            type = VIDEO,
+                    Video(
+                            url = "${baseUrl}/i/status/${extractTweetId()}",
                             aspectRatio = videosElement
-                                    .getSingleElementByClass("PlayableMedia-player")
+                                    .getFirstElementByClass("PlayableMedia-player")
                                     ?.getStyle("padding-bottom")
                                     ?.removeSuffix("%")
                                     ?.toDoubleOrNull()
                                     ?.let { 100 / it }
-                                    ?: DEFAULT_POSTS_ASPECT_RATIO
                     )
             )
             else -> emptyList()
