@@ -57,7 +57,7 @@ class FacebookSkraper(
                     rating = metaInfoJson.extractPostReactionCount(),
                     commentsCount = metaInfoJson.extractPostCommentsCount(),
                     viewsCount = metaInfoJson.extractPostViewsCount(),
-                    media = it.extractPostAttachments()
+                    media = it.extractPostMediaItems()
             )
         }
     }
@@ -173,7 +173,7 @@ class FacebookSkraper(
                 .orEmpty()
     }
 
-    private fun Element.extractPostAttachments(): List<MediaItem> {
+    private fun Element.extractPostMediaItems(): List<MediaItem> {
         val videoElement = getFirstElementByTag("video")
 
         return when {

@@ -84,7 +84,7 @@ class InstagramSkraper(
                     publishedAt = it.extractPostPublishedAt(),
                     rating = it.extractPostLikesCount(),
                     commentsCount = it.extractPostCommentsCount(),
-                    media = it.extractPostAttachments()
+                    media = it.extractPostMediaItems()
             )
         }
     }
@@ -117,7 +117,7 @@ class InstagramSkraper(
         return getInt("edge_media_to_comment.count")
     }
 
-    private fun JsonNode.extractPostAttachments(): List<MediaItem> {
+    private fun JsonNode.extractPostMediaItems(): List<MediaItem> {
         val isVideo = this["is_video"].asBoolean()
 
         val aspectRatio = this["dimensions"]?.run { getDouble("width") / getDouble("height") }

@@ -30,8 +30,8 @@ import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
 import ru.sokomishalov.skraper.model.Post
 
 class PostsAdapter(
-    private val context: Context,
-    private val data: MutableList<Post>
+        private val context: Context,
+        private val data: MutableList<Post>
 ) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
@@ -46,15 +46,15 @@ class PostsAdapter(
         view.tag = vh
 
         val post = data[position]
-        val attachment = post.attachments.firstOrNull()
+        val attachment = post.media.firstOrNull()
 
         if (attachment != null) {
             when (attachment.type) {
                 IMAGE -> with(vh.image) {
                     Picasso
-                        .get()
-                        .load(attachment.url)
-                        .into(this)
+                            .get()
+                            .load(attachment.url)
+                            .into(this)
                 }
                 VIDEO -> with(vh.video) {
                     setVideoPath(attachment.url)

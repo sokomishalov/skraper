@@ -50,7 +50,7 @@ class RedditSkraper(
                     publishedAt = it.getLong("created_utc"),
                     rating = it.getInt("score"),
                     commentsCount = it.getInt("num_comments"),
-                    media = it.extractAttachments()
+                    media = it.extractPostMediaItems()
             )
         }
     }
@@ -82,7 +82,7 @@ class RedditSkraper(
         }
     }
 
-    private fun JsonNode.extractAttachments(): List<MediaItem> {
+    private fun JsonNode.extractPostMediaItems(): List<MediaItem> {
         val isVideo = this["media"].isEmpty.not()
         val url = getString("url").orEmpty()
         val aspectRatio = getByPath("preview.images")

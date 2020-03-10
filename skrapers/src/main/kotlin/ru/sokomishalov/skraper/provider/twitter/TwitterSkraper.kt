@@ -58,7 +58,7 @@ class TwitterSkraper(
                     rating = it.extractTweetLikes(),
                     commentsCount = it.extractTweetReplies(),
                     publishedAt = it.extractTweetPublishDate(),
-                    media = it.extractTweetAttachments()
+                    media = it.extractTweetMediaItems()
             )
         }
     }
@@ -126,7 +126,7 @@ class TwitterSkraper(
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractTweetAttachments(): List<MediaItem> {
+    private fun Element.extractTweetMediaItems(): List<MediaItem> {
         val imagesElements = getElementsByClass("AdaptiveMedia-photoContainer")
         val videosElement = getFirstElementByClass("AdaptiveMedia-videoContainer")
 

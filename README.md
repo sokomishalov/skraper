@@ -6,7 +6,7 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 # Overview
-Cli tool and kotlin library which allow scraping posts with media and other meta info from various sources without 
+Cli tool and kotlin library which allows scraping posts with media and other meta info from various sources without 
 any authorization or full page rendering. Based on Kotlin/JVM coroutines and JSoup.
 
 Repository contains:
@@ -148,7 +148,7 @@ Received data structure is similar to each other provider's. Output data example
     "publishedAt" : 1580744400000,
     "rating" : 79,
     "commentsCount" : 3,
-    "attachments" : [ {
+    "media" : [ {
       "url" : "https://facebook.com/memes/posts/5029851093699104?__xts__%5B0%5D=68.ARA2yRI2YnlXQRKX7Pdphh8ztgvnP11aYE_bZFPNmqLpJZLhwJaG24gDPUTiKDLv-J_E09u2vLjCXalpmEuGSmVR0BkVtcng_i6QV8x5e-aZUv0Mkn1wwKLlhp5NNH6zQWKlqDqRjZrwvcKeUi0unzzulRCHRvDIrbz2leM6PLescFySwMYbMmKFc7ctqaC_F7nJ09Ya0lz9Pqaq_Rh6UsNKom6fqdgHAuoHV894a3QRuyY0BC6fQuXZLOLbRIfEVK3cF9Z5UQiXUYruCySF-WpQEV0k72x6DIjT6B3iovYFnBGHaji9VAx2PByZ-MDs33D1Hz96Mk-O1Pj7zBwO6FvXGhkUJgepiwUOVd0q-pV83rS5EhjtPFDylNoNO2xkDUSIi483p49vumVPWtmab8LX1V6w2anf55kh6pedCXcH3D8rBjz8DaTBnv995u9kk5im-1-HdAGQHyKrCZpaA0QyC-I4oGsCoIJGck3RO8u_SoHcfe2tKjTgPe6j9p1D&__tn__=-R",
       "type" : "VIDEO",
       "aspectRatio" : 0.864
@@ -159,7 +159,7 @@ Received data structure is similar to each other provider's. Output data example
     "publishedAt" : 1580742000000,
     "rating" : 3092,
     "commentsCount" : 514,
-    "attachments" : [ {
+    "media" : [ {
       "url" : "https://scontent.fhrk1-1.fna.fbcdn.net/v/t1.0-0/p526x296/52333452_10157743612509879_529328953723191296_n.png?_nc_cat=1&_nc_ohc=oNMb8_mCbD8AX-w9zeY&_nc_ht=scontent.fhrk1-1.fna&oh=ca8a719518ecfb1a24f871282b860124&oe=5E910D0C",
       "type" : "IMAGE",
       "aspectRatio" : 0.8960573476702509
