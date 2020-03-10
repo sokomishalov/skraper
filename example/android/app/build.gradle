@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-    def skraper_version = "0.2.0"
+    def skraper_version = "0.2.1"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
