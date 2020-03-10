@@ -178,8 +178,7 @@ class FlickrSkraper(
 
     private fun JsonNode.extractPostAttachmentUrl(): String {
         return getFirstByPath("sizes.l", "sizes.m", "sizes.s")
-                ?.get("url")
-                ?.asText()
+                ?.getString("url")
                 ?.let { "https:${it}" }
                 .orEmpty()
     }
@@ -191,9 +190,7 @@ class FlickrSkraper(
 
     private fun JsonNode.extractPageDescription(): String? {
         return this
-                .get("person-public-profile-models")
-                ?.firstOrNull()
-                ?.get("profileDescriptionExpanded")
+                .get("person-public-profile-models.0.profileDescriptionExpanded")
                 ?.unescapeNode()
                 ?.let { Jsoup.parse(it).wholeText() }
     }

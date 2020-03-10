@@ -83,6 +83,7 @@ class InstagramSkraper(
                     text = it.extractPostCaption(),
                     publishedAt = it.extractPostPublishedAt(),
                     rating = it.extractPostLikesCount(),
+                    viewsCount = it.extractPostViewsCount(),
                     commentsCount = it.extractPostCommentsCount(),
                     media = it.extractPostMediaItems()
             )
@@ -90,17 +91,12 @@ class InstagramSkraper(
     }
 
     private fun JsonNode.extractPostId(): String {
-        return get("id")
-                ?.asText()
+        return getString("id")
                 .orEmpty()
     }
 
     private fun JsonNode.extractPostCaption(): String {
-        return get("edge_media_to_caption")
-                ?.get("edges")
-                ?.get(0)
-                ?.get("node")
-                ?.get("text")
+        return getByPath("edge_media_to_caption.edges.0.node.text")
                 ?.asText()
                 .orEmpty()
     }
@@ -115,6 +111,10 @@ class InstagramSkraper(
 
     private fun JsonNode.extractPostCommentsCount(): Int? {
         return getInt("edge_media_to_comment.count")
+    }
+
+    private fun JsonNode.extractPostViewsCount(): Int? {
+        return getInt("video_view_count")
     }
 
     private fun JsonNode.extractPostMediaItems(): List<Media> {
