@@ -24,7 +24,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 class RedditSkraperTest : SkraperTck() {
     override val skraper: RedditSkraper = RedditSkraper(client = client)
     override val path: String = "/r/memes"
-    private val community: String = "r/memes"
+    private val community: String = "r/videos"
     private val username: String = "u/ShittyMorph"
 
 

@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
 import java.nio.charset.Charset
+import java.time.Duration
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.text.Charsets.UTF_8
@@ -148,7 +149,8 @@ class PikabuSkraper(
                         ?.run {
                             Video(
                                     url = attr("data-source").orEmpty(),
-                                    aspectRatio = attr("data-ratio")?.toDoubleOrNull()
+                                    aspectRatio = attr("data-ratio")?.toDoubleOrNull(),
+                                    duration = attr("data-duration")?.toLongOrNull()?.let { Duration.ofSeconds(it) }
                             )
                         }
 

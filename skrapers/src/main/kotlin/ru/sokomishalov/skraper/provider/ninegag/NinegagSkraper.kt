@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.internal.number.minus
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeJson
 import ru.sokomishalov.skraper.model.*
+import java.time.Duration
 
 
 /**
@@ -73,8 +74,7 @@ class NinegagSkraper(
 
     private fun JsonNode?.getPosts(): List<JsonNode> {
         return this
-                ?.get("data")
-                ?.get("posts")
+                ?.getByPath("data.posts")
                 ?.toList()
                 .orEmpty()
     }
@@ -92,19 +92,23 @@ class NinegagSkraper(
 
     private fun JsonNode.extractPostMediaItems(): List<Media> {
         val isVideo = isVideo()
-        val aspectRatio = getByPath("images.image460")?.run {
-            getDouble("width") / getDouble("height")
-        }
 
         return listOf(
                 when {
                     isVideo -> Video(
                             url = getString("images.image460sv.url").orEmpty(),
-                            aspectRatio = aspectRatio
+                            aspectRatio = getByPath("images.image460sv")?.run {
+                                getDouble("width") / getDouble("height")
+                            },
+                            duration = getLong("images.image460sv.duration")?.run {
+                                Duration.ofSeconds(this)
+                            }
                     )
                     else -> Image(
                             url = getString("images.image460.url").orEmpty(),
-                            aspectRatio = aspectRatio
+                            aspectRatio = getByPath("images.image460")?.run {
+                                getDouble("width") / getDouble("height")
+                            }
                     )
                 }
         )
