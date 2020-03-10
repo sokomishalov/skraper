@@ -1,3 +1,3 @@
 ### TODO list
-- [ ] Implement [Memes](https://memes.com/u/itsevilkermit) source
-- [ ] Implement [Pixiv](https://www.pixiv.net/en/) source
+- [ ] Implement [Memes](https://memes.com)
+- [ ] Try to finish [Tiktok](https://tiktok.com) implementation (origin/feature/tiktok)

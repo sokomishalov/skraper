@@ -108,7 +108,7 @@ class TwitterSkraper(
     private fun Element.extractTweetPublishDate(): Long? {
         return getFirstElementByClass("js-short-timestamp")
                 ?.attr("data-time-ms")
-                ?.toLong()
+                ?.toLongOrNull()
                 ?.div(1000)
     }
 

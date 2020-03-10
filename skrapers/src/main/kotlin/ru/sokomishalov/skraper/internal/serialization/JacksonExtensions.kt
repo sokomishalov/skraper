@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUM
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature.*
 import com.fasterxml.jackson.databind.node.MissingNode
-import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -40,7 +39,7 @@ internal inline fun ByteArray?.readJsonNodes(): JsonNode? {
 
 @PublishedApi
 internal inline fun String?.readJsonNodes(): JsonNode? {
-    return this?.toByteArray(UTF_8)?.readJsonNodes()
+    return OBJECT_MAPPER.readTree(this)
 }
 
 internal fun JsonNode.getByKeyContaining(keyPart: String): JsonNode? {
@@ -57,7 +56,8 @@ internal fun JsonNode.getFirstByPath(vararg paths: String, delimiter: String = "
 }
 
 internal fun JsonNode.getByPath(path: String, delimiter: String = "."): JsonNode? {
-    return at("/${path.replace(delimiter, "/")}")?.takeIf { it !is MissingNode }
+    return at("/${path.replace(delimiter, "/")}")
+            ?.takeIf { it !is MissingNode }
 }
 
 internal inline fun JsonNode.getInt(path: String): Int? {
