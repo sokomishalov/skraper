@@ -90,7 +90,7 @@ class NinegagSkraper(
                 ?.readJsonNodes()
     }
 
-    private fun JsonNode.extractPostMediaItems(): List<MediaItem> {
+    private fun JsonNode.extractPostMediaItems(): List<Media> {
         val isVideo = isVideo()
         val aspectRatio = getByPath("images.image460")?.run {
             getDouble("width") / getDouble("height")

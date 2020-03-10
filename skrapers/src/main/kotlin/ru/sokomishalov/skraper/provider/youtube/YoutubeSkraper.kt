@@ -139,7 +139,7 @@ class YoutubeSkraper(
                 }
     }
 
-    private fun Element?.extractPostVideo(): List<MediaItem> {
+    private fun Element?.extractPostVideo(): List<Media> {
         return listOf(Video(
                 url = "$baseUrl${this?.attr("href")}"
         ))

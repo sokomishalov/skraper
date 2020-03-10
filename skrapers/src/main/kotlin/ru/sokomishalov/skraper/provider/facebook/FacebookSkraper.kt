@@ -173,7 +173,7 @@ class FacebookSkraper(
                 .orEmpty()
     }
 
-    private fun Element.extractPostMediaItems(): List<MediaItem> {
+    private fun Element.extractPostMediaItems(): List<Media> {
         val videoElement = getFirstElementByTag("video")
 
         return when {

@@ -32,5 +32,5 @@ data class Post(
         val rating: Int? = null,
         val commentsCount: Int? = null,
         val viewsCount: Int? = null,
-        val media: List<MediaItem> = emptyList()
+        val media: List<Media> = emptyList()
 )

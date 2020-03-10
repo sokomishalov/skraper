@@ -126,7 +126,7 @@ class TwitterSkraper(
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractTweetMediaItems(): List<MediaItem> {
+    private fun Element.extractTweetMediaItems(): List<Media> {
         val imagesElements = getElementsByClass("AdaptiveMedia-photoContainer")
         val videosElement = getFirstElementByClass("AdaptiveMedia-videoContainer")
 

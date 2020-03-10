@@ -127,7 +127,7 @@ class PikabuSkraper(
                 ?.toIntOrNull()
     }
 
-    private fun Elements.extractPostMediaItems(): List<MediaItem> {
+    private fun Elements.extractPostMediaItems(): List<Media> {
         return mapNotNull { b ->
             when {
                 "story-block_type_image" in b.classNames() -> {

@@ -82,7 +82,7 @@ class RedditSkraper(
         }
     }
 
-    private fun JsonNode.extractPostMediaItems(): List<MediaItem> {
+    private fun JsonNode.extractPostMediaItems(): List<Media> {
         val isVideo = this["media"].isEmpty.not()
         val url = getString("url").orEmpty()
         val aspectRatio = getByPath("preview.images")

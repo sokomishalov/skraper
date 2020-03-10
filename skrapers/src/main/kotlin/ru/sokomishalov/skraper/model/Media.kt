@@ -21,7 +21,7 @@ import java.time.Duration
  * Represents a media item.
  * @property url media url
  */
-sealed class MediaItem {
+sealed class Media {
     abstract val url: URLString
 }
 
@@ -33,7 +33,7 @@ sealed class MediaItem {
 data class Image(
         override val url: URLString,
         val aspectRatio: Double? = null
-) : MediaItem()
+) : Media()
 
 /**
  * Represents an image.
@@ -45,7 +45,7 @@ data class Video(
         override val url: URLString,
         val aspectRatio: Double? = null,
         val duration: Duration? = null
-) : MediaItem()
+) : Media()
 
 /**
  * Represents an audio.
@@ -55,4 +55,4 @@ data class Video(
 data class Audio(
         override val url: URLString,
         val duration: Duration? = null
-) : MediaItem()
+) : Media()

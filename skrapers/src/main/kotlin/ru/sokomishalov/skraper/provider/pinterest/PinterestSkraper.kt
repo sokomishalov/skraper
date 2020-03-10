@@ -110,7 +110,7 @@ class PinterestSkraper(
     }
 
     @Suppress("MoveVariableDeclarationIntoWhen")
-    private fun JsonNode.extractPostMediaItems(): List<MediaItem> {
+    private fun JsonNode.extractPostMediaItems(): List<Media> {
         val imageInfo = getByPath("images.orig")
         return when (imageInfo) {
             null -> getByPath("pin_thumbnail_urls")

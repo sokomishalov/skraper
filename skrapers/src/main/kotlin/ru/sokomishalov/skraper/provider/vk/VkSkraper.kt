@@ -160,7 +160,7 @@ class VkSkraper(
                 ?.toIntOrNull()
     }
 
-    private fun Element.extractPostMediaItems(): List<MediaItem> {
+    private fun Element.extractPostMediaItems(): List<Media> {
         val thumbElement = getFirstElementByClass("thumbs_map_helper")
 
         return thumbElement

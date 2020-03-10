@@ -141,7 +141,7 @@ class TumblrSkraper(
                 ?: 0
     }
 
-    private fun Element.extractPostMediaItems(): List<MediaItem> {
+    private fun Element.extractPostMediaItems(): List<Media> {
         return getElementsByTag("figure").mapNotNull { f ->
             val video = f.getFirstElementByTag("video")
             val img = f.getFirstElementByTag("img")
