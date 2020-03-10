@@ -19,6 +19,8 @@ package ru.sokomishalov.skraper.provider
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.slf4j.Logger
@@ -40,7 +42,11 @@ abstract class SkraperTck {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
-        private val MAPPER: ObjectMapper = ObjectMapper().setSerializationInclusion(NON_NULL)
+        private val MAPPER: ObjectMapper = ObjectMapper().apply {
+            registerModule(JavaTimeModule())
+            registerModule(Jdk8Module())
+            setSerializationInclusion(NON_NULL)
+        }
     }
 
     protected abstract val skraper: Skraper

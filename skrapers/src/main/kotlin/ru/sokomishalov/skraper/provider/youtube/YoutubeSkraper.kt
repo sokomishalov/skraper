@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Duration
+import java.time.Duration.ZERO
 import java.time.Period
 import java.time.chrono.ChronoPeriod
 import java.time.temporal.ChronoUnit.DAYS
@@ -52,7 +53,7 @@ class YoutubeSkraper(
                     text = linkElement.extractPostCaption(),
                     viewsCount = it.extractPostViewsCount(),
                     publishedAt = it.extractPostPublishDate(),
-                    media = linkElement.extractPostVideo()
+                    media = it.extractPostVideos()
             )
         }
     }
@@ -119,15 +120,15 @@ class YoutubeSkraper(
                             ?: 1
 
                     val temporalAmount: TemporalAmount = when {
-                        it.contains("moment", ignoreCase = true) or it.contains("moments", ignoreCase = true) -> Duration.ofMillis(amount.toLong())
-                        it.contains("second", ignoreCase = true) or it.contains("seconds", ignoreCase = true) -> Duration.ofSeconds(amount.toLong())
-                        it.contains("minute", ignoreCase = true) or it.contains("minute", ignoreCase = true) -> Duration.ofMinutes(amount.toLong())
-                        it.contains("hour", ignoreCase = true) or it.contains("hour", ignoreCase = true) -> Duration.ofHours(amount.toLong())
-                        it.contains("day", ignoreCase = true) or it.contains("day", ignoreCase = true) -> Duration.ofDays(amount.toLong())
-                        it.contains("week", ignoreCase = true) or it.contains("week", ignoreCase = true) -> Period.ofWeeks(amount)
-                        it.contains("month", ignoreCase = true) or it.contains("month", ignoreCase = true) -> Period.ofMonths(amount)
-                        it.contains("year", ignoreCase = true) or it.contains("year", ignoreCase = true) -> Period.ofYears(amount)
-                        else -> Duration.ZERO
+                        it.contains("moment", ignoreCase = true) -> Duration.ofMillis(amount.toLong())
+                        it.contains("second", ignoreCase = true) -> Duration.ofSeconds(amount.toLong())
+                        it.contains("minute", ignoreCase = true) -> Duration.ofMinutes(amount.toLong())
+                        it.contains("hour", ignoreCase = true) -> Duration.ofHours(amount.toLong())
+                        it.contains("day", ignoreCase = true) -> Duration.ofDays(amount.toLong())
+                        it.contains("week", ignoreCase = true) -> Period.ofWeeks(amount)
+                        it.contains("month", ignoreCase = true) -> Period.ofMonths(amount)
+                        it.contains("year", ignoreCase = true) -> Period.ofYears(amount)
+                        else -> ZERO
                     }
                     val millisAgo = when (temporalAmount) {
                         is Duration -> temporalAmount.toMillis()
@@ -139,9 +140,26 @@ class YoutubeSkraper(
                 }
     }
 
-    private fun Element?.extractPostVideo(): List<Media> {
+    private fun Element?.extractPostVideos(): List<Media> {
         return listOf(Video(
-                url = "$baseUrl${this?.attr("href")}"
+                url = this
+                        ?.getFirstElementByClass("yt-uix-tile-link")
+                        ?.attr("href")
+                        ?.let { "$baseUrl${it}" }
+                        .orEmpty(),
+                duration = this
+                        ?.getFirstElementByClass("video-time")
+                        ?.wholeText()
+                        ?.trim()
+                        ?.split(":")
+                        ?.map { it.toLongOrNull() }
+                        ?.run {
+                            val hours = getOrNull(0) ?: 0L
+                            val minutes = getOrNull(1) ?: 0L
+                            val seconds = getOrNull(2) ?: 0L
+
+                            Duration.ofSeconds(seconds) + Duration.ofMinutes(minutes) + Duration.ofHours(hours)
+                        }
         ))
     }
 
