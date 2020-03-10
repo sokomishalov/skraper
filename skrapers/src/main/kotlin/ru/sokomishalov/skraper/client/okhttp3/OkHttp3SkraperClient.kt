@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused")
-
 package ru.sokomishalov.skraper.client.okhttp3
 
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import okhttp3.*
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.model.URLString
@@ -37,6 +33,7 @@ class OkHttp3SkraperClient(
         private val client: OkHttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
         val request = Request
                 .Builder()
@@ -44,9 +41,11 @@ class OkHttp3SkraperClient(
                 .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
                 .build()
 
-        return withContext(IO) {
-            client.newCall(request).await().body?.bytes()
-        }
+        return client
+                .newCall(request)
+                .await()
+                .body
+                ?.bytes()
     }
 
     companion object {

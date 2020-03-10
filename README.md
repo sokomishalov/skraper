@@ -97,23 +97,38 @@ dependencies {
 
 ## Usage
 ### Demo
-You may take a look on library usage in this [android sample app](example/android)
+You may take a look at library usage in this [android sample app](example/android)
 
 ### Instantiate specific scraper
-**Important moment:** it is highly recommended not to use [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
-There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
-To use them you just have to put required dependencies in the classpath.
+As mentioned before, the provider implementation list is:
+- [FacebookSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/facebook/FacebookSkraper.kt)
+- [InstagramSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/instagram/InstagramSkraper.kt)
+- [TwitterSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/twitter/TwitterSkraper.kt)
+- [YoutubeSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/youtube/YoutubeSkraper.kt)
+- [RedditSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/reddit/RedditSkraper.kt)
+- [NinegagSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ninegag/NinegagSkraper.kt)
+- [PinterestSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pinterest/PinterestSkraper.kt)
+- [FlickrSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/flickr/FlickrSkraper.kt)
+- [TumblrSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/tumblr/TumblrSkraper.kt)
+- [IFunnySkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ifunny/IFunnySkraper.kt)
+- [VkSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/vk/VkSkraper.kt)
+- [PikabuSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pikabu/PikabuSkraper.kt)
+
 After that usage as simple as is:
 ```kotlin
 val skraper = InstagramSkraper(client = ReactorNettySkraperClient())
-``` 
+```
+
+**Important moment:** it is highly recommended to not use [DefaultBlockingSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
+There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
+To use them you just have to put required dependencies in the classpath. 
 
 Current http-client implementation list:
 - [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) - simple java.net.* blocking api implementation
-- [ReactorNettySkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
+- [ReactorNettySkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
 - [OkHttp3SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
-- [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring webclient](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
-- [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor client jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
+- [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
+- [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
 
 ### Available methods
 Each scraper is a class which implements [Skraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
@@ -128,7 +143,7 @@ interface Skraper {
 ```
 
 Also, there are some provider-specific kotlin extensions for implementations. 
-You are able to find them out at provider implementation package. 
+You can find them out at the provider implementation package. 
 
 ### Scrape user/community/channel/topic/trend posts
 To scrape the latest posts for specific user, channel or trend use skraper like that: 
@@ -150,8 +165,8 @@ Received data structure is similar to each other provider's. Output data example
     "commentsCount" : 3,
     "media" : [ {
       "url" : "https://facebook.com/memes/posts/5029851093699104?__xts__%5B0%5D=68.ARA2yRI2YnlXQRKX7Pdphh8ztgvnP11aYE_bZFPNmqLpJZLhwJaG24gDPUTiKDLv-J_E09u2vLjCXalpmEuGSmVR0BkVtcng_i6QV8x5e-aZUv0Mkn1wwKLlhp5NNH6zQWKlqDqRjZrwvcKeUi0unzzulRCHRvDIrbz2leM6PLescFySwMYbMmKFc7ctqaC_F7nJ09Ya0lz9Pqaq_Rh6UsNKom6fqdgHAuoHV894a3QRuyY0BC6fQuXZLOLbRIfEVK3cF9Z5UQiXUYruCySF-WpQEV0k72x6DIjT6B3iovYFnBGHaji9VAx2PByZ-MDs33D1Hz96Mk-O1Pj7zBwO6FvXGhkUJgepiwUOVd0q-pV83rS5EhjtPFDylNoNO2xkDUSIi483p49vumVPWtmab8LX1V6w2anf55kh6pedCXcH3D8rBjz8DaTBnv995u9kk5im-1-HdAGQHyKrCZpaA0QyC-I4oGsCoIJGck3RO8u_SoHcfe2tKjTgPe6j9p1D&__tn__=-R",
-      "type" : "VIDEO",
-      "aspectRatio" : 0.864
+      "aspectRatio" : 0.864,
+      "duration" : 10860.000000000
     } ]
   }, {
     "id" : "4990218157662398",
@@ -161,7 +176,6 @@ Received data structure is similar to each other provider's. Output data example
     "commentsCount" : 514,
     "media" : [ {
       "url" : "https://scontent.fhrk1-1.fna.fbcdn.net/v/t1.0-0/p526x296/52333452_10157743612509879_529328953723191296_n.png?_nc_cat=1&_nc_ohc=oNMb8_mCbD8AX-w9zeY&_nc_ht=scontent.fhrk1-1.fna&oh=ca8a719518ecfb1a24f871282b860124&oe=5E910D0C",
-      "type" : "IMAGE",
       "aspectRatio" : 0.8960573476702509
     } ]
   }
