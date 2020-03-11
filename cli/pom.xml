@@ -7,11 +7,11 @@
     <parent>
         <groupId>ru.sokomishalov.skraper</groupId>
         <artifactId>skraper-parent</artifactId>
-        <version>0.2.1</version>
+        <version>0.2.2</version>
     </parent>
 
     <artifactId>cli</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
 
     <properties>
         <maven.skip.deploy>true</maven.skip.deploy>
@@ -21,12 +21,17 @@
         <dependency>
             <groupId>ru.sokomishalov.skraper</groupId>
             <artifactId>skrapers</artifactId>
-            <version>0.2.1</version>
+            <version>0.2.2</version>
         </dependency>
         <dependency>
             <groupId>com.xenomachina</groupId>
             <artifactId>kotlin-argparser</artifactId>
             <version>${argparser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.andreapivetta.kolor</groupId>
+            <artifactId>kolor</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -57,6 +62,16 @@
             <groupId>io.ktor</groupId>
             <artifactId>ktor-client-cio</artifactId>
             <version>${ktor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 

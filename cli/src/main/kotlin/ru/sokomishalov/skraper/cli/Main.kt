@@ -17,6 +17,9 @@
 
 package ru.sokomishalov.skraper.cli
 
+import com.andreapivetta.kolor.cyan
+import com.andreapivetta.kolor.green
+import com.andreapivetta.kolor.magenta
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
@@ -26,6 +29,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.mainBody
@@ -38,60 +43,74 @@ import java.time.format.DateTimeFormatter.ofPattern
 import kotlin.text.Charsets.UTF_8
 
 fun main(args: Array<String>) = mainBody(columns = 150) {
-    val parsedArgs = ArgParser(when {
-        args.isEmpty() -> arrayOf("--help")
-        else -> args
-    }).parseInto(::Args)
+    val parsedArgs = ArgParser(
+            args = args.ifEmpty { arrayOf("--help") }
+    ).parseInto(::Args)
 
-    val skraper = parsedArgs.provider.skraper
+    println("${"Skraper".green()} ${"v.0.2.2".magenta()} started")
 
-    val path = when {
-        parsedArgs.path.startsWith("/") -> parsedArgs.path
-        else -> "/${parsedArgs.path}"
+    val posts = runBlocking {
+        parsedArgs.provider.skraper.getPosts(
+                path = "/${parsedArgs.path.removeSuffix("/")}",
+                limit = parsedArgs.amount
+        )
     }
 
-    val posts = runBlocking { skraper.getPosts(path = path, limit = parsedArgs.amount) }
-
     val content = when (parsedArgs.outputType) {
-        LOG -> posts.joinToString("\n") { it.toString() }.also { println(it) }
-        JSON -> JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)
-        XML -> XmlMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)
-        YAML -> YAMLMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts)
+        LOG -> posts
+                .joinToString("\n") { it.toString() }
+                .also { println(it) }
+        JSON -> JsonMapper()
+                .registerModule(JavaTimeModule())
+                .registerModule(Jdk8Module())
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(posts)
+        XML -> XmlMapper()
+                .registerModule(JavaTimeModule())
+                .registerModule(Jdk8Module())
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(posts)
+        YAML -> YAMLMapper()
+                .registerModule(JavaTimeModule())
+                .registerModule(Jdk8Module())
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(posts)
         CSV -> {
-            val mapper = CsvMapper().apply {
-                registerKotlinModule()
-                registerModule(SimpleModule().apply {
-                    addSerializer(Post::class.java, object : JsonSerializer<Post>() {
-                        override fun serialize(item: Post, jgen: JsonGenerator, serializerProvider: SerializerProvider) {
-                            jgen.writeStartObject()
-                            jgen.writeStringField("ID", item.id)
-                            jgen.writeStringField("Text", item.text)
-                            jgen.writeStringField("Published at", item.publishedAt?.toString(10))
-                            jgen.writeStringField("Rating", item.rating?.toString(10).orEmpty())
-                            jgen.writeStringField("Comments count", item.commentsCount?.toString(10).orEmpty())
-                            jgen.writeStringField("Views count", item.viewsCount?.toString(10).orEmpty())
-                            jgen.writeStringField("Media", item.media.joinToString("   ") { it.url })
-                            jgen.writeEndObject()
-                        }
-                    })
-                })
-            }
+            CsvMapper()
+                    .apply {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        registerModule(Jdk8Module())
+                        registerModule(SimpleModule().apply {
+                            addSerializer(Post::class.java, object : JsonSerializer<Post>() {
+                                override fun serialize(item: Post, jgen: JsonGenerator, serializerProvider: SerializerProvider) {
+                                    jgen.writeStartObject()
+                                    jgen.writeStringField("ID", item.id)
+                                    jgen.writeStringField("Text", item.text)
+                                    jgen.writeStringField("Published at", item.publishedAt?.toString(10))
+                                    jgen.writeStringField("Rating", item.rating?.toString(10).orEmpty())
+                                    jgen.writeStringField("Comments count", item.commentsCount?.toString(10).orEmpty())
+                                    jgen.writeStringField("Views count", item.viewsCount?.toString(10).orEmpty())
+                                    jgen.writeStringField("Media", item.media.joinToString("   ") { it.url })
+                                    jgen.writeEndObject()
+                                }
+                            })
+                        })
+                    }
+                    .writer(CsvSchema
+                            .builder()
+                            .addColumn("ID")
+                            .addColumn("Text")
+                            .addColumn("Published at")
+                            .addColumn("Rating")
+                            .addColumn("Comments count")
+                            .addColumn("Views count")
+                            .addColumn("Media")
+                            .build()
+                            .withHeader()
+                    )
+                    .writeValueAsString(posts)
 
-            val schema = CsvSchema
-                    .builder()
-                    .addColumn("ID")
-                    .addColumn("Text")
-                    .addColumn("Published at")
-                    .addColumn("Rating")
-                    .addColumn("Comments count")
-                    .addColumn("Views count")
-                    .addColumn("Media")
-                    .build()
-                    .withHeader()
-
-            val writer = mapper.writer(schema)
-
-            writer.writeValueAsString(posts)
         }
     }
 
@@ -109,5 +128,8 @@ fun main(args: Array<String>) = mainBody(columns = 150) {
     }
 
     fileToWrite.parentFile.mkdirs()
-    fileToWrite.writeText(text = content, charset = UTF_8)
+    fileToWrite
+            .apply { parentFile.mkdirs() }
+            .also { println("Fetched ${posts.size.toString().green()} posts. Saved to: ${it.path.cyan()}") }
+            .writeText(text = content, charset = UTF_8)
 }

@@ -28,15 +28,20 @@ Current list of implemented sources:
 - [Pikabu](https://pikabu.ru)
 
 # Cli tool
+Requirements: 
+- Java: 1.8 +
+- Maven (optional)
+
 Build tool
 ```bash
-./mvnw verify -DskipTests=true
+./mvnw clean package -DskipTests=true 
 ```
 
 Usage:
 ```bash
-java -jar cli/target/cli.jar --help
+./skraper --help
 ```
+
 ```text
 usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT]
 
@@ -62,8 +67,8 @@ positional arguments:
 
 Examples:
 ```bash
-java -jar cli/target/cli.jar ninegag /hot 
-java -jar cli/target/cli.jar reddit /r/memes -n 5 -t csv -o ./reddit/posts
+./skraper ninegag /hot 
+./skraper reddit /r/memes -n 5 -t csv -o ./reddit/posts
 ```
 
 # Kotlin Library
@@ -80,7 +85,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.2.1</version>
+        <version>0.2.2</version>
     </dependency>
 </dependencies>
 ```
@@ -91,7 +96,7 @@ repositories {
     maven { url("https://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.2.1")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.2.2")
 }
 ```
 
