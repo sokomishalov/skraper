@@ -20,7 +20,7 @@ import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.*
 
 /**
- * @author sokomishalov
+ * Interface for the minimum provider functionality
  */
 interface Skraper {
 

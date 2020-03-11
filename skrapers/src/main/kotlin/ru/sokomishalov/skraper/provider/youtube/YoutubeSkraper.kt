@@ -199,8 +199,7 @@ class YoutubeSkraper(
 
     private fun Document.extractPageAvatarsMap(): Map<MediaSize, Image> {
         return singleImageMap(url = this
-                .getElementsByAttributeValue("rel", "image_src")
-                ?.firstOrNull()
+                .getFirstElementByAttributeValue("rel", "image_src")
                 ?.attr("href")
         )
     }
