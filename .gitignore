@@ -39,3 +39,9 @@ local.properties
 /captures
 .externalNativeBuild
 .cxx
+
+### Generated ###
+*.log
+*.csv
+*.json
+*.yaml
