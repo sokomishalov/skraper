@@ -40,10 +40,11 @@ class FacebookSkraper(
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val document = getPage(path = path)
+        val postsPath = path.substringBefore("/posts") + "/posts"
+        val page = getPage(path = postsPath)
 
-        val posts = document.extractPosts(limit)
-        val jsonData = document.extractJsonData()
+        val posts = page.extractPosts(limit)
+        val jsonData = page.extractJsonData()
         val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
 
         return posts.map {
@@ -54,9 +55,9 @@ class FacebookSkraper(
                     id = id,
                     text = it.extractPostText(),
                     publishedAt = it.extractPostPublishDateTime(),
-                    rating = metaInfoJson.extractPostReactionCount(),
-                    commentsCount = metaInfoJson.extractPostCommentsCount(),
-                    viewsCount = metaInfoJson.extractPostViewsCount(),
+                    rating = metaInfoJson?.extractPostReactionCount(),
+                    commentsCount = metaInfoJson?.extractPostCommentsCount(),
+                    viewsCount = metaInfoJson?.extractPostViewsCount(),
                     media = it.extractPostMediaItems()
             )
         }
@@ -65,15 +66,24 @@ class FacebookSkraper(
     override suspend fun getPageInfo(path: String): PageInfo? {
         val page = getPage(path = path)
         return page?.run {
-            val profileElement = getFirstElementByClass("stat_elem")
-            val jsonData = extractJsonData()
+            val isCommunity = getFirstElementByAttributeValue("data-key", "tab_community") != null
 
-            PageInfo(
-                    nick = profileElement?.extractPageName(),
-                    description = profileElement?.extractPageDescription(),
-                    avatarsMap = singleImageMap(url = extractPageLogo()),
-                    coversMap = singleImageMap(url = jsonData.extractPageCover())
-            )
+            when {
+                isCommunity -> PageInfo(
+                        nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
+                        name = extractCommunityName(),
+                        description = extractCommunityDescription(),
+                        avatarsMap = singleImageMap(url = extractCommunityAvatar()),
+                        coversMap = singleImageMap(url = extractCommunityCover())
+                )
+                else -> PageInfo(
+                        nick = path.removePrefix("/").substringBefore("/"),
+                        name = extractUserName(),
+                        description = extractUserDescription(),
+                        avatarsMap = singleImageMap(url = extractUserAvatar()),
+                        coversMap = singleImageMap(url = extractUserCover())
+                )
+            }
         }
     }
 
@@ -132,45 +142,68 @@ class FacebookSkraper(
                 ?.toLongOrNull()
     }
 
-    private fun JsonNode?.extractPostReactionCount(): Int? {
-        return this
-                ?.getInt("reaction_count.count")
+    private fun JsonNode.extractPostReactionCount(): Int? {
+        return getInt("reaction_count.count")
     }
 
-    private fun JsonNode?.extractPostCommentsCount(): Int? {
-        return this
-                ?.getInt("display_comments_count.count")
+    private fun JsonNode.extractPostCommentsCount(): Int? {
+        return getInt("display_comments_count.count")
     }
 
-    private fun JsonNode?.extractPostViewsCount(): Int? {
-        return this
-                ?.getInt("seen_by_count.count")
+    private fun JsonNode.extractPostViewsCount(): Int? {
+        return getInt("seen_by_count.count")
 
     }
 
-    private fun JsonNode?.extractPageCover(): String? {
-        return this
+    private fun Document.extractCommunityCover(): String? {
+        return extractJsonData()
                 ?.findPath("coverPhotoData")
                 ?.getString("uri")
     }
 
-    private fun Document.extractPageLogo(): String? {
+    private fun Document.extractCommunityAvatar(): String? {
         return getFirstElementByAttributeValue("property", "og:image")
                 ?.attr("content")
     }
 
-    private fun Element.extractPageDescription(): String {
-        return getElementsByTag("span")
+    private fun Element.extractCommunityDescription(): String {
+        return getFirstElementByClass("stat_elem")
+                ?.getElementsByTag("span")
                 ?.getOrNull(1)
                 ?.wholeText()
                 .orEmpty()
     }
 
-    private fun Element.extractPageName(): String {
-        return getFirstElementByTag("span")
+    private fun Element.extractCommunityName(): String {
+        return getFirstElementByClass("stat_elem")
+                ?.getFirstElementByTag("span")
                 ?.parent()
                 ?.wholeText()
                 .orEmpty()
+    }
+
+    private fun Element.extractUserDescription(): String? {
+        return getElementsByClass("experience")
+                .getOrNull(1)
+                ?.allElements
+                ?.lastOrNull()
+                ?.wholeText()
+    }
+
+    private fun Element.extractUserName(): String? {
+        return getFirstElementByAttributeValue("data-testid", "profile_name_in_profile_page")
+                ?.wholeText()
+    }
+
+    private fun Element.extractUserAvatar(): String? {
+        return getFirstElementByClass("profilePicThumb")
+                ?.getFirstElementByTag("img")
+                ?.attr("src")
+    }
+
+    private fun Element.extractUserCover(): String? {
+        return getFirstElementByClass("coverPhotoImg")
+                ?.attr("src")
     }
 
     private fun Element.extractPostMediaItems(): List<Media> {
