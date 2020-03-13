@@ -24,7 +24,18 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 class FacebookSkraperTest : SkraperTck() {
     override val skraper: FacebookSkraper = FacebookSkraper(client = client)
     override val path: String = "/memes/posts"
-    private val username: String = "memes"
+    private val community: String = "memes"
+    private val username: String = "DonaldTrump"
+
+    @Test
+    fun `Check community posts`() {
+        assertPosts { skraper.getCommunityPosts(community = community) }
+    }
+
+    @Test
+    fun `Check community page info`() {
+        assertPageInfo { skraper.getCommunityInfo(community = community) }
+    }
 
     @Test
     fun `Check user posts`() {
@@ -33,6 +44,6 @@ class FacebookSkraperTest : SkraperTck() {
 
     @Test
     fun `Check user page info`() {
-        assertPageInfo { skraper.getUserPageInfo(username = username) }
+        assertPageInfo { skraper.getUserInfo(username = username) }
     }
 }

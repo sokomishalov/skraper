@@ -47,7 +47,7 @@ fun main(args: Array<String>) = mainBody(columns = 150) {
             args = args.ifEmpty { arrayOf("--help") }
     ).parseInto(::Args)
 
-    println("${"Skraper".green()} ${"v.0.2.2".magenta()} started")
+    println("${"Skraper".green()} ${"v.0.2.3".magenta()} started")
 
     val posts = runBlocking {
         parsedArgs.provider.skraper.getPosts(

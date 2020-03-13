@@ -24,10 +24,18 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun FacebookSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${username}/posts", limit = limit)
+suspend fun FacebookSkraper.getCommunityPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
+    return getPosts(path = "/${community}/posts", limit = limit)
 }
 
-suspend fun FacebookSkraper.getUserPageInfo(username: String): PageInfo? {
+suspend fun FacebookSkraper.getCommunityInfo(community: String): PageInfo? {
+    return getPageInfo(path = "/${community}")
+}
+
+suspend fun FacebookSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
+    return getPosts(path = "/pg/${username}/posts", limit = limit)
+}
+
+suspend fun FacebookSkraper.getUserInfo(username: String): PageInfo? {
     return getPageInfo(path = "/${username}")
 }
