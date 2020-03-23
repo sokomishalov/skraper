@@ -70,23 +70,25 @@ class PikabuSkraper(
         val page = getPage(path = path)
         val isCommunity = path.contains("community")
 
-        return when {
-            isCommunity -> PageInfo(
-                    nick = page.extractCommunityNick(),
-                    name = page.extractCommunityName(),
-                    postsCount = page.extractCommunityPostsCount(),
-                    followersCount = page.extractCommunityFollowersCount(),
-                    avatarsMap = singleImageMap(url = page.extractCommunityAvatar()),
-                    coversMap = singleImageMap(url = page.extractPageCover())
-            )
-            else -> PageInfo(
-                    nick = page.extractUserNick(),
-                    name = page.extractUserNick(),
-                    postsCount = page.extractUserPostsCount(),
-                    followersCount = page.extractUserFollowersCount(),
-                    avatarsMap = singleImageMap(url = page.extractUserAvatar()),
-                    coversMap = singleImageMap(url = page.extractPageCover())
-            )
+        return page?.run {
+            when {
+                isCommunity -> PageInfo(
+                        nick = extractCommunityNick(),
+                        name = extractCommunityName(),
+                        postsCount = extractCommunityPostsCount(),
+                        followersCount = extractCommunityFollowersCount(),
+                        avatarsMap = singleImageMap(url = extractCommunityAvatar()),
+                        coversMap = singleImageMap(url = extractPageCover())
+                )
+                else -> PageInfo(
+                        nick = extractUserNick(),
+                        name = extractUserNick(),
+                        postsCount = extractUserPostsCount(),
+                        followersCount = extractUserFollowersCount(),
+                        avatarsMap = singleImageMap(url = extractUserAvatar()),
+                        coversMap = singleImageMap(url = extractPageCover())
+                )
+            }
         }
     }
 
@@ -164,14 +166,14 @@ class PikabuSkraper(
                 ?.getFirstElementByClass("main")
                 ?.getFirstElementByClass("avatar")
                 ?.getFirstElementByTag("img")
-                ?.attr("data-src")
+                ?.run { attr("src").ifEmpty { attr("data-src") } }
     }
 
     private fun Document?.extractCommunityAvatar(): String? {
         return this
                 ?.getFirstElementByClass("community-avatar")
                 ?.getFirstElementByTag("img")
-                ?.attr("data-src")
+                ?.run { attr("src").ifEmpty { attr("data-src") } }
     }
 
     private fun Document?.extractUserNick(): String? {

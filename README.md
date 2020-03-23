@@ -27,6 +27,10 @@ Current list of implemented sources:
 - [VK](https://vk.com)
 - [Pikabu](https://pikabu.ru)
 
+# Bugs
+Unfortunately, each web-site is subject to change without any notice so the tool may work incorrectly because of that.
+If that happens, please let me know via an issue or some message. 
+
 # Cli tool
 Requirements: 
 - Java: 1.8 +

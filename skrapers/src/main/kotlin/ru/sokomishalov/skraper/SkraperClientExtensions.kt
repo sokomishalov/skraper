@@ -16,8 +16,6 @@
 package ru.sokomishalov.skraper
 
 import com.fasterxml.jackson.databind.JsonNode
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.internal.image.imageDimensions
@@ -55,10 +53,8 @@ suspend fun SkraperClient.fetchDocument(url: URLString, headers: Map<String, Str
 
 suspend fun SkraperClient.fetchAspectRatio(url: URLString, headers: Map<String, String> = emptyMap(), defaultValue: Double = 1.0): Double {
     return runCatching {
-        withContext(IO) {
-            openStream(url = url, headers = headers)
-                    ?.imageDimensions
-                    ?.run { first.toDouble() / second.toDouble() }
-        }
+        openStream(url = url, headers = headers)
+                ?.imageDimensions
+                ?.run { first.toDouble() / second.toDouble() }
     }.getOrNull() ?: defaultValue
 }
