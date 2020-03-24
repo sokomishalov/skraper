@@ -11,7 +11,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <kotlin.version>1.3.70</kotlin.version>
+        <kotlin.version>1.3.71</kotlin.version>
         <kotlinx.version>1.3.5</kotlinx.version>
         <jackson.version>2.10.3</jackson.version>
         <jsoup.version>1.13.1</jsoup.version>
