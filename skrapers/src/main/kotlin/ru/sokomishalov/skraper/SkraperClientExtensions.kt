@@ -37,7 +37,7 @@ suspend fun SkraperClient.fetchBytes(
         body: ByteArray? = null
 ): ByteArray? {
     return runCatching {
-        fetch(url, method, headers, body)
+        request(url, method, headers, body)
     }.getOrNull()
 }
 
@@ -48,7 +48,7 @@ suspend fun SkraperClient.fetchJson(
         body: ByteArray? = null
 ): JsonNode? {
     return runCatching {
-        fetch(url, method, headers, body)?.run { readJsonNodes() }
+        request(url, method, headers, body)?.run { readJsonNodes() }
     }.getOrNull()
 }
 
@@ -60,6 +60,6 @@ suspend fun SkraperClient.fetchDocument(
         charset: Charset = UTF_8
 ): Document? {
     return runCatching {
-        fetch(url, method, headers, body)?.run { Jsoup.parse(toString(charset)) }
+        request(url, method, headers, body)?.run { Jsoup.parse(toString(charset)) }
     }.getOrNull()
 }

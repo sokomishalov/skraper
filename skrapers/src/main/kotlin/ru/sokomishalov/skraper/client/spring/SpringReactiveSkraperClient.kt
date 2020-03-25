@@ -36,7 +36,7 @@ class SpringReactiveSkraperClient(
         private val webClient: WebClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(
+    override suspend fun request(
             url: URLString,
             method: HttpMethodType,
             headers: Map<String, String>,

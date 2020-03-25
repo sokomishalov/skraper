@@ -38,7 +38,7 @@ class OkHttp3SkraperClient(
 ) : SkraperClient {
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    override suspend fun fetch(
+    override suspend fun request(
             url: URLString,
             method: HttpMethodType,
             headers: Map<String, String>,
