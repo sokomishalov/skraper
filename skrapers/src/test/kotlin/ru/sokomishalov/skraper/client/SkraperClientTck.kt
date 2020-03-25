@@ -17,8 +17,10 @@ package ru.sokomishalov.skraper.client
 
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import ru.sokomishalov.skraper.*
-import kotlin.math.abs
+import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.fetchBytes
+import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.fetchJson
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -59,17 +61,6 @@ abstract class SkraperClientTck {
         assertNotNull(reposJson)
         assertTrue { reposJson.isArray }
         assertTrue { reposJson[0]["owner"]["login"].asText().toLowerCase() == user }
-    }
-
-    @Test
-    fun `Fetch aspect ratio`() = runBlocking {
-        val width = 200
-        val height = 300
-        val aspectRatio = width.toDouble() / height.toDouble()
-
-        val fetchAspectRatio = client.fetchAspectRatio("https://picsum.photos/${width}/${height}")
-
-        assertTrue { abs(fetchAspectRatio - aspectRatio) <= 0.01 }
     }
 
     @Test

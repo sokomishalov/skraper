@@ -49,7 +49,7 @@ class OkHttp3SkraperClient(
     }
 
     companion object {
-        private val DEFAULT_CLIENT: OkHttpClient = OkHttpClient
+        val DEFAULT_CLIENT: OkHttpClient = OkHttpClient
                 .Builder()
                 .followRedirects(true)
                 .followSslRedirects(true)

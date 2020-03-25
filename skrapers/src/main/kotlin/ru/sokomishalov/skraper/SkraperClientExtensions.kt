@@ -18,7 +18,6 @@ package ru.sokomishalov.skraper
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import ru.sokomishalov.skraper.internal.image.imageDimensions
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
 import ru.sokomishalov.skraper.model.URLString
 import java.nio.charset.Charset
@@ -49,12 +48,4 @@ suspend fun SkraperClient.fetchDocument(url: URLString, headers: Map<String, Str
             Jsoup.parse(toString(charset))
         }
     }.getOrNull()
-}
-
-suspend fun SkraperClient.fetchAspectRatio(url: URLString, headers: Map<String, String> = emptyMap(), defaultValue: Double = 1.0): Double {
-    return runCatching {
-        openStream(url = url, headers = headers)
-                ?.imageDimensions
-                ?.run { first.toDouble() / second.toDouble() }
-    }.getOrNull() ?: defaultValue
 }

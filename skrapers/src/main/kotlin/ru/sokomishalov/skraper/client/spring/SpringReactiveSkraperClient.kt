@@ -43,7 +43,7 @@ class SpringReactiveSkraperClient(
     }
 
     companion object {
-        private val DEFAULT_CLIENT: WebClient = WebClient
+        val DEFAULT_CLIENT: WebClient = WebClient
                 .builder()
                 .clientConnector(
                         ReactorClientHttpConnector(

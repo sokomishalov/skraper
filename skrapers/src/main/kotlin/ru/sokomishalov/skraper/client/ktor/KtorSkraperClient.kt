@@ -32,7 +32,7 @@ class KtorSkraperClient(
     }
 
     companion object {
-        private val DEFAULT_CLIENT = HttpClient {
+        val DEFAULT_CLIENT = HttpClient {
             followRedirects = true
         }
     }

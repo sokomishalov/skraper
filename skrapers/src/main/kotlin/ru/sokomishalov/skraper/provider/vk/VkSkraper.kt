@@ -93,7 +93,7 @@ class VkSkraper(
 
     private fun Element.extractPostCaption(): String? {
         return getFirstElementByClass("pi_text")
-                ?.removeLinks()
+                ?.wholeText()
     }
 
     private fun Element.extractPostPublishedDate(): Long? {

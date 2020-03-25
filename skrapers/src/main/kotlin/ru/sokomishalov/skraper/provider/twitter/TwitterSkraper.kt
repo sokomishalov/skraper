@@ -24,7 +24,6 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
-import ru.sokomishalov.skraper.internal.jsoup.removeLinks
 import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
 import ru.sokomishalov.skraper.internal.serialization.getInt
 import ru.sokomishalov.skraper.internal.serialization.getString
@@ -102,7 +101,12 @@ class TwitterSkraper(
 
     private fun Element.extractTweetText(): String? {
         return getFirstElementByClass("tweet-text")
-                ?.removeLinks()
+                ?.apply {
+                    allElements
+                            .filter { it.tag().name == "a" && it.attr("href").startsWith("/").not() }
+                            .forEach { it.remove() }
+                }
+                ?.wholeText()
     }
 
     private fun Element.extractTweetPublishDate(): Long? {

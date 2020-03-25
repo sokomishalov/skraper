@@ -13,32 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE")
+
 package ru.sokomishalov.skraper.internal.jsoup
 
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
-fun Element.getFirstElementByClass(name: String): Element? {
+@PublishedApi
+internal inline fun Element.getFirstElementByClass(name: String): Element? {
     return getElementsByClass(name).firstOrNull()
 }
 
-fun Element.getFirstElementByTag(name: String): Element? {
+@PublishedApi
+internal inline fun Element.getFirstElementByTag(name: String): Element? {
     return getElementsByTag(name).firstOrNull()
 }
 
-fun Element.getFirstElementByAttribute(name: String): Element? {
+@PublishedApi
+internal inline fun Element.getFirstElementByAttribute(name: String): Element? {
     return getElementsByAttribute(name).firstOrNull()
 }
 
-fun Element.getFirstElementByAttributeValue(name: String, value: String): Element? {
+@PublishedApi
+internal inline fun Element.getFirstElementByAttributeValue(name: String, value: String): Element? {
     return getElementsByAttributeValue(name, value).firstOrNull()
 }
 
-fun Element.getFirstElementByAttributeValueContaining(name: String, valuePart: String): Element? {
+@PublishedApi
+internal inline fun Element.getFirstElementByAttributeValueContaining(name: String, valuePart: String): Element? {
     return getElementsByAttributeValueContaining(name, valuePart).firstOrNull()
 }
 
-fun Element.getStyleMap(): Map<String, String> {
+@PublishedApi
+internal fun Element.getStyleMap(): Map<String, String> {
     return when {
         hasAttr("style").not() -> emptyMap()
         else -> attr("style")
@@ -49,11 +56,13 @@ fun Element.getStyleMap(): Map<String, String> {
     }
 }
 
-fun Element.getStyle(name: String): String? {
+@PublishedApi
+internal inline fun Element.getStyle(name: String): String? {
     return getStyleMap()[name]
 }
 
-fun Element.getBackgroundImageStyle(): String {
+@PublishedApi
+internal fun Element.getBackgroundImageStyle(): String {
     return this
             .getStyle("background-image")
             .orEmpty()
@@ -61,21 +70,9 @@ fun Element.getBackgroundImageStyle(): String {
             .removeSurrounding("url(", ")")
 }
 
-fun Element.getFirstAttr(vararg attrs: String): String? {
+@PublishedApi
+internal fun Element.getFirstAttr(vararg attrs: String): String? {
     return attributes()
             .firstOrNull { it.key in attrs }
             ?.value
-}
-
-fun Element.removeLinks(): String? {
-    val titleDoc = Jsoup.parse(html())
-
-    val allAnchors = titleDoc.select("a")
-    val hrefAnchors = titleDoc.select("a[href^=/]")
-    val unwantedAnchors = mutableListOf<Element>()
-
-    allAnchors.filterNotTo(unwantedAnchors) { hrefAnchors.contains(it) }
-    unwantedAnchors.forEach { it.remove() }
-
-    return titleDoc.wholeText()
 }
