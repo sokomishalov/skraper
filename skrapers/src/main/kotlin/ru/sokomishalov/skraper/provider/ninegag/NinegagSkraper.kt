@@ -32,7 +32,7 @@ import java.time.Duration
 /**
  * @author sokomishalov
  */
-class NinegagSkraper(
+class NinegagSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://9gag.com"
 ) : Skraper {

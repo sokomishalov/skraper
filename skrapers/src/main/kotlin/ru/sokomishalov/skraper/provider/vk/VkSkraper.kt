@@ -34,7 +34,7 @@ import java.util.Locale.ENGLISH
 /**
  * @author sokomishalov
  */
-class VkSkraper(
+class VkSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://vk.com"
 ) : Skraper {

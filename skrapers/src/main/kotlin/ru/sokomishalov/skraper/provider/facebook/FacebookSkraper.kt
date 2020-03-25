@@ -34,7 +34,7 @@ import ru.sokomishalov.skraper.model.*
 /**
  * @author sokomishalov
  */
-class FacebookSkraper(
+class FacebookSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://facebook.com"
 ) : Skraper {

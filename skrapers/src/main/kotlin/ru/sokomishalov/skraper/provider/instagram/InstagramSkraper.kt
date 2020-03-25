@@ -29,7 +29,7 @@ import ru.sokomishalov.skraper.model.MediaSize.*
 /**
  * @author sokomishalov
  */
-class InstagramSkraper(
+class InstagramSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://instagram.com"
 ) : Skraper {

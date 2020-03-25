@@ -32,7 +32,7 @@ import java.time.chrono.ChronoPeriod
 import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.TemporalAmount
 
-class YoutubeSkraper(
+class YoutubeSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://www.youtube.com"
 ) : Skraper {

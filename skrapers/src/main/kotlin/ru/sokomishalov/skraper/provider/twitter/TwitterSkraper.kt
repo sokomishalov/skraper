@@ -34,7 +34,7 @@ import ru.sokomishalov.skraper.model.*
 /**
  * @author sokomishalov
  */
-class TwitterSkraper(
+class TwitterSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://twitter.com"
 ) : Skraper {

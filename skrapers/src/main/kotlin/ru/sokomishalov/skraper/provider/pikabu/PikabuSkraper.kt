@@ -31,7 +31,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.text.Charsets.UTF_8
 
-class PikabuSkraper(
+class PikabuSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://pikabu.ru"
 ) : Skraper {
