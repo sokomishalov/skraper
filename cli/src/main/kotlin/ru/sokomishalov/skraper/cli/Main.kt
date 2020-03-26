@@ -127,7 +127,6 @@ fun main(args: Array<String>) = mainBody(columns = 150) {
         }
     }
 
-    fileToWrite.parentFile.mkdirs()
     fileToWrite
             .apply { parentFile.mkdirs() }
             .also { println("Fetched ${posts.size.toString().green()} posts. Saved to: ${it.path.cyan()}") }
