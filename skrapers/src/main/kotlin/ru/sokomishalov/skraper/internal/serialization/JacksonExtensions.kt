@@ -18,13 +18,12 @@
 package ru.sokomishalov.skraper.internal.serialization
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-import com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_SINGLE_QUOTES
-import com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
+import com.fasterxml.jackson.core.json.JsonReadFeature.*
 import com.fasterxml.jackson.databind.DeserializationFeature.*
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature.*
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.node.MissingNode
 
 
@@ -34,12 +33,12 @@ import com.fasterxml.jackson.databind.node.MissingNode
 
 @PublishedApi
 internal inline fun ByteArray?.readJsonNodes(): JsonNode? {
-    return OBJECT_MAPPER.readTree(this)
+    return JSON_MAPPER.readTree(this)
 }
 
 @PublishedApi
 internal inline fun String?.readJsonNodes(): JsonNode? {
-    return OBJECT_MAPPER.readTree(this)
+    return JSON_MAPPER.readTree(this)
 }
 
 internal fun JsonNode.getByKeyContaining(keyPart: String): JsonNode? {
@@ -77,37 +76,39 @@ internal inline fun JsonNode.getDouble(path: String, delimiter: String = "."): D
 }
 
 @PublishedApi
-internal val OBJECT_MAPPER: ObjectMapper by lazy {
-    ObjectMapper().apply {
-        enable(
-                ALLOW_SINGLE_QUOTES,
-                ALLOW_UNQUOTED_FIELD_NAMES
-        )
-        enable(
-                READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE,
-                READ_ENUMS_USING_TO_STRING,
-                ACCEPT_SINGLE_VALUE_AS_ARRAY,
-                ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
-                ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT
-        )
-        enable(
-                ACCEPT_CASE_INSENSITIVE_ENUMS
-        )
-        enable(
-                WRITE_ENUMS_USING_TO_STRING
-        )
-        disable(
-                FAIL_ON_EMPTY_BEANS,
-                WRITE_DATES_AS_TIMESTAMPS
-        )
-        disable(
-                ADJUST_DATES_TO_CONTEXT_TIME_ZONE,
-                FAIL_ON_UNKNOWN_PROPERTIES,
-                FAIL_ON_INVALID_SUBTYPE,
-                FAIL_ON_IGNORED_PROPERTIES,
-                FAIL_ON_UNRESOLVED_OBJECT_IDS,
-                FAIL_ON_TRAILING_TOKENS
-        )
-        setSerializationInclusion(NON_NULL)
-    }
+internal val JSON_MAPPER: JsonMapper by lazy {
+    JsonMapper
+            .builder()
+            .enable(
+                    ALLOW_UNESCAPED_CONTROL_CHARS,
+                    ALLOW_SINGLE_QUOTES,
+                    ALLOW_UNQUOTED_FIELD_NAMES
+            )
+            .enable(
+                    READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE,
+                    READ_ENUMS_USING_TO_STRING,
+                    ACCEPT_SINGLE_VALUE_AS_ARRAY,
+                    ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
+                    ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT
+            )
+            .enable(
+                    ACCEPT_CASE_INSENSITIVE_ENUMS
+            )
+            .enable(
+                    WRITE_ENUMS_USING_TO_STRING
+            )
+            .disable(
+                    FAIL_ON_EMPTY_BEANS,
+                    WRITE_DATES_AS_TIMESTAMPS
+            )
+            .disable(
+                    ADJUST_DATES_TO_CONTEXT_TIME_ZONE,
+                    FAIL_ON_UNKNOWN_PROPERTIES,
+                    FAIL_ON_INVALID_SUBTYPE,
+                    FAIL_ON_IGNORED_PROPERTIES,
+                    FAIL_ON_UNRESOLVED_OBJECT_IDS,
+                    FAIL_ON_TRAILING_TOKENS
+            )
+            .serializationInclusion(NON_NULL)
+            .build()
 }

@@ -31,6 +31,7 @@ import ru.sokomishalov.skraper.model.MediaSize.*
  */
 class InstagramSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
+        private val apiQueryId: String = "17888483320059182",
         override val baseUrl: URLString = "https://instagram.com"
 ) : Skraper {
 
@@ -69,7 +70,11 @@ class InstagramSkraper @JvmOverloads constructor(
     internal suspend fun getPostsByUserId(userId: Long?, limit: Int): List<Post> {
         val data = client.fetchJson(url = baseUrl.buildFullURL(
                 path = "/graphql/query/",
-                queryParams = mapOf("query_id" to QUERY_ID, "id" to userId, "first" to limit)
+                queryParams = mapOf(
+                        "query_id" to apiQueryId,
+                        "id" to userId,
+                        "first" to limit
+                )
         ))
 
         val postsNodes = data
@@ -134,9 +139,5 @@ class InstagramSkraper @JvmOverloads constructor(
                     )
                 }
         )
-    }
-
-    companion object {
-        private const val QUERY_ID = "17888483320059182"
     }
 }

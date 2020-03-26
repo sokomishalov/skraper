@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("ReactorUnusedPublisher")
+
 package ru.sokomishalov.skraper.client.reactornetty
 
+import io.netty.handler.codec.http.HttpMethod
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import reactor.core.publisher.Mono
+import reactor.netty.ByteBufFlux
+import reactor.netty.ByteBufMono
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.model.URLString
+import kotlin.text.Charsets.UTF_8
 
 /**
  * @author sokomishalov
@@ -29,16 +37,26 @@ class ReactorNettySkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
+    override suspend fun fetch(
+            url: URLString,
+            method: HttpMethodType,
+            headers: Map<String, String>,
+            body: ByteArray?
+    ): ByteArray? {
         return client
                 .headers { headers.forEach { (k, v) -> it[k] = v } }
-                .get()
+                .request(HttpMethod.valueOf(method.name))
                 .uri(url)
+                .send(when (body) {
+                    null -> ByteBufMono.empty()
+                    else -> ByteBufFlux.fromString(Mono.just(body.toString(UTF_8)))
+                })
                 .responseSingle { _, u -> u.asByteArray() }
                 .awaitFirstOrNull()
     }
 
     companion object {
+        @JvmStatic
         val DEFAULT_CLIENT: HttpClient = HttpClient
                 .create()
                 .followRedirect(true)
