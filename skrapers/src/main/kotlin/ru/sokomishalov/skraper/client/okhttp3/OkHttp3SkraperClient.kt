@@ -18,10 +18,14 @@ package ru.sokomishalov.skraper.client.okhttp3
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okio.BufferedSink
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.model.URLString
 import java.io.IOException
 import kotlin.coroutines.resumeWithException
+
 
 /**
  * Huge appreciation to my russian colleague
@@ -34,11 +38,17 @@ class OkHttp3SkraperClient(
 ) : SkraperClient {
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
+    override suspend fun fetch(
+            url: URLString,
+            method: HttpMethodType,
+            headers: Map<String, String>,
+            body: ByteArray?
+    ): ByteArray? {
         val request = Request
                 .Builder()
                 .url(url)
                 .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
+                .method(method = method.name, body = body?.createRequest(contentType = headers["Content-Type"]))
                 .build()
 
         return client
@@ -48,31 +58,34 @@ class OkHttp3SkraperClient(
                 ?.bytes()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun Call.await(): Response {
+        return suspendCancellableCoroutine { continuation ->
+            enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) = continuation.resume(response) { Unit }
+                override fun onFailure(call: Call, e: IOException) = if (continuation.isCancelled.not()) continuation.resumeWithException(e) else Unit
+            })
+
+            continuation.invokeOnCancellation {
+                runCatching { cancel() }.getOrNull()
+            }
+        }
+    }
+
+    private fun ByteArray.createRequest(contentType: String?): RequestBody? {
+        return object : RequestBody() {
+            override fun contentType(): MediaType? = contentType?.toMediaType()
+            override fun contentLength(): Long = this@createRequest.size.toLong()
+            override fun writeTo(sink: BufferedSink) = sink.write(this@createRequest).run { Unit }
+        }
+    }
+
     companion object {
+        @JvmStatic
         val DEFAULT_CLIENT: OkHttpClient = OkHttpClient
                 .Builder()
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .build()
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun Call.await(): Response {
-        return suspendCancellableCoroutine { continuation ->
-            enqueue(object : Callback {
-                override fun onResponse(call: Call, response: Response) {
-                    continuation.resume(response) {}
-                }
-
-                override fun onFailure(call: Call, e: IOException) {
-                    if (continuation.isCancelled) return
-                    continuation.resumeWithException(e)
-                }
-            })
-
-            continuation.invokeOnCancellation {
-                runCatching { cancel() }
-            }
-        }
     }
 }

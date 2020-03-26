@@ -18,19 +18,23 @@ package ru.sokomishalov.skraper.client
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.fetchBytes
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchJson
+import ru.sokomishalov.skraper.internal.serialization.getString
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.text.Charsets.UTF_8
 
 abstract class SkraperClientTck {
 
     protected abstract val client: SkraperClient
 
     @Test
-    fun `Fetch byte array assertions`() = runBlocking {
+    fun `Fetch byte array`() = runBlocking {
         val bytes = client.fetch("https://www.wikipedia.org/")
 
         assertTrue { bytes != null }
@@ -38,15 +42,15 @@ abstract class SkraperClientTck {
     }
 
     @Test
-    fun `Redirect to https assertion`() = runBlocking {
+    fun `Redirect to https`() = runBlocking {
         val bytes = client.fetch("http://twitter.com/")
 
-        assertTrue { bytes != null }
-        assertTrue { bytes!!.isNotEmpty() }
+        assertNotNull(bytes)
+        assertTrue { bytes.isNotEmpty() }
     }
 
     @Test
-    fun `Fetch document assertion`() = runBlocking {
+    fun `Fetch document`() = runBlocking {
         val document = client.fetchDocument("https://facebook.com")
 
         assertTrue { document != null }
@@ -54,17 +58,28 @@ abstract class SkraperClientTck {
     }
 
     @Test
-    fun `Fetch json example`() = runBlocking {
-        val user = "sokomishalov"
-        val reposJson = client.fetchJson("https://api.github.com/users/$user/repos")
+    fun `Fetch complex json`() = runBlocking {
+        val echoJson = client.fetchJson(
+                url = "https://postman-echo.com/post",
+                method = POST,
+                headers = mapOf(
+                        "foo" to "bar",
+                        "Content-Type" to "application/json"
+                ),
+                body = """
+                    {
+                        "bar": "foo"
+                    }
+                """.trimIndent().toByteArray(UTF_8)
+        )
 
-        assertNotNull(reposJson)
-        assertTrue { reposJson.isArray }
-        assertTrue { reposJson[0]["owner"]["login"].asText().toLowerCase() == user }
+        assertNotNull(echoJson)
+        assertEquals("bar", echoJson.getString("headers.foo"))
+        assertEquals("foo", echoJson.getString("data.bar"))
     }
 
     @Test
-    fun `Bad pages errors`() = runBlocking {
+    fun `Bad url`() = runBlocking {
         assertNull(client.fetchBytes("https://very-badurl.badurl"))
     }
 }

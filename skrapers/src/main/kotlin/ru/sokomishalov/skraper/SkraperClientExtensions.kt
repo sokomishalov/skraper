@@ -18,6 +18,8 @@ package ru.sokomishalov.skraper
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
 import ru.sokomishalov.skraper.model.URLString
 import java.nio.charset.Charset
@@ -28,24 +30,36 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 
-suspend fun SkraperClient.fetchBytes(url: URLString, headers: Map<String, String> = emptyMap()): ByteArray? {
+suspend fun SkraperClient.fetchBytes(
+        url: URLString,
+        method: HttpMethodType = GET,
+        headers: Map<String, String> = emptyMap(),
+        body: ByteArray? = null
+): ByteArray? {
     return runCatching {
-        fetch(url = url, headers = headers)
+        fetch(url, method, headers, body)
     }.getOrNull()
 }
 
-suspend fun SkraperClient.fetchJson(url: URLString, headers: Map<String, String> = emptyMap()): JsonNode? {
+suspend fun SkraperClient.fetchJson(
+        url: URLString,
+        method: HttpMethodType = GET,
+        headers: Map<String, String> = emptyMap(),
+        body: ByteArray? = null
+): JsonNode? {
     return runCatching {
-        fetch(url = url, headers = headers)?.run {
-            readJsonNodes()
-        }
+        fetch(url, method, headers, body)?.run { readJsonNodes() }
     }.getOrNull()
 }
 
-suspend fun SkraperClient.fetchDocument(url: URLString, headers: Map<String, String> = emptyMap(), charset: Charset = UTF_8): Document? {
+suspend fun SkraperClient.fetchDocument(
+        url: URLString,
+        method: HttpMethodType = GET,
+        headers: Map<String, String> = emptyMap(),
+        body: ByteArray? = null,
+        charset: Charset = UTF_8
+): Document? {
     return runCatching {
-        fetch(url = url, headers = headers)?.run {
-            Jsoup.parse(toString(charset))
-        }
+        fetch(url, method, headers, body)?.run { Jsoup.parse(toString(charset)) }
     }.getOrNull()
 }

@@ -17,21 +17,29 @@ package ru.sokomishalov.skraper.internal.net
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
+import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.client.HttpMethodType.GET
+import java.io.DataOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.HttpURLConnection.*
 import java.net.URL
+
 
 /**
  * @author sokomishalov
  */
 
 @PublishedApi
-internal suspend fun URL.openStreamForRedirectable(headers: Map<String, String> = emptyMap()): InputStream {
+internal suspend fun URL.openStreamForRedirectable(
+        method: HttpMethodType = GET,
+        headers: Map<String, String> = emptyMap(),
+        body: ByteArray? = null
+): InputStream {
     return withContext(IO) {
         val conn = openConnection() as HttpURLConnection
 
-        conn.applyDefaultHeaders(headers = headers)
+        conn.applyData(method, headers, body)
 
         val status = conn.responseCode
 
@@ -40,7 +48,7 @@ internal suspend fun URL.openStreamForRedirectable(headers: Map<String, String> 
                 val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
                 newConn.apply {
                     setRequestProperty("Cookie", conn.getHeaderField("Set-Cookie"))
-                    applyDefaultHeaders(headers)
+                    applyData(method, headers, body)
                 }
                 newConn.inputStream
             }
@@ -49,8 +57,17 @@ internal suspend fun URL.openStreamForRedirectable(headers: Map<String, String> 
     }
 }
 
-private fun HttpURLConnection.applyDefaultHeaders(headers: Map<String, String> = emptyMap()) {
+private fun HttpURLConnection.applyData(
+        method: HttpMethodType,
+        headers: Map<String, String>,
+        body: ByteArray?
+) {
+    requestMethod = method.name
+    headers.forEach { (k, v) -> addRequestProperty(k, v) }
+    body?.let {
+        doOutput = true
+        DataOutputStream(outputStream).use { wr -> wr.write(it) }
+    }
     connectTimeout = 5_000
     readTimeout = 5_000
-    headers.forEach { (k, v) -> addRequestProperty(k, v) }
 }

@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper
+@file:Suppress("unused")
 
-import ru.sokomishalov.skraper.client.HttpMethodType
-import ru.sokomishalov.skraper.client.HttpMethodType.GET
-import ru.sokomishalov.skraper.model.URLString
+package ru.sokomishalov.skraper.client
 
 /**
  * @author sokomishalov
  */
-interface SkraperClient {
-
-    suspend fun fetch(
-            url: URLString,
-            method: HttpMethodType = GET,
-            headers: Map<String, String> = emptyMap(),
-            body: ByteArray? = null
-    ): ByteArray?
-
+enum class HttpMethodType {
+    GET,
+    HEAD,
+    POST,
+    PUT,
+    PATCH,
+    DELETE,
+    OPTIONS,
+    TRACE
 }

@@ -16,23 +16,47 @@
 package ru.sokomishalov.skraper.client.ktor
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.request
+import io.ktor.content.ByteArrayContent
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders.UnsafeHeadersList
+import io.ktor.http.HttpMethod
+import io.ktor.http.takeFrom
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.model.URLString
 
 class KtorSkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
-        return client.get(url) {
-            headers.forEach { (k, v) -> header(k, v) }
+    override suspend fun fetch(
+            url: URLString,
+            method: HttpMethodType,
+            headers: Map<String, String>,
+            body: ByteArray?
+    ): ByteArray? {
+        return client.request {
+            this.url.takeFrom(url)
+            this.method = HttpMethod.parse(method.name)
+            headers
+                    .filterKeys { it !in UnsafeHeadersList }
+                    .forEach { (k, v) ->
+                        header(k, v)
+                    }
+            body?.let {
+                this.body = ByteArrayContent(
+                        bytes = it,
+                        contentType = headers["Content-Type"]?.let { t -> ContentType.parse(t) }
+                )
+            }
         }
     }
 
     companion object {
-        val DEFAULT_CLIENT = HttpClient {
+        @JvmStatic
+        val DEFAULT_CLIENT: HttpClient = HttpClient {
             followRedirects = true
         }
     }

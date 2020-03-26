@@ -15,9 +15,10 @@
  */
 package ru.sokomishalov.skraper.client.jdk
 
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.internal.net.openStreamForRedirectable
 import ru.sokomishalov.skraper.model.URLString
 import java.net.URL
@@ -29,9 +30,14 @@ import java.net.URL
  */
 object DefaultBlockingSkraperClient : SkraperClient {
 
-    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
-        return withContext(Dispatchers.IO) {
-            URL(url).openStreamForRedirectable(headers = headers)
+    override suspend fun fetch(
+            url: URLString,
+            method: HttpMethodType,
+            headers: Map<String, String>,
+            body: ByteArray?
+    ): ByteArray? {
+        return withContext(IO) {
+            URL(url).openStreamForRedirectable(method, headers, body)
         }.use {
             it.readBytes()
         }

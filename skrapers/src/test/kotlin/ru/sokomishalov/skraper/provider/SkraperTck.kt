@@ -41,8 +41,11 @@ import kotlin.test.assertTrue
 abstract class SkraperTck {
 
     companion object {
-        private val LOGGER: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
-        private val MAPPER: ObjectMapper = ObjectMapper().apply {
+        @JvmStatic
+        private val log: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
+
+        @JvmStatic
+        private val mapper: ObjectMapper = ObjectMapper().apply {
             registerModule(JavaTimeModule())
             registerModule(Jdk8Module())
             setSerializationInclusion(NON_NULL)
@@ -103,7 +106,7 @@ abstract class SkraperTck {
 
     private suspend fun <T> logAction(action: suspend Skraper.() -> T): T {
         return skraper.action().also {
-            LOGGER.info(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(it))
+            log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(it))
         }
     }
 }

@@ -17,6 +17,8 @@ package ru.sokomishalov.skraper.client.spring
 
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpMethod.GET
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
@@ -24,6 +26,7 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import org.springframework.web.reactive.function.client.awaitExchange
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.model.URLString
 
 /**
@@ -33,16 +36,23 @@ class SpringReactiveSkraperClient(
         private val webClient: WebClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(url: URLString, headers: Map<String, String>): ByteArray? {
+    override suspend fun fetch(
+            url: URLString,
+            method: HttpMethodType,
+            headers: Map<String, String>,
+            body: ByteArray?
+    ): ByteArray? {
         return webClient
-                .get()
+                .method(HttpMethod.resolve(method.name) ?: GET)
                 .uri(url)
                 .headers { headers.forEach { (k, v) -> it[k] = v } }
+                .apply { body?.let { bodyValue(it) } }
                 .awaitExchange()
                 .awaitBodyOrNull()
     }
 
     companion object {
+        @JvmStatic
         val DEFAULT_CLIENT: WebClient = WebClient
                 .builder()
                 .clientConnector(

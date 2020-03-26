@@ -33,7 +33,7 @@ suspend fun FacebookSkraper.getCommunityInfo(community: String): PageInfo? {
 }
 
 suspend fun FacebookSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/pg/${username}/posts", limit = limit)
+    return getPosts(path = "/${username}/posts", limit = limit)
 }
 
 suspend fun FacebookSkraper.getUserInfo(username: String): PageInfo? {
