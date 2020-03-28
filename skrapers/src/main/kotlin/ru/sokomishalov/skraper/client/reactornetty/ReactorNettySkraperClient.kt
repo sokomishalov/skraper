@@ -37,7 +37,7 @@ class ReactorNettySkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun fetch(
+    override suspend fun request(
             url: URLString,
             method: HttpMethodType,
             headers: Map<String, String>,

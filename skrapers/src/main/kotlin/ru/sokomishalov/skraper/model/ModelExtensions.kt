@@ -24,7 +24,9 @@ internal inline fun currentUnixTimestamp(): UnixTimestamp {
 }
 
 internal fun singleImageMap(url: URLString?): Map<MediaSize, Image> {
-    return MediaSize.values().map { it to url.orEmpty().toImage() }.toMap()
+    return url?.run {
+        MediaSize.values().map { it to toImage() }.toMap()
+    }.orEmpty()
 }
 
 internal inline fun URLString.toImage(): Image {

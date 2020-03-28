@@ -30,7 +30,7 @@ import java.net.URL
  */
 object DefaultBlockingSkraperClient : SkraperClient {
 
-    override suspend fun fetch(
+    override suspend fun request(
             url: URLString,
             method: HttpMethodType,
             headers: Map<String, String>,

@@ -35,7 +35,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Fetch byte array`() = runBlocking {
-        val bytes = client.fetch("https://www.wikipedia.org/")
+        val bytes = client.request("https://www.wikipedia.org/")
 
         assertTrue { bytes != null }
         assertTrue { bytes!!.isNotEmpty() }
@@ -43,7 +43,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Redirect to https`() = runBlocking {
-        val bytes = client.fetch("http://twitter.com/")
+        val bytes = client.request("http://twitter.com/")
 
         assertNotNull(bytes)
         assertTrue { bytes.isNotEmpty() }

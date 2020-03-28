@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.provider.pikabu.PikabuSkraper
 import ru.sokomishalov.skraper.provider.pinterest.PinterestSkraper
 import ru.sokomishalov.skraper.provider.reddit.RedditSkraper
 import ru.sokomishalov.skraper.provider.tumblr.TumblrSkraper
+import ru.sokomishalov.skraper.provider.twitch.TwitchSkraper
 import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
 import ru.sokomishalov.skraper.provider.vk.VkSkraper
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
@@ -33,11 +34,12 @@ import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
 val DEFAULT_CLIENT = KtorSkraperClient()
 
 enum class Provider(val skraper: Skraper) {
-    REDDIT(RedditSkraper(client = DEFAULT_CLIENT)),
     FACEBOOK(FacebookSkraper(client = DEFAULT_CLIENT)),
     INSTAGRAM(InstagramSkraper(client = DEFAULT_CLIENT)),
     TWITTER(TwitterSkraper(client = DEFAULT_CLIENT)),
     YOUTUBE(YoutubeSkraper(client = DEFAULT_CLIENT)),
+    TWITCH(TwitchSkraper(client = DEFAULT_CLIENT)),
+    REDDIT(RedditSkraper(client = DEFAULT_CLIENT)),
     NINEGAG(NinegagSkraper(client = DEFAULT_CLIENT)),
     PINTEREST(PinterestSkraper(client = DEFAULT_CLIENT)),
     FLICKR(FlickrSkraper(client = DEFAULT_CLIENT)),

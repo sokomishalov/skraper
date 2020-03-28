@@ -14,11 +14,12 @@ Repository contains:
 - [Kotlin library](#kotlin-library)
 
 Current list of implemented sources:
-- [Reddit](https://reddit.com)
 - [Facebook](https://facebook.com)
 - [Instagram](https://instagram.com)
 - [Twitter](https://twitter.com)
 - [Youtube](https://youtube.com)
+- [Twitch](https://twitch.tv)
+- [Reddit](https://reddit.com)
 - [9GAG](https://9gag.com)
 - [Pinterest](https://pinterest.com)
 - [Flickr](https://flickr.com)
@@ -52,7 +53,7 @@ usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT]
 optional arguments:
   -h, --help        show this help message and exit
 
-  -n LIMIT,         posts limit
+  -n LIMIT,         posts limit (50 by default)
   --limit LIMIT
 
   -t TYPE,          output type, options: [log, csv, json, xml, yaml]
@@ -63,8 +64,8 @@ optional arguments:
 
 
 positional arguments:
-  PROVIDER          skraper provider, options: [reddit, facebook, instagram, twitter, youtube, ninegag, pinterest, flickr, tumblr, ifunny, vk,
-                    pikabu]
+  PROVIDER          skraper provider, options: [facebook, instagram, twitter, youtube, twitch, reddit, 
+                    ninegag, pinterest, flickr, tumblr, ifunny, vk, pikabu]
 
   PATH              path to user/community/channel/topic/trend
 ```
@@ -89,7 +90,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.2.4</version>
+        <version>0.3.0</version>
     </dependency>
 </dependencies>
 ```
@@ -100,7 +101,7 @@ repositories {
     maven { url("https://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.2.4")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.3.0")
 }
 ```
 
@@ -114,6 +115,7 @@ As mentioned before, the provider implementation list is:
 - [InstagramSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/instagram/InstagramSkraper.kt)
 - [TwitterSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/twitter/TwitterSkraper.kt)
 - [YoutubeSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/youtube/YoutubeSkraper.kt)
+- [TwitchSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/twitch/TwitchSkraper.kt)
 - [RedditSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/reddit/RedditSkraper.kt)
 - [NinegagSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ninegag/NinegagSkraper.kt)
 - [PinterestSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pinterest/PinterestSkraper.kt)

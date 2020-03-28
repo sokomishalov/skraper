@@ -24,7 +24,7 @@ import ru.sokomishalov.skraper.model.URLString
  */
 interface SkraperClient {
 
-    suspend fun fetch(
+    suspend fun request(
             url: URLString,
             method: HttpMethodType = GET,
             headers: Map<String, String> = emptyMap(),
