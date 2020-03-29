@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import java.io.DataOutputStream
-import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.HttpURLConnection.*
 import java.net.URL
@@ -31,11 +30,11 @@ import java.net.URL
  */
 
 @PublishedApi
-internal suspend fun URL.openStreamForRedirectable(
+internal suspend fun URL.request(
         method: HttpMethodType = GET,
         headers: Map<String, String> = emptyMap(),
         body: ByteArray? = null
-): InputStream {
+): ByteArray {
     return withContext(IO) {
         val conn = openConnection() as HttpURLConnection
 
@@ -43,7 +42,7 @@ internal suspend fun URL.openStreamForRedirectable(
 
         val status = conn.responseCode
 
-        when {
+        val inputStream = when {
             status != HTTP_OK && status in listOf(HTTP_MOVED_TEMP, HTTP_MOVED_PERM, HTTP_SEE_OTHER) -> {
                 val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
                 newConn.apply {
@@ -54,6 +53,8 @@ internal suspend fun URL.openStreamForRedirectable(
             }
             else -> conn.inputStream
         }
+
+        inputStream.use { it.readBytes() }
     }
 }
 

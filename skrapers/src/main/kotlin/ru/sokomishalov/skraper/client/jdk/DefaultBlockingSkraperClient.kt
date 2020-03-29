@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
-import ru.sokomishalov.skraper.internal.net.openStreamForRedirectable
+import ru.sokomishalov.skraper.internal.net.request
 import ru.sokomishalov.skraper.model.URLString
 import java.net.URL
 
@@ -37,9 +37,11 @@ object DefaultBlockingSkraperClient : SkraperClient {
             body: ByteArray?
     ): ByteArray? {
         return withContext(IO) {
-            URL(url).openStreamForRedirectable(method, headers, body)
-        }.use {
-            it.readBytes()
+            URL(url).request(
+                    method = method,
+                    headers = headers,
+                    body = body
+            )
         }
     }
 }
