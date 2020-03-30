@@ -29,15 +29,15 @@ suspend fun RedditSkraper.getCommunityHotPosts(community: String, limit: Int = D
 }
 
 suspend fun RedditSkraper.getCommunityNewPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/${"new"}", limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/new", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityRisingPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/${"rising"}", limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/rising", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityControversialPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/${"controversial"}", limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/controversial", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityTopPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {

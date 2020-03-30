@@ -48,7 +48,7 @@ class VkSkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return posts.map {
-            it.run {
+            with(it) {
                 Post(
                         id = extractPostId(),
                         text = extractPostCaption(),

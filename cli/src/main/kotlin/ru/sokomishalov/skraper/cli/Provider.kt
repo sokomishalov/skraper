@@ -31,7 +31,7 @@ import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
 import ru.sokomishalov.skraper.provider.vk.VkSkraper
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
 
-val DEFAULT_CLIENT = KtorSkraperClient()
+private val DEFAULT_CLIENT = KtorSkraperClient()
 
 enum class Provider(val skraper: Skraper) {
     FACEBOOK(FacebookSkraper(client = DEFAULT_CLIENT)),

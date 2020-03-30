@@ -197,7 +197,7 @@ class TwitchSkraper @JvmOverloads constructor(
 
     private fun List<JsonNode>.extractVideoPosts(): List<Post> {
         return map {
-            it.run {
+            with(it) {
                 Post(
                         id = getString("id").orEmpty(),
                         text = getString("title"),
@@ -214,7 +214,7 @@ class TwitchSkraper @JvmOverloads constructor(
 
     private fun List<JsonNode>.extractClipPosts(): List<Post> {
         return map {
-            it.run {
+            with(it) {
                 Post(
                         id = getString("id").orEmpty(),
                         publishedAt = getString("createdAt")?.let { pd -> ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond() },
