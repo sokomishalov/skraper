@@ -16,6 +16,7 @@
 package ru.sokomishalov.skraper.provider.pinterest
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
@@ -35,5 +36,10 @@ class PinterestSkraperTest : SkraperTck() {
     @Test
     fun `Check user info`() {
         assertPageInfo { skraper.getUserInfo(username = username) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Image("https://www.pinterest.ru/pin/89509111320495523/"))
     }
 }

@@ -20,6 +20,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
+import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -31,7 +32,7 @@ import ru.sokomishalov.skraper.model.MediaSize.*
  */
 class InstagramSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
-        private val apiQueryId: String = "17888483320059182",
+        private val gqlUserMediasQueryId: String = "17888483320059182",
         override val baseUrl: URLString = "https://instagram.com"
 ) : Skraper {
 
@@ -58,6 +59,10 @@ class InstagramSkraper @JvmOverloads constructor(
         }
     }
 
+    override suspend fun resolve(media: Media): Media {
+        return client.fetchMediaWithOpenGraphMeta(media)
+    }
+
     private suspend fun getUserInfo(path: String): JsonNode? {
         val json = client.fetchJson(url = baseUrl.buildFullURL(
                 path = path,
@@ -71,7 +76,7 @@ class InstagramSkraper @JvmOverloads constructor(
         val data = client.fetchJson(url = baseUrl.buildFullURL(
                 path = "/graphql/query/",
                 queryParams = mapOf(
-                        "query_id" to apiQueryId,
+                        "query_id" to gqlUserMediasQueryId,
                         "id" to userId,
                         "first" to limit
                 )
@@ -83,48 +88,22 @@ class InstagramSkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return postsNodes.map {
-            Post(
-                    id = it.extractPostId(),
-                    text = it.extractPostCaption(),
-                    publishedAt = it.extractPostPublishedAt(),
-                    rating = it.extractPostLikesCount(),
-                    viewsCount = it.extractPostViewsCount(),
-                    commentsCount = it.extractPostCommentsCount(),
-                    media = it.extractPostMediaItems()
-            )
+            with(it) {
+                Post(
+                        id = getString("id").orEmpty(),
+                        text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
+                        publishedAt = getLong("taken_at_timestamp"),
+                        rating = getInt("edge_media_preview_like.count"),
+                        viewsCount = getInt("video_view_count"),
+                        commentsCount = getInt("edge_media_to_comment.count"),
+                        media = extractPostMediaItems()
+                )
+            }
         }
-    }
-
-    private fun JsonNode.extractPostId(): String {
-        return getString("id")
-                .orEmpty()
-    }
-
-    private fun JsonNode.extractPostCaption(): String {
-        return getByPath("edge_media_to_caption.edges.0.node.text")
-                ?.asText()
-                .orEmpty()
-    }
-
-    private fun JsonNode.extractPostPublishedAt(): Long? {
-        return getLong("taken_at_timestamp")
-    }
-
-    private fun JsonNode.extractPostLikesCount(): Int? {
-        return getInt("edge_media_preview_like.count")
-    }
-
-    private fun JsonNode.extractPostCommentsCount(): Int? {
-        return getInt("edge_media_to_comment.count")
-    }
-
-    private fun JsonNode.extractPostViewsCount(): Int? {
-        return getInt("video_view_count")
     }
 
     private fun JsonNode.extractPostMediaItems(): List<Media> {
         val isVideo = this["is_video"].asBoolean()
-
         val aspectRatio = this["dimensions"]?.run { getDouble("width") / getDouble("height") }
 
         return listOf(

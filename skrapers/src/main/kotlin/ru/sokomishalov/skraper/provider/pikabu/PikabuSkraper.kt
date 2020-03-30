@@ -22,6 +22,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
@@ -45,24 +46,26 @@ class PikabuSkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return stories.map {
-            val storyBlocks = it.getElementsByClass("story-block")
+            with(it) {
+                val storyBlocks = getElementsByClass("story-block")
 
-            val title = it.extractPostTitle()
-            val text = storyBlocks.parseText()
+                val title = extractPostTitle()
+                val text = storyBlocks.parseText()
 
-            val caption = when {
-                text.isBlank() -> title
-                else -> "${title}\n\n${text}"
+                val caption = when {
+                    text.isBlank() -> title
+                    else -> "${title}\n\n${text}"
+                }
+
+                Post(
+                        id = extractPostId(),
+                        text = String(caption.toByteArray(UTF_8)),
+                        publishedAt = extractPostPublishDate(),
+                        rating = extractPostRating(),
+                        commentsCount = extractPostCommentsCount(),
+                        media = storyBlocks.extractPostMediaItems()
+                )
             }
-
-            Post(
-                    id = it.extractPostId(),
-                    text = String(caption.toByteArray(UTF_8)),
-                    publishedAt = it.extractPostPublishDate(),
-                    rating = it.extractPostRating(),
-                    commentsCount = it.extractPostCommentsCount(),
-                    media = storyBlocks.extractPostMediaItems()
-            )
         }
     }
 
@@ -89,6 +92,22 @@ class PikabuSkraper @JvmOverloads constructor(
                         coversMap = singleImageMap(url = extractPageCover())
                 )
             }
+        }
+    }
+
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Video -> {
+                val page = client.fetchDocument(
+                        url = media.url,
+                        charset = Charset.forName("windows-1251")
+                )
+                return page
+                        ?.getFirstElementByClass("player")
+                        ?.extractVideoInfo()
+                        ?: media
+            }
+            else -> client.fetchMediaWithOpenGraphMeta(media)
         }
     }
 
@@ -148,17 +167,27 @@ class PikabuSkraper @JvmOverloads constructor(
                 }
                 "story-block_type_video" in b.classNames() -> b
                         .getFirstElementByAttributeValueContaining("data-type", "video")
-                        ?.run {
-                            Video(
-                                    url = attr("data-source").orEmpty(),
-                                    aspectRatio = attr("data-ratio")?.toDoubleOrNull(),
-                                    duration = attr("data-duration")?.toLongOrNull()?.let { Duration.ofSeconds(it) }
-                            )
-                        }
+                        ?.extractVideoInfo()
 
                 else -> null
             }
         }
+    }
+
+    private fun Element.extractVideoInfo(): Video {
+        val ext = when {
+            attr("data-webm")?.toBoolean() ?: false -> ".webm"
+            else -> ""
+        }
+        return Video(
+                url = "${attr("data-source")}$ext",
+                thumbnail = Image(
+                        url = "${attr("data-source")}.jpg",
+                        aspectRatio = attr("data-ratio")?.toDoubleOrNull()
+                ),
+                aspectRatio = attr("data-ratio")?.toDoubleOrNull(),
+                duration = attr("data-duration")?.toLongOrNull()?.let { Duration.ofSeconds(it) }
+        )
     }
 
     private fun Document?.extractUserAvatar(): String? {

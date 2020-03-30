@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Duration
@@ -46,15 +47,15 @@ class YoutubeSkraper @JvmOverloads constructor(
                 .orEmpty()
 
         return videos.map {
-            val linkElement = it.getFirstElementByClass("yt-uix-tile-link")
-
-            Post(
-                    id = linkElement.extractPostId(),
-                    text = linkElement.extractPostCaption(),
-                    viewsCount = it.extractPostViewsCount(),
-                    publishedAt = it.extractPostPublishDate(),
-                    media = it.extractPostVideos()
-            )
+            with(it) {
+                Post(
+                        id = extractPostId(),
+                        text = extractPostCaption(),
+                        viewsCount = extractPostViewsCount(),
+                        publishedAt = extractPostPublishDate(),
+                        media = extractPostVideos()
+                )
+            }
         }
     }
 
@@ -73,15 +74,33 @@ class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
+    override suspend fun canResolve(media: Media): Boolean {
+        return arrayOf("youtube.com", "youtu.be")
+                .any { media.url.host.removePrefix("www.") in it }
+    }
+
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Video -> runCatching {
+                YoutubeVideoResolver(client = client, baseUrl = baseUrl).getVideo(media)
+            }.getOrNull() ?: media
+            else -> media
+        }
+    }
+
     private suspend fun getUserPage(path: String): Document? {
-        return client.fetchDocument(url = baseUrl.buildFullURL(
-                path = path,
-                queryParams = mapOf("gl" to "EN", "hl" to "en")
-        ))
+        return client.fetchDocument(
+                url = baseUrl.buildFullURL(
+                        path = path,
+                        queryParams = mapOf("gl" to "EN", "hl" to "en")
+                ),
+                headers = emptyMap()
+        )
     }
 
     private fun Element?.extractPostId(): String {
         return this
+                ?.getFirstElementByClass("yt-uix-tile-link")
                 ?.attr("href")
                 ?.substringAfter("/watch?v=")
                 .orEmpty()
@@ -89,6 +108,7 @@ class YoutubeSkraper @JvmOverloads constructor(
 
     private fun Element?.extractPostCaption(): String {
         return this
+                ?.getFirstElementByClass("yt-uix-tile-link")
                 ?.attr("title")
                 .orEmpty()
     }
@@ -111,23 +131,23 @@ class YoutubeSkraper @JvmOverloads constructor(
                 ?.getElementsByTag("li")
                 ?.getOrNull(0)
                 ?.wholeText()
-                ?.let {
+                ?.run {
                     val now = currentUnixTimestamp()
 
-                    val amount = it.split(" ")
+                    val amount = split(" ")
                             .firstOrNull()
                             ?.toIntOrNull()
                             ?: 1
 
                     val temporalAmount: TemporalAmount = when {
-                        it.contains("moment", ignoreCase = true) -> Duration.ofMillis(amount.toLong())
-                        it.contains("second", ignoreCase = true) -> Duration.ofSeconds(amount.toLong())
-                        it.contains("minute", ignoreCase = true) -> Duration.ofMinutes(amount.toLong())
-                        it.contains("hour", ignoreCase = true) -> Duration.ofHours(amount.toLong())
-                        it.contains("day", ignoreCase = true) -> Duration.ofDays(amount.toLong())
-                        it.contains("week", ignoreCase = true) -> Period.ofWeeks(amount)
-                        it.contains("month", ignoreCase = true) -> Period.ofMonths(amount)
-                        it.contains("year", ignoreCase = true) -> Period.ofYears(amount)
+                        contains("moment", ignoreCase = true) -> Duration.ofMillis(amount.toLong())
+                        contains("second", ignoreCase = true) -> Duration.ofSeconds(amount.toLong())
+                        contains("minute", ignoreCase = true) -> Duration.ofMinutes(amount.toLong())
+                        contains("hour", ignoreCase = true) -> Duration.ofHours(amount.toLong())
+                        contains("day", ignoreCase = true) -> Duration.ofDays(amount.toLong())
+                        contains("week", ignoreCase = true) -> Period.ofWeeks(amount)
+                        contains("month", ignoreCase = true) -> Period.ofMonths(amount)
+                        contains("year", ignoreCase = true) -> Period.ofYears(amount)
                         else -> ZERO
                     }
                     val millisAgo = when (temporalAmount) {
@@ -187,12 +207,12 @@ class YoutubeSkraper @JvmOverloads constructor(
         return this
                 .getFirstElementByClass("yt-subscription-button-subscriber-count-branded-horizontal")
                 ?.wholeText()
-                ?.let {
+                ?.run {
                     when {
-                        it.endsWith("K") -> it.replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
-                        it.endsWith("M", ignoreCase = true) -> it.replace("M", "").replace(".", "").toIntOrNull()?.times(1_000_000)
-                        it.endsWith("B", ignoreCase = true) -> it.replace("B", "").replace(".", "").toIntOrNull()?.times(1_000_000_000)
-                        else -> it.replace(".", "").toIntOrNull()
+                        endsWith("K") -> replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
+                        endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()?.times(1_000_000)
+                        endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()?.times(1_000_000_000)
+                        else -> replace(".", "").toIntOrNull()
                     }
                 }
     }

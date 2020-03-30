@@ -19,10 +19,14 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
+import ru.sokomishalov.skraper.model.URLString
 import java.io.DataOutputStream
+import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.HttpURLConnection.*
 import java.net.URL
+import java.net.URLDecoder
+import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -30,11 +34,11 @@ import java.net.URL
  */
 
 @PublishedApi
-internal suspend fun URL.request(
+internal suspend fun URL.openRedirectableStream(
         method: HttpMethodType = GET,
         headers: Map<String, String> = emptyMap(),
         body: ByteArray? = null
-): ByteArray {
+): InputStream {
     return withContext(IO) {
         val conn = openConnection() as HttpURLConnection
 
@@ -42,7 +46,7 @@ internal suspend fun URL.request(
 
         val status = conn.responseCode
 
-        val inputStream = when {
+        when {
             status != HTTP_OK && status in listOf(HTTP_MOVED_TEMP, HTTP_MOVED_PERM, HTTP_SEE_OTHER) -> {
                 val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
                 newConn.apply {
@@ -53,10 +57,40 @@ internal suspend fun URL.request(
             }
             else -> conn.inputStream
         }
-
-        inputStream.use { it.readBytes() }
     }
 }
+
+@PublishedApi
+internal suspend fun URL.request(
+        method: HttpMethodType = GET,
+        headers: Map<String, String> = emptyMap(),
+        body: ByteArray? = null
+): ByteArray {
+    return withContext(IO) {
+        openRedirectableStream(method, headers, body).readBytes()
+    }
+}
+
+val URLString.path: String
+    get() = URL(this).path
+
+val URLString.host: String
+    get() = URL(this).host
+
+val URLString.queryParams: Map<String, String>
+    get() {
+        return URL(this)
+                .query
+                .split("&".toRegex())
+                .map {
+                    val idx = it.indexOf("=")
+                    val key = URLDecoder.decode(it.substring(0, idx), UTF_8.name())
+                    val value = URLDecoder.decode(it.substring(idx + 1), UTF_8.name())
+
+                    key to value
+                }
+                .toMap()
+    }
 
 private fun HttpURLConnection.applyData(
         method: HttpMethodType,

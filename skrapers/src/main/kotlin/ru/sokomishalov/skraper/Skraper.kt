@@ -17,6 +17,7 @@ package ru.sokomishalov.skraper
 
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.model.*
 
 /**
@@ -30,7 +31,7 @@ interface Skraper {
     val baseUrl: URLString
 
     /**
-     * @return http client for fetching web pages, images and json from network
+     * @return http client
      */
     val client: SkraperClient get() = DefaultBlockingSkraperClient
 
@@ -38,7 +39,7 @@ interface Skraper {
      * @return provider info
      */
     suspend fun getProviderInfo(): ProviderInfo? = ProviderInfo(
-            name = this::class.java.simpleName.removeSuffix("Skraper"),
+            name = name,
             logoMap = singleImageMap(url = baseUrl.buildFullURL(path = "/favicon.ico"))
     )
 
@@ -54,4 +55,18 @@ interface Skraper {
      * @return list of posts
      */
     suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+
+    /**
+     * @param media with provider relative url
+     * @return true if such skraper can resolve relative url
+     */
+    suspend fun canResolve(media: Media): Boolean = media.url.host.removePrefix("www.") in baseUrl.host
+
+    /**
+     * @param media with provider relative url
+     * @return media with direct url
+     */
+    suspend fun resolve(media: Media): Media
+
+    companion object
 }

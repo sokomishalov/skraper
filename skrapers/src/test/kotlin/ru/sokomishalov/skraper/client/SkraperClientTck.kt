@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("BlockingMethodInNonBlockingContext")
+
 package ru.sokomishalov.skraper.client
 
 import kotlinx.coroutines.runBlocking
@@ -23,6 +25,7 @@ import ru.sokomishalov.skraper.fetchBytes
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.serialization.getString
+import java.nio.file.Files
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -81,5 +84,18 @@ abstract class SkraperClientTck {
     @Test
     fun `Bad url`() = runBlocking {
         assertNull(client.fetchBytes("https://very-badurl.badurl"))
+    }
+
+    @Test
+    fun `File download`() = runBlocking {
+        val tempFile = Files.createTempFile("test-pfx", ".zip").toFile().apply { deleteOnExit() }
+
+        assertTrue { tempFile.exists() }
+        assertEquals(0L, tempFile.length())
+
+        client.download("http://speedtest.tele2.net/1MB.zip", tempFile)
+
+        assertTrue { tempFile.exists() }
+        assertEquals(1L * 1024 * 1024, tempFile.length())
     }
 }

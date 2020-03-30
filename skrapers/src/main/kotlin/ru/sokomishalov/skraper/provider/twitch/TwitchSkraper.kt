@@ -17,12 +17,11 @@ package ru.sokomishalov.skraper.provider.twitch
 
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
-import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.*
+import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.fetchJson
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.*
@@ -36,8 +35,10 @@ import kotlin.text.Charsets.UTF_8
  */
 class TwitchSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
+        override val baseUrl: URLString = "https://twitch.tv",
         private val graphBaseUrl: URLString = "https://gql.twitch.tv/gql",
-        override val baseUrl: URLString = "https://twitch.tv"
+        private val restBaseUrl: URLString = "https://api.twitch.tv/api",
+        private val usherBaseUrl: URLString = "https://usher.ttvnw.net/vod"
 ) : Skraper {
 
     override suspend fun getPageInfo(path: String): PageInfo? {
@@ -91,8 +92,8 @@ class TwitchSkraper @JvmOverloads constructor(
         val clientId = page.extractClientId()
 
         val isGamePath = path.removePrefix("/").startsWith("directory/game")
-        val isClipsPath = path.contains("/clips")
-        val isVideoPath = path.contains("/videos")
+        val isClipsPath = "/clips" in path
+        val isVideoPath = "/videos" in path
 
         return when {
             isGamePath -> {
@@ -167,6 +168,71 @@ class TwitchSkraper @JvmOverloads constructor(
         }
     }
 
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Video -> {
+                val page = client.fetchDocument(media.url)
+                val clientId = page?.extractClientId().orEmpty()
+
+                val isClipPath = "/clip/" in media.url
+                val isVideoPath = "/videos/" in media.url
+
+                return when {
+                    isClipPath -> {
+                        val clipSlug = media.url.extractClipSlugFromPath()
+
+                        val clipUrls = getClipUrls(slug = clipSlug, clientId = clientId)
+
+                        val mp4urls = clipUrls
+                                ?.getByPath("data.clip.videoQualities")
+                                ?.map { it.getString("sourceURL") }
+                                .orEmpty()
+
+                        media.copy(
+                                url = mp4urls.getOrNull(mp4urls.size - 2) ?: media.url
+                        )
+                    }
+
+                    isVideoPath -> {
+                        val videoId = media.url.extractVideoIdFromPath()
+
+                        val token = client.fetchJson(
+                                url = restBaseUrl.buildFullURL(path = "/vods/${videoId}/access_token"),
+                                method = GET,
+                                headers = mapOf(
+                                        "Client-ID" to clientId,
+                                        "User-Agent" to DEFAULT_USER_AGENT
+                                )
+                        )
+
+                        val videoMeta = client.fetchBytes(
+                                url = usherBaseUrl.buildFullURL(
+                                        path = "/${videoId}.m3u8",
+                                        queryParams = mapOf(
+                                                "nauth" to token?.getString("token"),
+                                                "nauthsig" to token?.getString("sig"),
+                                                "allow_source" to "true"
+                                        )
+                                ),
+                                method = GET
+                        )?.toString(UTF_8)
+
+                        val m3u8urls = videoMeta
+                                ?.lines()
+                                ?.filterNot { it.startsWith("#") }
+
+                        media.copy(
+                                url = m3u8urls?.getOrNull(m3u8urls.size - 2) ?: media.url
+                        )
+                    }
+
+                    else -> media
+                }
+            }
+            else -> media
+        }
+    }
+
     private suspend fun getPage(path: String): Document? {
         return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
     }
@@ -193,6 +259,17 @@ class TwitchSkraper @JvmOverloads constructor(
                 .removePrefix("directory/game/")
                 .substringBefore("/")
                 .unescapeUrl()
+    }
+
+    private fun String.extractVideoIdFromPath(): Int? {
+        return substringAfterLast("/")
+                .substringBefore("?")
+                .toIntOrNull()
+    }
+
+    private fun String.extractClipSlugFromPath(): String {
+        return substringAfterLast("/clip/")
+                .substringBefore("?")
     }
 
     private fun List<JsonNode>.extractVideoPosts(): List<Post> {
@@ -237,13 +314,18 @@ class TwitchSkraper @JvmOverloads constructor(
         return graphRequest(clientId = clientId, query = userRequest(username = username, postCount = postCount))
     }
 
+    private suspend fun getClipUrls(slug: String, clientId: String): JsonNode? {
+        return graphRequest(clientId = clientId, query = clipRequest(slug = slug))
+    }
+
     private suspend fun graphRequest(clientId: String, query: String): JsonNode? {
         return client.fetchJson(
                 url = graphBaseUrl,
                 method = POST,
                 headers = mapOf(
                         "Client-ID" to clientId,
-                        "Accept-Language" to "en-US"
+                        "Accept-Language" to "en-US",
+                        "User-Agent" to DEFAULT_USER_AGENT
                 ),
                 body = "{ \"query\": \"${query.replace("\n", " ").replace("\"", "\\\"")}\" }".toByteArray(UTF_8)
         )
@@ -320,5 +402,15 @@ class TwitchSkraper @JvmOverloads constructor(
             }
           }
         }
+    """
+
+    private fun clipRequest(slug: String) = """
+       query { 
+         clip(slug: "$slug") { 
+           videoQualities { 
+             sourceURL 
+           } 
+         } 
+       } 
     """
 }

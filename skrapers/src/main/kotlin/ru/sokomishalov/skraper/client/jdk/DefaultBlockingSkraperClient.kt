@@ -19,9 +19,12 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.internal.net.openRedirectableStream
 import ru.sokomishalov.skraper.internal.net.request
 import ru.sokomishalov.skraper.model.URLString
+import java.io.File
 import java.net.URL
+import java.nio.channels.Channels
 
 
 /**
@@ -42,6 +45,20 @@ object DefaultBlockingSkraperClient : SkraperClient {
                     headers = headers,
                     body = body
             )
+        }
+    }
+
+    override suspend fun download(
+            url: URLString,
+            destFile: File
+    ) {
+        withContext(IO) {
+            Channels.newChannel(URL(url).openRedirectableStream()).use { rbc ->
+                destFile.outputStream().use { fos ->
+                    fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
+                    destFile.absolutePath
+                }
+            }
         }
     }
 }

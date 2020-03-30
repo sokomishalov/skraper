@@ -15,19 +15,21 @@
  */
 package ru.sokomishalov.skraper.client.spring
 
-import io.netty.handler.ssl.SslContextBuilder
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.web.reactive.function.client.ExchangeStrategies
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodyOrNull
-import org.springframework.web.reactive.function.client.awaitExchange
-import reactor.netty.http.client.HttpClient
+import org.springframework.web.reactive.function.client.*
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.client.netty.ReactorNettySkraperClient
+import ru.sokomishalov.skraper.internal.nio.aWrite
 import ru.sokomishalov.skraper.model.URLString
+import java.io.File
+import java.net.URI
+import java.nio.ByteBuffer
+
 
 /**
  * @author sokomishalov
@@ -44,36 +46,37 @@ class SpringReactiveSkraperClient(
     ): ByteArray? {
         return webClient
                 .method(HttpMethod.resolve(method.name) ?: GET)
-                .uri(url)
+                .uri(URI(url))
                 .headers { headers.forEach { (k, v) -> it[k] = v } }
                 .apply { body?.let { bodyValue(it) } }
                 .awaitExchange()
-                .awaitBodyOrNull()
+                .bodyToMono<ByteArrayResource>()
+                .map { it.byteArray }
+                .awaitFirstOrNull()
+    }
+
+    override suspend fun download(
+            url: URLString,
+            destFile: File
+    ) {
+        webClient
+                .get()
+                .uri(URI(url))
+                .retrieve()
+                .bodyToFlux<ByteBuffer>()
+                .aWrite(destFile)
     }
 
     companion object {
         @JvmStatic
         val DEFAULT_CLIENT: WebClient = WebClient
                 .builder()
-                .clientConnector(
-                        ReactorClientHttpConnector(
-                                HttpClient
-                                        .create()
-                                        .followRedirect(true)
-                                        .secure {
-                                            it.sslContext(SslContextBuilder
-                                                    .forClient()
-                                                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                                                    .build()
-                                            )
-                                        }
-                        )
-                )
+                .clientConnector(ReactorClientHttpConnector(ReactorNettySkraperClient.DEFAULT_CLIENT))
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
-                        .codecs { ccc ->
-                            ccc.defaultCodecs().apply {
-                                maxInMemorySize(16 * 1024 * 1024)
+                        .codecs { cc ->
+                            cc.defaultCodecs().apply {
+                                maxInMemorySize(-1)
                             }
                         }
                         .build()

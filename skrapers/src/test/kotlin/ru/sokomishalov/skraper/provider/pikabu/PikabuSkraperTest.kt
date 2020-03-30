@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.pikabu
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 class PikabuSkraperTest : SkraperTck() {
@@ -80,4 +82,14 @@ class PikabuSkraperTest : SkraperTck() {
         assertPageInfo { skraper.getCommunityInfo(community = community) }
     }
 
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Video("https://pikabu.ru/story/kogda_est_znaniya_i_umeniya_no_otsutstvuet_internet_7347966"))
+        assertMediaResolved(Image("https://pikabu.ru/story/molodtsom_7348357"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
+        assertMediaDownloaded(Video("https://pikabu.ru/story/kogda_est_znaniya_i_umeniya_no_otsutstvuet_internet_7347966"))
+    }
 }

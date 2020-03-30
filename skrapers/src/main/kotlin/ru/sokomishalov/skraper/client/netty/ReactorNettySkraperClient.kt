@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("ReactorUnusedPublisher")
+@file:Suppress(
+        "ReactorUnusedPublisher",
+        "ReactiveStreamsUnusedPublisher",
+        "BlockingMethodInNonBlockingContext"
+)
 
-package ru.sokomishalov.skraper.client.reactornetty
+package ru.sokomishalov.skraper.client.netty
 
 import io.netty.handler.codec.http.HttpMethod
 import io.netty.handler.ssl.SslContextBuilder
@@ -27,8 +31,11 @@ import reactor.netty.ByteBufMono
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.internal.nio.aWrite
 import ru.sokomishalov.skraper.model.URLString
+import java.io.File
 import kotlin.text.Charsets.UTF_8
+
 
 /**
  * @author sokomishalov
@@ -53,6 +60,18 @@ class ReactorNettySkraperClient(
                 })
                 .responseSingle { _, u -> u.asByteArray() }
                 .awaitFirstOrNull()
+    }
+
+    override suspend fun download(
+            url: URLString,
+            destFile: File
+    ) {
+        client
+                .get()
+                .uri(url)
+                .responseContent()
+                .asByteBuffer()
+                .aWrite(destFile)
     }
 
     companion object {

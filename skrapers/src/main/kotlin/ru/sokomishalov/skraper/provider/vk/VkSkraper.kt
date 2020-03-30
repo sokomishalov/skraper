@@ -78,6 +78,47 @@ class VkSkraper @JvmOverloads constructor(
         }
     }
 
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Video -> {
+                val page = client.fetchDocument(
+                        url = media.url,
+                        headers = emptyMap()
+                )
+                val video = page?.getFirstElementByTag("video")
+                media.copy(
+                        url = video
+                                ?.getElementsByTag("source")
+                                ?.lastOrNull()
+                                ?.attr("src")
+                                ?: media.url,
+                        thumbnail = video
+                                ?.attr("poster")
+                                ?.toImage()
+                                ?: media.thumbnail
+                )
+            }
+            is Image -> {
+                val page = client.fetchDocument(
+                        url = media.url,
+                        headers = emptyMap()
+                )
+                val url = page
+                        ?.getFirstElementByClass("PhotoviewPage__photo")
+                        ?.getFirstElementByTag("img")
+                        ?.attr("src")
+
+                media.copy(
+                        url = url ?: media.url
+                )
+            }
+            else -> {
+                media
+            }
+        }
+
+    }
+
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
                 url = baseUrl.buildFullURL(path = path),
@@ -163,25 +204,31 @@ class VkSkraper @JvmOverloads constructor(
     private fun Element.extractPostMediaItems(): List<Media> {
         val thumbElement = getFirstElementByClass("thumbs_map_helper")
 
-        return thumbElement
-                ?.getElementsByClass("thumb_map_img")
-                ?.mapNotNull {
-                    val isVideo = it.attr("data-video").isNotBlank()
-                    val aspectRatio = thumbElement
-                            .getStyle("padding-top")
-                            ?.removeSuffix("%")
-                            ?.toDoubleOrNull()
-                            ?.run { 100 / this }
+        val aspectRatio = thumbElement
+                ?.getStyle("padding-top")
+                ?.removeSuffix("%")
+                ?.toDoubleOrNull()
+                ?.run { 100 / this }
 
-                    when {
-                        isVideo -> Video(
-                                url = "${baseUrl}${it.attr("href")}",
-                                aspectRatio = aspectRatio
-                        )
-                        else -> Image(
-                                url = it.getBackgroundImageStyle(),
-                                aspectRatio = aspectRatio
-                        )
+        return thumbElement
+                ?.getElementsByTag("a")
+                ?.mapNotNull {
+                    with(it) {
+                        val isVideo = attr("href").startsWith("/video")
+                        val hrefLink = "${baseUrl}${attr("href")}"
+
+                        when {
+                            isVideo -> Video(
+                                    url = hrefLink,
+                                    aspectRatio = aspectRatio
+                            )
+                            else -> Image(
+                                    url = getFirstElementByClass("thumb_map_img")
+                                            ?.getBackgroundImageStyle()
+                                            ?: hrefLink,
+                                    aspectRatio = aspectRatio
+                            )
+                        }
                     }
                 }
                 .orEmpty()
@@ -247,6 +294,5 @@ class VkSkraper @JvmOverloads constructor(
                 .appendPattern("d MMM yyyy")
                 .parseLenient()
                 .toFormatter(ENGLISH)
-
     }
 }

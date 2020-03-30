@@ -16,6 +16,7 @@
 package ru.sokomishalov.skraper.provider.flickr
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
@@ -40,5 +41,10 @@ class FlickrSkraperTest : SkraperTck() {
     @Test
     fun `Check user info`() {
         assertPageInfo { skraper.getUserPageInfo(username = username) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Image("https://www.flickr.com/photos/harrythehawk/49711484733/"))
     }
 }
