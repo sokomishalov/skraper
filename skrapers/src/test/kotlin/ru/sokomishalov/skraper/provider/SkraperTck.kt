@@ -27,7 +27,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.client.reactornetty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 import ru.sokomishalov.skraper.model.ProviderInfo
@@ -55,7 +55,7 @@ abstract class SkraperTck {
     protected abstract val skraper: Skraper
     protected abstract val path: String
 
-    protected val client: SkraperClient = KtorSkraperClient()
+    protected val client: SkraperClient = ReactorNettySkraperClient()
 
     @Test
     fun `Check posts`() {
@@ -72,7 +72,7 @@ abstract class SkraperTck {
         assertProviderInfo { getProviderInfo() }
     }
 
-    protected fun assertPosts(action: suspend Skraper.() -> List<Post>) = runBlocking {
+    protected open fun assertPosts(action: suspend Skraper.() -> List<Post>) = runBlocking {
         val posts = logAction { skraper.action() }
 
         assertTrue { posts.isNotEmpty() }
@@ -84,7 +84,7 @@ abstract class SkraperTck {
         }
     }
 
-    protected fun assertPageInfo(action: suspend Skraper.() -> PageInfo?) = runBlocking {
+    protected open fun assertPageInfo(action: suspend Skraper.() -> PageInfo?) = runBlocking {
         val pageInfo = logAction { skraper.action() }
         assertNotNull(pageInfo)
         assertNotNull(pageInfo.nick)
@@ -94,7 +94,7 @@ abstract class SkraperTck {
         }
     }
 
-    protected fun assertProviderInfo(action: suspend Skraper.() -> ProviderInfo?) = runBlocking {
+    protected open fun assertProviderInfo(action: suspend Skraper.() -> ProviderInfo?) = runBlocking {
         val providerInfo = logAction { skraper.action() }
         assertNotNull(providerInfo)
         assertNotNull(providerInfo.name)
@@ -104,7 +104,7 @@ abstract class SkraperTck {
         }
     }
 
-    private suspend fun <T> logAction(action: suspend Skraper.() -> T): T {
+    protected suspend fun <T> logAction(action: suspend Skraper.() -> T): T {
         return skraper.action().also {
             log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(it))
         }

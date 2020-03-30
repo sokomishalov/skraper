@@ -1,4 +1,6 @@
 ### TODO list
+- [ ] Thumbnails to the videos
+- [ ] Add option to the cli tool to download media
 - [ ] Client gui
 - [ ] Replace java.time.* from jdk 1.8 to lower jdk date-time api
 to be more android-friendly.
