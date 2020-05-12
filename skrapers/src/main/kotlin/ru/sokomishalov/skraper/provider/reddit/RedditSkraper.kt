@@ -46,7 +46,9 @@ class RedditSkraper @JvmOverloads constructor(
         return posts.map {
             Post(
                     id = it.getString("id").orEmpty(),
-                    text = it.getString("title"),
+                    text = listOf(it.getString("title").orEmpty(), it.getString("selftext").orEmpty())
+                            .filter { s -> s.isNotEmpty() }
+                            .joinToString("\n"),
                     publishedAt = it.getLong("created_utc"),
                     rating = it.getInt("score"),
                     commentsCount = it.getInt("num_comments"),
@@ -83,16 +85,26 @@ class RedditSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPostMediaItems(): List<Media> {
-        val isVideo = this["media"].isEmpty.not()
-        val url = getString("url").orEmpty()
-        val aspectRatio = getByPath("preview.images")
-                ?.firstOrNull()
-                ?.get("source")
-                ?.run { getDouble("width") / getDouble("height") }
+        val previewMedia = getByPath("preview.images")?.toList().orEmpty().mapNotNull {
+            it.get("source")?.let { source ->
+                Image(
+                        url = source.getString("url").orEmpty().replace("&amp;", "&"),
+                        aspectRatio = source.getDouble("width") / source.getDouble("height")
+                )
+            }
+        }
 
-        return listOf(when {
-            isVideo -> Video(url = url, aspectRatio = aspectRatio)
-            else -> Image(url = url, aspectRatio = aspectRatio)
-        })
+        val videoMedia = if (this["media"].isEmpty.not()) {
+            val url = getString("url").orEmpty()
+            val aspectRatio = getByPath("preview.images")
+                    ?.firstOrNull()
+                    ?.get("source")
+                    ?.run { getDouble("width") / getDouble("height") }
+
+            listOf(Video(url = url, aspectRatio = aspectRatio))
+        } else {
+            emptyList()
+        }
+        return previewMedia + videoMedia
     }
 }
