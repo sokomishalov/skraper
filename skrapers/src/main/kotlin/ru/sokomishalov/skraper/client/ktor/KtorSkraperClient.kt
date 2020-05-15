@@ -16,16 +16,23 @@
 package ru.sokomishalov.skraper.client.ktor
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.request
+import io.ktor.client.statement.HttpResponse
 import io.ktor.content.ByteArrayContent
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpHeaders.UnsafeHeadersList
 import io.ktor.http.HttpMethod
-import io.ktor.http.takeFrom
+import io.ktor.utils.io.consumeEachBufferRange
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.reactive.asPublisher
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.internal.nio.aWrite
 import ru.sokomishalov.skraper.model.URLString
+import java.io.File
 
 class KtorSkraperClient(
         private val client: HttpClient = DEFAULT_CLIENT
@@ -37,22 +44,37 @@ class KtorSkraperClient(
             headers: Map<String, String>,
             body: ByteArray?
     ): ByteArray? {
-        return client.request {
-            this.url.takeFrom(url)
+        return client.request(urlString = url) {
             this.method = HttpMethod.parse(method.name)
-            headers
-                    .filterKeys { it !in UnsafeHeadersList }
-                    .forEach { (k, v) ->
-                        header(k, v)
-                    }
+            headers.filterKeys { it !in UnsafeHeadersList }.forEach { (k, v) -> header(k, v) }
             body?.let {
                 this.body = ByteArrayContent(
                         bytes = it,
-                        contentType = headers["Content-Type"]?.let { t -> ContentType.parse(t) }
+                        contentType = headers[HttpHeaders.ContentType]?.let { t -> ContentType.parse(t) }
                 )
             }
         }
     }
+
+    override suspend fun download(
+            url: URLString,
+            destFile: File
+    ) {
+        client
+                .get<HttpResponse>(urlString = url)
+                .content
+                .run {
+                    flow {
+                        consumeEachBufferRange { buf, last ->
+                            emit(buf)
+                            !last
+                        }
+                    }
+                }
+                .asPublisher()
+                .aWrite(destFile)
+    }
+
 
     companion object {
         @JvmStatic

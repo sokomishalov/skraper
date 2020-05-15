@@ -22,6 +22,8 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
+import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -38,20 +40,22 @@ class RedditSkraper @JvmOverloads constructor(
         ))
 
         val posts = response
-                ?.getByPath("data.children")
+                ?.getFirstByPath("data.children", "0.data.children")
                 ?.toList()
                 .orEmpty()
                 .mapNotNull { it["data"] }
 
         return posts.map {
-            Post(
-                    id = it.getString("id").orEmpty(),
-                    text = it.getString("title"),
-                    publishedAt = it.getLong("created_utc"),
-                    rating = it.getInt("score"),
-                    commentsCount = it.getInt("num_comments"),
-                    media = it.extractPostMediaItems()
-            )
+            with(it) {
+                Post(
+                        id = getString("id").orEmpty(),
+                        text = extractText(),
+                        publishedAt = getLong("created_utc"),
+                        rating = getInt("score"),
+                        commentsCount = getInt("num_comments"),
+                        media = extractPostMediaItems()
+                )
+            }
         }
     }
 
@@ -82,17 +86,50 @@ class RedditSkraper @JvmOverloads constructor(
         }
     }
 
-    private fun JsonNode.extractPostMediaItems(): List<Media> {
-        val isVideo = this["media"].isEmpty.not()
-        val url = getString("url").orEmpty()
-        val aspectRatio = getByPath("preview.images")
-                ?.firstOrNull()
-                ?.get("source")
-                ?.run { getDouble("width") / getDouble("height") }
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Image -> client.fetchMediaWithOpenGraphMeta(media)
+            is Video -> {
+                val posts = getPosts(path = media.url.path, limit = 1)
+                posts
+                        .firstOrNull()
+                        ?.media
+                        ?.firstOrNull()
+                        ?: media
+            }
+            is Audio -> media
+        }
+    }
 
-        return listOf(when {
-            isVideo -> Video(url = url, aspectRatio = aspectRatio)
-            else -> Image(url = url, aspectRatio = aspectRatio)
-        })
+    private fun JsonNode.extractText(): String {
+        return listOf(getString("title"), getString("selftext"))
+                .filterNot { s -> s.isNullOrEmpty() }
+                .joinToString("\n")
+    }
+
+    private fun JsonNode.extractPostMediaItems(): List<Media> {
+        val previewMedia = getByPath("preview.images")
+                ?.toList()
+                .orEmpty()
+                .mapNotNull {
+                    it.get("source")?.let { source ->
+                        Image(
+                                url = source.getString("url").orEmpty().replace("&amp;", "&"),
+                                aspectRatio = source.getDouble("width") / source.getDouble("height")
+                        )
+                    }
+                }
+
+        val isVideo = this["media"].isEmpty.not()
+        return when {
+            isVideo -> listOf(
+                    Video(
+                            url = getString("url").orEmpty(),
+                            aspectRatio = previewMedia.firstOrNull()?.aspectRatio,
+                            thumbnail = previewMedia.firstOrNull()
+                    )
+            )
+            else -> previewMedia
+        }
     }
 }

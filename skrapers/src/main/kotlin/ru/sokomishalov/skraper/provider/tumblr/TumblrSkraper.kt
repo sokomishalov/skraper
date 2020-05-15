@@ -23,9 +23,11 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
 import java.time.LocalDate
@@ -51,6 +53,14 @@ class TumblrSkraper @JvmOverloads constructor(
         return page.extractPageInfo()
     }
 
+    override suspend fun canResolve(media: Media): Boolean {
+        return "tumblr.com" in media.url.host
+    }
+
+    override suspend fun resolve(media: Media): Media {
+        return client.fetchMediaWithOpenGraphMeta(media)
+    }
+
     internal suspend fun getUserPage(username: String): Document? {
         return client.fetchDocument(url = baseUrl.replace("://", "://${username}."))
     }
@@ -72,15 +82,17 @@ class TumblrSkraper @JvmOverloads constructor(
                 ?.take(limit)
                 .orEmpty()
 
-        return articles.map { a ->
-            Post(
-                    id = a.extractPostId(),
-                    text = a.extractPostText(),
-                    publishedAt = a.extractPostPublishedDate(),
-                    rating = a.extractPostNotes(),
-                    commentsCount = a.extractPostNotes(),
-                    media = a.extractPostMediaItems()
-            )
+        return articles.map {
+            with(it) {
+                Post(
+                        id = extractPostId(),
+                        text = extractPostText(),
+                        publishedAt = extractPostPublishedDate(),
+                        rating = extractPostNotes(),
+                        commentsCount = extractPostNotes(),
+                        media = extractPostMediaItems()
+                )
+            }
         }
     }
 

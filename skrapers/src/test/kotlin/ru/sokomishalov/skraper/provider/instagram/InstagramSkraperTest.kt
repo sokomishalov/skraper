@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.instagram
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
@@ -34,5 +36,16 @@ class InstagramSkraperTest : SkraperTck() {
     @Test
     fun `Check user info`() {
         assertPageInfo { skraper.getUserInfo(username = username) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Video("https://www.instagram.com/p/B-flad2F5o7/"))
+        assertMediaResolved(Image("https://www.instagram.com/p/B-gwQJelNjs/"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
+        assertMediaDownloaded(Video("https://www.instagram.com/p/B-flad2F5o7/"))
     }
 }

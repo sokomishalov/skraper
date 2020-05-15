@@ -13,31 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.client.okhttp3
+@file:Suppress("EXPERIMENTAL_API_USAGE")
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+package ru.sokomishalov.skraper.client.okhttp
+
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okio.Buffer
 import okio.BufferedSink
+import okio.buffer
+import okio.sink
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_DOWNLOAD_BUFFER_SIZE
 import ru.sokomishalov.skraper.model.URLString
+import java.io.File
 import java.io.IOException
 import kotlin.coroutines.resumeWithException
 
 
 /**
  * Huge appreciation to my russian colleague
- * @see <a href="https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/src/main/kotlin/ru/gildor/coroutines/okhttp/CallAwait.kt">link</a>
+ * @see <a href="https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/src/main/kotlin/ru/gildor/coroutines/okhttp/CallAwait.kt">CallAwait.kt</a>
  *
  * @author sokomishalov
  */
-class OkHttp3SkraperClient(
+class OkHttpSkraperClient(
         private val client: OkHttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun request(
             url: URLString,
             method: HttpMethodType,
@@ -55,14 +62,41 @@ class OkHttp3SkraperClient(
                 .newCall(request)
                 .await()
                 .body
-                ?.bytes()
+                ?.run { withContext(IO) { bytes() } }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun download(
+            url: URLString,
+            destFile: File
+    ) {
+        val request: Request = Request
+                .Builder()
+                .url(url)
+                .build()
+
+        val responseBody = client
+                .newCall(request)
+                .await()
+                .body
+
+        withContext(IO) {
+            destFile.sink().buffer().use { sink ->
+                responseBody?.source()?.use { source ->
+                    val sinkBuffer: Buffer = sink.buffer
+                    val bufferSize = DEFAULT_DOWNLOAD_BUFFER_SIZE
+
+                    while (source.read(sinkBuffer, bufferSize.toLong()) != -1L) sink.emit()
+
+                    sink.flush()
+                }
+            }
+        }
+    }
+
     private suspend fun Call.await(): Response {
         return suspendCancellableCoroutine { continuation ->
             enqueue(object : Callback {
-                override fun onResponse(call: Call, response: Response) = continuation.resume(response) { Unit }
+                override fun onResponse(call: Call, response: Response) = continuation.resume(response) { }
                 override fun onFailure(call: Call, e: IOException) = if (continuation.isCancelled.not()) continuation.resumeWithException(e) else Unit
             })
 

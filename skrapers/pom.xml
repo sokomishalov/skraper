@@ -7,11 +7,11 @@
     <parent>
         <groupId>ru.sokomishalov.skraper</groupId>
         <artifactId>skraper-parent</artifactId>
-        <version>0.3.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>skrapers</artifactId>
-    <version>0.3.0</version>
+    <version>${revision}</version>
 
     <dependencies>
 
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-reactive</artifactId>
-            <version>${kotlinx.version}</version>
+            <version>${kotlinx-coroutines.version}</version>
         </dependency>
 
         <dependency>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>${okhttp3.version}</version>
+            <version>${okhttp.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -115,7 +115,7 @@
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
                 <configuration>
-                    <jvmTarget>1.8</jvmTarget>
+                    <jvmTarget>${java.version}</jvmTarget>
                     <args>
                         <arg>-Xopt-in=kotlin.RequiresOptIn</arg>
                     </args>

@@ -39,11 +39,13 @@ data class Image(
  * Represents an image.
  * @property url video url
  * @property aspectRatio width to height ratio
+ * @property thumbnail thumb
  * @property duration video duration
  */
 data class Video(
         override val url: URLString,
         val aspectRatio: Double? = null,
+        val thumbnail: Image? = null,
         val duration: Duration? = null
 ) : Media()
 

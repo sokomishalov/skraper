@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.ifunny
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 
@@ -41,5 +43,16 @@ class IFunnySkraperTest : SkraperTck() {
     @Test
     fun `Check user info`() {
         assertPageInfo { skraper.getUserInfo(username = username) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Video("https://ifunny.co/video/ySMWOp7Y7?gallery=featured"))
+        assertMediaResolved(Image("https://ifunny.co/picture/VmxhClHY7?gallery=featured"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
+        assertMediaDownloaded(Video("https://ifunny.co/video/HFaahrkd7"))
     }
 }

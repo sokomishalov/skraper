@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.cli
+package ru.sokomishalov.skraper.client.okhttp
+
+import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.SkraperClientTck
+
 
 /**
  * @author sokomishalov
  */
-enum class OutputType(val extension: String) {
-    LOG(".log"),
-    CSV(".csv"),
-    JSON(".json"),
-    XML(".xml"),
-    YAML(".yaml")
+class OkHttpSkraperClientTest : SkraperClientTck() {
+    override val client: SkraperClient = OkHttpSkraperClient()
 }

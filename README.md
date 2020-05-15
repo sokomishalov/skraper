@@ -29,10 +29,14 @@ Current list of implemented sources:
 - [Pikabu](https://pikabu.ru)
 
 # Bugs
-Unfortunately, each web-site is subject to change without any notice so the tool may work incorrectly because of that.
+Unfortunately, each web-site is subject to change without any notice, so the tool may work incorrectly because of that.
 If that happens, please let me know via an issue or some message. 
 
 # Cli tool
+Cli tool allows to:
+- download media with flag `--media-only` from almost all presented sources.
+- scrape posts meta information
+
 Requirements: 
 - Java: 1.8 +
 - Maven (optional)
@@ -48,32 +52,61 @@ Usage:
 ```
 
 ```text
-usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT]
+usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT] [-m]
+       [--parallel-downloads PARALLEL_DOWNLOADS]
 
 optional arguments:
-  -h, --help        show this help message and exit
+  -h, --help                                show this help message and exit
 
-  -n LIMIT,         posts limit (50 by default)
-  --limit LIMIT
+  -n LIMIT, --limit LIMIT                   posts limit (50 by default)
 
-  -t TYPE,          output type, options: [log, csv, json, xml, yaml]
-  --type TYPE
+  -t TYPE, --type TYPE                      output type, options: [log, csv, json, xml, yaml]
 
-  -o OUTPUT,        output path
-  --output OUTPUT
+  -o OUTPUT, --output OUTPUT                output path
+
+  -m, --media-only                          scrape media only
+
+  --parallel-downloads PARALLEL_DOWNLOADS   amount of parallel downloads for media items if
+                                            enabled flag --media-only (4 by default)
 
 
 positional arguments:
-  PROVIDER          skraper provider, options: [facebook, instagram, twitter, youtube, twitch, reddit, 
-                    ninegag, pinterest, flickr, tumblr, ifunny, vk, pikabu]
+  PROVIDER                                  skraper provider, options: [facebook, instagram,
+                                            twitter, youtube, twitch, reddit, ninegag, pinterest,
+                                            flickr, tumblr, ifunny, vk, pikabu]
 
-  PATH              path to user/community/channel/topic/trend
+  PATH                                      path to user/community/channel/topic/trend
+usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT] [-m]
+       [--parallel-downloads PARALLEL_DOWNLOADS]
+
+optional arguments:
+  -h, --help                                show this help message and exit
+
+  -n LIMIT, --limit LIMIT                   posts limit (50 by default)
+
+  -t TYPE, --type TYPE                      output type, options: [log, csv, json, xml, yaml]
+
+  -o OUTPUT, --output OUTPUT                output path
+
+  -m, --media-only                          scrape media only
+
+  --parallel-downloads PARALLEL_DOWNLOADS   amount of parallel downloads for media items if
+                                            enabled flag --media-only (4 by default)
+
+
+positional arguments:
+  PROVIDER                                  skraper provider, options: [facebook, instagram,
+                                            twitter, youtube, twitch, reddit, ninegag, pinterest,
+                                            flickr, tumblr, ifunny, vk, pikabu]
+
+  PATH                                      path to user/community/channel/topic/trend
 ```
 
 Examples:
 ```bash
 ./skraper ninegag /hot 
 ./skraper reddit /r/memes -n 5 -t csv -o ./reddit/posts
+./skraper youtube /user/JetBrainsTV/videos --media-only -n 2
 ```
 
 # Kotlin Library
@@ -90,7 +123,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </dependency>
 </dependencies>
 ```
@@ -101,7 +134,7 @@ repositories {
     maven { url("https://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.3.0")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.4.0")
 }
 ```
 
@@ -136,8 +169,8 @@ To use them you just have to put required dependencies in the classpath.
 
 Current http-client implementation list:
 - [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) - simple java.net.* blocking api implementation
-- [ReactorNettySkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
 - [OkHttp3SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
+- [ReactorNettySkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
 - [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
 - [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
 
@@ -150,6 +183,7 @@ interface Skraper {
     suspend fun getProviderInfo(): ProviderInfo?
     suspend fun getPageInfo(path: String): PageInfo?
     suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+    suspend fun resolve(media: Media): Media
 }
 ```
 
@@ -236,6 +270,57 @@ Output:
     }
   }
 }
+```
+
+### Resolve provider relative url
+Sometimes you need to know direct media link:
+```kotlin
+fun main() = runBlocking {
+    val skraper = InstagramSkraper()
+    val info = skraper.resolve(Video(url = "https://www.instagram.com/p/B-flad2F5o7/"))
+    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(info))
+}
+```
+
+Output:
+```json5
+{
+  "url" : "https://scontent-amt2-1.cdninstagram.com/v/t50.2886-16/91508191_213297693225472_2759719910220905597_n.mp4?_nc_ht=scontent-amt2-1.cdninstagram.com&_nc_cat=104&_nc_ohc=27bC52qar_oAX-7J2Zh&oe=5EC0BC52&oh=0aafee2860c540452b76e7b8e336147d",
+  "aspectRatio" : 0.8010012515644556,
+  "thumbnail" : {
+    "url" : "https://scontent-amt2-1.cdninstagram.com/v/t51.2885-15/e35/91435498_533808773845524_5302421141680378393_n.jpg?_nc_ht=scontent-amt2-1.cdninstagram.com&_nc_cat=100&_nc_ohc=8gPAcByc6YAAX_kDBWm&oh=5edf6b9d90d606f9c0e055b7dbcbfa45&oe=5EC0DDE8",
+    "aspectRatio" : 0.8010012515644556
+  }
+}
+```
+
+### Download media
+There is "static" method which allows to download any media from all known implemented sources:
+```kotlin
+fun main() = runBlocking {
+    val tmpDir = Files.createTempDirectory("skraper").toFile()
+
+    val testVideo = Skraper.download(
+            media = Video("https://youtu.be/fjUO7xaUHJQ"),
+            destDir = tmpDir,
+            filename = "Gandalf"
+    )
+
+    val testImage = Skraper.download(
+            media = Image("https://www.pinterest.ru/pin/89509111320495523/"),
+            destDir = tmpDir,
+            filename = "Do_no_harm"
+    )
+
+    println(testVideo)
+    println(testImage)
+}
+```
+
+Output:
+```log
+/var/folders/sf/hm2h5chx5fl4f70bj77xccsc0000gp/T/skraper8377953374796527777/Gandalf.mp4
+/var/folders/sf/hm2h5chx5fl4f70bj77xccsc0000gp/T/skraper8377953374796527777/Do_no_harm.jpg
 ```
 
 ### Scrape provider logo

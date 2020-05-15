@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.provider.yourtube
+package ru.sokomishalov.skraper.provider.youtube
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
-import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
-import ru.sokomishalov.skraper.provider.youtube.getUserInfo
-import ru.sokomishalov.skraper.provider.youtube.getUserPosts
 
 class YoutubeSkraperTest : SkraperTck() {
     override val skraper: YoutubeSkraper = YoutubeSkraper(client = client)
@@ -37,4 +35,13 @@ class YoutubeSkraperTest : SkraperTck() {
         assertPageInfo { skraper.getUserInfo(username = username) }
     }
 
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Video("https://www.youtube.com/watch?v=9bZkp7q19f0"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
+        assertMediaDownloaded(Video("https://youtu.be/fjUO7xaUHJQ"))
+    }
 }

@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.reddit
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
@@ -61,5 +63,15 @@ class RedditSkraperTest : SkraperTck() {
     @Test
     fun `Check community info`() {
         assertPageInfo { skraper.getCommunityInfo(community = community) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Image("https://www.reddit.com/r/memes/comments/fu78mt/assuming_birds_are_real/"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
+        assertMediaDownloaded(Video("https://www.reddit.com/r/videos/comments/geditz/frankie_macdonald_declares_2021_to_be_the_year_of/"))
     }
 }

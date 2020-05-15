@@ -28,9 +28,14 @@ import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.download
+import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 import ru.sokomishalov.skraper.model.ProviderInfo
+import java.nio.file.Files
+import java.util.*
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -55,7 +60,7 @@ abstract class SkraperTck {
     protected abstract val skraper: Skraper
     protected abstract val path: String
 
-    protected val client: SkraperClient = KtorSkraperClient()
+    protected open val client: SkraperClient = KtorSkraperClient()
 
     @Test
     fun `Check posts`() {
@@ -104,7 +109,31 @@ abstract class SkraperTck {
         }
     }
 
-    private suspend fun <T> logAction(action: suspend Skraper.() -> T): T {
+    protected fun assertMediaResolved(media: Media) = runBlocking {
+        val canResolve = skraper.canResolve(media)
+        assertTrue { canResolve }
+
+        val resolved = logAction { skraper.resolve(media) }
+        assertNotNull(resolved)
+        assertNotNull(resolved.url)
+        assertNotEquals(media.url, resolved.url)
+    }
+
+    protected fun assertMediaDownloaded(media: Media) = runBlocking {
+        val tmpDir = Files.createTempDirectory("skraper").toFile()
+        val downloaded = logAction {
+            Skraper.download(
+                    media = media,
+                    destDir = tmpDir,
+                    filename = UUID.randomUUID().toString(),
+                    client = client
+            )
+        }
+        assertTrue { downloaded.exists() }
+        assertTrue { downloaded.length() > 0 }
+    }
+
+    protected suspend fun <T> logAction(action: suspend Skraper.() -> T): T {
         return skraper.action().also {
             log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(it))
         }

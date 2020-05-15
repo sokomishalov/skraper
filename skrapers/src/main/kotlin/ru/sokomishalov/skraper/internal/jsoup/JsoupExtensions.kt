@@ -17,6 +17,7 @@
 
 package ru.sokomishalov.skraper.internal.jsoup
 
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 @PublishedApi
@@ -42,6 +43,16 @@ internal inline fun Element.getFirstElementByAttributeValue(name: String, value:
 @PublishedApi
 internal inline fun Element.getFirstElementByAttributeValueContaining(name: String, valuePart: String): Element? {
     return getElementsByAttributeValueContaining(name, valuePart).firstOrNull()
+}
+
+@PublishedApi
+internal fun Document?.getMetaPropertyMap(): Map<String, String> {
+    return this
+            ?.getElementsByTag("meta")
+            ?.filter { it.hasAttr("property") }
+            ?.map { it.attr("property") to it.attr("content") }
+            ?.toMap()
+            .orEmpty()
 }
 
 @PublishedApi

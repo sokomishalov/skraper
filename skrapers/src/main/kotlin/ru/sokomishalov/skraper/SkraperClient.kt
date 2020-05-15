@@ -17,18 +17,33 @@ package ru.sokomishalov.skraper
 
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
 import ru.sokomishalov.skraper.model.URLString
+import java.io.File
 
 /**
  * @author sokomishalov
  */
 interface SkraperClient {
 
+    /**
+     * execute http request
+     */
     suspend fun request(
             url: URLString,
             method: HttpMethodType = GET,
-            headers: Map<String, String> = emptyMap(),
+            headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
             body: ByteArray? = null
     ): ByteArray?
+
+    /**
+     * download files
+     */
+    suspend fun download(
+            url: URLString,
+            destFile: File
+    ) {
+        request(url = url)?.let { destFile.writeBytes(it) }
+    }
 
 }

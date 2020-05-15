@@ -20,6 +20,8 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -43,14 +45,16 @@ class PinterestSkraper @JvmOverloads constructor(
         val feedList = infoJsonNode.extractFeed(limit)
 
         return feedList.map {
-            Post(
-                    id = it.extractPostId(),
-                    text = it.extractPostText(),
-                    publishedAt = it.extractPostPublishDate(),
-                    rating = it.extractPostRating(),
-                    commentsCount = it.extractPostCommentsCount(),
-                    media = it.extractPostMediaItems()
-            )
+            with(it) {
+                Post(
+                        id = extractPostId(),
+                        text = extractPostText(),
+                        publishedAt = extractPostPublishDate(),
+                        rating = extractPostRating(),
+                        commentsCount = extractPostCommentsCount(),
+                        media = extractPostMediaItems()
+                )
+            }
         }
     }
 
@@ -69,6 +73,17 @@ class PinterestSkraper @JvmOverloads constructor(
                     description = getString("profile.about"),
                     avatarsMap = extractLogoMap()
             )
+        }
+    }
+
+    override suspend fun canResolve(media: Media): Boolean {
+        return "pinterest" in media.url.host
+    }
+
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Image -> client.fetchMediaWithOpenGraphMeta(media)
+            else -> media
         }
     }
 
@@ -92,11 +107,11 @@ class PinterestSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPostText(): String? {
-        return this.getString("description")
+        return getString("description")
     }
 
     private fun JsonNode.extractPostPublishDate(): Long? {
-        return this.getString("created_at")?.let {
+        return getString("created_at")?.let {
             ZonedDateTime.parse(it, DATE_FORMATTER).toEpochSecond()
         }
     }
@@ -106,7 +121,7 @@ class PinterestSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPostCommentsCount(): Int? {
-        return this.getInt("comment_count")
+        return getInt("comment_count")
     }
 
     @Suppress("MoveVariableDeclarationIntoWhen")

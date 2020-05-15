@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.client.okhttp3
+@file:Suppress("NOTHING_TO_INLINE")
 
-import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.SkraperClientTck
-
+package ru.sokomishalov.skraper.internal.map
 
 /**
  * @author sokomishalov
  */
-class Okhttp3SkraperClientTest : SkraperClientTck() {
-    override val client: SkraperClient = OkHttp3SkraperClient()
+
+internal inline fun <K, V : Any> Map<K, V>.firstNotNull(vararg keys: K): V? {
+    return keys.mapNotNull { this[it] }.firstOrNull()
 }

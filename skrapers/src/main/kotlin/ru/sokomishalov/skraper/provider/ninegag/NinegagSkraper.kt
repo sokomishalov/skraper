@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.number.minus
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -41,17 +42,23 @@ class NinegagSkraper @JvmOverloads constructor(
         val page = getUserPage(path = path)
 
         val dataJson = page.extractJsonData()
-        val posts = dataJson.getPosts().take(limit)
 
-        return posts.map { p ->
-            Post(
-                    id = p.getString("id").orEmpty(),
-                    text = p.getString("title"),
-                    publishedAt = p.getLong("creationTs"),
-                    rating = p.getInt("upVoteCount") - p.getInt("downVoteCount"),
-                    commentsCount = p.getInt("commentsCount"),
-                    media = p.extractPostMediaItems()
-            )
+        val postNodes = dataJson
+                ?.getByPath("data.posts")
+                ?.take(limit)
+                .orEmpty()
+
+        return postNodes.map { p ->
+            with(p) {
+                Post(
+                        id = getString("id").orEmpty(),
+                        text = getString("title"),
+                        publishedAt = getLong("creationTs"),
+                        rating = getInt("upVoteCount") - getInt("downVoteCount"),
+                        commentsCount = getInt("commentsCount"),
+                        media = extractPostMediaItems()
+                )
+            }
         }
     }
 
@@ -68,15 +75,23 @@ class NinegagSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun getUserPage(path: String): Document? {
-        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Video -> {
+                val page = client.fetchDocument(media.url)
+                return page
+                        ?.extractJsonData()
+                        ?.getByPath("data.post")
+                        ?.extractPostMediaItems()
+                        ?.find { it is Video }
+                        ?: media
+            }
+            else -> client.fetchMediaWithOpenGraphMeta(media)
+        }
     }
 
-    private fun JsonNode?.getPosts(): List<JsonNode> {
-        return this
-                ?.getByPath("data.posts")
-                ?.toList()
-                .orEmpty()
+    private suspend fun getUserPage(path: String): Document? {
+        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
     }
 
     private fun Document?.extractJsonData(): JsonNode? {

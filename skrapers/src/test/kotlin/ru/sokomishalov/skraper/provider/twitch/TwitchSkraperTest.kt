@@ -16,6 +16,7 @@
 package ru.sokomishalov.skraper.provider.twitch
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
@@ -55,5 +56,11 @@ class TwitchSkraperTest : SkraperTck() {
     @Test
     fun `Check game info`() {
         assertPageInfo { skraper.getGameInfo(game = game) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Video("https://www.twitch.tv/videos/582147357"))
+        assertMediaResolved(Video("https://www.twitch.tv/realmadrid/clip/SourKathishRedpandaDoubleRainbow"))
     }
 }

@@ -25,7 +25,7 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 suspend fun RedditSkraper.getCommunityHotPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/${""}", limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/", limit = limit)
 }
 
 suspend fun RedditSkraper.getCommunityNewPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
@@ -41,7 +41,7 @@ suspend fun RedditSkraper.getCommunityControversialPosts(community: String, limi
 }
 
 suspend fun RedditSkraper.getCommunityTopPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/${"top"}", limit = limit)
+    return getPosts(path = "/r/${community.removePrefix("r/")}/top", limit = limit)
 }
 
 suspend fun RedditSkraper.getUserInfo(username: String): PageInfo? {

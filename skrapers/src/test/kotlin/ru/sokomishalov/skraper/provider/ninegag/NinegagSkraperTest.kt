@@ -16,12 +16,18 @@
 package ru.sokomishalov.skraper.provider.ninegag
 
 import org.junit.Test
+import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
  * @author sokomishalov
  */
 class NinegagSkraperTest : SkraperTck() {
+    // 9GAG added cloudflare protection. Works only with `ktor-client-cio` so far
+    override val client: SkraperClient = KtorSkraperClient()
     override val skraper: NinegagSkraper = NinegagSkraper(client = client)
     override val path: String = "/meme"
     private val topic: String = "meme"
@@ -60,5 +66,16 @@ class NinegagSkraperTest : SkraperTck() {
     @Test
     fun `Check topic info`() {
         assertPageInfo { skraper.getTopicInfo(topic = topic) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Video("https://9gag.com/gag/a9RxgGZ"))
+        assertMediaResolved(Image("https://9gag.com/gag/aQ1LGEq"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
+        assertMediaDownloaded(Video("https://9gag.com/gag/a9RxgGZ"))
     }
 }

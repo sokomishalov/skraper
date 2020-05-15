@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.client.reactornetty
+package ru.sokomishalov.skraper.client.netty
 
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.SkraperClientTck

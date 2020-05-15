@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.twitter
 
 import org.junit.Test
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 /**
@@ -34,5 +36,17 @@ class TwitterSkraperTest : SkraperTck() {
     @Test
     fun `Check user info`() {
         assertPageInfo { skraper.getUserInfo(username = username) }
+    }
+
+    @Test
+    fun `Check media resolving`() {
+        assertMediaResolved(Video("https://twitter.com/SokoMishaLov/status/1145715899384643596"))
+        assertMediaResolved(Video("https://twitter.com/SokoMishaLov/status/1145720044917338112"))
+        assertMediaResolved(Image("https://twitter.com/memes/status/1063195947725975555/photo/1"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
+        assertMediaDownloaded(Video("https://t.co/E0SdEOGktn"))
     }
 }

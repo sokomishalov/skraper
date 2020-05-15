@@ -17,14 +17,28 @@ package ru.sokomishalov.skraper.cli
 
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
-import ru.sokomishalov.skraper.cli.OutputType.LOG
+import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.cli.Serialization.LOG
+import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.knownList
+import ru.sokomishalov.skraper.name
 import java.io.File
 
 class Args(parser: ArgParser) {
-    val provider by parser.positional(
+
+    companion object {
+        internal val DEFAULT_CLIENT = KtorSkraperClient()
+        internal val SKRAPERS = Skraper.knownList(client = DEFAULT_CLIENT)
+    }
+
+    val skraper by parser.positional(
             name = "PROVIDER",
-            help = "skraper provider, options: ${Provider.values().contentToString().toLowerCase()}"
-    ) { Provider.valueOf(toUpperCase()) }
+            help = "skraper provider, options: ${SKRAPERS.joinToString { it.name }}"
+    ) {
+        SKRAPERS
+                .find { this == it.name }
+                .let { requireNotNull(it) { "Unknown provider" } }
+    }
 
     val path by parser.positional(
             name = "PATH",
@@ -34,15 +48,25 @@ class Args(parser: ArgParser) {
     val amount by parser.storing(
             "-n", "--limit",
             help = "posts limit (50 by default)"
-    ) { toInt() }.default(50)
+    ) { toInt() }.default { 50 }
 
     val outputType by parser.storing(
             "-t", "--type",
-            help = "output type, options: ${OutputType.values().contentToString().toLowerCase()}"
-    ) { OutputType.valueOf(toUpperCase()) }.default(LOG)
+            help = "output type, options: ${Serialization.values().joinToString().toLowerCase()}"
+    ) { Serialization.valueOf(toUpperCase()) }.default { LOG }
 
     val output by parser.storing(
             "-o", "--output",
             help = "output path"
     ) { File(this) }.default { File("") }
+
+    val onlyMedia by parser.flagging(
+            "-m", "--media-only",
+            help = "scrape media only"
+    )
+
+    val parallelDownloads by parser.storing(
+            "--parallel-downloads",
+            help = "amount of parallel downloads for media items if enabled flag --media-only (4 by default)"
+    ) { toInt() }.default { 4 }
 }
