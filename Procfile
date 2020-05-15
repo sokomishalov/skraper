@@ -1,0 +1,1 @@
+web: java $JAVA_OPTS -Dserver.port=$PORT -Dspring.profiles.active=heroku -Dskraper.bot.username=$TELEGRAM_BOT_USERNAME -Dskraper.bot.token=$TELEGRAM_BOT_TOKEN -Dskraper.bot.mode=$TELEGRAM_BOT_MODE -jar ./telegram-bot/target/telegram-bot.jar

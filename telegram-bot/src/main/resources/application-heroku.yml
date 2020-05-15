@@ -1,0 +1,4 @@
+skraper:
+  bot:
+    webhook-url: https://skraper-bot.herokuapp.com/webhook
+    mode: WEBHOOK

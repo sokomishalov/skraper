@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress(
+        "BlockingMethodInNonBlockingContext"
+)
+
 package ru.sokomishalov.skraper.internal.net
 
 import kotlinx.coroutines.Dispatchers.IO
@@ -38,25 +42,23 @@ internal suspend fun URL.openRedirectableStream(
         method: HttpMethodType = GET,
         headers: Map<String, String> = emptyMap(),
         body: ByteArray? = null
-): InputStream {
-    return withContext(IO) {
-        val conn = openConnection() as HttpURLConnection
+): InputStream = withContext(IO) {
+    val conn = openConnection() as HttpURLConnection
 
-        conn.applyData(method, headers, body)
+    conn.applyData(method, headers, body)
 
-        val status = conn.responseCode
+    val status = conn.responseCode
 
-        when {
-            status != HTTP_OK && status in listOf(HTTP_MOVED_TEMP, HTTP_MOVED_PERM, HTTP_SEE_OTHER) -> {
-                val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
-                newConn.apply {
-                    setRequestProperty("Cookie", conn.getHeaderField("Set-Cookie"))
-                    applyData(method, headers, body)
-                }
-                newConn.inputStream
+    when {
+        status != HTTP_OK && status in listOf(HTTP_MOVED_TEMP, HTTP_MOVED_PERM, HTTP_SEE_OTHER) -> {
+            val newConn = URL(conn.getHeaderField("Location")).openConnection() as HttpURLConnection
+            newConn.apply {
+                setRequestProperty("Cookie", conn.getHeaderField("Set-Cookie"))
+                applyData(method, headers, body)
             }
-            else -> conn.inputStream
+            newConn.inputStream
         }
+        else -> conn.inputStream
     }
 }
 

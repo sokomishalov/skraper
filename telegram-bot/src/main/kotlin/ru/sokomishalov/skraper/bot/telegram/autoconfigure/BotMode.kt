@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.internal.ffmpeg
-
-import java.io.InputStream
-import java.time.Duration
-
+package ru.sokomishalov.skraper.bot.telegram.autoconfigure
 
 /**
  * @author sokomishalov
  */
-interface FfmpegRunner {
-
-    suspend fun run(
-            cmd: String,
-            timeout: Duration = Duration.ofHours(1),
-            stdin: (InputStream) -> Unit = {}
-    ): Int
-
+enum class BotMode {
+    LONG_POLLING,
+    WEBHOOK,
+    OFF
 }

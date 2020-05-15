@@ -46,3 +46,7 @@ local.properties
 *.csv
 *.json
 *.yaml
+
+# bot token and username
+telegram-bot/src/main/resources/application-secret.yml
+.flattened-pom.xml

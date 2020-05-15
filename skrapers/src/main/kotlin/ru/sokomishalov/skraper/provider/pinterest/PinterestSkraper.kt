@@ -76,8 +76,8 @@ class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun canResolve(media: Media): Boolean {
-        return "pinterest" in media.url.host
+    override suspend fun supports(url: URLString): Boolean {
+        return "pinterest" in url.host
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -103,7 +103,7 @@ class PinterestSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPostId(): String {
-        return this.getString("id").orEmpty()
+        return getString("id").orEmpty()
     }
 
     private fun JsonNode.extractPostText(): String? {

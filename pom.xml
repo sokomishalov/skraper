@@ -6,27 +6,80 @@
 
     <groupId>ru.sokomishalov.skraper</groupId>
     <artifactId>skraper-parent</artifactId>
-    <version>0.4.5</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <properties>
+        <revision>0.5.0</revision>
+
         <java.version>1.8</java.version>
         <kotlin.version>1.3.72</kotlin.version>
+
         <kotlinx-coroutines.version>1.3.7</kotlinx-coroutines.version>
         <jackson.version>2.11.0</jackson.version>
         <jsoup.version>1.13.1</jsoup.version>
         <reactor-netty.version>0.9.7.RELEASE</reactor-netty.version>
         <okhttp.version>4.7.2</okhttp.version>
         <spring.version>5.2.6.RELEASE</spring.version>
+        <spring.boot.version>2.3.0.RELEASE</spring.boot.version>
         <ktor.version>1.3.2</ktor.version>
         <argparser.version>2.0.7</argparser.version>
+        <telegram-bots.version>4.8.1</telegram-bots.version>
+        <sokomishalov-commons.version>1.1.14</sokomishalov-commons.version>
         <logback.version>1.2.3</logback.version>
     </properties>
 
     <modules>
         <module>skrapers</module>
         <module>cli</module>
+        <module>telegram-bot</module>
     </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!-- mvn license:format -->
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>3.0</version>
+                    <configuration>
+                        <header>header.txt</header>
+                        <includes>
+                            <include>**/*.kt</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <repositories>
         <repository>
@@ -45,24 +98,5 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <!-- mvn license:format -->
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>3.0</version>
-                    <configuration>
-                        <header>header.txt</header>
-                        <includes>
-                            <include>**/*.kt</include>
-                        </includes>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
 </project>

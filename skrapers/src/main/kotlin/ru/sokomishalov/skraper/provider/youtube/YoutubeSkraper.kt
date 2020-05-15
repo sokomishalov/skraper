@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
@@ -42,7 +43,8 @@ class YoutubeSkraper @JvmOverloads constructor(
         val page = getUserPage(path = path)
 
         val videos = page
-                ?.getElementsByClass("yt-lockup-video")
+                ?.getElementsByClass("channels-content-item")
+                ?.flatMap { it.getElementsByClass("yt-lockup-video") }
                 ?.take(limit)
                 .orEmpty()
 
@@ -74,9 +76,9 @@ class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun canResolve(media: Media): Boolean {
+    override suspend fun supports(url: URLString): Boolean {
         return arrayOf("youtube.com", "youtu.be")
-                .any { media.url.host.removePrefix("www.") in it }
+                .any { url.host.removePrefix("www.") in it }
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -179,7 +181,12 @@ class YoutubeSkraper @JvmOverloads constructor(
                             val seconds = getOrNull(2) ?: 0L
 
                             Duration.ofSeconds(seconds) + Duration.ofMinutes(minutes) + Duration.ofHours(hours)
-                        }
+                        },
+                thumbnail = this
+                        ?.getFirstElementByClass("yt-lockup-thumbnail")
+                        ?.getFirstElementByTag("img")
+                        ?.attr("src")
+                        ?.toImage()
         ))
     }
 

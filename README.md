@@ -6,12 +6,14 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 # Overview
-Cli tool and kotlin library which allows scraping posts with media and other meta info from various sources without 
-any authorization or full page rendering. Based on Kotlin/JVM coroutines and JSoup.
+Kotlin/JVM library and cli tool which allows scraping and downloading posts, attachments, 
+other meta from more than 10 sources without any authorization or full page rendering. 
+Based on coroutines and JSoup.
 
 Repository contains:
 - [Cli tool](#cli-tool)
 - [Kotlin library](#kotlin-library)
+- [Source code for telegram bot](#telegram-bot)
 
 Current list of implemented sources:
 - [Facebook](https://facebook.com)
@@ -123,7 +125,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.4.5</version>
+        <version>0.5.0</version>
     </dependency>
 </dependencies>
 ```
@@ -134,7 +136,7 @@ repositories {
     maven { url = uri("http://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.4.5")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.5.0")
 }
 ```
 
@@ -351,3 +353,6 @@ Output:
   }
 }
 ```
+
+# Telegram bot
+You are able to have a look on the [bot main logic code](telegram-bot/src/main/kotlin/ru/sokomishalov/skraper/bot/telegram/service/SkraperBot.kt).

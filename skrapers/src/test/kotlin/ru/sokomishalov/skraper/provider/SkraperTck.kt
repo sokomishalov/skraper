@@ -110,7 +110,7 @@ abstract class SkraperTck {
     }
 
     protected fun assertMediaResolved(media: Media) = runBlocking {
-        val canResolve = skraper.canResolve(media)
+        val canResolve = skraper.supports(media.url)
         assertTrue { canResolve }
 
         val resolved = logAction { skraper.resolve(media) }

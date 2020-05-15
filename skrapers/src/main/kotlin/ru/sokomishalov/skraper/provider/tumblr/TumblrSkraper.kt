@@ -53,8 +53,8 @@ class TumblrSkraper @JvmOverloads constructor(
         return page.extractPageInfo()
     }
 
-    override suspend fun canResolve(media: Media): Boolean {
-        return "tumblr.com" in media.url.host
+    override suspend fun supports(url: URLString): Boolean {
+        return "tumblr.com" in url.host
     }
 
     override suspend fun resolve(media: Media): Media {

@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.internal.ffmpeg
+package ru.sokomishalov.skraper.bot.telegram.web
 
-import java.io.InputStream
-import java.time.Duration
-
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod
+import org.telegram.telegrambots.meta.api.objects.Update
+import ru.sokomishalov.skraper.bot.telegram.service.SkraperBot
 
 /**
  * @author sokomishalov
  */
-interface FfmpegRunner {
+@RestController
+class WebhookController(private val bot: SkraperBot) {
 
-    suspend fun run(
-            cmd: String,
-            timeout: Duration = Duration.ofHours(1),
-            stdin: (InputStream) -> Unit = {}
-    ): Int
+    @PostMapping("/webhook")
+    suspend fun webhook(@RequestBody update: Update): BotApiMethod<*>? = bot.receive(update)
 
 }
