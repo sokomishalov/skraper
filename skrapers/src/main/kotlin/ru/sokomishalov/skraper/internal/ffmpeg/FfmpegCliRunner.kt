@@ -15,8 +15,10 @@ class FfmpegCliRunner(
         private val processLivenessCheckInterval: Duration = Duration.ofMillis(50)
 ) : FfmpegRunner {
 
-    init {
-        checkFfmpegExistence()
+    private companion object {
+        init {
+            FfmpegCliRunner().checkFfmpegExistence()
+        }
     }
 
     override suspend fun run(cmd: String, timeout: Duration): Int {
@@ -30,7 +32,7 @@ class FfmpegCliRunner(
             }
         }
 
-        return process.exitValue()
+        return runCatching { process.exitValue() }.getOrElse { -1 }
     }
 
     private fun checkFfmpegExistence() {

@@ -123,7 +123,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.4.0</version>
+        <version>0.4.1</version>
     </dependency>
 </dependencies>
 ```
@@ -131,10 +131,10 @@ Maven:
 Gradle kotlin dsl:
 ```kotlin
 repositories {
-    maven { url("https://jitpack.io") }
+    maven { url = uri("http://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.4.0")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.4.1")
 }
 ```
 

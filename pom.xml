@@ -6,12 +6,10 @@
 
     <groupId>ru.sokomishalov.skraper</groupId>
     <artifactId>skraper-parent</artifactId>
-    <version>${revision}</version>
+    <version>0.4.1</version>
     <packaging>pom</packaging>
 
     <properties>
-        <revision>0.4.0</revision>
-
         <java.version>1.8</java.version>
         <kotlin.version>1.3.72</kotlin.version>
         <kotlinx-coroutines.version>1.3.6</kotlinx-coroutines.version>
