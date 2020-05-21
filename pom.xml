@@ -16,7 +16,7 @@
         <jackson.version>2.11.0</jackson.version>
         <jsoup.version>1.13.1</jsoup.version>
         <reactor-netty.version>0.9.7.RELEASE</reactor-netty.version>
-        <okhttp.version>4.6.0</okhttp.version>
+        <okhttp.version>4.7.2</okhttp.version>
         <spring.version>5.2.6.RELEASE</spring.version>
         <ktor.version>1.3.2</ktor.version>
         <argparser.version>2.0.7</argparser.version>
