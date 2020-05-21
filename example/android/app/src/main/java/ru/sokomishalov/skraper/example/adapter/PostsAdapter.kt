@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress(
+        "MoveVariableDeclarationIntoWhen"
+)
+
 package ru.sokomishalov.skraper.example.adapter
 
 import android.content.Context
@@ -25,9 +29,10 @@ import android.widget.TextView
 import android.widget.VideoView
 import com.squareup.picasso.Picasso
 import ru.sokomishalov.skraper.example.R
-import ru.sokomishalov.skraper.model.AttachmentType.IMAGE
-import ru.sokomishalov.skraper.model.AttachmentType.VIDEO
+import ru.sokomishalov.skraper.model.Audio
+import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Post
+import ru.sokomishalov.skraper.model.Video
 
 class PostsAdapter(
         private val context: Context,
@@ -48,19 +53,19 @@ class PostsAdapter(
         val post = data[position]
         val attachment = post.media.firstOrNull()
 
-        if (attachment != null) {
-            when (attachment.type) {
-                IMAGE -> with(vh.image) {
-                    Picasso
-                            .get()
-                            .load(attachment.url)
-                            .into(this)
-                }
-                VIDEO -> with(vh.video) {
-                    setVideoPath(attachment.url)
-                    start()
-                }
+        when (attachment) {
+            is Image -> with(vh.image) {
+                Picasso
+                        .get()
+                        .load(attachment.url)
+                        .into(this)
             }
+            is Video -> with(vh.video) {
+                setVideoPath(attachment.url)
+                start()
+            }
+            is Audio,
+            null -> Unit
         }
 
         vh.tvTitle.text = data[position].text

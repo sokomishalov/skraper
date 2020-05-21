@@ -22,7 +22,7 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.okhttp3.OkHttp3SkraperClient
+import ru.sokomishalov.skraper.client.okhttp.OkHttpSkraperClient
 import ru.sokomishalov.skraper.example.R
 import ru.sokomishalov.skraper.example.adapter.PostsAdapter
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
@@ -74,6 +74,6 @@ class ListViewActivity : AppCompatActivity(), CoroutineScope {
 
     companion object {
         private const val DEFAULT_LIMIT: Int = 5
-        private val DEFAULT_CLIENT: SkraperClient = OkHttp3SkraperClient()
+        private val DEFAULT_CLIENT: SkraperClient = OkHttpSkraperClient()
     }
 }

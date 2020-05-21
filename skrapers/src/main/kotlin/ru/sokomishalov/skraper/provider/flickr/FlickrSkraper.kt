@@ -204,16 +204,14 @@ class FlickrSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPageNick(): String? {
-        return this
-                .getFirstByPath("photostream-models", "person-models")
+        return getFirstByPath("photostream-models", "person-models")
                 ?.firstOrNull()
                 ?.getFirstByPath("owner.pathAlias", "pathAlias")
                 ?.unescapeNode()
     }
 
     private fun JsonNode.extractPageName(): String? {
-        return this
-                .getFirstByPath("person-models", "photostream-models")
+        return getFirstByPath("person-models", "photostream-models")
                 ?.firstOrNull()
                 ?.getFirstByPath("owner.username", "username")
                 ?.unescapeNode()
