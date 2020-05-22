@@ -48,7 +48,6 @@ class FacebookSkraper @JvmOverloads constructor(
         val posts = page.extractPosts(limit)
         val jsonData = page.extractJsonData()
         val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
-
         return posts.map {
             val id = it.extractPostId()
             val metaInfoJson = metaInfoJsonMap[id]
@@ -56,6 +55,7 @@ class FacebookSkraper @JvmOverloads constructor(
             Post(
                     id = id,
                     text = it.extractPostText(),
+                    additionalText = it.extractAdditionalText(),
                     publishedAt = it.extractPostPublishDateTime(),
                     rating = metaInfoJson?.extractPostReactionCount(),
                     commentsCount = metaInfoJson?.extractPostCommentsCount(),
@@ -140,6 +140,13 @@ class FacebookSkraper @JvmOverloads constructor(
                 ?.getFirstElementByTag("p")
                 ?.wholeText()
                 ?.toString()
+    }
+
+    private fun Element.extractAdditionalText(): Array<String?>{
+        val additionalTextElement = getFirstElementByClass("accessible_elem inlineBlock")
+
+        return arrayOf(additionalTextElement?.parent()?.getFirstAttr("aria-label")?.toString(),
+                additionalTextElement?.wholeText()?.toString())
     }
 
     private fun Element.extractPostPublishDateTime(): Long? {

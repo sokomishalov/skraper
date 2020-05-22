@@ -28,6 +28,7 @@ package ru.sokomishalov.skraper.model
 data class Post(
         val id: String,
         val text: String? = "",
+        val additionalText: Array<String?>? = null,
         val publishedAt: UnixTimestamp? = null,
         val rating: Int? = null,
         val commentsCount: Int? = null,
