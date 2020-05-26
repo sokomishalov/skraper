@@ -98,6 +98,7 @@ class RedditSkraper @JvmOverloads constructor(
                         ?: media
             }
             is Audio -> media
+            is Article -> media
         }
     }
 

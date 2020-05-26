@@ -55,7 +55,6 @@ class FacebookSkraper @JvmOverloads constructor(
             Post(
                     id = id,
                     text = it.extractPostText(),
-                    additionalText = it.extractAdditionalText(),
                     publishedAt = it.extractPostPublishDateTime(),
                     rating = metaInfoJson?.extractPostReactionCount(),
                     commentsCount = metaInfoJson?.extractPostCommentsCount(),
@@ -218,9 +217,17 @@ class FacebookSkraper @JvmOverloads constructor(
         return getFirstElementByClass("coverPhotoImg")
                 ?.attr("src")
     }
+    private fun extractArticleLink(link:String): String?
+    {
+        return link.substringBefore("&")
+                .substringAfter("u=")
+                .replace("%3A", ":")
+                .replace("%2F", "/")
+    }
 
     private fun Element.extractPostMediaItems(): List<Media> {
         val videoElement = getFirstElementByTag("video")
+        val articleElement = getFirstElementByClass("accessible_elem inlineBlock")
 
         return when {
             videoElement != null -> listOf(Video(
@@ -233,7 +240,15 @@ class FacebookSkraper @JvmOverloads constructor(
                             .attr("data-original-aspect-ratio")
                             ?.toDoubleOrNull()
             ))
-
+            articleElement != null -> listOf(Article(
+                    url = articleElement.parent()
+                            ?.getFirstElementByTag("a")
+                            ?.attr("href")
+                            ?.let {extractArticleLink(it)}
+                            .orEmpty(),
+                    text = arrayOf(articleElement.parent()?.getFirstAttr("aria-label")?.toString(),
+                        articleElement.wholeText()?.toString())
+            ))
             else -> getFirstElementByClass("uiScaledImageContainer")
                     ?.getFirstElementByTag("img")
                     ?.run {

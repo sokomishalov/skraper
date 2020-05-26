@@ -58,3 +58,13 @@ data class Audio(
         override val url: URLString,
         val duration: Duration? = null
 ) : Media()
+
+/**
+ * Represents an article.
+ * @property url article url
+ * @property duration description text provided with article
+ */
+data class Article(
+        override val url: URLString,
+        val text: Array<String?>? = null
+) : Media()

@@ -144,6 +144,11 @@ suspend fun SkraperClient.fetchMediaWithOpenGraphMeta(
                             url = audioUrl ?: media.url
                     )
                 }
+                is Article -> {
+                    media.copy(
+                            url = media.url
+                    )
+                }
             }
         }
     } ?: media

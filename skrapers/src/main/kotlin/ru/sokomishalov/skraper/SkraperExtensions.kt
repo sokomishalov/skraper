@@ -121,6 +121,7 @@ private fun Media.extractFileExtension(): String {
         is Image -> filename.substringAfterLast(".", "png")
         is Video -> filename.substringAfterLast(".", "mp4")
         is Audio -> filename.substringAfterLast(".", "mp3")
+        is Article -> ""
     }
 }
 
