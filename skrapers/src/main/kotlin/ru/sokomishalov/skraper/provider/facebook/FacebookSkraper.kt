@@ -23,8 +23,10 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
-import ru.sokomishalov.skraper.internal.jsoup.*
-import ru.sokomishalov.skraper.internal.net.queryParams
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttribute
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getByPath
 import ru.sokomishalov.skraper.internal.serialization.getInt
@@ -213,36 +215,30 @@ class FacebookSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractPostMediaItems(): List<Media> {
-        val videoElement = getFirstElementByTag("video")
+        return getElementsByTag("a")
+                .filter { it.hasAttr("ajaxify") && "/stories" !in it.attr("ajaxify") }
+                .mapNotNull { node ->
+                    val videoNode = node.getFirstElementByTag("video")
+                    val imgNode = node.getFirstElementByTag("img")
 
-        return when {
-            videoElement != null -> listOf(Video(
-                    url = getFirstElementByAttributeValueContaining("id", "feed_subtitle")
-                            ?.getFirstElementByTag("a")
-                            ?.attr("href")
-                            ?.let { "${baseUrl}${it}" }
-                            .orEmpty(),
-                    aspectRatio = videoElement
-                            .attr("data-original-aspect-ratio")
-                            ?.toDoubleOrNull()
-            ))
-
-            else -> getFirstElementByClass("uiScaledImageContainer")
-                    ?.getFirstElementByTag("img")
-                    ?.run {
-                        val url = attr("src")?.let {
-                            when {
-                                "safe_image.php" in it -> it.queryParams["url"]
-                                else -> it
-                            }
-                        }.orEmpty()
-
-                        listOf(Image(
-                                url = url,
-                                aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                        ))
+                    when {
+                        videoNode != null
+                                || "/videos" in node.attr("ajaxify")
+                                || "/watch" in node.attr("ajaxify") -> Video(
+                                url = node
+                                        ?.attr("href")
+                                        ?.let { "${baseUrl}${it}" }
+                                        .orEmpty(),
+                                aspectRatio = videoNode
+                                        ?.attr("data-original-aspect-ratio")
+                                        ?.toDoubleOrNull()
+                        )
+                        imgNode != null -> Image(
+                                url = imgNode.attr("data-src"),
+                                aspectRatio = imgNode.attr("width").toDoubleOrNull() / imgNode.attr("height").toDoubleOrNull()
+                        )
+                        else -> null
                     }
-                    ?: emptyList()
-        }
+                }
     }
 }

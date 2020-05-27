@@ -37,7 +37,7 @@ class FfmpegCliRunner(
 
     private fun checkFfmpegExistence() {
         runBlocking {
-            run(cmd = "-version", timeout = Duration.ofSeconds(1)).let { code ->
+            run(cmd = "-version", timeout = Duration.ofSeconds(2)).let { code ->
                 if (code != 0) System.err.println("`ffmpeg` is not present in OS, some functions may work unreliably")
             }
         }
