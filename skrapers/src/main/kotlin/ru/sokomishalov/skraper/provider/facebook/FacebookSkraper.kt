@@ -233,12 +233,24 @@ class FacebookSkraper @JvmOverloads constructor(
                                         ?.attr("data-original-aspect-ratio")
                                         ?.toDoubleOrNull()
                         )
-                        imgNode != null -> Image(
-                                url = imgNode.attr("data-src"),
-                                aspectRatio = imgNode.attr("width").toDoubleOrNull() / imgNode.attr("height").toDoubleOrNull()
-                        )
+                        imgNode != null -> with(imgNode) {
+                            Image(
+                                    url = attr("data-src"),
+                                    aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
+                            )
+                        }
                         else -> null
                     }
+                }.ifEmpty {
+                    getFirstElementByClass("uiScaledImageContainer")
+                            ?.getFirstElementByTag("img")
+                            ?.run {
+                                listOf(Image(
+                                        url = attr("data-src"),
+                                        aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
+                                ))
+                            }
+                            .orEmpty()
                 }
     }
 }

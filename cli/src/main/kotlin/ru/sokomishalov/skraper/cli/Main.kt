@@ -42,7 +42,7 @@ import kotlin.text.Charsets.UTF_8
 fun main(args: Array<String>) = mainBody(columns = 100) {
     val parsedArgs = ArgParser(args = args.ifEmpty { arrayOf("--help") }).parseInto(::Args)
 
-    println("${"Skraper".green()} ${"v.0.4.2".magenta()} started")
+    println("${"Skraper".green()} ${"v.0.4.3".magenta()} started")
 
     val posts = runBlocking {
         parsedArgs.skraper.getPosts(
