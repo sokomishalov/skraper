@@ -38,6 +38,7 @@ class YoutubeSkraperTest : SkraperTck() {
     @Test
     fun `Check media resolving`() {
         assertMediaResolved(Video("https://www.youtube.com/watch?v=9bZkp7q19f0"))
+        assertMediaResolved(Video("https://www.youtube.com/watch?v=j9N-v3KURSc"))
     }
 
     @Test

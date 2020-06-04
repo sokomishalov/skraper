@@ -78,8 +78,9 @@ class YoutubeVideoResolver(
 
     private suspend fun JsonNode.parseVideo(jsPath: String?): Video? {
         val url = when {
-            has("cipher") -> {
-                val cipherData = getString("cipher")
+            has("cipher") || has("signatureCipher") -> {
+                val cipherData = getFirstByPath("cipher", "signatureCipher")
+                        ?.asText()
                         .orEmpty()
                         .replace("\\u0026", "&")
                         .split("&".toRegex())
