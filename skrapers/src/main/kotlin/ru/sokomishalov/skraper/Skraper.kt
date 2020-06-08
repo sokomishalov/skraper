@@ -26,6 +26,11 @@ import ru.sokomishalov.skraper.model.*
 interface Skraper {
 
     /**
+     * added for some static extensions
+     */
+    companion object
+
+    /**
      * @return provider base url
      */
     val baseUrl: URLString
@@ -34,6 +39,12 @@ interface Skraper {
      * @return http client
      */
     val client: SkraperClient get() = DefaultBlockingSkraperClient
+
+    /**
+     * @param url potential provider relative url
+     * @return true if such skraper supports this url
+     */
+    suspend fun supports(url: URLString): Boolean = url.host.removePrefix("www.") in baseUrl.host
 
     /**
      * @return provider info
@@ -58,15 +69,7 @@ interface Skraper {
 
     /**
      * @param media with provider relative url
-     * @return true if such skraper can resolve relative url
-     */
-    suspend fun canResolve(media: Media): Boolean = media.url.host.removePrefix("www.") in baseUrl.host
-
-    /**
-     * @param media with provider relative url
      * @return media with direct url
      */
     suspend fun resolve(media: Media): Media
-
-    companion object
 }

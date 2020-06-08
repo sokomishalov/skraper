@@ -22,7 +22,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 class YoutubeSkraperTest : SkraperTck() {
     override val skraper: YoutubeSkraper = YoutubeSkraper(client = client)
     override val path: String = "/user/VineAholic"
-    private val username: String = "VineAholic"
+    private val username: String = "Miffffanya"
 
 
     @Test

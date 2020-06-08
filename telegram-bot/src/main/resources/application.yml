@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: secret
+  main:
+    allow-bean-definition-overriding: true
+
+management:
+  info:
+    git:
+      mode: full
+  endpoint:
+    health:
+      show-details: always
+    configprops:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"

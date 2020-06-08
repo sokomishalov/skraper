@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.internal.ffmpeg
+package ru.sokomishalov.skraper.bot.telegram
 
-import java.io.InputStream
-import java.time.Duration
-
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.telegram.telegrambots.ApiContextInitializer
 
 /**
  * @author sokomishalov
  */
-interface FfmpegRunner {
+@SpringBootApplication
+class TelegramBotApplication
 
-    suspend fun run(
-            cmd: String,
-            timeout: Duration = Duration.ofHours(1),
-            stdin: (InputStream) -> Unit = {}
-    ): Int
-
+fun main(args: Array<String>) {
+    ApiContextInitializer.init()
+    runApplication<TelegramBotApplication>(*args)
 }

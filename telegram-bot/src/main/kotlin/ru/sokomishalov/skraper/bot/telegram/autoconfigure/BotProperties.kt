@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.internal.ffmpeg
+package ru.sokomishalov.skraper.bot.telegram.autoconfigure
 
-import java.io.InputStream
-import java.time.Duration
-
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
+import org.springframework.boot.context.properties.bind.DefaultValue
 
 /**
  * @author sokomishalov
  */
-interface FfmpegRunner {
-
-    suspend fun run(
-            cmd: String,
-            timeout: Duration = Duration.ofHours(1),
-            stdin: (InputStream) -> Unit = {}
-    ): Int
-
-}
+@ConfigurationProperties(prefix = "skraper.bot")
+@ConstructorBinding
+data class BotProperties(
+        val username: String,
+        val token: String,
+        @DefaultValue("LONG_POLLING")
+        val mode: BotMode,
+        @DefaultValue("")
+        val webhookUrl: String
+)
