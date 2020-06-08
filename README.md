@@ -123,7 +123,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.4.4</version>
+        <version>0.4.5</version>
     </dependency>
 </dependencies>
 ```
@@ -134,7 +134,7 @@ repositories {
     maven { url = uri("http://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.4.4")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.4.5")
 }
 ```
 

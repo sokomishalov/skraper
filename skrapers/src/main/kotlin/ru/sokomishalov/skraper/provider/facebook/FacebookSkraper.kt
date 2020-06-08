@@ -138,10 +138,17 @@ class FacebookSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractPostText(): String? {
-        return getFirstElementByClass("userContent")
+        val text = getFirstElementByClass("userContent")
                 ?.getFirstElementByTag("p")
                 ?.wholeText()
                 ?.toString()
+
+        val repostText = getFirstElementByAttributeValue("data-testid", "post_message")
+                ?.getFirstElementByTag("p")
+                ?.wholeText()
+                ?.toString()
+
+        return text ?: repostText
     }
 
     private fun Element.extractPostPublishDateTime(): Long? {
