@@ -13,7 +13,7 @@ Based on coroutines and JSoup.
 Repository contains:
 - [Cli tool](#cli-tool)
 - [Kotlin library](#kotlin-library)
-- [Source code for telegram bot](#telegram-bot)
+- [Telegram bot](#telegram-bot)
 
 Current list of implemented sources:
 - [Facebook](https://facebook.com)
@@ -142,7 +142,7 @@ dependencies {
 
 ## Usage
 ### Demo
-You may take a look at library usage in this [android sample app](example/android)
+You may take a look at library usage in this [android sample app](./example/android) or [telegram bot](./telegram-bot)
 
 ### Instantiate specific scraper
 As mentioned before, the provider implementation list is:
@@ -355,4 +355,5 @@ Output:
 ```
 
 # Telegram bot
-You are able to have a look on the [bot main logic code](telegram-bot/src/main/kotlin/ru/sokomishalov/skraper/bot/telegram/service/SkraperBot.kt).
+To use the bot follow the [link](https://t.me/SkraperBot).
+You are also able to have a look on the [bot main logic code](telegram-bot/src/main/kotlin/ru/sokomishalov/skraper/bot/telegram/service/SkraperBot.kt).
