@@ -21,6 +21,7 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -92,10 +93,10 @@ class TwitterSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Image -> client.fetchMediaWithOpenGraphMeta(media = media, headers = emptyMap())
+            is Image -> client.fetchMediaWithOpenGraphMeta(media = media, headers = defaultHeaders)
             is Video -> {
-                val ogVideo = client.fetchMediaWithOpenGraphMeta(media = media, headers = emptyMap()) as Video
-                val page = client.fetchDocument(url = ogVideo.url, headers = emptyMap())
+                val ogVideo = client.fetchMediaWithOpenGraphMeta(media = media, headers = defaultHeaders) as Video
+                val page = client.fetchDocument(url = ogVideo.url, headers = defaultHeaders)
 
                 val urlFromPage = page
                         ?.getFirstElementByClass("js-tweet-text")
@@ -169,9 +170,15 @@ class TwitterSkraper @JvmOverloads constructor(
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
                 url = baseUrl.buildFullURL(path = path),
-                headers = emptyMap()
+                headers = defaultHeaders
         )
     }
+
+    private val defaultHeaders: Map<String, String>
+        get() = mapOf(
+                "User-Agent" to DEFAULT_USER_AGENT,
+                "X-Requested-With" to "XMLHttpRequest"
+        )
 
     private fun Document.extractJsonData(): JsonNode? {
         return getElementById("init-data")
