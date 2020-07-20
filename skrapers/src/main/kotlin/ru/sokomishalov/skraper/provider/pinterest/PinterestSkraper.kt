@@ -34,7 +34,7 @@ import java.util.Locale.ROOT
 /**
  * @author sokomishalov
  */
-class PinterestSkraper @JvmOverloads constructor(
+open class PinterestSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://pinterest.com"
 ) : Skraper {

@@ -36,7 +36,7 @@ import java.time.ZoneOffset.UTC
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ENGLISH
 
-class TumblrSkraper @JvmOverloads constructor(
+open class TumblrSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://tumblr.com"
 ) : Skraper {

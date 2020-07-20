@@ -35,7 +35,7 @@ import kotlin.text.Charsets.UTF_8
 /**
  * @author sokomishalov
  */
-class TwitterSkraper @JvmOverloads constructor(
+open class TwitterSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://twitter.com",
         private val apiBaseUrl: URLString = "https://api.twitter.com"

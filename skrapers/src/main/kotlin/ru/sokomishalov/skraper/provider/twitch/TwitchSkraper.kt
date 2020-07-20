@@ -33,7 +33,7 @@ import kotlin.text.Charsets.UTF_8
 /**
  * @author sokomishalov
  */
-class TwitchSkraper @JvmOverloads constructor(
+open class TwitchSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://twitch.tv",
         private val graphBaseUrl: URLString = "https://gql.twitch.tv/gql",

@@ -32,7 +32,7 @@ import ru.sokomishalov.skraper.model.MediaSize.*
 /**
  * @author sokomishalov
  */
-class IFunnySkraper @JvmOverloads constructor(
+open class IFunnySkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://ifunny.co"
 ) : Skraper {

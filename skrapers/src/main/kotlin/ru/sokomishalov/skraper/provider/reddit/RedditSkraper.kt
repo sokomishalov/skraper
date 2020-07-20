@@ -28,7 +28,7 @@ import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 
-class RedditSkraper @JvmOverloads constructor(
+open class RedditSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://reddit.com"
 ) : Skraper {

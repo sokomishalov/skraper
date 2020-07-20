@@ -38,7 +38,7 @@ import ru.sokomishalov.skraper.model.MediaSize.*
 /**
  * @author sokomishalov
  */
-class FlickrSkraper @JvmOverloads constructor(
+open class FlickrSkraper @JvmOverloads constructor(
         override val client: SkraperClient = DefaultBlockingSkraperClient,
         override val baseUrl: URLString = "https://flickr.com"
 ) : Skraper {
