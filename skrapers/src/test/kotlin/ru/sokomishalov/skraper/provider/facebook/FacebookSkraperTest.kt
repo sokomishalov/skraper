@@ -60,12 +60,4 @@ class FacebookSkraperTest : SkraperTck() {
     fun `Check media downloading`() {
         assertMediaDownloaded(Video("https://www.facebook.com/ShortVideoClips/videos/10153369665000012/"))
     }
-
-    @Test
-    fun test_unknown_link() {
-        runBlocking{
-            val res = skraper.getPosts(community, limit = 10)
-            val k = 1
-        }
-    }
 }
