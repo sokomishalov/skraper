@@ -98,6 +98,7 @@ open class RedditSkraper @JvmOverloads constructor(
                         ?: media
             }
             is Audio -> media
+            is UnknownLink -> media
         }
     }
 

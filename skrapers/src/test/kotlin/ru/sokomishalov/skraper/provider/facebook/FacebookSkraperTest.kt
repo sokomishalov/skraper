@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.facebook
 
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
@@ -26,7 +27,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 class FacebookSkraperTest : SkraperTck() {
     override val skraper: FacebookSkraper = FacebookSkraper(client = client)
     override val path: String = "/memes/posts"
-    private val community: String = "dracibrno"
+    private val community: String = "eaglespraha"
     private val username: String = "DonaldTrump"
 
     @Test
@@ -58,5 +59,13 @@ class FacebookSkraperTest : SkraperTck() {
     @Test
     fun `Check media downloading`() {
         assertMediaDownloaded(Video("https://www.facebook.com/ShortVideoClips/videos/10153369665000012/"))
+    }
+
+    @Test
+    fun test_unknown_link() {
+        runBlocking{
+            val res = skraper.getPosts(community, limit = 10)
+            val k = 1
+        }
     }
 }

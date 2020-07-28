@@ -19,10 +19,7 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegCliRunner
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegRunner
 import ru.sokomishalov.skraper.internal.net.path
-import ru.sokomishalov.skraper.model.Audio
-import ru.sokomishalov.skraper.model.Image
-import ru.sokomishalov.skraper.model.Media
-import ru.sokomishalov.skraper.model.Video
+import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
 import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
 import ru.sokomishalov.skraper.provider.ifunny.IFunnySkraper
@@ -146,6 +143,7 @@ private suspend fun List<Skraper>.lookForDirectMediaRecursively(media: Media, re
                                 is Image -> media.copy(url = url)
                                 is Video -> media.copy(url = url)
                                 is Audio -> media.copy(url = url)
+                                is UnknownLink -> media.copy(url = url)
                             }
                         }
                     }
@@ -161,6 +159,7 @@ private fun Media.extractFileExtension(): String {
         is Image -> filename.substringAfterLast(".", "png")
         is Video -> filename.substringAfterLast(".", "mp4")
         is Audio -> filename.substringAfterLast(".", "mp3")
+        is UnknownLink -> ""
     }
 }
 

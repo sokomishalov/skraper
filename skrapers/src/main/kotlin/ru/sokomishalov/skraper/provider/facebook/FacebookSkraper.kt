@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttribute
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -221,9 +222,33 @@ open class FacebookSkraper @JvmOverloads constructor(
                 ?.attr("src")
     }
 
+    private fun extractUnknownLinkURL(link:String): String?
+    {
+        return link.substringBefore("&")
+                .substringAfter("u=")
+                .replace("%3A", ":")
+                .replace("%2F", "/")
+    }
+
     private fun Element.extractPostMediaItems(): List<Media> {
-        return getElementsByTag("a")
-                .filter { it.hasAttr("ajaxify") && "/stories" !in it.attr("ajaxify") }
+        var res = mutableListOf<Media>()
+
+        val unknownLinkNode = getFirstElementByClass("accessible_elem inlineBlock")
+        if(unknownLinkNode != null) {
+            res.add(UnknownLink(
+                    url = unknownLinkNode.parent()
+                            ?.getFirstElementByTag("a")
+                            ?.attr("href")
+                            ?.let {extractUnknownLinkURL(it)}
+                            .orEmpty(),
+                    text = arrayOf(unknownLinkNode.parent()?.getFirstAttr("aria-label"),
+                            unknownLinkNode.wholeText()?.toString())
+            ))
+        }
+
+        getElementsByTag("a")
+                .filter { it.hasAttr("ajaxify") && "/stories" !in it.attr("ajaxify")
+                    }
                 .mapNotNull { node ->
                     val videoNode = node.getFirstElementByTag("video")
                     val imgNode = node.getFirstElementByTag("img")
@@ -231,7 +256,8 @@ open class FacebookSkraper @JvmOverloads constructor(
                     when {
                         videoNode != null
                                 || "/videos" in node.attr("ajaxify")
-                                || "/watch" in node.attr("ajaxify") -> Video(
+                                || "/watch" in node.attr("ajaxify") ->
+                            res.add(Video(
                                 url = node
                                         ?.attr("href")
                                         ?.let { "${baseUrl}${it}" }
@@ -239,25 +265,28 @@ open class FacebookSkraper @JvmOverloads constructor(
                                 aspectRatio = videoNode
                                         ?.attr("data-original-aspect-ratio")
                                         ?.toDoubleOrNull()
-                        )
+                        ))
                         imgNode != null -> with(imgNode) {
-                            Image(
+                            res.add(Image(
                                     url = attr("data-src"),
                                     aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                            )
+                            ))
                         }
                         else -> null
                     }
-                }.ifEmpty {
+                }
+
+                if(res.isEmpty() || unknownLinkNode != null) {
                     getFirstElementByClass("uiScaledImageContainer")
                             ?.getFirstElementByTag("img")
                             ?.run {
-                                listOf(Image(
+                                res.addAll(listOf(Image(
                                         url = attr("data-src"),
                                         aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                                ))
+                                )))
                             }
-                            .orEmpty()
                 }
+
+        return res
     }
 }

@@ -58,3 +58,13 @@ data class Audio(
         override val url: URLString,
         val duration: Duration? = null
 ) : Media()
+
+/**
+ * Represents an unknown link.
+ * @property url url
+ * @property duration description text provided with unknown link
+ */
+data class UnknownLink(
+        override val url: URLString,
+        val text: Array<String?>? = null
+) : Media()
