@@ -31,11 +31,11 @@
         <dependency>
             <groupId>com.andreapivetta.kolor</groupId>
             <artifactId>kolor</artifactId>
-            <version>1.0.0</version>
+            <version>${kolor.version}</version>
         </dependency>
         <dependency>
             <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-cio</artifactId>
+            <artifactId>ktor-client-cio-jvm</artifactId>
             <version>${ktor.version}</version>
         </dependency>
         <dependency>
@@ -70,6 +70,13 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>bintray</id>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <finalName>${project.artifactId}</finalName>
@@ -100,7 +107,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>

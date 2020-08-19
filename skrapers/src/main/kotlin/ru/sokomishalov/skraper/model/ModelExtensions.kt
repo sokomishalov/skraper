@@ -44,7 +44,7 @@ internal fun URLString.buildFullURL(path: String, queryParams: Map<String, Any?>
             .entries
             .filter { it.value != null }
             .map { "${it.key}=${it.value.toString().escapeUrl()}" }
-            .fold(initial = "", operation = { acc, s -> "$acc&$s" })
+            .foldIndexed(initial = "", operation = { i, acc, s -> if (i == 0) s else "$acc&$s" })
             .let { if (it.isNotEmpty()) "?${it}" else it }
 
     return baseUrlString + pathString + queryParamsString

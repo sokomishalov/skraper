@@ -15,6 +15,8 @@
  */
 package ru.sokomishalov.skraper
 
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
@@ -43,7 +45,7 @@ interface SkraperClient {
             url: URLString,
             destFile: File
     ) {
-        request(url = url)?.let { destFile.writeBytes(it) }
+        request(url = url)?.let { withContext(IO) { destFile.writeBytes(it) } }
     }
 
 }

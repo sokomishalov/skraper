@@ -15,17 +15,15 @@
  */
 package ru.sokomishalov.skraper.client.ktor
 
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.request
-import io.ktor.client.statement.HttpResponse
-import io.ktor.content.ByteArrayContent
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.content.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpHeaders.UnsafeHeadersList
 import io.ktor.http.HttpMethod
-import io.ktor.utils.io.consumeEachBufferRange
+import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asPublisher
 import ru.sokomishalov.skraper.SkraperClient

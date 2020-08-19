@@ -60,7 +60,6 @@ object DefaultBlockingSkraperClient : SkraperClient {
             Channels.newChannel(URL(url).openRedirectableStream()).use { rbc ->
                 destFile.outputStream().use { fos ->
                     fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
-                    destFile.absolutePath
                 }
             }
         }

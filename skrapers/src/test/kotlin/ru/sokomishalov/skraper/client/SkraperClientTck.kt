@@ -40,8 +40,8 @@ abstract class SkraperClientTck {
     fun `Fetch byte array`() = runBlocking {
         val bytes = client.request("https://www.wikipedia.org/")
 
-        assertTrue { bytes != null }
-        assertTrue { bytes!!.isNotEmpty() }
+        assertNotNull(bytes)
+        assertTrue { bytes.isNotEmpty() }
     }
 
     @Test
@@ -56,8 +56,8 @@ abstract class SkraperClientTck {
     fun `Fetch document`() = runBlocking {
         val document = client.fetchDocument("https://facebook.com")
 
-        assertTrue { document != null }
-        assertTrue { document!!.body().hasParent() }
+        assertNotNull(document)
+        assertTrue { document.body().hasParent() }
     }
 
     @Test

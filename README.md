@@ -162,7 +162,7 @@ As mentioned before, the provider implementation list is:
 
 After that usage as simple as is:
 ```kotlin
-val skraper = InstagramSkraper(client = ReactorNettySkraperClient())
+val skraper = InstagramSkraper(client = OkHttpSkraperClient())
 ```
 
 **Important moment:** it is highly recommended to not use [DefaultBlockingSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
@@ -172,7 +172,6 @@ To use them you just have to put required dependencies in the classpath.
 Current http-client implementation list:
 - [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) - simple java.net.* blocking api implementation
 - [OkHttp3SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
-- [ReactorNettySkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/reactornetty/ReactorNettySkraperClient.kt) - [reactor-netty](https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty) implementation
 - [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
 - [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
 
@@ -195,7 +194,7 @@ You can find them out at the provider implementation package.
 ### Scrape user/community/channel/topic/trend posts
 To scrape the latest posts for specific user, channel or trend use skraper like that: 
 ```kotlin
-fun main() = runBlocking {
+suspen fun main() {
     val skraper = FacebookSkraper()
     val posts = skraper.getUserPosts(username = "memes", limit = 2) // extension for getPosts()
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
@@ -234,7 +233,7 @@ You can see the full model structure for posts and others [here](skrapers/src/ma
 ### Scrape user/community/channel/topic/trend info
 It is possible to scrape user/channel/trend info for some purposes:
 ```kotlin
-fun main() = runBlocking {
+suspend fun main() {
     val skraper = TwitterSkraper()
     val pageInfo = skraper.getUserInfo(username = "memes") // extension for `getPageInfo()`
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(pageInfo))
@@ -277,7 +276,7 @@ Output:
 ### Resolve provider relative url
 Sometimes you need to know direct media link:
 ```kotlin
-fun main() = runBlocking {
+suspend fun main() {
     val skraper = InstagramSkraper()
     val info = skraper.resolve(Video(url = "https://www.instagram.com/p/B-flad2F5o7/"))
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(info))
@@ -299,7 +298,7 @@ Output:
 ### Download media
 There is "static" method which allows to download any media from all known implemented sources:
 ```kotlin
-fun main() = runBlocking {
+suspend fun main() {
     val tmpDir = Files.createTempDirectory("skraper").toFile()
 
     val testVideo = Skraper.download(
@@ -329,7 +328,7 @@ Output:
 It is also possible to scrape provider info for some purposes:
 
 ```kotlin
-fun main() = runBlocking {
+suspend fun main() {
     val skraper = InstagramSkraper()
     val info = skraper.getProviderInfo()
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(info))
