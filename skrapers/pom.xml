@@ -44,14 +44,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>${okhttp.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor.netty</groupId>
-            <artifactId>reactor-netty</artifactId>
-            <version>${reactor-netty.version}</version>
+            <version>${okhttp3.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -86,8 +79,15 @@
 
         <dependency>
             <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-cio</artifactId>
+            <artifactId>ktor-client-cio-jvm</artifactId>
             <version>${ktor.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>${reactor-netty.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -116,9 +116,6 @@
                 <version>${kotlin.version}</version>
                 <configuration>
                     <jvmTarget>${java.version}</jvmTarget>
-                    <args>
-                        <arg>-Xopt-in=kotlin.RequiresOptIn</arg>
-                    </args>
                 </configuration>
                 <executions>
                     <execution>

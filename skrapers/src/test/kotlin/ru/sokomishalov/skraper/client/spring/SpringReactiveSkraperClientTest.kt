@@ -15,13 +15,34 @@
  */
 package ru.sokomishalov.skraper.client.spring
 
+import io.netty.handler.ssl.SslContextBuilder
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.SkraperClientTck
+import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient.Companion.DEFAULT_CLIENT
 
 
 /**
  * @author sokomishalov
  */
 class SpringReactiveSkraperClientTest : SkraperClientTck() {
-    override val client: SkraperClient = SpringReactiveSkraperClient()
+    override val client: SkraperClient = SpringReactiveSkraperClient(
+            webClient = DEFAULT_CLIENT
+                    .mutate()
+                    .clientConnector(ReactorClientHttpConnector(
+                            HttpClient
+                                    .create()
+                                    .followRedirect(true)
+                                    .secure {
+                                        it.sslContext(SslContextBuilder
+                                                .forClient()
+                                                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                                                .build()
+                                        )
+                                    }
+                    ))
+                    .build()
+    )
 }

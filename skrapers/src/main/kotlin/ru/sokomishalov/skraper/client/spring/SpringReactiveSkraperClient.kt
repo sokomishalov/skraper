@@ -19,11 +19,9 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.GET
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.*
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
-import ru.sokomishalov.skraper.client.netty.ReactorNettySkraperClient
 import ru.sokomishalov.skraper.internal.nio.aWrite
 import ru.sokomishalov.skraper.model.URLString
 import java.io.File
@@ -71,7 +69,6 @@ class SpringReactiveSkraperClient(
         @JvmStatic
         val DEFAULT_CLIENT: WebClient = WebClient
                 .builder()
-                .clientConnector(ReactorClientHttpConnector(ReactorNettySkraperClient.DEFAULT_CLIENT))
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
                         .codecs { cc ->

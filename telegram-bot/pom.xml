@@ -24,27 +24,22 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>${spring.boot.version}</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>${spring.boot.version}</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-cio</artifactId>
+            <artifactId>ktor-client-cio-jvm</artifactId>
             <version>${ktor.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.sokomishalov.commons</groupId>
-            <artifactId>commons-spring</artifactId>
-            <version>${sokomishalov-commons.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.sokomishalov.commons</groupId>
-            <artifactId>commons-coroutines</artifactId>
+            <artifactId>commons-logging</artifactId>
             <version>${sokomishalov-commons.version}</version>
         </dependency>
 
@@ -68,7 +63,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <version>${spring.boot.version}</version>
+            <version>${spring-boot.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -82,7 +77,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
+                <version>${spring-boot.version}</version>
                 <configuration>
                     <additionalProperties>
                         <encoding.source>UTF-8</encoding.source>
@@ -145,7 +140,7 @@
                                 <annotationProcessorPath>
                                     <groupId>org.springframework.boot</groupId>
                                     <artifactId>spring-boot-configuration-processor</artifactId>
-                                    <version>${spring.boot.version}</version>
+                                    <version>${spring-boot.version}</version>
                                 </annotationProcessorPath>
                             </annotationProcessorPaths>
                         </configuration>

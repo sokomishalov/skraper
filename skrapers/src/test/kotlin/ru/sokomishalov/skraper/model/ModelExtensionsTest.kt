@@ -15,8 +15,8 @@
  */
 package ru.sokomishalov.skraper.model
 
-import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class ModelExtensionsTest {
 
