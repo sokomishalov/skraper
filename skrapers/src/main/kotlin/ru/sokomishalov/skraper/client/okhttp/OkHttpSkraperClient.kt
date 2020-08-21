@@ -31,7 +31,6 @@ import okio.buffer
 import okio.sink
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_DOWNLOAD_BUFFER_SIZE
 import ru.sokomishalov.skraper.model.URLString
 import java.io.File
 import java.io.IOException
@@ -86,7 +85,7 @@ class OkHttpSkraperClient(
             destFile.sink().buffer().use { sink ->
                 responseBody?.source()?.use { source ->
                     val sinkBuffer: Buffer = sink.buffer
-                    val bufferSize = DEFAULT_DOWNLOAD_BUFFER_SIZE
+                    val bufferSize = 8 * 1024
 
                     while (source.read(sinkBuffer, bufferSize.toLong()) != -1L) sink.emit()
 

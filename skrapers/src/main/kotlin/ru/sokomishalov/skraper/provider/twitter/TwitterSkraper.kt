@@ -21,7 +21,6 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -104,68 +103,51 @@ open class TwitterSkraper @JvmOverloads constructor(
                         ?.attr("data-expanded-url")
                         .orEmpty()
 
-                if (urlFromPage.isNotBlank()) {
-                    ogVideo.copy(
-                            url = urlFromPage,
-                            thumbnail = null
-                    )
-                } else {
-                    val jsUrl = page
-                            ?.getElementsByTag("script")
-                            ?.lastOrNull()
-                            ?.attr("src")
-
-                    val jsPage = jsUrl?.let {
-                        client.fetchBytes(it)?.toString(UTF_8)
-                    }
-
-                    val token = jsPage?.let {
-                        "Bearer ([a-zA-Z0-9%-])+"
-                                .toRegex()
-                                .find(it)
-                                ?.groupValues
-                                ?.firstOrNull()
-                    }
-
-                    val guestTokenNode = token?.let {
-                        client.fetchJson(
-                                url = apiBaseUrl.buildFullURL(path = "/1.1/guest/activate.json"),
-                                method = POST,
-                                headers = mapOf("Authorization" to it)
+                when {
+                    urlFromPage.isNotBlank() -> {
+                        ogVideo.copy(
+                                url = urlFromPage,
+                                thumbnail = null
                         )
                     }
+                    else -> {
+                        val (token, guestToken) = page.generateTokens()
 
-                    val guestToken = guestTokenNode?.getString("guest_token")
+                        val playlistNode = when {
+                            token != null && guestToken != null -> {
+                                val tweetId = media
+                                        .url
+                                        .substringAfterLast("/status/")
+                                        .substringBefore("?")
 
-                    val playlistNode = guestToken?.let {
-                        val tweetId = media
-                                .url
-                                .substringAfterLast("/status/")
-                                .substringBefore("?")
-
-                        client.fetchJson(
-                                url = apiBaseUrl.buildFullURL(path = "/1.1/videos/tweet/config/${tweetId}.json"),
-                                headers = mapOf(
-                                        "x-guest-token" to it,
-                                        "Authorization" to token
+                                client.fetchJson(
+                                        url = apiBaseUrl.buildFullURL(path = "/1.1/videos/tweet/config/${tweetId}.json"),
+                                        headers = mapOf(
+                                                "Authorization" to token,
+                                                "x-guest-token" to guestToken
+                                        )
                                 )
+                            }
+                            else -> null
+                        }
+
+                        ogVideo.copy(
+                                url = playlistNode
+                                        ?.getString("track.playbackUrl")
+                                        ?: ogVideo.url,
+                                duration = playlistNode
+                                        ?.getLong("track.durationMs")
+                                        ?.let { Duration.ofMillis(it) }
+                                        ?: ogVideo.duration
                         )
                     }
-
-                    ogVideo.copy(
-                            url = playlistNode
-                                    ?.getString("track.playbackUrl")
-                                    ?: ogVideo.url,
-                            duration = playlistNode
-                                    ?.getLong("track.durationMs")
-                                    ?.let { Duration.ofMillis(it) }
-                                    ?: ogVideo.duration
-                    )
                 }
             }
             else -> media
         }
     }
+
+    private val defaultHeaders: Map<String, String> = mapOf("User-Agent" to SEARCH_ENGINE_USER_AGENTS.random())
 
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
@@ -173,12 +155,6 @@ open class TwitterSkraper @JvmOverloads constructor(
                 headers = defaultHeaders
         )
     }
-
-    private val defaultHeaders: Map<String, String>
-        get() = mapOf(
-                "User-Agent" to DEFAULT_USER_AGENT,
-                "X-Requested-With" to "XMLHttpRequest"
-        )
 
     private fun Document.extractJsonData(): JsonNode? {
         return getElementById("init-data")
@@ -260,5 +236,40 @@ open class TwitterSkraper @JvmOverloads constructor(
             )
             else -> emptyList()
         }
+    }
+
+    private suspend fun Document?.generateTokens(): Pair<String?, String?> {
+        val jsUrl = this
+                ?.getElementsByTag("script")
+                ?.mapNotNull { it.attr("src") }
+                ?.findLast { "main" in it }
+
+        val jsPage = jsUrl?.let {
+            client.fetchBytes(it)?.toString(UTF_8)
+        }
+
+        val token = jsPage?.let {
+            "Bearer ([a-zA-Z0-9%-])+"
+                    .toRegex()
+                    .find(it)
+                    ?.groupValues
+                    ?.firstOrNull()
+        }
+
+        val guestTokenNode = token?.let {
+            client.fetchJson(
+                    url = apiBaseUrl.buildFullURL(path = "/1.1/guest/activate.json"),
+                    method = POST,
+                    headers = mapOf("Authorization" to it)
+            )
+        }
+
+        val guestToken = guestTokenNode?.getString("guest_token")
+
+        return token to guestToken
+    }
+
+    companion object {
+        private val SEARCH_ENGINE_USER_AGENTS = setOf("Googlebot", "Slurp", "Yandex", "msnbot", "bingbot")
     }
 }

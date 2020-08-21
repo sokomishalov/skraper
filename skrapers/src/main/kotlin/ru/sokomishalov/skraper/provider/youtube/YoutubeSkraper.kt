@@ -132,7 +132,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     private fun JsonNode?.extractImages(): Map<MediaSize, Image> {
         return this
-                ?.take(3)
+                ?.toList()
+                ?.takeLast(3)
                 ?.mapIndexed { i, it ->
                     val url = it.getString("url")?.let { if (it.startsWith("//")) "https:${it}" else it }.orEmpty()
                     val ratio = it.getInt("width") / it.getInt("height")
