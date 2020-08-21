@@ -30,7 +30,7 @@
         <logback.version>1.2.3</logback.version>
 
         <assembly-plugin.version>3.3.0</assembly-plugin.version>
-        <flatten-plugin.version>1.2.4</flatten-plugin.version>
+        <flatten-plugin.version>1.2.5</flatten-plugin.version>
         <license-plugin.version>3.0</license-plugin.version>
     </properties>
 
