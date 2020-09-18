@@ -21,7 +21,7 @@
         <reactor-netty.version>0.9.11.RELEASE</reactor-netty.version>
         <okhttp3.version>4.8.1</okhttp3.version>
         <spring.version>5.2.8.RELEASE</spring.version>
-        <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+        <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
         <ktor.version>1.4.0</ktor.version>
         <argparser.version>2.0.7</argparser.version>
         <kolor.version>1.0.0</kolor.version>
