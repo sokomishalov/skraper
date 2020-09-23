@@ -8,7 +8,7 @@ Skraper
 # Overview
 Kotlin/JVM library and cli tool which allows scraping and downloading posts, attachments, 
 other meta from more than 10 sources without any authorization or full page rendering. 
-Based on coroutines and JSoup.
+Based on jsoup and coroutines.
 
 Repository contains:
 - [Cli tool](#cli-tool)
@@ -171,7 +171,7 @@ To use them you just have to put required dependencies in the classpath.
 
 Current http-client implementation list:
 - [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) - simple java.net.* blocking api implementation
-- [OkHttp3SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp3/OkHttp3SkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
+- [OkHttpSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp/OkHttpSkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
 - [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
 - [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
 
@@ -353,6 +353,7 @@ Output:
 }
 ```
 
+### Usage from Java
+
 # Telegram bot
 To use the bot follow the [link](https://t.me/SkraperBot).
-You are also able to have a look on the [bot main logic code](telegram-bot/src/main/kotlin/ru/sokomishalov/skraper/bot/telegram/service/SkraperBot.kt).
