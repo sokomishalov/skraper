@@ -353,7 +353,5 @@ Output:
 }
 ```
 
-### Usage from Java
-
 # Telegram bot
 To use the bot follow the [link](https://t.me/SkraperBot).
