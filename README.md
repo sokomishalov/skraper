@@ -6,7 +6,7 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 # Overview
-Kotlin/JVM library and cli tool which allows scraping and downloading posts, attachments, 
+Kotlin/Java library and cli tool which allows scraping and downloading posts, attachments, 
 other meta from more than 10 sources without any authorization or full page rendering. 
 Based on jsoup and coroutines.
 
@@ -125,7 +125,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.5.1</version>
+        <version>0.6.0</version>
     </dependency>
 </dependencies>
 ```
@@ -136,7 +136,7 @@ repositories {
     maven { url = uri("http://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.5.1")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.6.0")
 }
 ```
 
@@ -190,6 +190,10 @@ interface Skraper {
 
 Also, there are some provider-specific kotlin extensions for implementations. 
 You can find them out at the provider implementation package. 
+
+### Usage from plain Java
+Kotlin coroutines is a [CPS](https://en.wikipedia.org/wiki/Continuation-passing_style) implementation (aka callbacks).
+Here is a quite good [java side example](https://stackoverflow.com/a/54033955/5843129) of how to call kotlin `suspend` functions from plain Java.
 
 ### Scrape user/community/channel/topic/trend posts
 To scrape the latest posts for specific user, channel or trend use skraper like that: 
