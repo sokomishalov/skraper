@@ -19,7 +19,7 @@ package ru.sokomishalov.skraper.model
  * Represents a provider some user/community/channel/topic/trend post.
  * @property id provider's internal post id
  * @property text title and/or description
- * @property publishedAt publish timestamp in nanos *(nullable - such data may not exist at all)
+ * @property publishedAt publish timestamp in seconds *(nullable - such data may not exist at all)
  * @property rating rating (likes, pins, etc.) count *(nullable - such data may not exist at all)
  * @property commentsCount comments count *(nullable - such data may not exist at all)
  * @property viewsCount views count *(nullable - such data may not exist at all)
