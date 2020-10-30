@@ -71,6 +71,8 @@ open class PinterestSkraper @JvmOverloads constructor(
                     nick = getString("profile.username"),
                     name = getString("profile.full_name"),
                     description = getString("profile.about"),
+                    postsCount = getInt("profile.pin_count"),
+                    followersCount = getInt("profile.follower_count"),
                     avatarsMap = extractLogoMap()
             )
         }
