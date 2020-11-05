@@ -15,7 +15,7 @@
         <java.version>1.8</java.version>
         <kotlin.version>1.4.10</kotlin.version>
 
-        <kotlinx-coroutines.version>1.4.0</kotlinx-coroutines.version>
+        <kotlinx-coroutines.version>1.4.1</kotlinx-coroutines.version>
         <jackson.version>2.11.3</jackson.version>
         <jsoup.version>1.13.1</jsoup.version>
         <reactor-netty.version>1.0.0</reactor-netty.version>
