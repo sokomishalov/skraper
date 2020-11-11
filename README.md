@@ -32,7 +32,7 @@ Current list of implemented sources:
 
 # Bugs
 Unfortunately, each web-site is subject to change without any notice, so the tool may work incorrectly because of that.
-If that happens, please let me know via an issue or some message. 
+If that happens, please let me know via an issue. 
 
 # Cli tool
 Cli tool allows to:
@@ -125,7 +125,7 @@ Maven:
     <dependency>
         <groupId>com.github.sokomishalov.skraper</groupId>
         <artifactId>skrapers</artifactId>
-        <version>0.6.0</version>
+        <version>0.6.1</version>
     </dependency>
 </dependencies>
 ```
