@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 @file:Suppress(
-        "EXPERIMENTAL_API_USAGE",
-        "BlockingMethodInNonBlockingContext"
+    "EXPERIMENTAL_API_USAGE",
+    "BlockingMethodInNonBlockingContext"
 )
 
 package ru.sokomishalov.skraper.client.okhttp
@@ -44,42 +44,42 @@ import kotlin.coroutines.resumeWithException
  * @author sokomishalov
  */
 class OkHttpSkraperClient(
-        private val client: OkHttpClient = DEFAULT_CLIENT
+    private val client: OkHttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
     override suspend fun request(
-            url: URLString,
-            method: HttpMethodType,
-            headers: Map<String, String>,
-            body: ByteArray?
+        url: URLString,
+        method: HttpMethodType,
+        headers: Map<String, String>,
+        body: ByteArray?
     ): ByteArray? {
         val request = Request
-                .Builder()
-                .url(url)
-                .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
-                .method(method = method.name, body = body?.createRequest(contentType = headers["Content-Type"]))
-                .build()
+            .Builder()
+            .url(url)
+            .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
+            .method(method = method.name, body = body?.createRequest(contentType = headers["Content-Type"]))
+            .build()
 
         return client
-                .newCall(request)
-                .await()
-                .body
-                ?.run { withContext(IO) { bytes() } }
+            .newCall(request)
+            .await()
+            .body
+            ?.run { withContext(IO) { bytes() } }
     }
 
     override suspend fun download(
-            url: URLString,
-            destFile: File
+        url: URLString,
+        destFile: File
     ) {
         val request: Request = Request
-                .Builder()
-                .url(url)
-                .build()
+            .Builder()
+            .url(url)
+            .build()
 
         val responseBody = client
-                .newCall(request)
-                .await()
-                .body
+            .newCall(request)
+            .await()
+            .body
 
         withContext(IO) {
             destFile.sink().buffer().use { sink ->
@@ -99,7 +99,8 @@ class OkHttpSkraperClient(
         return suspendCancellableCoroutine { continuation ->
             enqueue(object : Callback {
                 override fun onResponse(call: Call, response: Response) = continuation.resume(response) { }
-                override fun onFailure(call: Call, e: IOException) = if (continuation.isCancelled.not()) continuation.resumeWithException(e) else Unit
+                override fun onFailure(call: Call, e: IOException) =
+                    if (continuation.isCancelled.not()) continuation.resumeWithException(e) else Unit
             })
 
             continuation.invokeOnCancellation {
@@ -119,9 +120,9 @@ class OkHttpSkraperClient(
     companion object {
         @JvmStatic
         val DEFAULT_CLIENT: OkHttpClient = OkHttpClient
-                .Builder()
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .build()
+            .Builder()
+            .followRedirects(true)
+            .followSslRedirects(true)
+            .build()
     }
 }

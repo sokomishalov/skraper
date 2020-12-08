@@ -15,7 +15,13 @@
  */
 package ru.sokomishalov.skraper.bot.telegram.service
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.context.annotation.Primary
+import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.sokomishalov.commons.core.common.unit
@@ -25,11 +31,15 @@ import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
  * @author sokomishalov
  */
 
+@Component
+@Primary
+@ConditionalOnMissingBean(WebhookSkraperBot::class)
+@ConditionalOnProperty("skraper.bot.mode", havingValue = "LONG_POLLING", matchIfMissing = true)
 class LongPollingSkraperBot(
-        private val bot: SkraperBot,
-        private val botProperties: BotProperties
+    private val bot: SkraperBot,
+    private val botProperties: BotProperties
 ) : TelegramLongPollingBot() {
     override fun getBotUsername(): String = botProperties.username
     override fun getBotToken(): String = botProperties.token
-    override fun onUpdateReceived(update: Update): Unit = runBlocking { bot.receive(update) }.unit()
+    override fun onUpdateReceived(update: Update): Unit = GlobalScope.launch(IO) { with(bot) { receive(update) }.also { send(it) } }.unit()
 }

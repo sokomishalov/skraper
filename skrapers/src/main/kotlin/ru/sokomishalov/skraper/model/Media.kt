@@ -31,8 +31,8 @@ sealed class Media {
  * @property aspectRatio width to height ratio
  */
 data class Image(
-        override val url: URLString,
-        val aspectRatio: Double? = null
+    override val url: URLString,
+    val aspectRatio: Double? = null
 ) : Media()
 
 /**
@@ -43,10 +43,10 @@ data class Image(
  * @property duration video duration
  */
 data class Video(
-        override val url: URLString,
-        val aspectRatio: Double? = null,
-        val thumbnail: Image? = null,
-        val duration: Duration? = null
+    override val url: URLString,
+    val aspectRatio: Double? = null,
+    val thumbnail: Image? = null,
+    val duration: Duration? = null
 ) : Media()
 
 /**
@@ -55,6 +55,6 @@ data class Video(
  * @property duration audio duration
  */
 data class Audio(
-        override val url: URLString,
-        val duration: Duration? = null
+    override val url: URLString,
+    val duration: Duration? = null
 ) : Media()

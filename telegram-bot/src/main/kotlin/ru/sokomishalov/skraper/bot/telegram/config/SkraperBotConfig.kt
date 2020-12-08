@@ -15,59 +15,75 @@
  */
 package ru.sokomishalov.skraper.bot.telegram.config
 
-import org.springframework.boot.autoconfigure.AutoConfigureOrder
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import com.fasterxml.jackson.databind.ObjectMapper
+import io.netty.handler.ssl.SslContextBuilder
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.Ordered.HIGHEST_PRECEDENCE
-import org.telegram.telegrambots.meta.generics.LongPollingBot
-import org.telegram.telegrambots.meta.generics.WebhookBot
+import org.springframework.context.annotation.Primary
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.http.codec.json.Jackson2JsonDecoder
+import org.springframework.http.codec.json.Jackson2JsonEncoder
+import org.springframework.web.reactive.function.client.ExchangeStrategies
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.netty.http.client.HttpClient
+import ru.sokomishalov.commons.core.serialization.OBJECT_MAPPER
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
-import ru.sokomishalov.skraper.bot.telegram.service.LongPollingSkraperBot
-import ru.sokomishalov.skraper.bot.telegram.service.SkraperBot
-import ru.sokomishalov.skraper.bot.telegram.service.WebhookSkraperBot
-import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient
 import ru.sokomishalov.skraper.knownList
+
 
 /**
  * @author sokomishalov
  */
 @Configuration
 @EnableConfigurationProperties(BotProperties::class)
-@AutoConfigureOrder(HIGHEST_PRECEDENCE)
 class SkraperBotConfig {
 
     @Bean
-    fun ktorClient(): SkraperClient {
-        return KtorSkraperClient()
+    @Primary
+    fun mapper(): ObjectMapper {
+        return OBJECT_MAPPER
     }
 
     @Bean
-    fun knownSkrapers(ktor: SkraperClient): List<Skraper> {
-        return Skraper.knownList(ktor)
+    @Primary
+    fun webClient(mapper: ObjectMapper): WebClient {
+        return WebClient
+            .builder()
+            .clientConnector(ReactorClientHttpConnector(
+                HttpClient
+                    .create()
+                    .secure {
+                        it.sslContext(
+                            SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build()
+                        )
+                    }
+            ))
+            .exchangeStrategies(ExchangeStrategies
+                .builder()
+                .codecs {
+                    it.defaultCodecs().apply {
+                        maxInMemorySize(-1)
+                        jackson2JsonDecoder(Jackson2JsonDecoder(mapper))
+                        jackson2JsonEncoder(Jackson2JsonEncoder(mapper))
+                    }
+                }
+                .build()
+            )
+            .build()
     }
 
     @Bean
-    fun bot(knownSkrapers: List<Skraper>, botProperties: BotProperties): SkraperBot {
-        return SkraperBot(knownSkrapers = knownSkrapers, botProperties = botProperties)
+    fun skraperClient(webClient: WebClient): SkraperClient {
+        return SpringReactiveSkraperClient(webClient)
     }
 
     @Bean
-    @ConditionalOnProperty("skraper.bot.mode", havingValue = "WEBHOOK", matchIfMissing = false)
-    fun webhookBot(bot: SkraperBot, botProperties: BotProperties): WebhookBot {
-        return WebhookSkraperBot(bot = bot, botProperties = botProperties).apply {
-            setWebhook(botProperties.webhookUrl, null)
-        }
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(WebhookSkraperBot::class)
-    @ConditionalOnProperty("skraper.bot.mode", havingValue = "LONG_POLLING", matchIfMissing = true)
-    fun longPollingBot(bot: SkraperBot, botProperties: BotProperties): LongPollingBot {
-        return LongPollingSkraperBot(bot = bot, botProperties = botProperties)
+    fun knownSkrapers(client: SkraperClient): List<Skraper> {
+        return Skraper.knownList(client)
     }
 }

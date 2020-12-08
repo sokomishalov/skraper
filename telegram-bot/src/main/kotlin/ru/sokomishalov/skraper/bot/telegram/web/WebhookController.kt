@@ -15,20 +15,33 @@
  */
 package ru.sokomishalov.skraper.bot.telegram.web
 
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import org.telegram.telegrambots.bots.DefaultAbsSender
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.sokomishalov.skraper.bot.telegram.service.SkraperBot
+import ru.sokomishalov.skraper.bot.telegram.service.send
 
 /**
  * @author sokomishalov
  */
 @RestController
-class WebhookController(private val bot: SkraperBot) {
+class WebhookController(
+    private val bot: SkraperBot,
+    private val sender: DefaultAbsSender
+) {
 
     @PostMapping("/webhook")
-    suspend fun webhook(@RequestBody update: Update): BotApiMethod<*>? = bot.receive(update)
-
+    suspend fun webhook(@RequestBody update: Update): BotApiMethod<*>? {
+        return when (val method = bot.receive(update)) {
+            is BotApiMethod<*> -> method
+            is PartialBotApiMethod<*> -> withContext<Any?>(IO) { sender.send(method) }.let { null }
+            else -> null
+        }
+    }
 }

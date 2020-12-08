@@ -16,7 +16,13 @@ management:
       show-details: always
     configprops:
       enabled: true
+    env:
+      enabled: true
   endpoints:
     web:
       exposure:
         include: "*"
+
+logging:
+  level:
+    ru.sokomishalov.skraper: debug

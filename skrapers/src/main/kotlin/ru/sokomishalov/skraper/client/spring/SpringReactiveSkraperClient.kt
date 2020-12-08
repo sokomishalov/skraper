@@ -19,7 +19,10 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.GET
-import org.springframework.web.reactive.function.client.*
+import org.springframework.web.reactive.function.client.ExchangeStrategies
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToFlux
+import org.springframework.web.reactive.function.client.bodyToMono
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.internal.nio.aWrite
@@ -33,51 +36,51 @@ import java.nio.ByteBuffer
  * @author sokomishalov
  */
 class SpringReactiveSkraperClient(
-        private val webClient: WebClient = DEFAULT_CLIENT
+    private val webClient: WebClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
     override suspend fun request(
-            url: URLString,
-            method: HttpMethodType,
-            headers: Map<String, String>,
-            body: ByteArray?
+        url: URLString,
+        method: HttpMethodType,
+        headers: Map<String, String>,
+        body: ByteArray?
     ): ByteArray? {
         return webClient
-                .method(HttpMethod.resolve(method.name) ?: GET)
-                .uri(URI(url))
-                .headers { headers.forEach { (k, v) -> it[k] = v } }
-                .apply { body?.let { bodyValue(it) } }
-                .awaitExchange()
-                .bodyToMono<ByteArrayResource>()
-                .map { it.byteArray }
-                .awaitFirstOrNull()
+            .method(HttpMethod.resolve(method.name) ?: GET)
+            .uri(URI(url))
+            .headers { headers.forEach { (k, v) -> it[k] = v } }
+            .apply { body?.let { bodyValue(it) } }
+            .retrieve()
+            .bodyToMono<ByteArrayResource>()
+            .map { it.byteArray }
+            .awaitFirstOrNull()
     }
 
     override suspend fun download(
-            url: URLString,
-            destFile: File
+        url: URLString,
+        destFile: File
     ) {
         webClient
-                .get()
-                .uri(URI(url))
-                .retrieve()
-                .bodyToFlux<ByteBuffer>()
-                .aWrite(destFile)
+            .get()
+            .uri(URI(url))
+            .retrieve()
+            .bodyToFlux<ByteBuffer>()
+            .aWrite(destFile)
     }
 
     companion object {
         @JvmStatic
         val DEFAULT_CLIENT: WebClient = WebClient
+            .builder()
+            .exchangeStrategies(ExchangeStrategies
                 .builder()
-                .exchangeStrategies(ExchangeStrategies
-                        .builder()
-                        .codecs { cc ->
-                            cc.defaultCodecs().apply {
-                                maxInMemorySize(-1)
-                            }
-                        }
-                        .build()
-                )
+                .codecs { cc ->
+                    cc.defaultCodecs().apply {
+                        maxInMemorySize(-1)
+                    }
+                }
                 .build()
+            )
+            .build()
     }
 }

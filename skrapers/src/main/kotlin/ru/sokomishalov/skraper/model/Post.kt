@@ -26,11 +26,11 @@ package ru.sokomishalov.skraper.model
  * @property media post media items
  */
 data class Post(
-        val id: String,
-        val text: String? = "",
-        val publishedAt: UnixTimestamp? = null,
-        val rating: Int? = null,
-        val commentsCount: Int? = null,
-        val viewsCount: Int? = null,
-        val media: List<Media> = emptyList()
+    val id: String,
+    val text: String? = "",
+    val publishedAt: UnixTimestamp? = null,
+    val rating: Int? = null,
+    val commentsCount: Int? = null,
+    val viewsCount: Int? = null,
+    val media: List<Media> = emptyList()
 )

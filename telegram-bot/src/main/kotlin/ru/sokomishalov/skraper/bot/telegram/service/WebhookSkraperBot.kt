@@ -15,21 +15,31 @@
  */
 package ru.sokomishalov.skraper.bot.telegram.service
 
-import kotlinx.coroutines.runBlocking
-import org.telegram.telegrambots.bots.TelegramWebhookBot
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
+import org.telegram.telegrambots.meta.api.methods.GetMe
+import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook
 import org.telegram.telegrambots.meta.api.objects.Update
+import org.telegram.telegrambots.starter.SpringWebhookBot
 import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
+import ru.sokomishalov.skraper.bot.telegram.web.WebhookController
 
 /**
  * @author sokomishalov
  */
+
+@Component
+@ConditionalOnProperty("skraper.bot.mode", havingValue = "WEBHOOK", matchIfMissing = false)
 class WebhookSkraperBot(
-        private val bot: SkraperBot,
-        private val botProperties: BotProperties
-) : TelegramWebhookBot() {
+    private val botProperties: BotProperties
+) : SpringWebhookBot(SetWebhook.builder().url(botProperties.webhookUrl).build()) {
     override fun getBotUsername(): String = botProperties.username
     override fun getBotToken(): String = botProperties.token
     override fun getBotPath(): String = "/webhook"
-    override fun onWebhookUpdateReceived(update: Update): BotApiMethod<*>? = runBlocking { bot.receive(update) }
+
+    /**
+     * hook is invoked in [WebhookController]
+     */
+    override fun onWebhookUpdateReceived(update: Update): BotApiMethod<*> = GetMe()
 }

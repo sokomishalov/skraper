@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @file:Suppress(
-        "BlockingMethodInNonBlockingContext"
+    "BlockingMethodInNonBlockingContext"
 )
 
 package ru.sokomishalov.skraper.client.jdk
@@ -38,23 +38,23 @@ import java.nio.channels.Channels
 object DefaultBlockingSkraperClient : SkraperClient {
 
     override suspend fun request(
-            url: URLString,
-            method: HttpMethodType,
-            headers: Map<String, String>,
-            body: ByteArray?
+        url: URLString,
+        method: HttpMethodType,
+        headers: Map<String, String>,
+        body: ByteArray?
     ): ByteArray? {
         return withContext(IO) {
             URL(url).request(
-                    method = method,
-                    headers = headers,
-                    body = body
+                method = method,
+                headers = headers,
+                body = body
             )
         }
     }
 
     override suspend fun download(
-            url: URLString,
-            destFile: File
+        url: URLString,
+        destFile: File
     ) {
         withContext(IO) {
             Channels.newChannel(URL(url).openRedirectableStream()).use { rbc ->
