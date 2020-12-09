@@ -33,44 +33,44 @@ import ru.sokomishalov.skraper.model.URLString
 import java.io.File
 
 class KtorSkraperClient(
-        private val client: HttpClient = DEFAULT_CLIENT
+    private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
     override suspend fun request(
-            url: URLString,
-            method: HttpMethodType,
-            headers: Map<String, String>,
-            body: ByteArray?
+        url: URLString,
+        method: HttpMethodType,
+        headers: Map<String, String>,
+        body: ByteArray?
     ): ByteArray? {
         return client.request(urlString = url) {
             this.method = HttpMethod.parse(method.name)
             headers.filterKeys { it !in UnsafeHeadersList }.forEach { (k, v) -> header(k, v) }
             body?.let {
                 this.body = ByteArrayContent(
-                        bytes = it,
-                        contentType = headers[HttpHeaders.ContentType]?.let { t -> ContentType.parse(t) }
+                    bytes = it,
+                    contentType = headers[HttpHeaders.ContentType]?.let { t -> ContentType.parse(t) }
                 )
             }
         }
     }
 
     override suspend fun download(
-            url: URLString,
-            destFile: File
+        url: URLString,
+        destFile: File
     ) {
         client
-                .get<HttpResponse>(urlString = url)
-                .content
-                .run {
-                    flow {
-                        consumeEachBufferRange { buf, last ->
-                            emit(buf)
-                            !last
-                        }
+            .get<HttpResponse>(urlString = url)
+            .content
+            .run {
+                flow {
+                    consumeEachBufferRange { buf, last ->
+                        emit(buf)
+                        !last
                     }
                 }
-                .asPublisher()
-                .aWrite(destFile)
+            }
+            .asPublisher()
+            .aWrite(destFile)
     }
 
 

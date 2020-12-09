@@ -26,11 +26,11 @@ package ru.sokomishalov.skraper.model
  * @property coversMap cover image of various sizes *(may not exist at all)
  */
 data class PageInfo(
-        val nick: String? = null,
-        val name: String? = nick,
-        val description: String? = null,
-        val postsCount: Int? = null,
-        val followersCount: Int? = null,
-        val avatarsMap: Map<MediaSize, Image> = emptyMap(),
-        val coversMap: Map<MediaSize, Image> = emptyMap()
+    val nick: String? = null,
+    val name: String? = nick,
+    val description: String? = null,
+    val postsCount: Int? = null,
+    val followersCount: Int? = null,
+    val avatarsMap: Map<MediaSize, Image> = emptyMap(),
+    val coversMap: Map<MediaSize, Image> = emptyMap()
 )

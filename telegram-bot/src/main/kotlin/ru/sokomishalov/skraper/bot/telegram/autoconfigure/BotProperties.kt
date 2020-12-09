@@ -25,10 +25,10 @@ import org.springframework.boot.context.properties.bind.DefaultValue
 @ConfigurationProperties(prefix = "skraper.bot")
 @ConstructorBinding
 data class BotProperties(
-        val username: String,
-        val token: String,
-        @DefaultValue("LONG_POLLING")
-        val mode: BotMode,
-        @DefaultValue("")
-        val webhookUrl: String
+    val username: String,
+    val token: String,
+    @DefaultValue("LONG_POLLING")
+    val mode: BotMode,
+    @DefaultValue("")
+    val webhookUrl: String
 )
