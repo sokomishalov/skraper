@@ -21,7 +21,8 @@ import ru.sokomishalov.skraper.internal.string.escapeUrl
 
 internal inline fun currentUnixTimestamp(): UnixTimestamp = System.currentTimeMillis() / 1000
 
-internal fun singleImageMap(url: URLString?): Map<MediaSize, Image> = url?.run { MediaSize.values().map { it to toImage() }.toMap() }.orEmpty()
+internal fun singleImageMap(url: URLString?): Map<MediaSize, Image> =
+    url?.run { MediaSize.values().map { it to toImage() }.toMap() }.orEmpty()
 
 internal inline fun URLString.toImage(): Image = Image(url = this)
 
@@ -31,11 +32,11 @@ internal fun URLString.buildFullURL(path: String, queryParams: Map<String, Any?>
     val baseUrlString = removeSuffix("/")
     val pathString = "/" + path.removePrefix("/").removeSuffix("/")
     val queryParamsString = queryParams
-            .entries
-            .filter { it.value != null }
-            .map { "${it.key}=${it.value.toString().escapeUrl()}" }
-            .foldIndexed(initial = "", operation = { i, acc, s -> if (i == 0) s else "$acc&$s" })
-            .let { if (it.isNotEmpty()) "?${it}" else it }
+        .entries
+        .filter { it.value != null }
+        .map { "${it.key}=${it.value.toString().escapeUrl()}" }
+        .foldIndexed(initial = "", operation = { i, acc, s -> if (i == 0) s else "$acc&$s" })
+        .let { if (it.isNotEmpty()) "?${it}" else it }
 
     return baseUrlString + pathString + queryParamsString
 }

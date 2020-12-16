@@ -37,8 +37,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale.ENGLISH
 
 open class TumblrSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://tumblr.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://tumblr.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -78,19 +78,19 @@ open class TumblrSkraper @JvmOverloads constructor(
 
     internal fun Document?.extractPosts(limit: Int): List<Post> {
         val articles = this
-                ?.getElementsByTag("article")
-                ?.take(limit)
-                .orEmpty()
+            ?.getElementsByTag("article")
+            ?.take(limit)
+            .orEmpty()
 
         return articles.map {
             with(it) {
                 Post(
-                        id = extractPostId(),
-                        text = extractPostText(),
-                        publishedAt = extractPostPublishedDate(),
-                        rating = extractPostNotes(),
-                        commentsCount = extractPostNotes(),
-                        media = extractPostMediaItems()
+                    id = extractPostId(),
+                    text = extractPostText(),
+                    publishedAt = extractPostPublishedDate(),
+                    rating = extractPostNotes(),
+                    commentsCount = extractPostNotes(),
+                    media = extractPostMediaItems()
                 )
             }
         }
@@ -98,23 +98,23 @@ open class TumblrSkraper @JvmOverloads constructor(
 
     internal fun Document?.extractPageInfo(): PageInfo {
         return PageInfo(
-                nick = extractPageNick(),
-                name = extractPageName(),
-                description = extractPageDescription(),
-                avatarsMap = extractPageAvatarMap(),
-                coversMap = extractPageCoverMap()
+            nick = extractPageNick(),
+            name = extractPageName(),
+            description = extractPageDescription(),
+            avatarsMap = extractPageAvatarMap(),
+            coversMap = extractPageCoverMap()
         )
     }
 
     private fun Element.extractPostId(): String {
         return attr("data-post-id")
-                .ifBlank { attr("id") }
+            .ifBlank { attr("id") }
     }
 
     private fun Element.extractPostText(): String? {
         return getElementsByTag("figcaption")
-                .joinToString("\n") { it.wholeText().orEmpty() }
-                .substringAfter(":")
+            .joinToString("\n") { it.wholeText().orEmpty() }
+            .substringAfter(":")
     }
 
     private fun Element.extractPostPublishedDate(): Long? {
@@ -123,17 +123,17 @@ open class TumblrSkraper @JvmOverloads constructor(
 
         return when {
             postDate != null -> postDate
-                    .wholeText()
-                    .let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }
-                    ?.atStartOfDay()
-                    ?.toEpochSecond(UTC)
+                .wholeText()
+                .let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }
+                ?.atStartOfDay()
+                ?.toEpochSecond(UTC)
 
             timePosted != null -> timePosted
-                    .attr("title")
-                    .replace("am", "AM")
-                    .replace("pm", "PM")
-                    .let { runCatching { LocalDateTime.parse(it, DATE_TIME_FORMATTER) }.getOrNull() }
-                    ?.toEpochSecond(UTC)
+                .attr("title")
+                .replace("am", "AM")
+                .replace("pm", "PM")
+                .let { runCatching { LocalDateTime.parse(it, DATE_TIME_FORMATTER) }.getOrNull() }
+                ?.toEpochSecond(UTC)
 
             else -> null
         }
@@ -141,16 +141,16 @@ open class TumblrSkraper @JvmOverloads constructor(
 
     private fun Element.extractPostNotes(): Int? {
         val notesNode = getFirstElementByClass("post-notes")
-                ?: getFirstElementByClass("note-count")
+            ?: getFirstElementByClass("note-count")
 
         return notesNode
-                ?.wholeText()
-                ?.split(" ")
-                ?.firstOrNull()
-                ?.replace(",", "")
-                ?.replace(".", "")
-                ?.toIntOrNull()
-                ?: 0
+            ?.wholeText()
+            ?.split(" ")
+            ?.firstOrNull()
+            ?.replace(",", "")
+            ?.replace(".", "")
+            ?.toIntOrNull()
+            ?: 0
     }
 
     private fun Element.extractPostMediaItems(): List<Media> {
@@ -162,12 +162,12 @@ open class TumblrSkraper @JvmOverloads constructor(
 
             when {
                 video != null -> Video(
-                        url = video.getFirstElementByTag("source")?.attr("src").orEmpty(),
-                        aspectRatio = aspectRatio
+                    url = video.getFirstElementByTag("source")?.attr("src").orEmpty(),
+                    aspectRatio = aspectRatio
                 )
                 img != null -> Image(
-                        url = img.attr("src").orEmpty(),
-                        aspectRatio = aspectRatio
+                    url = img.attr("src").orEmpty(),
+                    aspectRatio = aspectRatio
                 )
                 else -> null
             }
@@ -176,24 +176,25 @@ open class TumblrSkraper @JvmOverloads constructor(
 
     private fun Document?.extractPageNick(): String? {
         return this
-                ?.getFirstElementByAttributeValue("name", "twitter:title")
-                ?.attr("content")
+            ?.getFirstElementByAttributeValue("name", "twitter:title")
+            ?.attr("content")
     }
 
     private fun Document?.extractPageName(): String? {
         return this
-                ?.getFirstElementByAttributeValue("property", "og:title")
-                ?.attr("content")
+            ?.getFirstElementByAttributeValue("property", "og:title")
+            ?.attr("content")
     }
 
     private fun Document?.extractPageDescription(): String? {
         return this
-                ?.getFirstElementByAttributeValue("property", "og:description")
-                ?.attr("content")
+            ?.getFirstElementByAttributeValue("property", "og:description")
+            ?.attr("content")
     }
 
     private fun Document?.extractPageAvatarMap(): Map<MediaSize, Image> {
-        return singleImageMap(url = this
+        return singleImageMap(
+            url = this
                 ?.getFirstElementByClass("user-avatar")
                 ?.getFirstElementByTag("img")
                 ?.attr("src")
@@ -201,7 +202,8 @@ open class TumblrSkraper @JvmOverloads constructor(
     }
 
     private fun Document?.extractPageCoverMap(): Map<MediaSize, Image> {
-        return singleImageMap(url = this
+        return singleImageMap(
+            url = this
                 ?.getFirstElementByClass("cover")
                 ?.attr("data-bg-image")
         )

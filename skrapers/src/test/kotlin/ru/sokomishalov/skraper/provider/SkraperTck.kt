@@ -123,10 +123,10 @@ abstract class SkraperTck {
         val tmpDir = Files.createTempDirectory("skraper").toFile()
         val downloaded = logAction {
             Skraper.download(
-                    media = media,
-                    destDir = tmpDir,
-                    filename = UUID.randomUUID().toString(),
-                    client = client
+                media = media,
+                destDir = tmpDir,
+                filename = UUID.randomUUID().toString(),
+                client = client
             )
         }
         assertTrue { downloaded.exists() }

@@ -54,12 +54,13 @@ internal suspend fun Publisher<ByteBuffer>.aWrite(file: File): Long {
 
 internal inline fun <T> File.useChannel(block: (AsynchronousFileChannel) -> T): T {
     return AsynchronousFileChannel
-            .open(toPath(), setOf(WRITE, TRUNCATE_EXISTING, CREATE), null)
-            .use(block)
+        .open(toPath(), setOf(WRITE, TRUNCATE_EXISTING, CREATE), null)
+        .use(block)
 }
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-private object PositionedCompletionHandler : CompletionHandler<Int, Triple<AtomicLong, Mutex, CancellableContinuation<Int>>> {
+private object PositionedCompletionHandler :
+    CompletionHandler<Int, Triple<AtomicLong, Mutex, CancellableContinuation<Int>>> {
     override fun completed(bytesWritten: Int, attachment: Triple<AtomicLong, Mutex, CancellableContinuation<Int>>) {
         val (position, mutex, cont) = attachment
         position.addAndGet(bytesWritten.toLong())

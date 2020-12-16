@@ -35,8 +35,8 @@ import java.util.Locale.ROOT
  * @author sokomishalov
  */
 open class PinterestSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://pinterest.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://pinterest.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -47,12 +47,12 @@ open class PinterestSkraper @JvmOverloads constructor(
         return feedList.map {
             with(it) {
                 Post(
-                        id = extractPostId(),
-                        text = extractPostText(),
-                        publishedAt = extractPostPublishDate(),
-                        rating = extractPostRating(),
-                        commentsCount = extractPostCommentsCount(),
-                        media = extractPostMediaItems()
+                    id = extractPostId(),
+                    text = extractPostText(),
+                    publishedAt = extractPostPublishDate(),
+                    rating = extractPostRating(),
+                    commentsCount = extractPostCommentsCount(),
+                    media = extractPostMediaItems()
                 )
             }
         }
@@ -62,18 +62,18 @@ open class PinterestSkraper @JvmOverloads constructor(
         val infoJsonNode = getUserJson(path = path)
 
         val json = infoJsonNode
-                ?.get("resourceResponses")
-                ?.firstOrNull()
-                ?.getByPath("response.data")
+            ?.get("resourceResponses")
+            ?.firstOrNull()
+            ?.getByPath("response.data")
 
         return json?.run {
             PageInfo(
-                    nick = getString("profile.username"),
-                    name = getString("profile.full_name"),
-                    description = getString("profile.about"),
-                    postsCount = getInt("profile.pin_count"),
-                    followersCount = getInt("profile.follower_count"),
-                    avatarsMap = extractLogoMap()
+                nick = getString("profile.username"),
+                name = getString("profile.full_name"),
+                description = getString("profile.about"),
+                postsCount = getInt("profile.pin_count"),
+                followersCount = getInt("profile.follower_count"),
+                avatarsMap = extractLogoMap()
             )
         }
     }
@@ -97,11 +97,11 @@ open class PinterestSkraper @JvmOverloads constructor(
 
     private fun JsonNode?.extractFeed(limit: Int): List<JsonNode> {
         return this
-                ?.get("resourceResponses")
-                ?.get(1)
-                ?.getByPath("response.data")
-                ?.take(limit)
-                .orEmpty()
+            ?.get("resourceResponses")
+            ?.get(1)
+            ?.getByPath("response.data")
+            ?.take(limit)
+            .orEmpty()
     }
 
     private fun JsonNode.extractPostId(): String {
@@ -131,14 +131,14 @@ open class PinterestSkraper @JvmOverloads constructor(
         val imageInfo = getByPath("images.orig")
         return when (imageInfo) {
             null -> getByPath("pin_thumbnail_urls")
-                    ?.mapNotNull { it.asText() }
-                    ?.map { Image(url = it) }
-                    .orEmpty()
+                ?.mapNotNull { it.asText() }
+                ?.map { Image(url = it) }
+                .orEmpty()
             else -> listOf(Image(
-                    url = imageInfo.getString("url").orEmpty(),
-                    aspectRatio = imageInfo.run {
-                        getDouble("width") / getDouble("height")
-                    }
+                url = imageInfo.getString("url").orEmpty(),
+                aspectRatio = imageInfo.run {
+                    getDouble("width") / getDouble("height")
+                }
             ))
         }
     }
@@ -148,9 +148,9 @@ open class PinterestSkraper @JvmOverloads constructor(
 
         return when {
             owner != null -> mapOf(
-                    SMALL to owner.getString("image_medium_url").orEmpty().toImage(),
-                    MEDIUM to owner.getString("image_small_url").orEmpty().toImage(),
-                    LARGE to owner.getString("image_xlarge_url").orEmpty().toImage()
+                SMALL to owner.getString("image_medium_url").orEmpty().toImage(),
+                MEDIUM to owner.getString("image_small_url").orEmpty().toImage(),
+                LARGE to owner.getString("image_xlarge_url").orEmpty().toImage()
             )
             else -> singleImageMap(url = this?.getString("user.image_xlarge_url"))
         }

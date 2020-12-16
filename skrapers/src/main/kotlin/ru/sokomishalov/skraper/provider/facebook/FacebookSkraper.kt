@@ -39,8 +39,8 @@ import ru.sokomishalov.skraper.model.*
  * @author sokomishalov
  */
 open class FacebookSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://facebook.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://facebook.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -56,13 +56,13 @@ open class FacebookSkraper @JvmOverloads constructor(
             val metaInfoJson = metaInfoJsonMap[id]
 
             Post(
-                    id = id,
-                    text = it.extractPostText(),
-                    publishedAt = it.extractPostPublishDateTime(),
-                    rating = metaInfoJson?.extractPostReactionCount(),
-                    commentsCount = metaInfoJson?.extractPostCommentsCount(),
-                    viewsCount = metaInfoJson?.extractPostViewsCount(),
-                    media = it.extractPostMediaItems()
+                id = id,
+                text = it.extractPostText(),
+                publishedAt = it.extractPostPublishDateTime(),
+                rating = metaInfoJson?.extractPostReactionCount(),
+                commentsCount = metaInfoJson?.extractPostCommentsCount(),
+                viewsCount = metaInfoJson?.extractPostViewsCount(),
+                media = it.extractPostMediaItems()
             )
         }
     }
@@ -74,18 +74,18 @@ open class FacebookSkraper @JvmOverloads constructor(
 
             when {
                 isCommunity -> PageInfo(
-                        nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
-                        name = extractCommunityName(),
-                        description = extractCommunityDescription(),
-                        avatarsMap = singleImageMap(url = extractCommunityAvatar()),
-                        coversMap = singleImageMap(url = extractCommunityCover())
+                    nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
+                    name = extractCommunityName(),
+                    description = extractCommunityDescription(),
+                    avatarsMap = singleImageMap(url = extractCommunityAvatar()),
+                    coversMap = singleImageMap(url = extractCommunityCover())
                 )
                 else -> PageInfo(
-                        nick = path.removePrefix("/").substringBefore("/"),
-                        name = extractUserName(),
-                        description = extractUserDescription(),
-                        avatarsMap = singleImageMap(url = extractUserAvatar()),
-                        coversMap = singleImageMap(url = extractUserCover())
+                    nick = path.removePrefix("/").substringBefore("/"),
+                    name = extractUserName(),
+                    description = extractUserDescription(),
+                    avatarsMap = singleImageMap(url = extractUserAvatar()),
+                    coversMap = singleImageMap(url = extractUserCover())
                 )
             }
         }
@@ -101,12 +101,12 @@ open class FacebookSkraper @JvmOverloads constructor(
 
     private fun JsonNode?.prepareMetaInfoMap(): Map<String, JsonNode> {
         return this
-                ?.get("pre_display_requires")
-                ?.map { it.findPath("__bbox") }
-                ?.mapNotNull { it?.getByPath("result.data.feedback") }
-                ?.map { it.getString("share_fbid").orEmpty() to it }
-                ?.toMap()
-                .orEmpty()
+            ?.get("pre_display_requires")
+            ?.map { it.findPath("__bbox") }
+            ?.mapNotNull { it?.getByPath("result.data.feedback") }
+            ?.map { it.getString("share_fbid").orEmpty() to it }
+            ?.toMap()
+            .orEmpty()
     }
 
     private fun Document?.extractJsonData(): JsonNode? {
@@ -114,47 +114,47 @@ open class FacebookSkraper @JvmOverloads constructor(
         val infoJsonSuffix = ");"
 
         return this
-                ?.getElementsByTag("script")
-                ?.find { s -> s.html().startsWith(infoJsonPrefix) }
-                ?.run {
-                    html()
-                            .removePrefix(infoJsonPrefix)
-                            .removeSuffix(infoJsonSuffix)
-                            .readJsonNodes()
-                }
+            ?.getElementsByTag("script")
+            ?.find { s -> s.html().startsWith(infoJsonPrefix) }
+            ?.run {
+                html()
+                    .removePrefix(infoJsonPrefix)
+                    .removeSuffix(infoJsonSuffix)
+                    .readJsonNodes()
+            }
     }
 
     private fun Document?.extractPosts(limit: Int): List<Element> {
         return this
-                ?.getElementsByClass("userContentWrapper")
-                ?.take(limit)
-                .orEmpty()
+            ?.getElementsByClass("userContentWrapper")
+            ?.take(limit)
+            .orEmpty()
     }
 
     private fun Element.extractPostId(): String {
         return getFirstElementByAttributeValue("name", "ft_ent_identifier")
-                ?.attr("value")
-                .orEmpty()
+            ?.attr("value")
+            .orEmpty()
     }
 
     private fun Element.extractPostText(): String? {
         val text = getFirstElementByClass("userContent")
-                ?.getFirstElementByTag("p")
-                ?.wholeText()
-                ?.toString()
+            ?.getFirstElementByTag("p")
+            ?.wholeText()
+            ?.toString()
 
         val repostText = getFirstElementByAttributeValue("data-testid", "post_message")
-                ?.getFirstElementByTag("p")
-                ?.wholeText()
-                ?.toString()
+            ?.getFirstElementByTag("p")
+            ?.wholeText()
+            ?.toString()
 
         return text ?: repostText
     }
 
     private fun Element.extractPostPublishDateTime(): Long? {
         return getFirstElementByAttribute("data-utime")
-                ?.attr("data-utime")
-                ?.toLongOrNull()
+            ?.attr("data-utime")
+            ?.toLongOrNull()
     }
 
     private fun JsonNode.extractPostReactionCount(): Int? {
@@ -172,92 +172,94 @@ open class FacebookSkraper @JvmOverloads constructor(
 
     private fun Document.extractCommunityCover(): String? {
         return extractJsonData()
-                ?.findPath("coverPhotoData")
-                ?.getString("uri")
+            ?.findPath("coverPhotoData")
+            ?.getString("uri")
     }
 
     private fun Document.extractCommunityAvatar(): String? {
         return getFirstElementByAttributeValue("property", "og:image")
-                ?.attr("content")
+            ?.attr("content")
     }
 
     private fun Element.extractCommunityDescription(): String {
         return getFirstElementByClass("stat_elem")
-                ?.getElementsByTag("span")
-                ?.getOrNull(1)
-                ?.wholeText()
-                .orEmpty()
+            ?.getElementsByTag("span")
+            ?.getOrNull(1)
+            ?.wholeText()
+            .orEmpty()
     }
 
     private fun Element.extractCommunityName(): String {
         return getFirstElementByClass("stat_elem")
-                ?.getFirstElementByTag("span")
-                ?.parent()
-                ?.wholeText()
-                .orEmpty()
+            ?.getFirstElementByTag("span")
+            ?.parent()
+            ?.wholeText()
+            .orEmpty()
     }
 
     private fun Element.extractUserDescription(): String? {
         return getElementsByClass("experience")
-                .getOrNull(1)
-                ?.allElements
-                ?.lastOrNull()
-                ?.wholeText()
+            .getOrNull(1)
+            ?.allElements
+            ?.lastOrNull()
+            ?.wholeText()
     }
 
     private fun Element.extractUserName(): String? {
         return getFirstElementByAttributeValue("data-testid", "profile_name_in_profile_page")
-                ?.wholeText()
+            ?.wholeText()
     }
 
     private fun Element.extractUserAvatar(): String? {
         return getFirstElementByClass("profilePicThumb")
-                ?.getFirstElementByTag("img")
-                ?.attr("src")
+            ?.getFirstElementByTag("img")
+            ?.attr("src")
     }
 
     private fun Element.extractUserCover(): String? {
         return getFirstElementByClass("coverPhotoImg")
-                ?.attr("src")
+            ?.attr("src")
     }
 
     private fun Element.extractPostMediaItems(): List<Media> {
         return getElementsByTag("a")
-                .filter { it.hasAttr("ajaxify") && "/stories" !in it.attr("ajaxify") }
-                .mapNotNull { node ->
-                    val videoNode = node.getFirstElementByTag("video")
-                    val imgNode = node.getFirstElementByTag("img")
+            .filter { it.hasAttr("ajaxify") && "/stories" !in it.attr("ajaxify") }
+            .mapNotNull { node ->
+                val videoNode = node.getFirstElementByTag("video")
+                val imgNode = node.getFirstElementByTag("img")
 
-                    when {
-                        videoNode != null
-                                || "/videos" in node.attr("ajaxify")
-                                || "/watch" in node.attr("ajaxify") -> Video(
-                                url = node
-                                        ?.attr("href")
-                                        ?.let { "${baseUrl}${it}" }
-                                        .orEmpty(),
-                                aspectRatio = videoNode
-                                        ?.attr("data-original-aspect-ratio")
-                                        ?.toDoubleOrNull()
+                when {
+                    videoNode != null
+                            || "/videos" in node.attr("ajaxify")
+                            || "/watch" in node.attr("ajaxify") -> Video(
+                        url = node
+                            ?.attr("href")
+                            ?.let { "${baseUrl}${it}" }
+                            .orEmpty(),
+                        aspectRatio = videoNode
+                            ?.attr("data-original-aspect-ratio")
+                            ?.toDoubleOrNull()
+                    )
+                    imgNode != null -> with(imgNode) {
+                        Image(
+                            url = attr("data-src"),
+                            aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
                         )
-                        imgNode != null -> with(imgNode) {
-                            Image(
-                                    url = attr("data-src"),
-                                    aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                            )
-                        }
-                        else -> null
                     }
-                }.ifEmpty {
-                    getFirstElementByClass("uiScaledImageContainer")
-                            ?.getFirstElementByTag("img")
-                            ?.run {
-                                listOf(Image(
-                                        url = attr("data-src"),
-                                        aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                                ))
-                            }
-                            .orEmpty()
+                    else -> null
                 }
+            }.ifEmpty {
+                getFirstElementByClass("uiScaledImageContainer")
+                    ?.getFirstElementByTag("img")
+                    ?.run {
+                        listOf(
+                            Image(
+                                url = attr("data-src"),
+                                aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
+                            )
+                        )
+                    }
+                    .orEmpty()
+            }
     }
 }

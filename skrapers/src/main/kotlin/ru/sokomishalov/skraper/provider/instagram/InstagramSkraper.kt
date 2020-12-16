@@ -31,9 +31,9 @@ import ru.sokomishalov.skraper.model.MediaSize.*
  * @author sokomishalov
  */
 open class InstagramSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        private val gqlUserMediasQueryId: String = "17888483320059182",
-        override val baseUrl: URLString = "https://instagram.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    private val gqlUserMediasQueryId: String = "17888483320059182",
+    override val baseUrl: URLString = "https://instagram.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -47,14 +47,14 @@ open class InstagramSkraper @JvmOverloads constructor(
 
         return account?.run {
             PageInfo(
-                    nick = getString("username"),
-                    name = getString("full_name"),
-                    description = getString("biography"),
-                    avatarsMap = mapOf(
-                            SMALL to getString("profile_pic_url").orEmpty().toImage(),
-                            MEDIUM to getString("profile_pic_url").orEmpty().toImage(),
-                            LARGE to getString("profile_pic_url_hd").orEmpty().toImage()
-                    )
+                nick = getString("username"),
+                name = getString("full_name"),
+                description = getString("biography"),
+                avatarsMap = mapOf(
+                    SMALL to getString("profile_pic_url").orEmpty().toImage(),
+                    MEDIUM to getString("profile_pic_url").orEmpty().toImage(),
+                    LARGE to getString("profile_pic_url_hd").orEmpty().toImage()
+                )
             )
         }
     }
@@ -64,39 +64,43 @@ open class InstagramSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserInfo(path: String): JsonNode? {
-        val json = client.fetchJson(url = baseUrl.buildFullURL(
+        val json = client.fetchJson(
+            url = baseUrl.buildFullURL(
                 path = path,
                 queryParams = mapOf("__a" to 1)
-        ))
+            )
+        )
 
         return json?.getByPath("graphql.user")
     }
 
     internal suspend fun getPostsByUserId(userId: Long?, limit: Int): List<Post> {
-        val data = client.fetchJson(url = baseUrl.buildFullURL(
+        val data = client.fetchJson(
+            url = baseUrl.buildFullURL(
                 path = "/graphql/query/",
                 queryParams = mapOf(
-                        "query_id" to gqlUserMediasQueryId,
-                        "id" to userId,
-                        "first" to limit
+                    "query_id" to gqlUserMediasQueryId,
+                    "id" to userId,
+                    "first" to limit
                 )
-        ))
+            )
+        )
 
         val postsNodes = data
-                ?.getByPath("data.user.edge_owner_to_timeline_media.edges")
-                ?.map { it["node"] }
-                .orEmpty()
+            ?.getByPath("data.user.edge_owner_to_timeline_media.edges")
+            ?.map { it["node"] }
+            .orEmpty()
 
         return postsNodes.map {
             with(it) {
                 Post(
-                        id = getString("id").orEmpty(),
-                        text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
-                        publishedAt = getLong("taken_at_timestamp"),
-                        rating = getInt("edge_media_preview_like.count"),
-                        viewsCount = getInt("video_view_count"),
-                        commentsCount = getInt("edge_media_to_comment.count"),
-                        media = extractPostMediaItems()
+                    id = getString("id").orEmpty(),
+                    text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
+                    publishedAt = getLong("taken_at_timestamp"),
+                    rating = getInt("edge_media_preview_like.count"),
+                    viewsCount = getInt("video_view_count"),
+                    commentsCount = getInt("edge_media_to_comment.count"),
+                    media = extractPostMediaItems()
                 )
             }
         }
@@ -107,16 +111,16 @@ open class InstagramSkraper @JvmOverloads constructor(
         val aspectRatio = this["dimensions"]?.run { getDouble("width") / getDouble("height") }
 
         return listOf(
-                when {
-                    isVideo -> Video(
-                            url = "${baseUrl}/p/${getString("shortcode")}",
-                            aspectRatio = aspectRatio
-                    )
-                    else -> Image(
-                            url = getString("display_url").orEmpty(),
-                            aspectRatio = aspectRatio
-                    )
-                }
+            when {
+                isVideo -> Video(
+                    url = "${baseUrl}/p/${getString("shortcode")}",
+                    aspectRatio = aspectRatio
+                )
+                else -> Image(
+                    url = getString("display_url").orEmpty(),
+                    aspectRatio = aspectRatio
+                )
+            }
         )
     }
 }

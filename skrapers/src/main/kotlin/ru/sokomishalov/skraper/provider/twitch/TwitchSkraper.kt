@@ -34,11 +34,11 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 open class TwitchSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://twitch.tv",
-        private val graphBaseUrl: URLString = "https://gql.twitch.tv/gql",
-        private val restBaseUrl: URLString = "https://api.twitch.tv/api",
-        private val usherBaseUrl: URLString = "https://usher.ttvnw.net/vod"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://twitch.tv",
+    private val graphBaseUrl: URLString = "https://gql.twitch.tv/gql",
+    private val restBaseUrl: URLString = "https://api.twitch.tv/api",
+    private val usherBaseUrl: URLString = "https://usher.ttvnw.net/vod"
 ) : Skraper {
 
     override suspend fun getPageInfo(path: String): PageInfo? {
@@ -51,35 +51,35 @@ open class TwitchSkraper @JvmOverloads constructor(
             isGamePath -> {
                 val game = path.extractGameFromPath()
                 val json = getGame(
-                        game = game,
-                        clientId = clientId
+                    game = game,
+                    clientId = clientId
                 )
 
                 json?.getByPath("data.game")?.run {
                     PageInfo(
-                            nick = getString("name"),
-                            name = getString("displayName"),
-                            followersCount = getInt("followersCount"),
-                            avatarsMap = singleImageMap(url = getString("avatarURL")),
-                            coversMap = singleImageMap(url = getString("coverURL"))
+                        nick = getString("name"),
+                        name = getString("displayName"),
+                        followersCount = getInt("followersCount"),
+                        avatarsMap = singleImageMap(url = getString("avatarURL")),
+                        coversMap = singleImageMap(url = getString("coverURL"))
                     )
                 }
             }
             else -> {
                 val username = path.extractChannelFromPath()
                 val json = getUser(
-                        username = username,
-                        clientId = clientId
+                    username = username,
+                    clientId = clientId
                 )
 
                 json?.run {
                     PageInfo(
-                            nick = getString("data.user.login"),
-                            name = getString("data.user.displayName"),
-                            followersCount = getInt("data.user.followers.totalCount"),
-                            postsCount = getInt("data.user.videos.totalCount"),
-                            avatarsMap = singleImageMap(url = getString("data.user.profileImageURL")),
-                            coversMap = singleImageMap(url = getString("data.user.bannerImageURL"))
+                        nick = getString("data.user.login"),
+                        name = getString("data.user.displayName"),
+                        followersCount = getInt("data.user.followers.totalCount"),
+                        postsCount = getInt("data.user.videos.totalCount"),
+                        avatarsMap = singleImageMap(url = getString("data.user.profileImageURL")),
+                        coversMap = singleImageMap(url = getString("data.user.bannerImageURL"))
                     )
                 }
             }
@@ -102,28 +102,28 @@ open class TwitchSkraper @JvmOverloads constructor(
                 when {
                     isClipsPath -> {
                         val json = getGame(
-                                game = game,
-                                clientId = clientId,
-                                postCount = limit
+                            game = game,
+                            clientId = clientId,
+                            postCount = limit
                         )
                         val clipNodes = json
-                                ?.getFirstByPath("data.game.clips.edges")
-                                ?.mapNotNull { it["node"] }
-                                .orEmpty()
+                            ?.getFirstByPath("data.game.clips.edges")
+                            ?.mapNotNull { it["node"] }
+                            .orEmpty()
 
                         clipNodes.extractClipPosts()
                     }
                     isVideoPath -> {
                         val json = getGame(
-                                game = game,
-                                clientId = clientId,
-                                postCount = limit
+                            game = game,
+                            clientId = clientId,
+                            postCount = limit
                         )
 
                         val videoNodes = json
-                                ?.getFirstByPath("data.game.videos.edges")
-                                ?.mapNotNull { it["node"] }
-                                .orEmpty()
+                            ?.getFirstByPath("data.game.videos.edges")
+                            ?.mapNotNull { it["node"] }
+                            .orEmpty()
 
                         videoNodes.extractVideoPosts()
                     }
@@ -136,29 +136,29 @@ open class TwitchSkraper @JvmOverloads constructor(
                 when {
                     isClipsPath -> {
                         val json = getUser(
-                                username = username,
-                                clientId = clientId,
-                                postCount = limit
+                            username = username,
+                            clientId = clientId,
+                            postCount = limit
                         )
 
                         val clipNodes = json
-                                ?.getByPath("data.user.clips.edges")
-                                ?.mapNotNull { it["node"] }
-                                .orEmpty()
+                            ?.getByPath("data.user.clips.edges")
+                            ?.mapNotNull { it["node"] }
+                            .orEmpty()
 
                         clipNodes.extractClipPosts()
                     }
                     isVideoPath -> {
                         val json = getUser(
-                                username = username,
-                                clientId = clientId,
-                                postCount = limit
+                            username = username,
+                            clientId = clientId,
+                            postCount = limit
                         )
 
                         val videoNodes = json
-                                ?.getByPath("data.user.videos.edges")
-                                ?.mapNotNull { it["node"] }
-                                .orEmpty()
+                            ?.getByPath("data.user.videos.edges")
+                            ?.mapNotNull { it["node"] }
+                            .orEmpty()
 
                         videoNodes.extractVideoPosts()
                     }
@@ -184,12 +184,12 @@ open class TwitchSkraper @JvmOverloads constructor(
                         val clipUrls = getClipUrls(slug = clipSlug, clientId = clientId)
 
                         val mp4urls = clipUrls
-                                ?.getByPath("data.clip.videoQualities")
-                                ?.map { it.getString("sourceURL") }
-                                .orEmpty()
+                            ?.getByPath("data.clip.videoQualities")
+                            ?.map { it.getString("sourceURL") }
+                            .orEmpty()
 
                         media.copy(
-                                url = mp4urls.getOrNull(mp4urls.size - 2) ?: media.url
+                            url = mp4urls.getOrNull(mp4urls.size - 2) ?: media.url
                         )
                     }
 
@@ -197,32 +197,32 @@ open class TwitchSkraper @JvmOverloads constructor(
                         val videoId = media.url.extractVideoIdFromPath()
 
                         val token = client.fetchJson(
-                                url = restBaseUrl.buildFullURL(path = "/vods/${videoId}/access_token"),
-                                method = GET,
-                                headers = mapOf(
-                                        "Client-ID" to clientId,
-                                        "User-Agent" to DEFAULT_USER_AGENT
-                                )
+                            url = restBaseUrl.buildFullURL(path = "/vods/${videoId}/access_token"),
+                            method = GET,
+                            headers = mapOf(
+                                "Client-ID" to clientId,
+                                "User-Agent" to DEFAULT_USER_AGENT
+                            )
                         )
 
                         val videoMeta = client.fetchBytes(
-                                url = usherBaseUrl.buildFullURL(
-                                        path = "/${videoId}.m3u8",
-                                        queryParams = mapOf(
-                                                "nauth" to token?.getString("token"),
-                                                "nauthsig" to token?.getString("sig"),
-                                                "allow_source" to "true"
-                                        )
-                                ),
-                                method = GET
+                            url = usherBaseUrl.buildFullURL(
+                                path = "/${videoId}.m3u8",
+                                queryParams = mapOf(
+                                    "nauth" to token?.getString("token"),
+                                    "nauthsig" to token?.getString("sig"),
+                                    "allow_source" to "true"
+                                )
+                            ),
+                            method = GET
                         )?.toString(UTF_8)
 
                         val m3u8urls = videoMeta
-                                ?.lines()
-                                ?.filterNot { it.startsWith("#") }
+                            ?.lines()
+                            ?.filterNot { it.startsWith("#") }
 
                         media.copy(
-                                url = m3u8urls?.getOrNull(m3u8urls.size - 2) ?: media.url
+                            url = m3u8urls?.getOrNull(m3u8urls.size - 2) ?: media.url
                         )
                     }
 
@@ -239,51 +239,53 @@ open class TwitchSkraper @JvmOverloads constructor(
 
     private fun Document?.extractClientId(): String {
         return this
-                ?.html()
-                ?.let {
-                    "(?<=(\"Client-ID\":\"))(.*?)(?=\",\")"
-                            .toRegex()
-                            .find(it)
-                            ?.value
-                }
-                .orEmpty()
+            ?.html()
+            ?.let {
+                "(?<=(\"Client-ID\":\"))(.*?)(?=\",\")"
+                    .toRegex()
+                    .find(it)
+                    ?.value
+            }
+            .orEmpty()
     }
 
     private fun String.extractChannelFromPath(): String {
         return removePrefix("/")
-                .substringBefore("/")
+            .substringBefore("/")
     }
 
     private fun String.extractGameFromPath(): String {
         return removePrefix("/")
-                .removePrefix("directory/game/")
-                .substringBefore("/")
-                .unescapeUrl()
+            .removePrefix("directory/game/")
+            .substringBefore("/")
+            .unescapeUrl()
     }
 
     private fun String.extractVideoIdFromPath(): Int? {
         return substringAfterLast("/")
-                .substringBefore("?")
-                .toIntOrNull()
+            .substringBefore("?")
+            .toIntOrNull()
     }
 
     private fun String.extractClipSlugFromPath(): String {
         return substringAfterLast("/clip/")
-                .substringBefore("?")
+            .substringBefore("?")
     }
 
     private fun List<JsonNode>.extractVideoPosts(): List<Post> {
         return map {
             with(it) {
                 Post(
-                        id = getString("id").orEmpty(),
-                        text = getString("title"),
-                        publishedAt = getString("publishedAt")?.let { pd -> ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond() },
-                        viewsCount = getInt("viewCount"),
-                        media = listOf(Video(
-                                url = baseUrl.buildFullURL(path = "/videos/${it.getString("id")}"),
-                                duration = getLong("lengthSeconds")?.let { d -> Duration.ofSeconds(d) }
-                        ))
+                    id = getString("id").orEmpty(),
+                    text = getString("title"),
+                    publishedAt = getString("publishedAt")?.let { pd ->
+                        ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
+                    },
+                    viewsCount = getInt("viewCount"),
+                    media = listOf(Video(
+                        url = baseUrl.buildFullURL(path = "/videos/${it.getString("id")}"),
+                        duration = getLong("lengthSeconds")?.let { d -> Duration.ofSeconds(d) }
+                    ))
                 )
             }
         }
@@ -293,14 +295,16 @@ open class TwitchSkraper @JvmOverloads constructor(
         return map {
             with(it) {
                 Post(
-                        id = getString("id").orEmpty(),
-                        publishedAt = getString("createdAt")?.let { pd -> ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond() },
-                        text = getString("title"),
-                        viewsCount = getInt("viewCount"),
-                        media = listOf(Video(
-                                url = getFirstByPath("embedURL", "url")?.asText().orEmpty(),
-                                duration = getLong("durationSeconds")?.let { d -> Duration.ofSeconds(d) }
-                        ))
+                    id = getString("id").orEmpty(),
+                    publishedAt = getString("createdAt")?.let { pd ->
+                        ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
+                    },
+                    text = getString("title"),
+                    viewsCount = getInt("viewCount"),
+                    media = listOf(Video(
+                        url = getFirstByPath("embedURL", "url")?.asText().orEmpty(),
+                        duration = getLong("durationSeconds")?.let { d -> Duration.ofSeconds(d) }
+                    ))
                 )
             }
         }
@@ -320,14 +324,14 @@ open class TwitchSkraper @JvmOverloads constructor(
 
     private suspend fun graphRequest(clientId: String, query: String): JsonNode? {
         return client.fetchJson(
-                url = graphBaseUrl,
-                method = POST,
-                headers = mapOf(
-                        "Client-ID" to clientId,
-                        "Accept-Language" to "en-US",
-                        "User-Agent" to DEFAULT_USER_AGENT
-                ),
-                body = "{ \"query\": \"${query.replace("\n", " ").replace("\"", "\\\"")}\" }".toByteArray(UTF_8)
+            url = graphBaseUrl,
+            method = POST,
+            headers = mapOf(
+                "Client-ID" to clientId,
+                "Accept-Language" to "en-US",
+                "User-Agent" to DEFAULT_USER_AGENT
+            ),
+            body = "{ \"query\": \"${query.replace("\n", " ").replace("\"", "\\\"")}\" }".toByteArray(UTF_8)
         )
     }
 

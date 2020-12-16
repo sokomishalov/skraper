@@ -48,11 +48,11 @@ internal inline fun Element.getFirstElementByAttributeValueContaining(name: Stri
 @PublishedApi
 internal fun Document?.getMetaPropertyMap(): Map<String, String> {
     return this
-            ?.getElementsByTag("meta")
-            ?.filter { it.hasAttr("property") }
-            ?.map { it.attr("property") to it.attr("content") }
-            ?.toMap()
-            .orEmpty()
+        ?.getElementsByTag("meta")
+        ?.filter { it.hasAttr("property") }
+        ?.map { it.attr("property") to it.attr("content") }
+        ?.toMap()
+        .orEmpty()
 }
 
 @PublishedApi
@@ -60,10 +60,10 @@ internal fun Element.getStyleMap(): Map<String, String> {
     return when {
         hasAttr("style").not() -> emptyMap()
         else -> attr("style")
-                .split(";")
-                .filter { it.isNotBlank() }
-                .map { it.substringBefore(":").trim() to it.substringAfter(":") }
-                .toMap()
+            .split(";")
+            .filter { it.isNotBlank() }
+            .map { it.substringBefore(":").trim() to it.substringAfter(":") }
+            .toMap()
     }
 }
 
@@ -75,15 +75,15 @@ internal inline fun Element.getStyle(name: String): String? {
 @PublishedApi
 internal fun Element.getBackgroundImageStyle(): String {
     return this
-            .getStyle("background-image")
-            .orEmpty()
-            .trim()
-            .removeSurrounding("url(", ")")
+        .getStyle("background-image")
+        .orEmpty()
+        .trim()
+        .removeSurrounding("url(", ")")
 }
 
 @PublishedApi
 internal fun Element.getFirstAttr(vararg attrs: String): String? {
     return attributes()
-            .firstOrNull { it.key in attrs }
-            ?.value
+        .firstOrNull { it.key in attrs }
+        ?.value
 }

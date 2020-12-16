@@ -25,9 +25,9 @@ import java.time.Duration
 interface FfmpegRunner {
 
     suspend fun run(
-            cmd: String,
-            timeout: Duration = Duration.ofHours(1),
-            stdin: (InputStream) -> Unit = {}
+        cmd: String,
+        timeout: Duration = Duration.ofHours(1),
+        stdin: (InputStream) -> Unit = {}
     ): Int
 
 }

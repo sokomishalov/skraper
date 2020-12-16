@@ -28,7 +28,7 @@ import java.time.Duration
  * @author sokomishalov
  */
 class FfmpegCliRunner(
-        private val processLivenessCheckInterval: Duration = Duration.ofMillis(50)
+    private val processLivenessCheckInterval: Duration = Duration.ofMillis(50)
 ) : FfmpegRunner {
 
     private companion object {
@@ -38,9 +38,9 @@ class FfmpegCliRunner(
     }
 
     override suspend fun run(
-            cmd: String,
-            timeout: Duration,
-            stdin: (InputStream) -> Unit
+        cmd: String,
+        timeout: Duration,
+        stdin: (InputStream) -> Unit
     ): Int {
         val process = Runtime.getRuntime().exec("ffmpeg $cmd")
 

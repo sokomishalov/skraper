@@ -29,20 +29,21 @@ import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient.Compani
  */
 class SpringReactiveSkraperClientTest : SkraperClientTck() {
     override val client: SkraperClient = SpringReactiveSkraperClient(
-            webClient = DEFAULT_CLIENT
-                    .mutate()
-                    .clientConnector(ReactorClientHttpConnector(
-                            HttpClient
-                                    .create()
-                                    .followRedirect(true)
-                                    .secure {
-                                        it.sslContext(SslContextBuilder
-                                                .forClient()
-                                                .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                                                .build()
-                                        )
-                                    }
-                    ))
-                    .build()
+        webClient = DEFAULT_CLIENT
+            .mutate()
+            .clientConnector(ReactorClientHttpConnector(
+                HttpClient
+                    .create()
+                    .followRedirect(true)
+                    .secure {
+                        it.sslContext(
+                            SslContextBuilder
+                                .forClient()
+                                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                                .build()
+                        )
+                    }
+            ))
+            .build()
     )
 }

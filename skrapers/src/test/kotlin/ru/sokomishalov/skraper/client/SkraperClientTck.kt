@@ -63,17 +63,13 @@ abstract class SkraperClientTck {
     @Test
     fun `Fetch complex json`() = runBlocking {
         val echoJson = client.fetchJson(
-                url = "https://postman-echo.com/post",
-                method = POST,
-                headers = mapOf(
-                        "foo" to "bar",
-                        "Content-Type" to "application/json"
-                ),
-                body = """
-                    {
-                        "bar": "foo"
-                    }
-                """.trimIndent().toByteArray(UTF_8)
+            url = "https://postman-echo.com/post",
+            method = POST,
+            headers = mapOf(
+                "foo" to "bar",
+                "Content-Type" to "application/json"
+            ),
+            body = """{"bar": "foo"}""".toByteArray(UTF_8)
         )
 
         assertNotNull(echoJson)

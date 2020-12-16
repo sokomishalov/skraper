@@ -37,8 +37,8 @@ import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.TemporalAmount
 
 open class YoutubeSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://www.youtube.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://www.youtube.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -47,19 +47,19 @@ open class YoutubeSkraper @JvmOverloads constructor(
         val jsonMetadata = page?.readJsonMetadata()
 
         val videoItems = jsonMetadata
-                ?.findParents("gridVideoRenderer")
-                ?.take(limit)
-                ?.map { it["gridVideoRenderer"] }
-                .orEmpty()
+            ?.findParents("gridVideoRenderer")
+            ?.take(limit)
+            ?.map { it["gridVideoRenderer"] }
+            .orEmpty()
 
         return videoItems.map {
             with(it) {
                 Post(
-                        id = getString("videoId").orEmpty(),
-                        text = getString("title.runs.0.text"),
-                        viewsCount = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
-                        publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
-                        media = extractVideos()
+                    id = getString("videoId").orEmpty(),
+                    text = getString("title.runs.0.text"),
+                    viewsCount = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
+                    publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
+                    media = extractVideos()
 
                 )
             }
@@ -72,19 +72,19 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
         return jsonMetadata?.run {
             PageInfo(
-                    nick = getString("metadata.channelMetadataRenderer.vanityChannelUrl")?.substringAfter("/user/"),
-                    name = getString("metadata.channelMetadataRenderer.title"),
-                    description = getString("metadata.channelMetadataRenderer.description"),
-                    followersCount = getString("header.c4TabbedHeaderRenderer.subscriberCountText.runs.0.text")?.extractAmount(),
-                    avatarsMap = getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails").extractImages(),
-                    coversMap = getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails").extractImages()
+                nick = getString("metadata.channelMetadataRenderer.vanityChannelUrl")?.substringAfter("/user/"),
+                name = getString("metadata.channelMetadataRenderer.title"),
+                description = getString("metadata.channelMetadataRenderer.description"),
+                followersCount = getString("header.c4TabbedHeaderRenderer.subscriberCountText.runs.0.text")?.extractAmount(),
+                avatarsMap = getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails").extractImages(),
+                coversMap = getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails").extractImages()
             )
         }
     }
 
     override suspend fun supports(url: URLString): Boolean {
         return setOf("youtube.com", "youtu.be")
-                .any { url.host.removePrefix("www.") in it }
+            .any { url.host.removePrefix("www.") in it }
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -98,67 +98,67 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
-                url = baseUrl.buildFullURL(
-                        path = path,
-                        queryParams = mapOf("gl" to "EN", "hl" to "en")
-                ),
-                headers = emptyMap()
+            url = baseUrl.buildFullURL(
+                path = path,
+                queryParams = mapOf("gl" to "EN", "hl" to "en")
+            ),
+            headers = emptyMap()
         )
     }
 
     private fun Document.readJsonMetadata(): JsonNode? {
         return this
-                .getElementsByTag("script")
-                .map { it.html() }
-                .find { "window[\"ytInitialData\"]" in it }
-                ?.substringAfter("\"] = ")
-                ?.substringBeforeLast("};")
-                ?.plus("}")
-                .readJsonNodes()
+            .getElementsByTag("script")
+            .map { it.html() }
+            .find { "window[\"ytInitialData\"]" in it }
+            ?.substringAfter("\"] = ")
+            ?.substringBeforeLast("};")
+            ?.plus("}")
+            .readJsonNodes()
     }
 
     private fun JsonNode.extractVideos(): List<Video> {
         return listOf(Video(
-                url = baseUrl + getString("navigationEndpoint.commandMetadata.webCommandMetadata.url"),
-                duration = getString("thumbnailOverlays.0.thumbnailOverlayTimeStatusRenderer.text.simpleText")?.extractDuration(),
-                thumbnail = getByPath("thumbnail.thumbnails")?.lastOrNull()?.run {
-                    Image(
-                            url = getString("url").orEmpty(),
-                            aspectRatio = getInt("width") / getInt("height")
-                    )
-                }
+            url = baseUrl + getString("navigationEndpoint.commandMetadata.webCommandMetadata.url"),
+            duration = getString("thumbnailOverlays.0.thumbnailOverlayTimeStatusRenderer.text.simpleText")?.extractDuration(),
+            thumbnail = getByPath("thumbnail.thumbnails")?.lastOrNull()?.run {
+                Image(
+                    url = getString("url").orEmpty(),
+                    aspectRatio = getInt("width") / getInt("height")
+                )
+            }
         ))
     }
 
     private fun JsonNode?.extractImages(): Map<MediaSize, Image> {
         return this
-                ?.toList()
-                ?.takeLast(3)
-                ?.mapIndexed { i, it ->
-                    val url = it.getString("url")?.let { if (it.startsWith("//")) "https:${it}" else it }.orEmpty()
-                    val ratio = it.getInt("width") / it.getInt("height")
+            ?.toList()
+            ?.takeLast(3)
+            ?.mapIndexed { i, it ->
+                val url = it.getString("url")?.let { if (it.startsWith("//")) "https:${it}" else it }.orEmpty()
+                val ratio = it.getInt("width") / it.getInt("height")
 
-                    val size = when (i) {
-                        0 -> SMALL
-                        1 -> MEDIUM
-                        else -> LARGE
-                    }
-                    size to Image(
-                            url = url,
-                            aspectRatio = ratio
-                    )
+                val size = when (i) {
+                    0 -> SMALL
+                    1 -> MEDIUM
+                    else -> LARGE
                 }
-                ?.toMap()
-                .orEmpty()
+                size to Image(
+                    url = url,
+                    aspectRatio = ratio
+                )
+            }
+            ?.toMap()
+            .orEmpty()
     }
 
     private fun String.extractTimeAgo(): Long {
         val now = currentUnixTimestamp()
 
         val amount = split(" ")
-                .firstOrNull()
-                ?.toIntOrNull()
-                ?: 1
+            .firstOrNull()
+            ?.toIntOrNull()
+            ?: 1
 
         val temporalAmount: TemporalAmount = when {
             contains("moment", ignoreCase = true) -> Duration.ofMillis(amount.toLong())
@@ -182,28 +182,30 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     private fun String.extractDuration(): Duration {
         return this
-                .trim()
-                .split(":")
-                .map { it.toLongOrNull() }
-                .run {
-                    val hours = getOrNull(0) ?: 0L
-                    val minutes = getOrNull(1) ?: 0L
-                    val seconds = getOrNull(2) ?: 0L
+            .trim()
+            .split(":")
+            .map { it.toLongOrNull() }
+            .run {
+                val hours = getOrNull(0) ?: 0L
+                val minutes = getOrNull(1) ?: 0L
+                val seconds = getOrNull(2) ?: 0L
 
-                    Duration.ofSeconds(seconds) + Duration.ofMinutes(minutes) + Duration.ofHours(hours)
-                }
+                Duration.ofSeconds(seconds) + Duration.ofMinutes(minutes) + Duration.ofHours(hours)
+            }
     }
 
     private fun String.extractAmount(): Int? {
         return substringBefore(" ")
-                .trim()
-                .run {
-                    when {
-                        endsWith("K") -> replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
-                        endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()?.times(1_000_000)
-                        endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()?.times(1_000_000_000)
-                        else -> replace(".", "").toIntOrNull()
-                    }
+            .trim()
+            .run {
+                when {
+                    endsWith("K") -> replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
+                    endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()
+                        ?.times(1_000_000)
+                    endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()
+                        ?.times(1_000_000_000)
+                    else -> replace(".", "").toIntOrNull()
                 }
+            }
     }
 }

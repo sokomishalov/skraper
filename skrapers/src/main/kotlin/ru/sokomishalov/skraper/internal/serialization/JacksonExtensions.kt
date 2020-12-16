@@ -43,20 +43,20 @@ internal inline fun String?.readJsonNodes(): JsonNode? {
 
 internal fun JsonNode.getByKeyContaining(keyPart: String): JsonNode? {
     return fields()
-            ?.asSequence()
-            ?.find { keyPart in it.key }
-            ?.value
+        ?.asSequence()
+        ?.find { keyPart in it.key }
+        ?.value
 }
 
 internal fun JsonNode.getFirstByPath(vararg paths: String, delimiter: String = "."): JsonNode? {
     return paths
-            .map { at("/${it.replace(delimiter, "/")}") }
-            .firstOrNull { it !is MissingNode }
+        .map { at("/${it.replace(delimiter, "/")}") }
+        .firstOrNull { it !is MissingNode }
 }
 
 internal fun JsonNode.getByPath(path: String, delimiter: String = "."): JsonNode? {
     return at("/${path.replace(delimiter, "/")}")
-            ?.takeIf { it !is MissingNode }
+        ?.takeIf { it !is MissingNode }
 }
 
 internal inline fun JsonNode.getInt(path: String, delimiter: String = "."): Int? {
@@ -78,37 +78,37 @@ internal inline fun JsonNode.getDouble(path: String, delimiter: String = "."): D
 @PublishedApi
 internal val JSON_MAPPER: JsonMapper by lazy {
     JsonMapper
-            .builder()
-            .enable(
-                    ALLOW_UNESCAPED_CONTROL_CHARS,
-                    ALLOW_SINGLE_QUOTES,
-                    ALLOW_UNQUOTED_FIELD_NAMES
-            )
-            .enable(
-                    READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE,
-                    READ_ENUMS_USING_TO_STRING,
-                    ACCEPT_SINGLE_VALUE_AS_ARRAY,
-                    ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
-                    ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT
-            )
-            .enable(
-                    ACCEPT_CASE_INSENSITIVE_ENUMS
-            )
-            .enable(
-                    WRITE_ENUMS_USING_TO_STRING
-            )
-            .disable(
-                    FAIL_ON_EMPTY_BEANS,
-                    WRITE_DATES_AS_TIMESTAMPS
-            )
-            .disable(
-                    ADJUST_DATES_TO_CONTEXT_TIME_ZONE,
-                    FAIL_ON_UNKNOWN_PROPERTIES,
-                    FAIL_ON_INVALID_SUBTYPE,
-                    FAIL_ON_IGNORED_PROPERTIES,
-                    FAIL_ON_UNRESOLVED_OBJECT_IDS,
-                    FAIL_ON_TRAILING_TOKENS
-            )
-            .serializationInclusion(NON_NULL)
-            .build()
+        .builder()
+        .enable(
+            ALLOW_UNESCAPED_CONTROL_CHARS,
+            ALLOW_SINGLE_QUOTES,
+            ALLOW_UNQUOTED_FIELD_NAMES
+        )
+        .enable(
+            READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE,
+            READ_ENUMS_USING_TO_STRING,
+            ACCEPT_SINGLE_VALUE_AS_ARRAY,
+            ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
+            ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT
+        )
+        .enable(
+            ACCEPT_CASE_INSENSITIVE_ENUMS
+        )
+        .enable(
+            WRITE_ENUMS_USING_TO_STRING
+        )
+        .disable(
+            FAIL_ON_EMPTY_BEANS,
+            WRITE_DATES_AS_TIMESTAMPS
+        )
+        .disable(
+            ADJUST_DATES_TO_CONTEXT_TIME_ZONE,
+            FAIL_ON_UNKNOWN_PROPERTIES,
+            FAIL_ON_INVALID_SUBTYPE,
+            FAIL_ON_IGNORED_PROPERTIES,
+            FAIL_ON_UNRESOLVED_OBJECT_IDS,
+            FAIL_ON_TRAILING_TOKENS
+        )
+        .serializationInclusion(NON_NULL)
+        .build()
 }

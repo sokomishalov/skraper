@@ -35,31 +35,31 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 open class TwitterSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://twitter.com",
-        private val apiBaseUrl: URLString = "https://api.twitter.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://twitter.com",
+    private val apiBaseUrl: URLString = "https://api.twitter.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
         val page = getUserPage(path = path)
 
         val posts = page
-                ?.body()
-                ?.getElementById("stream-items-id")
-                ?.getElementsByClass("stream-item")
-                ?.take(limit)
-                ?.mapNotNull { it.getFirstElementByClass("tweet") }
-                .orEmpty()
+            ?.body()
+            ?.getElementById("stream-items-id")
+            ?.getElementsByClass("stream-item")
+            ?.take(limit)
+            ?.mapNotNull { it.getFirstElementByClass("tweet") }
+            .orEmpty()
 
         return posts.map {
             with(it) {
                 Post(
-                        id = extractTweetId(),
-                        text = extractTweetText(),
-                        rating = extractTweetLikes(),
-                        commentsCount = extractTweetReplies(),
-                        publishedAt = extractTweetPublishDate(),
-                        media = extractTweetMediaItems()
+                    id = extractTweetId(),
+                    text = extractTweetText(),
+                    rating = extractTweetLikes(),
+                    commentsCount = extractTweetReplies(),
+                    publishedAt = extractTweetPublishDate(),
+                    media = extractTweetMediaItems()
                 )
             }
         }
@@ -69,25 +69,35 @@ open class TwitterSkraper @JvmOverloads constructor(
         val page = getUserPage(path = path)
 
         val userJson = page
-                ?.extractJsonData()
-                ?.get("profile_user")
+            ?.extractJsonData()
+            ?.get("profile_user")
 
         return userJson?.run {
             PageInfo(
-                    nick = getString("screen_name"),
-                    name = getString("name"),
-                    description = getString("description"),
-                    postsCount = getInt("statuses_count"),
-                    followersCount = getInt("followers_count"),
-                    avatarsMap = singleImageMap(url = getFirstByPath("profile_image_url_https", "profile_image_url")?.asText()),
-                    coversMap = singleImageMap(url = getFirstByPath("profile_background_image_url_https", "profile_background_image_url")?.asText())
+                nick = getString("screen_name"),
+                name = getString("name"),
+                description = getString("description"),
+                postsCount = getInt("statuses_count"),
+                followersCount = getInt("followers_count"),
+                avatarsMap = singleImageMap(
+                    url = getFirstByPath(
+                        "profile_image_url_https",
+                        "profile_image_url"
+                    )?.asText()
+                ),
+                coversMap = singleImageMap(
+                    url = getFirstByPath(
+                        "profile_background_image_url_https",
+                        "profile_background_image_url"
+                    )?.asText()
+                )
             )
         }
     }
 
     override suspend fun supports(url: URLString): Boolean {
         return arrayOf("twitter.com", "t.co")
-                .any { url.host.removePrefix("www.") in it }
+            .any { url.host.removePrefix("www.") in it }
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -98,16 +108,16 @@ open class TwitterSkraper @JvmOverloads constructor(
                 val page = client.fetchDocument(url = ogVideo.url, headers = defaultHeaders)
 
                 val urlFromPage = page
-                        ?.getFirstElementByClass("js-tweet-text")
-                        ?.getFirstElementByTag("a")
-                        ?.attr("data-expanded-url")
-                        .orEmpty()
+                    ?.getFirstElementByClass("js-tweet-text")
+                    ?.getFirstElementByTag("a")
+                    ?.attr("data-expanded-url")
+                    .orEmpty()
 
                 when {
                     urlFromPage.isNotBlank() -> {
                         ogVideo.copy(
-                                url = urlFromPage,
-                                thumbnail = null
+                            url = urlFromPage,
+                            thumbnail = null
                         )
                     }
                     else -> {
@@ -116,29 +126,29 @@ open class TwitterSkraper @JvmOverloads constructor(
                         val playlistNode = when {
                             token != null && guestToken != null -> {
                                 val tweetId = media
-                                        .url
-                                        .substringAfterLast("/status/")
-                                        .substringBefore("?")
+                                    .url
+                                    .substringAfterLast("/status/")
+                                    .substringBefore("?")
 
                                 client.fetchJson(
-                                        url = apiBaseUrl.buildFullURL(path = "/1.1/videos/tweet/config/${tweetId}.json"),
-                                        headers = mapOf(
-                                                "Authorization" to token,
-                                                "x-guest-token" to guestToken
-                                        )
+                                    url = apiBaseUrl.buildFullURL(path = "/1.1/videos/tweet/config/${tweetId}.json"),
+                                    headers = mapOf(
+                                        "Authorization" to token,
+                                        "x-guest-token" to guestToken
+                                    )
                                 )
                             }
                             else -> null
                         }
 
                         ogVideo.copy(
-                                url = playlistNode
-                                        ?.getString("track.playbackUrl")
-                                        ?: ogVideo.url,
-                                duration = playlistNode
-                                        ?.getLong("track.durationMs")
-                                        ?.let { Duration.ofMillis(it) }
-                                        ?: ogVideo.duration
+                            url = playlistNode
+                                ?.getString("track.playbackUrl")
+                                ?: ogVideo.url,
+                            duration = playlistNode
+                                ?.getLong("track.durationMs")
+                                ?.let { Duration.ofMillis(it) }
+                                ?: ogVideo.duration
                         )
                     }
                 }
@@ -151,52 +161,52 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
-                url = baseUrl.buildFullURL(path = path),
-                headers = defaultHeaders
+            url = baseUrl.buildFullURL(path = path),
+            headers = defaultHeaders
         )
     }
 
     private fun Document.extractJsonData(): JsonNode? {
         return getElementById("init-data")
-                ?.attr("value")
-                ?.readJsonNodes()
+            ?.attr("value")
+            ?.readJsonNodes()
     }
 
     private fun Element.extractTweetId(): String {
         return getFirstElementByClass("js-stream-tweet")
-                ?.attr("data-tweet-id")
-                .orEmpty()
+            ?.attr("data-tweet-id")
+            .orEmpty()
     }
 
     private fun Element.extractTweetText(): String? {
         return getFirstElementByClass("tweet-text")
-                ?.apply {
-                    allElements
-                            .filter { it.tag().name == "a" && it.attr("href").startsWith("/").not() }
-                            .forEach { it.remove() }
-                }
-                ?.wholeText()
+            ?.apply {
+                allElements
+                    .filter { it.tag().name == "a" && it.attr("href").startsWith("/").not() }
+                    .forEach { it.remove() }
+            }
+            ?.wholeText()
     }
 
     private fun Element.extractTweetPublishDate(): Long? {
         return getFirstElementByClass("js-short-timestamp")
-                ?.attr("data-time-ms")
-                ?.toLongOrNull()
-                ?.div(1000)
+            ?.attr("data-time-ms")
+            ?.toLongOrNull()
+            ?.div(1000)
     }
 
     private fun Element.extractTweetLikes(): Int? {
         return getFirstElementByClass("ProfileTweet-action--favorite")
-                ?.getFirstElementByClass("ProfileTweet-actionCount")
-                ?.attr("data-tweet-stat-count")
-                ?.toIntOrNull()
+            ?.getFirstElementByClass("ProfileTweet-actionCount")
+            ?.attr("data-tweet-stat-count")
+            ?.toIntOrNull()
     }
 
     private fun Element.extractTweetReplies(): Int? {
         return getFirstElementByClass("ProfileTweet-action--reply")
-                ?.getFirstElementByClass("ProfileTweet-actionCount")
-                ?.attr("data-tweet-stat-count")
-                ?.toIntOrNull()
+            ?.getFirstElementByClass("ProfileTweet-actionCount")
+            ?.attr("data-tweet-stat-count")
+            ?.toIntOrNull()
     }
 
     private fun Element.extractTweetMediaItems(): List<Media> {
@@ -207,32 +217,32 @@ open class TwitterSkraper @JvmOverloads constructor(
         return when {
             imagesElements.isNotEmpty() -> {
                 val aspectRatio = getFirstElementByClass("AdaptiveMedia-singlePhoto")
-                        ?.getStyle("padding-top")
-                        ?.substringAfter("calc(")
-                        ?.substringBefore("* 100%")
-                        ?.toDoubleOrNull()
-                        ?.let { 1.0 / it }
+                    ?.getStyle("padding-top")
+                    ?.substringAfter("calc(")
+                    ?.substringBefore("* 100%")
+                    ?.toDoubleOrNull()
+                    ?.let { 1.0 / it }
 
                 imagesElements.map { element ->
                     Image(
-                            url = element.attr("data-image-url"),
-                            aspectRatio = aspectRatio
+                        url = element.attr("data-image-url"),
+                        aspectRatio = aspectRatio
                     )
                 }
             }
             videosElement != null -> listOf(
-                    Video(
-                            url = "${baseUrl}/i/status/${extractTweetId()}",
-                            aspectRatio = videosElement
-                                    .getFirstElementByClass("PlayableMedia-player")
-                                    ?.getStyle("padding-bottom")
-                                    ?.removeSuffix("%")
-                                    ?.toDoubleOrNull()
-                                    ?.let { 100 / it }
-                    )
+                Video(
+                    url = "${baseUrl}/i/status/${extractTweetId()}",
+                    aspectRatio = videosElement
+                        .getFirstElementByClass("PlayableMedia-player")
+                        ?.getStyle("padding-bottom")
+                        ?.removeSuffix("%")
+                        ?.toDoubleOrNull()
+                        ?.let { 100 / it }
+                )
             )
             videoLinkElement != null -> listOf(
-                    Video(url = videoLinkElement.attr("data-card-url").orEmpty())
+                Video(url = videoLinkElement.attr("data-card-url").orEmpty())
             )
             else -> emptyList()
         }
@@ -240,9 +250,9 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     private suspend fun Document?.generateTokens(): Pair<String?, String?> {
         val jsUrl = this
-                ?.getElementsByTag("script")
-                ?.mapNotNull { it.attr("src") }
-                ?.findLast { "main" in it }
+            ?.getElementsByTag("script")
+            ?.mapNotNull { it.attr("src") }
+            ?.findLast { "main" in it }
 
         val jsPage = jsUrl?.let {
             client.fetchBytes(it)?.toString(UTF_8)
@@ -250,17 +260,17 @@ open class TwitterSkraper @JvmOverloads constructor(
 
         val token = jsPage?.let {
             "Bearer ([a-zA-Z0-9%-])+"
-                    .toRegex()
-                    .find(it)
-                    ?.groupValues
-                    ?.firstOrNull()
+                .toRegex()
+                .find(it)
+                ?.groupValues
+                ?.firstOrNull()
         }
 
         val guestTokenNode = token?.let {
             client.fetchJson(
-                    url = apiBaseUrl.buildFullURL(path = "/1.1/guest/activate.json"),
-                    method = POST,
-                    headers = mapOf("Authorization" to it)
+                url = apiBaseUrl.buildFullURL(path = "/1.1/guest/activate.json"),
+                method = POST,
+                headers = mapOf("Authorization" to it)
             )
         }
 

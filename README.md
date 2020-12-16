@@ -6,16 +6,18 @@ Skraper
 [![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
 
 # Overview
-Kotlin/Java library and cli tool which allows scraping and downloading posts, attachments, 
-other meta from more than 10 sources without any authorization or full page rendering. 
-Based on jsoup and coroutines.
+
+Kotlin/Java library and cli tool which allows scraping and downloading posts, attachments, other meta from more than 10
+sources without any authorization or full page rendering. Based on jsoup and coroutines.
 
 Repository contains:
+
 - [Cli tool](#cli-tool)
 - [Kotlin library](#kotlin-library)
 - [Telegram bot](#telegram-bot)
 
 Current list of implemented sources:
+
 - [Facebook](https://facebook.com)
 - [Instagram](https://instagram.com)
 - [Twitter](https://twitter.com)
@@ -31,24 +33,30 @@ Current list of implemented sources:
 - [Pikabu](https://pikabu.ru)
 
 # Bugs
+
 Unfortunately, each web-site is subject to change without any notice, so the tool may work incorrectly because of that.
-If that happens, please let me know via an issue. 
+If that happens, please let me know via an issue.
 
 # Cli tool
+
 Cli tool allows to:
+
 - download media with flag `--media-only` from almost all presented sources.
 - scrape posts meta information
 
-Requirements: 
+Requirements:
+
 - Java: 1.8 +
 - Maven (optional)
 
 Build tool
+
 ```bash
 ./mvnw clean package -DskipTests=true 
 ```
 
 Usage:
+
 ```bash
 ./skraper --help
 ```
@@ -105,6 +113,7 @@ positional arguments:
 ```
 
 Examples:
+
 ```bash
 ./skraper ninegag /hot 
 ./skraper reddit /r/memes -n 5 -t csv -o ./reddit/posts
@@ -112,8 +121,11 @@ Examples:
 ```
 
 # Kotlin Library
+
 ## Distribution
+
 Maven:
+
 ```xml
 <repositories>
     <repository>
@@ -131,6 +143,7 @@ Maven:
 ```
 
 Gradle kotlin dsl:
+
 ```kotlin
 repositories {
     maven { url = uri("http://jitpack.io") }
@@ -141,11 +154,15 @@ dependencies {
 ```
 
 ## Usage
+
 ### Demo
+
 You may take a look at library usage in this [android sample app](./example/android) or [telegram bot](./telegram-bot)
 
 ### Instantiate specific scraper
+
 As mentioned before, the provider implementation list is:
+
 - [FacebookSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/facebook/FacebookSkraper.kt)
 - [InstagramSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/instagram/InstagramSkraper.kt)
 - [TwitterSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/twitter/TwitterSkraper.kt)
@@ -161,22 +178,33 @@ As mentioned before, the provider implementation list is:
 - [PikabuSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pikabu/PikabuSkraper.kt)
 
 After that usage as simple as is:
+
 ```kotlin
 val skraper = InstagramSkraper(client = OkHttpSkraperClient())
 ```
 
-**Important moment:** it is highly recommended to not use [DefaultBlockingSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt).
-There are some more efficient, non-blocking and resource-friendly implementations for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt).
-To use them you just have to put required dependencies in the classpath. 
+**Important moment:** it is highly recommended to not
+use [DefaultBlockingSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt)
+. There are some more efficient, non-blocking and resource-friendly implementations
+for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt). To use them you just have to put
+required dependencies in the classpath.
 
 Current http-client implementation list:
-- [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) - simple java.net.* blocking api implementation
-- [OkHttpSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp/OkHttpSkraperClient.kt) - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
-- [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt) - [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
-- [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt) - [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
+
+- [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) -
+  simple java.net.* blocking api implementation
+- [OkHttpSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp/OkHttpSkraperClient.kt)
+  - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
+- [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt)
+  - [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
+- [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt)
+  - [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
 
 ### Available methods
-Each scraper is a class which implements [Skraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt) interface:
+
+Each scraper is a class which implements [Skraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt)
+interface:
+
 ```kotlin
 interface Skraper {
     val baseUrl: URLString
@@ -188,15 +216,19 @@ interface Skraper {
 }
 ```
 
-Also, there are some provider-specific kotlin extensions for implementations. 
-You can find them out at the provider implementation package. 
+Also, there are some provider-specific kotlin extensions for implementations. You can find them out at the provider
+implementation package.
 
 ### Usage from plain Java
+
 Kotlin coroutines is a [CPS](https://en.wikipedia.org/wiki/Continuation-passing_style) implementation (aka callbacks).
-Here is a quite good [java side example](https://stackoverflow.com/a/54033955/5843129) of how to call kotlin `suspend` functions from plain Java.
+Here is a quite good [java side example](https://stackoverflow.com/a/54033955/5843129) of how to call kotlin `suspend`
+functions from plain Java.
 
 ### Scrape user/community/channel/topic/trend posts
-To scrape the latest posts for specific user, channel or trend use skraper like that: 
+
+To scrape the latest posts for specific user, channel or trend use skraper like that:
+
 ```kotlin
 suspen fun main() {
     val skraper = FacebookSkraper()
@@ -204,7 +236,9 @@ suspen fun main() {
     println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 }
 ```
+
 Received data structure is similar to each other provider's. Output data example:
+
 ```json5
 [
   {
@@ -235,7 +269,9 @@ Received data structure is similar to each other provider's. Output data example
 You can see the full model structure for posts and others [here](skrapers/src/main/kotlin/ru/sokomishalov/skraper/model)
 
 ### Scrape user/community/channel/topic/trend info
+
 It is possible to scrape user/channel/trend info for some purposes:
+
 ```kotlin
 suspend fun main() {
     val skraper = TwitterSkraper()
@@ -245,6 +281,7 @@ suspend fun main() {
 ```
 
 Output:
+
 ```json5
 {
   "nick" : "memes",
@@ -278,7 +315,9 @@ Output:
 ```
 
 ### Resolve provider relative url
+
 Sometimes you need to know direct media link:
+
 ```kotlin
 suspend fun main() {
     val skraper = InstagramSkraper()
@@ -288,6 +327,7 @@ suspend fun main() {
 ```
 
 Output:
+
 ```json5
 {
   "url" : "https://scontent-amt2-1.cdninstagram.com/v/t50.2886-16/91508191_213297693225472_2759719910220905597_n.mp4?_nc_ht=scontent-amt2-1.cdninstagram.com&_nc_cat=104&_nc_ohc=27bC52qar_oAX-7J2Zh&oe=5EC0BC52&oh=0aafee2860c540452b76e7b8e336147d",
@@ -300,7 +340,9 @@ Output:
 ```
 
 ### Download media
+
 There is "static" method which allows to download any media from all known implemented sources:
+
 ```kotlin
 suspend fun main() {
     val tmpDir = Files.createTempDirectory("skraper").toFile()
@@ -323,12 +365,14 @@ suspend fun main() {
 ```
 
 Output:
+
 ```log
 /var/folders/sf/hm2h5chx5fl4f70bj77xccsc0000gp/T/skraper8377953374796527777/Gandalf.mp4
 /var/folders/sf/hm2h5chx5fl4f70bj77xccsc0000gp/T/skraper8377953374796527777/Do_no_harm.jpg
 ```
 
 ### Scrape provider logo
+
 It is also possible to scrape provider info for some purposes:
 
 ```kotlin
@@ -340,6 +384,7 @@ suspend fun main() {
 ```
 
 Output:
+
 ```json5
 {
   "name" : "Instagram",
@@ -358,4 +403,5 @@ Output:
 ```
 
 # Telegram bot
+
 To use the bot follow the [link](https://t.me/SkraperBot).

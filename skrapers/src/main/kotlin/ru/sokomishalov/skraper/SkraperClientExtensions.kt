@@ -36,10 +36,10 @@ import kotlin.text.Charsets.UTF_8
  */
 
 suspend fun SkraperClient.fetchBytes(
-        url: URLString,
-        method: HttpMethodType = GET,
-        headers: Map<String, String> = emptyMap(),
-        body: ByteArray? = null
+    url: URLString,
+    method: HttpMethodType = GET,
+    headers: Map<String, String> = emptyMap(),
+    body: ByteArray? = null
 ): ByteArray? {
     return runCatching {
         request(url, method, headers, body)
@@ -47,10 +47,10 @@ suspend fun SkraperClient.fetchBytes(
 }
 
 suspend fun SkraperClient.fetchJson(
-        url: URLString,
-        method: HttpMethodType = GET,
-        headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
-        body: ByteArray? = null
+    url: URLString,
+    method: HttpMethodType = GET,
+    headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+    body: ByteArray? = null
 ): JsonNode? {
     return runCatching {
         request(url, method, headers, body)?.run {
@@ -60,26 +60,32 @@ suspend fun SkraperClient.fetchJson(
 }
 
 suspend fun SkraperClient.fetchDocument(
-        url: URLString,
-        method: HttpMethodType = GET,
-        headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
-        body: ByteArray? = null,
-        charset: Charset = UTF_8
+    url: URLString,
+    method: HttpMethodType = GET,
+    headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+    body: ByteArray? = null,
+    charset: Charset = UTF_8
 ): Document? {
     return runCatching {
         request(url, method, headers, body)?.run {
             val document = Jsoup.parse(toString(charset))
 
             val htmlRedirectUrl = document
-                    .head()
-                    .getFirstElementByAttributeValue("http-equiv", "refresh")
-                    ?.attr("content")
-                    ?.substringAfter("URL=")
+                .head()
+                .getFirstElementByAttributeValue("http-equiv", "refresh")
+                ?.attr("content")
+                ?.substringAfter("URL=")
 
             when {
                 htmlRedirectUrl != null
                         && htmlRedirectUrl != url
-                        && htmlRedirectUrl.startsWith("http") -> fetchDocument(htmlRedirectUrl, method, headers, body, charset)
+                        && htmlRedirectUrl.startsWith("http") -> fetchDocument(
+                    htmlRedirectUrl,
+                    method,
+                    headers,
+                    body,
+                    charset
+                )
                 else -> document
             }
         }
@@ -90,14 +96,14 @@ suspend fun SkraperClient.fetchDocument(
  * @see <a href="https://ogp.me/">open graph protocol</a>
  */
 suspend fun SkraperClient.fetchMediaWithOpenGraphMeta(
-        media: Media,
-        headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
-        charset: Charset = UTF_8
+    media: Media,
+    headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+    charset: Charset = UTF_8
 ): Media {
     val page = fetchDocument(
-            url = media.url,
-            headers = headers,
-            charset = charset
+        url = media.url,
+        headers = headers,
+        charset = charset
     )
 
     return page?.run {
@@ -115,16 +121,16 @@ suspend fun SkraperClient.fetchMediaWithOpenGraphMeta(
                     val thumbUrl = firstNotNull("og:image", "og:image:url", "og:image:secure_url")
 
                     media.copy(
-                            url = videoUrl ?: media.url,
-                            aspectRatio = (videoWidth / videoHeight) ?: media.aspectRatio,
-                            thumbnail = (thumbUrl ?: media.thumbnail?.url)?.let { url ->
-                                Image(
-                                        url = url,
-                                        aspectRatio = (thumbWidth / thumbHeight)
-                                                ?: (videoWidth / videoHeight)
-                                                ?: media.thumbnail?.aspectRatio
-                                )
-                            }
+                        url = videoUrl ?: media.url,
+                        aspectRatio = (videoWidth / videoHeight) ?: media.aspectRatio,
+                        thumbnail = (thumbUrl ?: media.thumbnail?.url)?.let { url ->
+                            Image(
+                                url = url,
+                                aspectRatio = (thumbWidth / thumbHeight)
+                                    ?: (videoWidth / videoHeight)
+                                    ?: media.thumbnail?.aspectRatio
+                            )
+                        }
 
                     )
                 }
@@ -134,14 +140,14 @@ suspend fun SkraperClient.fetchMediaWithOpenGraphMeta(
                     val imageUrl = firstNotNull("og:image", "og:image:url", "og:image:secure_url")
 
                     media.copy(
-                            url = imageUrl ?: media.url,
-                            aspectRatio = (imageWidth / imageHeight) ?: media.aspectRatio
+                        url = imageUrl ?: media.url,
+                        aspectRatio = (imageWidth / imageHeight) ?: media.aspectRatio
                     )
                 }
                 is Audio -> {
                     val audioUrl = firstNotNull("og:audio", "og:audio:url", "og:audio:secure_url")
                     media.copy(
-                            url = audioUrl ?: media.url
+                        url = audioUrl ?: media.url
                     )
                 }
             }

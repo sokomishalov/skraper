@@ -34,8 +34,8 @@ import java.time.Duration
  * @author sokomishalov
  */
 open class NinegagSkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://9gag.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://9gag.com"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
@@ -44,19 +44,19 @@ open class NinegagSkraper @JvmOverloads constructor(
         val dataJson = page.extractJsonData()
 
         val postNodes = dataJson
-                ?.getByPath("data.posts")
-                ?.take(limit)
-                .orEmpty()
+            ?.getByPath("data.posts")
+            ?.take(limit)
+            .orEmpty()
 
         return postNodes.map { p ->
             with(p) {
                 Post(
-                        id = getString("id").orEmpty(),
-                        text = getString("title"),
-                        publishedAt = getLong("creationTs"),
-                        rating = getInt("upVoteCount") - getInt("downVoteCount"),
-                        commentsCount = getInt("commentsCount"),
-                        media = extractPostMediaItems()
+                    id = getString("id").orEmpty(),
+                    text = getString("title"),
+                    publishedAt = getLong("creationTs"),
+                    rating = getInt("upVoteCount") - getInt("downVoteCount"),
+                    commentsCount = getInt("commentsCount"),
+                    media = extractPostMediaItems()
                 )
             }
         }
@@ -68,9 +68,9 @@ open class NinegagSkraper @JvmOverloads constructor(
 
         return dataJson?.getByPath("data.group")?.run {
             PageInfo(
-                    nick = getString("name"),
-                    description = getString("description"),
-                    avatarsMap = singleImageMap(url = getString("ogImageUrl"))
+                nick = getString("name"),
+                description = getString("description"),
+                avatarsMap = singleImageMap(url = getString("ogImageUrl"))
             )
         }
     }
@@ -80,11 +80,11 @@ open class NinegagSkraper @JvmOverloads constructor(
             is Video -> {
                 val page = client.fetchDocument(media.url)
                 return page
-                        ?.extractJsonData()
-                        ?.getByPath("data.post")
-                        ?.extractPostMediaItems()
-                        ?.find { it is Video }
-                        ?: media
+                    ?.extractJsonData()
+                    ?.getByPath("data.post")
+                    ?.extractPostMediaItems()
+                    ?.find { it is Video }
+                    ?: media
             }
             else -> client.fetchMediaWithOpenGraphMeta(media)
         }
@@ -96,36 +96,36 @@ open class NinegagSkraper @JvmOverloads constructor(
 
     private fun Document?.extractJsonData(): JsonNode? {
         return this
-                ?.getElementsByTag("script")
-                ?.firstOrNull { it.html().startsWith("window._config") }
-                ?.html()
-                ?.removePrefix("window._config = JSON.parse(\"")
-                ?.removeSuffix("\");")
-                ?.unescapeJson()
-                ?.readJsonNodes()
+            ?.getElementsByTag("script")
+            ?.firstOrNull { it.html().startsWith("window._config") }
+            ?.html()
+            ?.removePrefix("window._config = JSON.parse(\"")
+            ?.removeSuffix("\");")
+            ?.unescapeJson()
+            ?.readJsonNodes()
     }
 
     private fun JsonNode.extractPostMediaItems(): List<Media> {
         val isVideo = isVideo()
 
         return listOf(
-                when {
-                    isVideo -> Video(
-                            url = getString("images.image460sv.url").orEmpty(),
-                            aspectRatio = getByPath("images.image460sv")?.run {
-                                getDouble("width") / getDouble("height")
-                            },
-                            duration = getLong("images.image460sv.duration")?.run {
-                                Duration.ofSeconds(this)
-                            }
-                    )
-                    else -> Image(
-                            url = getString("images.image460.url").orEmpty(),
-                            aspectRatio = getByPath("images.image460")?.run {
-                                getDouble("width") / getDouble("height")
-                            }
-                    )
-                }
+            when {
+                isVideo -> Video(
+                    url = getString("images.image460sv.url").orEmpty(),
+                    aspectRatio = getByPath("images.image460sv")?.run {
+                        getDouble("width") / getDouble("height")
+                    },
+                    duration = getLong("images.image460sv.duration")?.run {
+                        Duration.ofSeconds(this)
+                    }
+                )
+                else -> Image(
+                    url = getString("images.image460.url").orEmpty(),
+                    aspectRatio = getByPath("images.image460")?.run {
+                        getDouble("width") / getDouble("height")
+                    }
+                )
+            }
         )
     }
 

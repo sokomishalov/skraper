@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @file:Suppress(
-        "BlockingMethodInNonBlockingContext"
+    "BlockingMethodInNonBlockingContext"
 )
 
 package ru.sokomishalov.skraper.internal.net
@@ -39,9 +39,9 @@ import kotlin.text.Charsets.UTF_8
 
 @PublishedApi
 internal suspend fun URL.openRedirectableStream(
-        method: HttpMethodType = GET,
-        headers: Map<String, String> = emptyMap(),
-        body: ByteArray? = null
+    method: HttpMethodType = GET,
+    headers: Map<String, String> = emptyMap(),
+    body: ByteArray? = null
 ): InputStream = withContext(IO) {
     val conn = openConnection() as HttpURLConnection
 
@@ -64,9 +64,9 @@ internal suspend fun URL.openRedirectableStream(
 
 @PublishedApi
 internal suspend fun URL.request(
-        method: HttpMethodType = GET,
-        headers: Map<String, String> = emptyMap(),
-        body: ByteArray? = null
+    method: HttpMethodType = GET,
+    headers: Map<String, String> = emptyMap(),
+    body: ByteArray? = null
 ): ByteArray {
     return withContext(IO) {
         openRedirectableStream(method, headers, body).readBytes()
@@ -82,22 +82,22 @@ val URLString.host: String
 val URLString.queryParams: Map<String, String>
     get() {
         return URL(this)
-                .query
-                .split("&".toRegex())
-                .map {
-                    val idx = it.indexOf("=")
-                    val key = URLDecoder.decode(it.substring(0, idx), UTF_8.name())
-                    val value = URLDecoder.decode(it.substring(idx + 1), UTF_8.name())
+            .query
+            .split("&".toRegex())
+            .map {
+                val idx = it.indexOf("=")
+                val key = URLDecoder.decode(it.substring(0, idx), UTF_8.name())
+                val value = URLDecoder.decode(it.substring(idx + 1), UTF_8.name())
 
-                    key to value
-                }
-                .toMap()
+                key to value
+            }
+            .toMap()
     }
 
 private fun HttpURLConnection.applyData(
-        method: HttpMethodType,
-        headers: Map<String, String>,
-        body: ByteArray?
+    method: HttpMethodType,
+    headers: Map<String, String>,
+    body: ByteArray?
 ) {
     requestMethod = method.name
     headers.forEach { (k, v) -> addRequestProperty(k, v) }

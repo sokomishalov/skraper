@@ -50,12 +50,12 @@ import java.io.File.separator
  * @param ffmpegRunner custom ffmpeg runner (for converting m3u8 and webm files)
  */
 suspend fun Skraper.Companion.download(
-        media: Media,
-        destDir: File,
-        filename: String = media.extractFileNameWithoutExtension(),
-        client: SkraperClient = DefaultBlockingSkraperClient,
-        skrapers: List<Skraper> = knownList(client),
-        ffmpegRunner: FfmpegRunner = FfmpegCliRunner()
+    media: Media,
+    destDir: File,
+    filename: String = media.extractFileNameWithoutExtension(),
+    client: SkraperClient = DefaultBlockingSkraperClient,
+    skrapers: List<Skraper> = knownList(client),
+    ffmpegRunner: FfmpegRunner = FfmpegCliRunner()
 ): File {
     val resolved = skrapers.lookForDirectMediaRecursively(media)
     val extension = resolved.extractFileExtension()
@@ -99,27 +99,27 @@ suspend fun Skraper.Companion.download(
  * @param skrapers all known skrapers
  */
 suspend fun Skraper.Companion.resolve(
-        media: Media,
-        client: SkraperClient = DefaultBlockingSkraperClient,
-        skrapers: List<Skraper> = knownList(client)
+    media: Media,
+    client: SkraperClient = DefaultBlockingSkraperClient,
+    skrapers: List<Skraper> = knownList(client)
 ): Media {
     return skrapers.lookForDirectMediaRecursively(media)
 }
 
 fun Skraper.Companion.knownList(client: SkraperClient): List<Skraper> = listOf(
-        FacebookSkraper(client = client),
-        InstagramSkraper(client = client),
-        TwitterSkraper(client = client),
-        YoutubeSkraper(client = client),
-        TwitchSkraper(client = client),
-        RedditSkraper(client = client),
-        NinegagSkraper(client = client),
-        PinterestSkraper(client = client),
-        FlickrSkraper(client = client),
-        TumblrSkraper(client = client),
-        IFunnySkraper(client = client),
-        VkSkraper(client = client),
-        PikabuSkraper(client = client)
+    FacebookSkraper(client = client),
+    InstagramSkraper(client = client),
+    TwitterSkraper(client = client),
+    YoutubeSkraper(client = client),
+    TwitchSkraper(client = client),
+    RedditSkraper(client = client),
+    NinegagSkraper(client = client),
+    PinterestSkraper(client = client),
+    FlickrSkraper(client = client),
+    TumblrSkraper(client = client),
+    IFunnySkraper(client = client),
+    VkSkraper(client = client),
+    PikabuSkraper(client = client)
 )
 
 inline val Skraper.name: String
@@ -130,26 +130,29 @@ private suspend fun List<Skraper>.lookForDirectMediaRecursively(media: Media, re
     return when {
         // direct media url
         media.url
-                .path
-                .substringAfterLast("/")
-                .substringAfterLast(".", "")
-                .isNotEmpty() -> media
+            .path
+            .substringAfterLast("/")
+            .substringAfterLast(".", "")
+            .isNotEmpty() -> media
 
         // otherwise
         else -> {
             find { it.supports(media.url) }
-                    ?.resolve(media)
-                    ?.run {
-                        when {
-                            recursionDepth > 0 && url != media.url -> lookForDirectMediaRecursively(media = this, recursionDepth = recursionDepth - 1)
-                            else -> when (media) {
-                                is Image -> media.copy(url = url)
-                                is Video -> media.copy(url = url)
-                                is Audio -> media.copy(url = url)
-                            }
+                ?.resolve(media)
+                ?.run {
+                    when {
+                        recursionDepth > 0 && url != media.url -> lookForDirectMediaRecursively(
+                            media = this,
+                            recursionDepth = recursionDepth - 1
+                        )
+                        else -> when (media) {
+                            is Image -> media.copy(url = url)
+                            is Video -> media.copy(url = url)
+                            is Audio -> media.copy(url = url)
                         }
                     }
-                    ?: media
+                }
+                ?: media
         }
     }
 }
@@ -166,7 +169,7 @@ private fun Media.extractFileExtension(): String {
 
 private fun Media.extractFileNameWithoutExtension(): String {
     return url
-            .path
-            .substringAfterLast("/")
-            .substringBeforeLast(".")
+        .path
+        .substringAfterLast("/")
+        .substringBeforeLast(".")
 }

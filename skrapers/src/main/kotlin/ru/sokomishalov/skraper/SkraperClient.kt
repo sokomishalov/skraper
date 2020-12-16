@@ -32,18 +32,18 @@ interface SkraperClient {
      * execute http request
      */
     suspend fun request(
-            url: URLString,
-            method: HttpMethodType = GET,
-            headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
-            body: ByteArray? = null
+        url: URLString,
+        method: HttpMethodType = GET,
+        headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+        body: ByteArray? = null
     ): ByteArray?
 
     /**
      * download files
      */
     suspend fun download(
-            url: URLString,
-            destFile: File
+        url: URLString,
+        destFile: File
     ) {
         request(url = url)?.let { withContext(IO) { destFile.writeBytes(it) } }
     }

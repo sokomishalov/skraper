@@ -36,8 +36,8 @@ import kotlin.text.Charsets.UTF_8
  * @see <a href="https://github.com/sealedtx/java-youtube-downloader">sealedtx/java-youtube-downloader</a>
  */
 class YoutubeVideoResolver(
-        private val baseUrl: URLString,
-        private val client: SkraperClient
+    private val baseUrl: URLString,
+    private val client: SkraperClient
 ) {
 
     suspend fun getVideo(video: Video): Video? {
@@ -50,11 +50,11 @@ class YoutubeVideoResolver(
 
         val config = page?.let {
             ";ytplayer\\.config = (\\{.*?});"
-                    .toRegex()
-                    .find(it)
-                    ?.groupValues
-                    ?.getOrNull(1)
-                    ?.readJsonNodes()
+                .toRegex()
+                .find(it)
+                ?.groupValues
+                ?.getOrNull(1)
+                ?.readJsonNodes()
         }
 
         return config?.firstAudioAndVideo()
@@ -62,38 +62,38 @@ class YoutubeVideoResolver(
 
     private suspend fun JsonNode.firstAudioAndVideo(): Video? {
         val streamingData = getFirstByPath("args.player_response")
-                .toString()
-                .removeSurrounding("\"")
-                .unescapeJson()
-                .readJsonNodes()
-                ?.get("streamingData")
+            .toString()
+            .removeSurrounding("\"")
+            .unescapeJson()
+            .readJsonNodes()
+            ?.get("streamingData")
 
         val formats = streamingData?.get("formats")?.toList().orEmpty()
         val adaptiveFormats = streamingData?.get("adaptiveFormats")?.toList().orEmpty()
 
         return (formats + adaptiveFormats)
-                .firstOrNull { it.getInt("itag") in VIDEO_AND_AUDIO_TAGS }
-                ?.parseVideo(getString("assets.js"))
+            .firstOrNull { it.getInt("itag") in VIDEO_AND_AUDIO_TAGS }
+            ?.parseVideo(getString("assets.js"))
     }
 
     private suspend fun JsonNode.parseVideo(jsPath: String?): Video? {
         val url = when {
             has("cipher") || has("signatureCipher") -> {
                 val cipherData = getFirstByPath("cipher", "signatureCipher")
-                        ?.asText()
-                        .orEmpty()
-                        .replace("\\u0026", "&")
-                        .split("&".toRegex())
-                        .toTypedArray()
+                    ?.asText()
+                    .orEmpty()
+                    .replace("\\u0026", "&")
+                    .split("&".toRegex())
+                    .toTypedArray()
 
                 val jsonCipher = cipherData
-                        .map { it.split("=".toRegex()) }
-                        .map { it[0] to it[1] }
-                        .toMap()
+                    .map { it.split("=".toRegex()) }
+                    .map { it[0] to it[1] }
+                    .toMap()
 
                 val urlWithSig = jsonCipher["url"]
-                        ?.unescapeUrl()
-                        .orEmpty()
+                    ?.unescapeUrl()
+                    .orEmpty()
 
                 when {
                     "signature" in urlWithSig
@@ -114,8 +114,8 @@ class YoutubeVideoResolver(
 
         return url?.let {
             Video(
-                    url = it,
-                    aspectRatio = getInt("width") / getInt("height")
+                url = it,
+                aspectRatio = getInt("width") / getInt("height")
             )
         }
     }
@@ -128,8 +128,15 @@ class YoutubeVideoResolver(
         val transformFunctionsMap = js.getTransformFunctionsMap(variable)
 
         return transformFunctions
-                .fold(s.toCharArray(), { sign: CharArray?, jsFun: JsFunction -> transformFunctionsMap[jsFun.name]?.apply(sign, jsFun.argument) })
-                .let { String(it!!) }
+            .fold(
+                s.toCharArray(),
+                { sign: CharArray?, jsFun: JsFunction ->
+                    transformFunctionsMap[jsFun.name]?.apply(
+                        sign,
+                        jsFun.argument
+                    )
+                })
+            .let { String(it!!) }
     }
 
     private fun String?.getTransformFunctions(): List<JsFunction> {
@@ -152,17 +159,17 @@ class YoutubeVideoResolver(
 
     private fun String.getInitialFunctionName(): String? {
         return knownInitialFunctionRegexes
-                .map { it.find(this)?.groupValues?.get(1) }
-                .first { it != null }
+            .map { it.find(this)?.groupValues?.get(1) }
+            .first { it != null }
     }
 
     private fun String?.getTransformFunctionsMap(variable: String?): Map<String?, CipherFunction?> {
         return getTransformObject(variable)
-                .map { obj ->
-                    val split = obj.split(":".toRegex(), 2).toTypedArray()
-                    split[0] to split[1].mapFunction()
-                }
-                .toMap()
+            .map { obj ->
+                val split = obj.split(":".toRegex(), 2).toTypedArray()
+                split[0] to split[1].mapFunction()
+            }
+            .toMap()
     }
 
     private fun String?.getTransformObject(variable: String?): List<String> {
@@ -186,41 +193,41 @@ class YoutubeVideoResolver(
 
     private fun String.parseFunction(): Pair<String, String> {
         return "\\w+\\.(\\w+)\\(\\w,(\\d+)\\)"
-                .toRegex()
-                .find(this)
-                ?.run { groupValues[1] to groupValues[2] }
-                ?: "" to ""
+            .toRegex()
+            .find(this)
+            ?.run { groupValues[1] to groupValues[2] }
+            ?: "" to ""
     }
 
     companion object {
         private val VIDEO_AND_AUDIO_TAGS = arrayOf(5, 6, 13, 17, 18, 22, 34, 35, 36, 37, 38, 43, 44, 45, 46, 82, 83, 84, 85, 100, 101, 102, 91, 92, 93, 94, 95, 96, 132, 151)
 
         private val knownInitialFunctionRegexes: List<Regex> = listOf(
-                "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
-                "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
-                "\\b([a-zA-Z0-9$]{2})\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)".toRegex(),
-                "([a-zA-Z0-9$]+)\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)".toRegex(),
-                "([\"'])signature\\1\\s*,\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
-                "\\.sig\\|\\|([a-zA-Z0-9$]+)\\(".toRegex(),
-                "yt\\.akamaized\\.net/\\)\\s*\\|\\|\\s*.*?\\s*[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*(?:encodeURIComponent\\s*\\()?\\s*()$".toRegex(),
-                "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
-                "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
-                "\\bc\\s*&&\\s*a\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
-                "\\bc\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex()
+            "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
+            "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
+            "\\b([a-zA-Z0-9$]{2})\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)".toRegex(),
+            "([a-zA-Z0-9$]+)\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)".toRegex(),
+            "([\"'])signature\\1\\s*,\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
+            "\\.sig\\|\\|([a-zA-Z0-9$]+)\\(".toRegex(),
+            "yt\\.akamaized\\.net/\\)\\s*\\|\\|\\s*.*?\\s*[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*(?:encodeURIComponent\\s*\\()?\\s*()$".toRegex(),
+            "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
+            "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
+            "\\bc\\s*&&\\s*a\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
+            "\\bc\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex()
         )
         private val functionsEquivalentMap: MutableMap<Regex, CipherFunction> = mutableMapOf(
-                "\\{\\w\\.reverse\\(\\)\\}".toRegex() to ReverseFunction(),
-                "\\{\\w\\.splice\\(0,\\w\\)\\}".toRegex() to SpliceFunction(),
-                "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w]=\\w\\}".toRegex() to SwapFunctionV1(),
-                "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w%\\w.length]=\\w\\}".toRegex() to SwapFunctionV2()
+            "\\{\\w\\.reverse\\(\\)\\}".toRegex() to ReverseFunction(),
+            "\\{\\w\\.splice\\(0,\\w\\)\\}".toRegex() to SpliceFunction(),
+            "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w]=\\w\\}".toRegex() to SwapFunctionV1(),
+            "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w%\\w.length]=\\w\\}".toRegex() to SwapFunctionV2()
         )
     }
 }
 
 private data class JsFunction(
-        val variable: String,
-        val name: String?,
-        val argument: String?
+    val variable: String,
+    val name: String?,
+    val argument: String?
 )
 
 private interface CipherFunction {

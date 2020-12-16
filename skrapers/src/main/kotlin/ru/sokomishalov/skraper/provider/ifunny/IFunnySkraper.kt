@@ -33,17 +33,17 @@ import ru.sokomishalov.skraper.model.MediaSize.*
  * @author sokomishalov
  */
 open class IFunnySkraper @JvmOverloads constructor(
-        override val client: SkraperClient = DefaultBlockingSkraperClient,
-        override val baseUrl: URLString = "https://ifunny.co"
+    override val client: SkraperClient = DefaultBlockingSkraperClient,
+    override val baseUrl: URLString = "https://ifunny.co"
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
         val page = getPage(path = path)
 
         val posts = page
-                ?.getElementsByClass("stream__item")
-                ?.take(limit)
-                .orEmpty()
+            ?.getElementsByClass("stream__item")
+            ?.take(limit)
+            .orEmpty()
 
         return posts.mapNotNull {
             val a = it.getFirstElementByTag("a")
@@ -54,24 +54,24 @@ open class IFunnySkraper @JvmOverloads constructor(
             val isVideo = "video" in link || "gif" in link
 
             val aspectRatio = it
-                    .attr("data-ratio")
-                    .toDoubleOrNull()
-                    ?.let { r -> 1.0 / r }
+                .attr("data-ratio")
+                .toDoubleOrNull()
+                ?.let { r -> 1.0 / r }
 
             Post(
-                    id = link.substringBeforeLast("?").substringAfterLast("/"),
-                    media = listOf(
-                            when {
-                                isVideo -> Video(
-                                        url = "${baseUrl}${link}",
-                                        aspectRatio = aspectRatio
-                                )
-                                else -> Image(
-                                        url = img?.attr("data-src").orEmpty(),
-                                        aspectRatio = aspectRatio
-                                )
-                            }
-                    )
+                id = link.substringBeforeLast("?").substringAfterLast("/"),
+                media = listOf(
+                    when {
+                        isVideo -> Video(
+                            url = "${baseUrl}${link}",
+                            aspectRatio = aspectRatio
+                        )
+                        else -> Image(
+                            url = img?.attr("data-src").orEmpty(),
+                            aspectRatio = aspectRatio
+                        )
+                    }
+                )
             )
         }
     }
@@ -87,27 +87,27 @@ open class IFunnySkraper @JvmOverloads constructor(
 
         return json?.run {
             PageInfo(
-                    nick = getString("nick"),
-                    description = getString("about"),
-                    avatarsMap = getByPath("photo.thumb")?.run {
-                        mapOf(
-                                SMALL to getString("small_url").orEmpty().toImage(),
-                                MEDIUM to getString("medium_url").orEmpty().toImage(),
-                                LARGE to getString("large_url").orEmpty().toImage()
-                        )
-                    } ?: singleImageMap(url = getByPath("photo.url")?.asText().orEmpty()),
-                    coversMap = singleImageMap(url = getString("coverUrl"))
+                nick = getString("nick"),
+                description = getString("about"),
+                avatarsMap = getByPath("photo.thumb")?.run {
+                    mapOf(
+                        SMALL to getString("small_url").orEmpty().toImage(),
+                        MEDIUM to getString("medium_url").orEmpty().toImage(),
+                        LARGE to getString("large_url").orEmpty().toImage()
+                    )
+                } ?: singleImageMap(url = getByPath("photo.url")?.asText().orEmpty()),
+                coversMap = singleImageMap(url = getString("coverUrl"))
             )
         }
     }
 
     private fun Document?.extractInitialJson(): JsonNode? {
         val textJson = this
-                ?.getElementsByTag("script")
-                ?.find { "__INITIAL_STATE__" in it.html() }
-                ?.html()
-                ?.removePrefix("window.__INITIAL_STATE__ = ")
-                ?.removeSuffix(";")
+            ?.getElementsByTag("script")
+            ?.find { "__INITIAL_STATE__" in it.html() }
+            ?.html()
+            ?.removePrefix("window.__INITIAL_STATE__ = ")
+            ?.removeSuffix(";")
 
         return textJson?.run { readJsonNodes() }?.getByPath("user.data")
     }
