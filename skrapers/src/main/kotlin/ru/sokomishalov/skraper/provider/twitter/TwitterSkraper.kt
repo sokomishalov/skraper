@@ -102,10 +102,10 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Image -> client.fetchMediaWithOpenGraphMeta(media = media, headers = defaultHeaders)
+            is Image -> client.fetchMediaWithOpenGraphMeta(media = media, headers = DEFAULT_HEADERS)
             is Video -> {
-                val ogVideo = client.fetchMediaWithOpenGraphMeta(media = media, headers = defaultHeaders) as Video
-                val page = client.fetchDocument(url = ogVideo.url, headers = defaultHeaders)
+                val ogVideo = client.fetchMediaWithOpenGraphMeta(media = media, headers = DEFAULT_HEADERS) as Video
+                val page = client.fetchDocument(url = ogVideo.url, headers = DEFAULT_HEADERS)
 
                 val urlFromPage = page
                     ?.getFirstElementByClass("js-tweet-text")
@@ -157,12 +157,10 @@ open class TwitterSkraper @JvmOverloads constructor(
         }
     }
 
-    private val defaultHeaders: Map<String, String> = mapOf("User-Agent" to SEARCH_ENGINE_USER_AGENTS.random())
-
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
             url = baseUrl.buildFullURL(path = path),
-            headers = defaultHeaders
+            headers = DEFAULT_HEADERS
         )
     }
 
@@ -281,5 +279,6 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     companion object {
         private val SEARCH_ENGINE_USER_AGENTS = setOf("Googlebot", "Slurp", "Yandex", "msnbot", "bingbot")
+        private val DEFAULT_HEADERS: Map<String, String> get() = mapOf("User-Agent" to SEARCH_ENGINE_USER_AGENTS.random())
     }
 }

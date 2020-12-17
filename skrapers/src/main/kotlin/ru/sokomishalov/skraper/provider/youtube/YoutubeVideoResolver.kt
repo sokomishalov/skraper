@@ -24,12 +24,12 @@ import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
 import ru.sokomishalov.skraper.internal.serialization.getInt
 import ru.sokomishalov.skraper.internal.serialization.getString
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
-import ru.sokomishalov.skraper.internal.string.unescapeJson
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.URLString
 import ru.sokomishalov.skraper.model.Video
 import java.util.regex.Pattern.DOTALL
 import kotlin.text.Charsets.UTF_8
+
 
 /**
  * A reduced version of this library
@@ -48,35 +48,27 @@ class YoutubeVideoResolver(
 
         val page = client.fetchBytes(url = url, headers = mapOf("User-Agent" to DEFAULT_USER_AGENT))?.toString(UTF_8)
 
-        val config = page?.let {
-            ";ytplayer\\.config = (\\{.*?});"
-                .toRegex()
-                .find(it)
-                ?.groupValues
-                ?.getOrNull(1)
+        return page?.let { p ->
+            YT_PLAYER_CONFIG_REGEXES
+                .mapNotNull { r -> r.find(p)?.groupValues?.getOrNull(1) }
+                .firstOrNull()
                 ?.readJsonNodes()
+                ?.firstAudioAndVideo()
         }
-
-        return config?.firstAudioAndVideo()
     }
 
     private suspend fun JsonNode.firstAudioAndVideo(): Video? {
-        val streamingData = getFirstByPath("args.player_response")
-            .toString()
-            .removeSurrounding("\"")
-            .unescapeJson()
-            .readJsonNodes()
-            ?.get("streamingData")
+        val streamingData = get("streamingData")
 
         val formats = streamingData?.get("formats")?.toList().orEmpty()
         val adaptiveFormats = streamingData?.get("adaptiveFormats")?.toList().orEmpty()
 
         return (formats + adaptiveFormats)
             .firstOrNull { it.getInt("itag") in VIDEO_AND_AUDIO_TAGS }
-            ?.parseVideo(getString("assets.js"))
+            ?.parseVideo()
     }
 
-    private suspend fun JsonNode.parseVideo(jsPath: String?): Video? {
+    private suspend fun JsonNode.parseVideo(): Video? {
         val url = when {
             has("cipher") || has("signatureCipher") -> {
                 val cipherData = getFirstByPath("cipher", "signatureCipher")
@@ -102,10 +94,31 @@ class YoutubeVideoResolver(
                         getString("url")
                     }
                     else -> {
-                        val jsUrl = "https://youtube.com${jsPath}"
-                        val signature = getSignature(jsUrl = jsUrl, s = jsonCipher["s"]?.unescapeUrl().orEmpty())
-                        val decipheredUrl = "$urlWithSig&sig=$signature"
-                        decipheredUrl
+                        val jsPath = getString("assets.js")
+                            ?: run {
+                                val videoId = getString("videoDetails.videoId")
+                                val embedVideoUrl = "${baseUrl}/embed/$videoId"
+
+                                val page = client.fetchBytes(
+                                    url = embedVideoUrl,
+                                    headers = mapOf("User-Agent" to DEFAULT_USER_AGENT)
+                                )?.toString(UTF_8)
+
+                                page?.let { p ->
+                                    POSSIBLE_JS_URL_REGEXES
+                                        .mapNotNull { r -> r.find(p)?.groupValues?.getOrNull(1) }
+                                        .firstOrNull()
+                                        ?.replace("\\", "")
+                                }
+                            }
+                            ?: return null
+
+                        val signature = getSignature(
+                            jsUrl = "${baseUrl}${jsPath}",
+                            s = jsonCipher["s"]?.unescapeUrl().orEmpty()
+                        )
+
+                        "$urlWithSig&sig=$signature"
                     }
                 }
             }
@@ -158,7 +171,7 @@ class YoutubeVideoResolver(
     }
 
     private fun String.getInitialFunctionName(): String? {
-        return knownInitialFunctionRegexes
+        return KNOWN_INITIAL_FUNCTION_REGEXES
             .map { it.find(this)?.groupValues?.get(1) }
             .first { it != null }
     }
@@ -184,7 +197,7 @@ class YoutubeVideoResolver(
     }
 
     private fun String.mapFunction(): CipherFunction? {
-        for ((regex, value) in functionsEquivalentMap) {
+        for ((regex, value) in FUNCTIONS_EQUIVALENT_MAP) {
             val matcher = regex.toPattern().matcher(this)
             if (matcher.find()) return value
         }
@@ -202,7 +215,18 @@ class YoutubeVideoResolver(
     companion object {
         private val VIDEO_AND_AUDIO_TAGS = arrayOf(5, 6, 13, 17, 18, 22, 34, 35, 36, 37, 38, 43, 44, 45, 46, 82, 83, 84, 85, 100, 101, 102, 91, 92, 93, 94, 95, 96, 132, 151)
 
-        private val knownInitialFunctionRegexes: List<Regex> = listOf(
+        private val YT_PLAYER_CONFIG_REGEXES: List<Regex> = listOf(
+            ";ytplayer\\.config = (\\{.*?\\})\\;ytplayer".toRegex(),
+            ";ytplayer\\.config = (\\{.*?\\})\\;".toRegex(),
+            "ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\})\\;var meta".toRegex(),
+        )
+
+        private val POSSIBLE_JS_URL_REGEXES = listOf(
+            "\"assets\":.+?\"js\":\\s*\"([^\"]+)\"".toRegex(),
+            "\"jsUrl\":\\s*\"([^\"]+)\"".toRegex()
+        )
+
+        private val KNOWN_INITIAL_FUNCTION_REGEXES: List<Regex> = listOf(
             "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
             "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
             "\\b([a-zA-Z0-9$]{2})\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)".toRegex(),
@@ -215,7 +239,7 @@ class YoutubeVideoResolver(
             "\\bc\\s*&&\\s*a\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex(),
             "\\bc\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex()
         )
-        private val functionsEquivalentMap: MutableMap<Regex, CipherFunction> = mutableMapOf(
+        private val FUNCTIONS_EQUIVALENT_MAP: Map<Regex, CipherFunction> = mapOf(
             "\\{\\w\\.reverse\\(\\)\\}".toRegex() to ReverseFunction(),
             "\\{\\w\\.splice\\(0,\\w\\)\\}".toRegex() to SpliceFunction(),
             "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w]=\\w\\}".toRegex() to SwapFunctionV1(),

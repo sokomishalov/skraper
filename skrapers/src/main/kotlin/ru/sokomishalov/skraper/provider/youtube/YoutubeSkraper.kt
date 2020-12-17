@@ -108,11 +108,9 @@ open class YoutubeSkraper @JvmOverloads constructor(
     private fun Document.readJsonMetadata(): JsonNode? {
         return this
             .getElementsByTag("script")
-            .map { it.html() }
-            .find { "window[\"ytInitialData\"]" in it }
-            ?.substringAfter("\"] = ")
-            ?.substringBeforeLast("};")
-            ?.plus("}")
+            .mapNotNull { it.html() }
+            .find { "ytInitialData" in it }
+            ?.substringAfter("var ytInitialData = ")
             .readJsonNodes()
     }
 
