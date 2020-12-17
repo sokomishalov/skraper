@@ -134,11 +134,11 @@ Maven:
     </repository>
 </repositories>
 <dependencies>
-    <dependency>
-        <groupId>com.github.sokomishalov.skraper</groupId>
-        <artifactId>skrapers</artifactId>
-        <version>0.6.1</version>
-    </dependency>
+<dependency>
+    <groupId>com.github.sokomishalov.skraper</groupId>
+    <artifactId>skrapers</artifactId>
+    <version>0.6.1</version>
+</dependency>
 </dependencies>
 ```
 
@@ -149,7 +149,7 @@ repositories {
     maven { url = uri("http://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.6.0")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.6.1")
 }
 ```
 
@@ -191,14 +191,14 @@ required dependencies in the classpath.
 
 Current http-client implementation list:
 
-- [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt) -
+- [DefaultBlockingClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt):
   simple java.net.* blocking api implementation
-- [OkHttpSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp/OkHttpSkraperClient.kt)
-  - [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp) implementation
-- [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt)
-  - [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux) implementation
-- [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt)
-  - [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm) implementation
+- [OkHttpSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/okhttp/OkHttpSkraperClient.kt): [okhttp3](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp)
+  implementation
+- [SpringReactiveSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/spring/SpringReactiveSkraperClient.kt): [spring-webflux client](https://mvnrepository.com/artifact/org.springframework/spring-webflux)
+  implementation
+- [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt): [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm)
+  implementation
 
 ### Available methods
 
@@ -242,26 +242,31 @@ Received data structure is similar to each other provider's. Output data example
 ```json5
 [
   {
-    "id" : "5029851093699104",
-    "text" : "gotta love em!",
-    "publishedAt" : 1580744400000,
-    "rating" : 79,
-    "commentsCount" : 3,
-    "media" : [ {
-      "url" : "https://facebook.com/memes/posts/5029851093699104?__xts__%5B0%5D=68.ARA2yRI2YnlXQRKX7Pdphh8ztgvnP11aYE_bZFPNmqLpJZLhwJaG24gDPUTiKDLv-J_E09u2vLjCXalpmEuGSmVR0BkVtcng_i6QV8x5e-aZUv0Mkn1wwKLlhp5NNH6zQWKlqDqRjZrwvcKeUi0unzzulRCHRvDIrbz2leM6PLescFySwMYbMmKFc7ctqaC_F7nJ09Ya0lz9Pqaq_Rh6UsNKom6fqdgHAuoHV894a3QRuyY0BC6fQuXZLOLbRIfEVK3cF9Z5UQiXUYruCySF-WpQEV0k72x6DIjT6B3iovYFnBGHaji9VAx2PByZ-MDs33D1Hz96Mk-O1Pj7zBwO6FvXGhkUJgepiwUOVd0q-pV83rS5EhjtPFDylNoNO2xkDUSIi483p49vumVPWtmab8LX1V6w2anf55kh6pedCXcH3D8rBjz8DaTBnv995u9kk5im-1-HdAGQHyKrCZpaA0QyC-I4oGsCoIJGck3RO8u_SoHcfe2tKjTgPe6j9p1D&__tn__=-R",
-      "aspectRatio" : 0.864,
-      "duration" : 10860.000000000
-    } ]
-  }, {
-    "id" : "4990218157662398",
-    "text" : "Interesting",
-    "publishedAt" : 1580742000000,
-    "rating" : 3092,
-    "commentsCount" : 514,
-    "media" : [ {
-      "url" : "https://scontent.fhrk1-1.fna.fbcdn.net/v/t1.0-0/p526x296/52333452_10157743612509879_529328953723191296_n.png?_nc_cat=1&_nc_ohc=oNMb8_mCbD8AX-w9zeY&_nc_ht=scontent.fhrk1-1.fna&oh=ca8a719518ecfb1a24f871282b860124&oe=5E910D0C",
-      "aspectRatio" : 0.8960573476702509
-    } ]
+    "id": "5029851093699104",
+    "text": "gotta love em!",
+    "publishedAt": 1580744400000,
+    "rating": 79,
+    "commentsCount": 3,
+    "media": [
+      {
+        "url": "https://facebook.com/memes/posts/5029851093699104?__xts__%5B0%5D=68.ARA2yRI2YnlXQRKX7Pdphh8ztgvnP11aYE_bZFPNmqLpJZLhwJaG24gDPUTiKDLv-J_E09u2vLjCXalpmEuGSmVR0BkVtcng_i6QV8x5e-aZUv0Mkn1wwKLlhp5NNH6zQWKlqDqRjZrwvcKeUi0unzzulRCHRvDIrbz2leM6PLescFySwMYbMmKFc7ctqaC_F7nJ09Ya0lz9Pqaq_Rh6UsNKom6fqdgHAuoHV894a3QRuyY0BC6fQuXZLOLbRIfEVK3cF9Z5UQiXUYruCySF-WpQEV0k72x6DIjT6B3iovYFnBGHaji9VAx2PByZ-MDs33D1Hz96Mk-O1Pj7zBwO6FvXGhkUJgepiwUOVd0q-pV83rS5EhjtPFDylNoNO2xkDUSIi483p49vumVPWtmab8LX1V6w2anf55kh6pedCXcH3D8rBjz8DaTBnv995u9kk5im-1-HdAGQHyKrCZpaA0QyC-I4oGsCoIJGck3RO8u_SoHcfe2tKjTgPe6j9p1D&__tn__=-R",
+        "aspectRatio": 0.864,
+        "duration": 10860.000000000
+      }
+    ]
+  },
+  {
+    "id": "4990218157662398",
+    "text": "Interesting",
+    "publishedAt": 1580742000000,
+    "rating": 3092,
+    "commentsCount": 514,
+    "media": [
+      {
+        "url": "https://scontent.fhrk1-1.fna.fbcdn.net/v/t1.0-0/p526x296/52333452_10157743612509879_529328953723191296_n.png?_nc_cat=1&_nc_ohc=oNMb8_mCbD8AX-w9zeY&_nc_ht=scontent.fhrk1-1.fna&oh=ca8a719518ecfb1a24f871282b860124&oe=5E910D0C",
+        "aspectRatio": 0.8960573476702509
+      }
+    ]
   }
 ]
 ```
@@ -284,31 +289,31 @@ Output:
 
 ```json5
 {
-  "nick" : "memes",
-  "name" : "Memes.com",
-  "description" : "http://memes.com is your number one website for the funniest content on the web. You will find funny pictures, funny memes and much more.",
-  "postsCount" : 10848,
-  "followersCount" : 154718,
-  "avatarsMap" : {
-    "SMALL" : {
-      "url" : "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
+  "nick": "memes",
+  "name": "Memes.com",
+  "description": "http://memes.com is your number one website for the funniest content on the web. You will find funny pictures, funny memes and much more.",
+  "postsCount": 10848,
+  "followersCount": 154718,
+  "avatarsMap": {
+    "SMALL": {
+      "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
     },
-    "MEDIUM" : {
-      "url" : "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
+    "MEDIUM": {
+      "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
     },
-    "LARGE" : {
-      "url" : "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
+    "LARGE": {
+      "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
     }
   },
-  "coversMap" : {
-    "SMALL" : {
-      "url" : "https://abs.twimg.com/images/themes/theme1/bg.png"
+  "coversMap": {
+    "SMALL": {
+      "url": "https://abs.twimg.com/images/themes/theme1/bg.png"
     },
-    "MEDIUM" : {
-      "url" : "https://abs.twimg.com/images/themes/theme1/bg.png"
+    "MEDIUM": {
+      "url": "https://abs.twimg.com/images/themes/theme1/bg.png"
     },
-    "LARGE" : {
-      "url" : "https://abs.twimg.com/images/themes/theme1/bg.png"
+    "LARGE": {
+      "url": "https://abs.twimg.com/images/themes/theme1/bg.png"
     }
   }
 }
@@ -330,11 +335,11 @@ Output:
 
 ```json5
 {
-  "url" : "https://scontent-amt2-1.cdninstagram.com/v/t50.2886-16/91508191_213297693225472_2759719910220905597_n.mp4?_nc_ht=scontent-amt2-1.cdninstagram.com&_nc_cat=104&_nc_ohc=27bC52qar_oAX-7J2Zh&oe=5EC0BC52&oh=0aafee2860c540452b76e7b8e336147d",
-  "aspectRatio" : 0.8010012515644556,
-  "thumbnail" : {
-    "url" : "https://scontent-amt2-1.cdninstagram.com/v/t51.2885-15/e35/91435498_533808773845524_5302421141680378393_n.jpg?_nc_ht=scontent-amt2-1.cdninstagram.com&_nc_cat=100&_nc_ohc=8gPAcByc6YAAX_kDBWm&oh=5edf6b9d90d606f9c0e055b7dbcbfa45&oe=5EC0DDE8",
-    "aspectRatio" : 0.8010012515644556
+  "url": "https://scontent-amt2-1.cdninstagram.com/v/t50.2886-16/91508191_213297693225472_2759719910220905597_n.mp4?_nc_ht=scontent-amt2-1.cdninstagram.com&_nc_cat=104&_nc_ohc=27bC52qar_oAX-7J2Zh&oe=5EC0BC52&oh=0aafee2860c540452b76e7b8e336147d",
+  "aspectRatio": 0.8010012515644556,
+  "thumbnail": {
+    "url": "https://scontent-amt2-1.cdninstagram.com/v/t51.2885-15/e35/91435498_533808773845524_5302421141680378393_n.jpg?_nc_ht=scontent-amt2-1.cdninstagram.com&_nc_cat=100&_nc_ohc=8gPAcByc6YAAX_kDBWm&oh=5edf6b9d90d606f9c0e055b7dbcbfa45&oe=5EC0DDE8",
+    "aspectRatio": 0.8010012515644556
   }
 }
 ```
@@ -348,15 +353,15 @@ suspend fun main() {
     val tmpDir = Files.createTempDirectory("skraper").toFile()
 
     val testVideo = Skraper.download(
-            media = Video("https://youtu.be/fjUO7xaUHJQ"),
-            destDir = tmpDir,
-            filename = "Gandalf"
+        media = Video("https://youtu.be/fjUO7xaUHJQ"),
+        destDir = tmpDir,
+        filename = "Gandalf"
     )
 
     val testImage = Skraper.download(
-            media = Image("https://www.pinterest.ru/pin/89509111320495523/"),
-            destDir = tmpDir,
-            filename = "Do_no_harm"
+        media = Image("https://www.pinterest.ru/pin/89509111320495523/"),
+        destDir = tmpDir,
+        filename = "Do_no_harm"
     )
 
     println(testVideo)
@@ -387,16 +392,16 @@ Output:
 
 ```json5
 {
-  "name" : "Instagram",
-  "logoMap" : {
-    "SMALL" : {
-      "url" : "https://instagram.com/favicon.ico"
+  "name": "Instagram",
+  "logoMap": {
+    "SMALL": {
+      "url": "https://instagram.com/favicon.ico"
     },
-    "MEDIUM" : {
-      "url" : "https://instagram.com/favicon.ico"
+    "MEDIUM": {
+      "url": "https://instagram.com/favicon.ico"
     },
-    "LARGE" : {
-      "url" : "https://instagram.com/favicon.ico"
+    "LARGE": {
+      "url": "https://instagram.com/favicon.ico"
     }
   }
 }

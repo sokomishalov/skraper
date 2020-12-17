@@ -60,7 +60,6 @@ open class YoutubeSkraper @JvmOverloads constructor(
                     viewsCount = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
                     publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
                     media = extractVideos()
-
                 )
             }
         }
