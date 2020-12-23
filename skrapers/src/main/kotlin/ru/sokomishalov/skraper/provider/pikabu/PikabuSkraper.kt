@@ -176,7 +176,7 @@ open class PikabuSkraper @JvmOverloads constructor(
 
     private fun Element.extractVideoInfo(): Video {
         val ext = when {
-            attr("data-webm")?.toBoolean() ?: false -> ".webm"
+            attr("data-webm").isNullOrBlank().not() -> ".webm"
             else -> ""
         }
         return Video(
