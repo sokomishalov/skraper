@@ -39,27 +39,7 @@ open class NinegagSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val page = getUserPage(path = path)
-
-        val dataJson = page.extractJsonData()
-
-        val postNodes = dataJson
-            ?.getByPath("data.posts")
-            ?.take(limit)
-            .orEmpty()
-
-        return postNodes.map { p ->
-            with(p) {
-                Post(
-                    id = getString("id").orEmpty(),
-                    text = getString("title"),
-                    publishedAt = getLong("creationTs"),
-                    rating = getInt("upVoteCount") - getInt("downVoteCount"),
-                    commentsCount = getInt("commentsCount"),
-                    media = extractPostMediaItems()
-                )
-            }
-        }
+        return fetchPostsRecursively(path, limit)
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
@@ -94,6 +74,39 @@ open class NinegagSkraper @JvmOverloads constructor(
         return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
     }
 
+    private tailrec suspend fun fetchPostsRecursively(
+        path: String,
+        limit: Int,
+        total: List<Post> = emptyList()
+    ): List<Post> {
+        val page = getUserPage(path = path)
+        val dataJson = page.extractJsonData()
+        val nextPath = "${path.substringBefore("?")}?${dataJson?.getString("data.nextCursor").orEmpty()}"
+
+        val posts = dataJson
+            ?.getByPath("data.posts")
+            ?.take(limit)
+            ?.map { p ->
+                with(p) {
+                    Post(
+                        id = getString("id").orEmpty(),
+                        text = getString("title"),
+                        publishedAt = getLong("creationTs"),
+                        rating = getInt("upVoteCount") - getInt("downVoteCount"),
+                        commentsCount = getInt("commentsCount"),
+                        media = extractPostMediaItems()
+                    )
+                }
+            }
+            .orEmpty()
+
+        return when {
+            total.size + posts.size < limit && nextPath != path -> fetchPostsRecursively(nextPath, limit, total + posts)
+            else -> total + posts
+        }
+    }
+
+
     private fun Document?.extractJsonData(): JsonNode? {
         return this
             ?.getElementsByTag("script")
@@ -106,30 +119,22 @@ open class NinegagSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPostMediaItems(): List<Media> {
-        val isVideo = isVideo()
-
-        return listOf(
-            when {
-                isVideo -> Video(
-                    url = getString("images.image460sv.url").orEmpty(),
-                    aspectRatio = getByPath("images.image460sv")?.run {
-                        getDouble("width") / getDouble("height")
-                    },
-                    duration = getLong("images.image460sv.duration")?.run {
-                        Duration.ofSeconds(this)
-                    }
-                )
-                else -> Image(
-                    url = getString("images.image460.url").orEmpty(),
-                    aspectRatio = getByPath("images.image460")?.run {
-                        getDouble("width") / getDouble("height")
-                    }
-                )
-            }
-        )
-    }
-
-    private fun JsonNode.isVideo(): Boolean {
-        return getInt("images.image460sv.duration") != null
+        return when {
+            getInt("images.image460sv.duration") != null -> listOf(Video(
+                url = getString("images.image460sv.url").orEmpty(),
+                aspectRatio = getByPath("images.image460sv")?.run {
+                    getDouble("width") / getDouble("height")
+                },
+                duration = getLong("images.image460sv.duration")?.run {
+                    Duration.ofSeconds(this)
+                }
+            ))
+            else -> listOf(Image(
+                url = getString("images.image460.url").orEmpty(),
+                aspectRatio = getByPath("images.image460")?.run {
+                    getDouble("width") / getDouble("height")
+                }
+            ))
+        }
     }
 }
