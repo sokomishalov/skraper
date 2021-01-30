@@ -22,6 +22,7 @@ import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.*
@@ -273,40 +274,36 @@ open class TwitchSkraper @JvmOverloads constructor(
     }
 
     private fun List<JsonNode>.extractVideoPosts(): List<Post> {
-        return map {
-            with(it) {
-                Post(
-                    id = getString("id").orEmpty(),
-                    text = getString("title"),
-                    publishedAt = getString("publishedAt")?.let { pd ->
-                        ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
-                    },
-                    viewsCount = getInt("viewCount"),
-                    media = listOf(Video(
-                        url = baseUrl.buildFullURL(path = "/videos/${it.getString("id")}"),
-                        duration = getLong("lengthSeconds")?.let { d -> Duration.ofSeconds(d) }
-                    ))
-                )
-            }
+        return mapThis {
+            Post(
+                id = getString("id").orEmpty(),
+                text = getString("title"),
+                publishedAt = getString("publishedAt")?.let { pd ->
+                    ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
+                },
+                viewsCount = getInt("viewCount"),
+                media = listOf(Video(
+                    url = baseUrl.buildFullURL(path = "/videos/${getString("id")}"),
+                    duration = getLong("lengthSeconds")?.let { Duration.ofSeconds(it) }
+                ))
+            )
         }
     }
 
     private fun List<JsonNode>.extractClipPosts(): List<Post> {
-        return map {
-            with(it) {
-                Post(
-                    id = getString("id").orEmpty(),
-                    publishedAt = getString("createdAt")?.let { pd ->
-                        ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
-                    },
-                    text = getString("title"),
-                    viewsCount = getInt("viewCount"),
-                    media = listOf(Video(
-                        url = getFirstByPath("embedURL", "url")?.asText().orEmpty(),
-                        duration = getLong("durationSeconds")?.let { d -> Duration.ofSeconds(d) }
-                    ))
-                )
-            }
+        return mapThis {
+            Post(
+                id = getString("id").orEmpty(),
+                publishedAt = getString("createdAt")?.let { pd ->
+                    ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
+                },
+                text = getString("title"),
+                viewsCount = getInt("viewCount"),
+                media = listOf(Video(
+                    url = getFirstByPath("embedURL", "url")?.asText().orEmpty(),
+                    duration = getLong("durationSeconds")?.let { Duration.ofSeconds(it) }
+                ))
+            )
         }
     }
 

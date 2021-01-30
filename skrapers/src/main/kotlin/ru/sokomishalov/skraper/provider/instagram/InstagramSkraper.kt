@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -91,18 +92,16 @@ open class InstagramSkraper @JvmOverloads constructor(
             ?.map { it["node"] }
             .orEmpty()
 
-        return postsNodes.map {
-            with(it) {
-                Post(
-                    id = getString("id").orEmpty(),
-                    text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
-                    publishedAt = getLong("taken_at_timestamp"),
-                    rating = getInt("edge_media_preview_like.count"),
-                    viewsCount = getInt("video_view_count"),
-                    commentsCount = getInt("edge_media_to_comment.count"),
-                    media = extractPostMediaItems()
-                )
-            }
+        return postsNodes.mapThis {
+            Post(
+                id = getString("id").orEmpty(),
+                text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
+                publishedAt = getLong("taken_at_timestamp"),
+                rating = getInt("edge_media_preview_like.count"),
+                viewsCount = getInt("video_view_count"),
+                commentsCount = getInt("edge_media_to_comment.count"),
+                media = extractPostMediaItems()
+            )
         }
     }
 

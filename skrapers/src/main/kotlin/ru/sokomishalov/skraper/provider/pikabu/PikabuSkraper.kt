@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
@@ -45,27 +46,25 @@ open class PikabuSkraper @JvmOverloads constructor(
             ?.take(limit)
             .orEmpty()
 
-        return stories.map {
-            with(it) {
-                val storyBlocks = getElementsByClass("story-block")
+        return stories.mapThis {
+            val storyBlocks = getElementsByClass("story-block")
 
-                val title = extractPostTitle()
-                val text = storyBlocks.parseText()
+            val title = extractPostTitle()
+            val text = storyBlocks.parseText()
 
-                val caption = when {
-                    text.isBlank() -> title
-                    else -> "${title}\n\n${text}"
-                }
-
-                Post(
-                    id = extractPostId(),
-                    text = String(caption.toByteArray(UTF_8)),
-                    publishedAt = extractPostPublishDate(),
-                    rating = extractPostRating(),
-                    commentsCount = extractPostCommentsCount(),
-                    media = storyBlocks.extractPostMediaItems()
-                )
+            val caption = when {
+                text.isBlank() -> title
+                else -> "${title}\n\n${text}"
             }
+
+            Post(
+                id = extractPostId(),
+                text = String(caption.toByteArray(UTF_8)),
+                publishedAt = extractPostPublishDate(),
+                rating = extractPostRating(),
+                commentsCount = extractPostCommentsCount(),
+                media = storyBlocks.extractPostMediaItems()
+            )
         }
     }
 

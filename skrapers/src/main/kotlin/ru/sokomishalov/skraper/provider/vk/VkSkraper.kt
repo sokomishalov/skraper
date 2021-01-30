@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.model.*
 import java.time.LocalDate
@@ -47,18 +48,16 @@ open class VkSkraper @JvmOverloads constructor(
             ?.take(limit)
             .orEmpty()
 
-        return posts.map {
-            with(it) {
-                Post(
-                    id = extractPostId(),
-                    text = extractPostCaption(),
-                    publishedAt = extractPostPublishedDate(),
-                    rating = extractPostLikes(),
-                    commentsCount = extractPostReplies(),
-                    viewsCount = extractViewsCount(),
-                    media = extractPostMediaItems()
-                )
-            }
+        return posts.mapThis {
+            Post(
+                id = extractPostId(),
+                text = extractPostCaption(),
+                publishedAt = extractPostPublishedDate(),
+                rating = extractPostLikes(),
+                commentsCount = extractPostReplies(),
+                viewsCount = extractViewsCount(),
+                media = extractPostMediaItems()
+            )
         }
     }
 
@@ -212,23 +211,21 @@ open class VkSkraper @JvmOverloads constructor(
 
         return thumbElement
             ?.getElementsByTag("a")
-            ?.mapNotNull {
-                with(it) {
-                    val isVideo = attr("href").startsWith("/video")
-                    val hrefLink = "${baseUrl}${attr("href")}"
+            ?.mapThis {
+                val isVideo = attr("href").startsWith("/video")
+                val hrefLink = "${baseUrl}${attr("href")}"
 
-                    when {
-                        isVideo -> Video(
-                            url = hrefLink,
-                            aspectRatio = aspectRatio
-                        )
-                        else -> Image(
-                            url = getFirstElementByClass("thumb_map_img")
-                                ?.getBackgroundImageStyle()
-                                ?: hrefLink,
-                            aspectRatio = aspectRatio
-                        )
-                    }
+                when {
+                    isVideo -> Video(
+                        url = hrefLink,
+                        aspectRatio = aspectRatio
+                    )
+                    else -> Image(
+                        url = getFirstElementByClass("thumb_map_img")
+                            ?.getBackgroundImageStyle()
+                            ?: hrefLink,
+                        aspectRatio = aspectRatio
+                    )
                 }
             }
             .orEmpty()

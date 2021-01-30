@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getByPath
@@ -52,16 +53,14 @@ open class YoutubeSkraper @JvmOverloads constructor(
             ?.map { it["gridVideoRenderer"] }
             .orEmpty()
 
-        return videoItems.map {
-            with(it) {
-                Post(
-                    id = getString("videoId").orEmpty(),
-                    text = getString("title.runs.0.text"),
-                    viewsCount = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
-                    publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
-                    media = extractVideos()
-                )
-            }
+        return videoItems.mapThis {
+            Post(
+                id = getString("videoId").orEmpty(),
+                text = getString("title.runs.0.text"),
+                viewsCount = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
+                publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
+                media = extractVideos()
+            )
         }
     }
 

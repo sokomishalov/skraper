@@ -24,6 +24,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
@@ -82,17 +83,15 @@ open class TumblrSkraper @JvmOverloads constructor(
             ?.take(limit)
             .orEmpty()
 
-        return articles.map {
-            with(it) {
-                Post(
-                    id = extractPostId(),
-                    text = extractPostText(),
-                    publishedAt = extractPostPublishedDate(),
-                    rating = extractPostNotes(),
-                    commentsCount = extractPostNotes(),
-                    media = extractPostMediaItems()
-                )
-            }
+        return articles.mapThis {
+            Post(
+                id = extractPostId(),
+                text = extractPostText(),
+                publishedAt = extractPostPublishedDate(),
+                rating = extractPostNotes(),
+                commentsCount = extractPostNotes(),
+                media = extractPostMediaItems()
+            )
         }
     }
 

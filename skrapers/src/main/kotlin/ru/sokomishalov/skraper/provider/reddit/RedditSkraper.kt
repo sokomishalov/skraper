@@ -23,6 +23,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -47,17 +48,15 @@ open class RedditSkraper @JvmOverloads constructor(
             .orEmpty()
             .mapNotNull { it["data"] }
 
-        return posts.map {
-            with(it) {
-                Post(
-                    id = getString("id").orEmpty(),
-                    text = extractText(),
-                    publishedAt = getLong("created_utc"),
-                    rating = getInt("score"),
-                    commentsCount = getInt("num_comments"),
-                    media = extractPostMediaItems()
-                )
-            }
+        return posts.mapThis {
+            Post(
+                id = getString("id").orEmpty(),
+                text = extractText(),
+                publishedAt = getLong("created_utc"),
+                rating = getInt("score"),
+                commentsCount = getInt("num_comments"),
+                media = extractPostMediaItems()
+            )
         }
     }
 

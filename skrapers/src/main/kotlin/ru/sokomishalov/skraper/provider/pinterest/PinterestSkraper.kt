@@ -21,6 +21,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -44,17 +45,15 @@ open class PinterestSkraper @JvmOverloads constructor(
 
         val feedList = infoJsonNode.extractFeed(limit)
 
-        return feedList.map {
-            with(it) {
-                Post(
-                    id = extractPostId(),
-                    text = extractPostText(),
-                    publishedAt = extractPostPublishDate(),
-                    rating = extractPostRating(),
-                    commentsCount = extractPostCommentsCount(),
-                    media = extractPostMediaItems()
-                )
-            }
+        return feedList.mapThis {
+            Post(
+                id = extractPostId(),
+                text = extractPostText(),
+                publishedAt = extractPostPublishDate(),
+                rating = extractPostRating(),
+                commentsCount = extractPostCommentsCount(),
+                media = extractPostMediaItems()
+            )
         }
     }
 

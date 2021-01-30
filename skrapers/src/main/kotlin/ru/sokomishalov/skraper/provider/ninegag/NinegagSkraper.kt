@@ -22,6 +22,7 @@ import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.number.minus
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -86,17 +87,15 @@ open class NinegagSkraper @JvmOverloads constructor(
         val posts = dataJson
             ?.getByPath("data.posts")
             ?.take(limit)
-            ?.map { p ->
-                with(p) {
-                    Post(
-                        id = getString("id").orEmpty(),
-                        text = getString("title"),
-                        publishedAt = getLong("creationTs"),
-                        rating = getInt("upVoteCount") - getInt("downVoteCount"),
-                        commentsCount = getInt("commentsCount"),
-                        media = extractPostMediaItems()
-                    )
-                }
+            ?.mapThis {
+                Post(
+                    id = getString("id").orEmpty(),
+                    text = getString("title"),
+                    publishedAt = getLong("creationTs"),
+                    rating = getInt("upVoteCount") - getInt("downVoteCount"),
+                    commentsCount = getInt("commentsCount"),
+                    media = extractPostMediaItems()
+                )
             }
             .orEmpty()
 

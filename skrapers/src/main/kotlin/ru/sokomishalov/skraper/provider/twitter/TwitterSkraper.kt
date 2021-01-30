@@ -21,6 +21,7 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -51,17 +52,15 @@ open class TwitterSkraper @JvmOverloads constructor(
             ?.mapNotNull { it.getFirstElementByClass("tweet") }
             .orEmpty()
 
-        return posts.map {
-            with(it) {
-                Post(
-                    id = extractTweetId(),
-                    text = extractTweetText(),
-                    rating = extractTweetLikes(),
-                    commentsCount = extractTweetReplies(),
-                    publishedAt = extractTweetPublishDate(),
-                    media = extractTweetMediaItems()
-                )
-            }
+        return posts.mapThis {
+            Post(
+                id = extractTweetId(),
+                text = extractTweetText(),
+                rating = extractTweetLikes(),
+                commentsCount = extractTweetReplies(),
+                publishedAt = extractTweetPublishDate(),
+                media = extractTweetMediaItems()
+            )
         }
     }
 
