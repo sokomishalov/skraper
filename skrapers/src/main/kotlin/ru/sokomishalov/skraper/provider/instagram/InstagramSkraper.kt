@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
+import java.time.Instant
 
 
 /**
@@ -96,7 +97,7 @@ open class InstagramSkraper @JvmOverloads constructor(
             Post(
                 id = getString("id").orEmpty(),
                 text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
-                publishedAt = getLong("taken_at_timestamp"),
+                publishedAt = getLong("taken_at_timestamp")?.let { Instant.ofEpochSecond(it) },
                 rating = getInt("edge_media_preview_like.count"),
                 viewsCount = getInt("video_view_count"),
                 commentsCount = getInt("edge_media_to_comment.count"),

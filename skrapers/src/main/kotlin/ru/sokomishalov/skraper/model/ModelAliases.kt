@@ -16,4 +16,3 @@
 package ru.sokomishalov.skraper.model
 
 typealias URLString = String
-typealias UnixTimestamp = Long

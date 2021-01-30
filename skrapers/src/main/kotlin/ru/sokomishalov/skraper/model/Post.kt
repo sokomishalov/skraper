@@ -15,20 +15,22 @@
  */
 package ru.sokomishalov.skraper.model
 
+import java.time.Instant
+
 /**
  * Represents a provider some user/community/channel/topic/trend post.
  * @property id provider's internal post id
  * @property text title and/or description
- * @property publishedAt publish timestamp in seconds *(nullable - such data may not exist at all)
- * @property rating rating (likes, pins, etc.) count *(nullable - such data may not exist at all)
- * @property commentsCount comments count *(nullable - such data may not exist at all)
- * @property viewsCount views count *(nullable - such data may not exist at all)
+ * @property publishedAt publish timestamp (nullable - such data may not exist at all)
+ * @property rating rating (likes, pins, etc.) count (nullable - such data may not exist at all)
+ * @property commentsCount comments count (nullable - such data may not exist at all)
+ * @property viewsCount views count (nullable - such data may not exist at all)
  * @property media post media items
  */
 data class Post(
     val id: String,
     val text: String? = "",
-    val publishedAt: UnixTimestamp? = null,
+    val publishedAt: Instant? = null,
     val rating: Int? = null,
     val commentsCount: Int? = null,
     val viewsCount: Int? = null,

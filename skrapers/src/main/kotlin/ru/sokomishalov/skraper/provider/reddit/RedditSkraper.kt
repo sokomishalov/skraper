@@ -28,6 +28,7 @@ import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
+import java.time.Instant
 
 open class RedditSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
@@ -52,7 +53,7 @@ open class RedditSkraper @JvmOverloads constructor(
             Post(
                 id = getString("id").orEmpty(),
                 text = extractText(),
-                publishedAt = getLong("created_utc"),
+                publishedAt = getLong("created_utc")?.let { Instant.ofEpochSecond(it) },
                 rating = getInt("score"),
                 commentsCount = getInt("num_comments"),
                 media = extractPostMediaItems()

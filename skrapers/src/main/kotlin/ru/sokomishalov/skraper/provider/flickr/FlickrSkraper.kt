@@ -33,6 +33,7 @@ import ru.sokomishalov.skraper.internal.string.unescapeHtml
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
+import java.time.Instant
 
 
 /**
@@ -168,9 +169,9 @@ open class FlickrSkraper @JvmOverloads constructor(
         return "${title}\n\n${description}"
     }
 
-    private fun JsonNode.extractPostPublishDate(): Long? {
-        return getByPath("stats.datePosted")
-            ?.asLong()
+    private fun JsonNode.extractPostPublishDate(): Instant? {
+        return getLong("stats.datePosted")
+            ?.let { Instant.ofEpochSecond(it) }
     }
 
     private fun JsonNode.extractPostRating(): Int? {

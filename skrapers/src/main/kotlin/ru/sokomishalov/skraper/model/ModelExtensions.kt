@@ -19,10 +19,7 @@ package ru.sokomishalov.skraper.model
 
 import ru.sokomishalov.skraper.internal.string.escapeUrl
 
-internal inline fun currentUnixTimestamp(): UnixTimestamp = System.currentTimeMillis() / 1000
-
-internal fun singleImageMap(url: URLString?): Map<MediaSize, Image> =
-    url?.run { MediaSize.values().map { it to toImage() }.toMap() }.orEmpty()
+internal fun singleImageMap(url: URLString?): Map<MediaSize, Image> = url?.run { MediaSize.values().map { it to toImage() }.toMap() }.orEmpty()
 
 internal inline fun URLString.toImage(): Image = Image(url = this)
 

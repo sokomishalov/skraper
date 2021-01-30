@@ -29,8 +29,8 @@ import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
 import java.nio.charset.Charset
 import java.time.Duration
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import java.time.Instant
+import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import kotlin.text.Charsets.UTF_8
 
 open class PikabuSkraper @JvmOverloads constructor(
@@ -130,10 +130,10 @@ open class PikabuSkraper @JvmOverloads constructor(
             .orEmpty()
     }
 
-    private fun Element.extractPostPublishDate(): Long? {
+    private fun Element.extractPostPublishDate(): Instant? {
         return getFirstElementByTag("time")
             ?.attr("datetime")
-            ?.run { ZonedDateTime.parse(this, DATE_FORMATTER).toEpochSecond() }
+            ?.run { ISO_DATE_TIME.parse(this, Instant::from) }
     }
 
     private fun Element.extractPostRating(): Int? {
@@ -268,9 +268,5 @@ open class PikabuSkraper @JvmOverloads constructor(
     private fun Elements.parseText(): String {
         return filter { b -> "story-block_type_text" in b.classNames() }
             .joinToString("\n") { b -> b.wholeText() }
-    }
-
-    companion object {
-        private val DATE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME
     }
 }

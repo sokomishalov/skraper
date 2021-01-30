@@ -29,6 +29,7 @@ import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeJson
 import ru.sokomishalov.skraper.model.*
 import java.time.Duration
+import java.time.Instant
 
 
 /**
@@ -91,7 +92,7 @@ open class NinegagSkraper @JvmOverloads constructor(
                 Post(
                     id = getString("id").orEmpty(),
                     text = getString("title"),
-                    publishedAt = getLong("creationTs"),
+                    publishedAt = getLong("creationTs")?.let { Instant.ofEpochSecond(it) },
                     rating = getInt("upVoteCount") - getInt("downVoteCount"),
                     commentsCount = getInt("commentsCount"),
                     media = extractPostMediaItems()

@@ -32,6 +32,7 @@ import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Duration
 import java.time.Duration.ZERO
+import java.time.Instant
 import java.time.Period
 import java.time.chrono.ChronoPeriod
 import java.time.temporal.ChronoUnit.DAYS
@@ -148,8 +149,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
             .orEmpty()
     }
 
-    private fun String.extractTimeAgo(): Long {
-        val now = currentUnixTimestamp()
+    private fun String.extractTimeAgo(): Instant? {
+        val nowMillis = System.currentTimeMillis()
 
         val amount = split(" ")
             .firstOrNull()
@@ -173,7 +174,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
             is ChronoPeriod -> Duration.ofDays(temporalAmount.get(DAYS)).toMillis()
             else -> 0
         }
-        return now - (millisAgo / 1000)
+
+        return Instant.ofEpochMilli(nowMillis - millisAgo)
     }
 
     private fun String.extractDuration(): Duration {
@@ -196,10 +198,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
             .run {
                 when {
                     endsWith("K") -> replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
-                    endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()
-                        ?.times(1_000_000)
-                    endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()
-                        ?.times(1_000_000_000)
+                    endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()?.times(1_000_000)
+                    endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()?.times(1_000_000_000)
                     else -> replace(".", "").toIntOrNull()
                 }
             }

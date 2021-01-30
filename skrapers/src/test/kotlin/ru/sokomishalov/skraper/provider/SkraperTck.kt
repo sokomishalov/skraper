@@ -19,6 +19,7 @@ package ru.sokomishalov.skraper.provider
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import kotlinx.coroutines.runBlocking
@@ -53,6 +54,7 @@ abstract class SkraperTck {
         private val mapper: ObjectMapper = ObjectMapper().apply {
             registerModule(JavaTimeModule())
             registerModule(Jdk8Module())
+            disable(WRITE_DATES_AS_TIMESTAMPS)
             setSerializationInclusion(NON_NULL)
         }
     }

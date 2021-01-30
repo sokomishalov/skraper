@@ -31,6 +31,7 @@ import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
@@ -116,23 +117,23 @@ open class TumblrSkraper @JvmOverloads constructor(
             .substringAfter(":")
     }
 
-    private fun Element.extractPostPublishedDate(): Long? {
+    private fun Element.extractPostPublishedDate(): Instant? {
         val postDate = getFirstElementByClass("post-date")
         val timePosted = getFirstElementByClass("time-posted")
 
         return when {
-            postDate != null -> postDate
-                .wholeText()
-                .let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }
-                ?.atStartOfDay()
-                ?.toEpochSecond(UTC)
-
             timePosted != null -> timePosted
                 .attr("title")
                 .replace("am", "AM")
                 .replace("pm", "PM")
                 .let { runCatching { LocalDateTime.parse(it, DATE_TIME_FORMATTER) }.getOrNull() }
-                ?.toEpochSecond(UTC)
+                ?.toInstant(UTC)
+
+            postDate != null -> postDate
+                .wholeText()
+                .let { runCatching { LocalDate.parse(it, DATE_FORMATTER) }.getOrNull() }
+                ?.atStartOfDay()
+                ?.toInstant(UTC)
 
             else -> null
         }

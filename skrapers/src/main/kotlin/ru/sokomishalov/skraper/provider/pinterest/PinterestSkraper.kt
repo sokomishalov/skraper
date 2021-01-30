@@ -27,6 +27,7 @@ import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
+import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
@@ -111,10 +112,8 @@ open class PinterestSkraper @JvmOverloads constructor(
         return getString("description")
     }
 
-    private fun JsonNode.extractPostPublishDate(): Long? {
-        return getString("created_at")?.let {
-            ZonedDateTime.parse(it, DATE_FORMATTER).toEpochSecond()
-        }
+    private fun JsonNode.extractPostPublishDate(): Instant? {
+        return getString("created_at")?.let { DATE_FORMATTER.parse(it, Instant::from) }
     }
 
     private fun JsonNode.extractPostRating(): Int? {

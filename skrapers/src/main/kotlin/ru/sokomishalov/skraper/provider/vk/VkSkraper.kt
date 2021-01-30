@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.model.*
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -136,7 +137,7 @@ open class VkSkraper @JvmOverloads constructor(
             ?.wholeText()
     }
 
-    private fun Element.extractPostPublishedDate(): Long? {
+    private fun Element.extractPostPublishedDate(): Instant? {
         return getFirstElementByClass("wi_date")
             ?.wholeText()
             ?.run {
@@ -176,7 +177,7 @@ open class VkSkraper @JvmOverloads constructor(
                     }
                 }.getOrNull()
 
-                return localDate?.toEpochSecond()
+                return localDate?.toInstant()
             }
     }
 

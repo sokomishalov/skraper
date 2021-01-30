@@ -27,7 +27,7 @@ import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.*
 import java.time.Duration
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import kotlin.text.Charsets.UTF_8
 
@@ -278,9 +278,7 @@ open class TwitchSkraper @JvmOverloads constructor(
             Post(
                 id = getString("id").orEmpty(),
                 text = getString("title"),
-                publishedAt = getString("publishedAt")?.let { pd ->
-                    ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
-                },
+                publishedAt = getString("publishedAt")?.let { ISO_DATE_TIME.parse(it, Instant::from) },
                 viewsCount = getInt("viewCount"),
                 media = listOf(Video(
                     url = baseUrl.buildFullURL(path = "/videos/${getString("id")}"),
@@ -294,9 +292,7 @@ open class TwitchSkraper @JvmOverloads constructor(
         return mapThis {
             Post(
                 id = getString("id").orEmpty(),
-                publishedAt = getString("createdAt")?.let { pd ->
-                    ZonedDateTime.parse(pd, ISO_DATE_TIME).toEpochSecond()
-                },
+                publishedAt = getString("createdAt")?.let { ISO_DATE_TIME.parse(it, Instant::from) },
                 text = getString("title"),
                 viewsCount = getInt("viewCount"),
                 media = listOf(Video(

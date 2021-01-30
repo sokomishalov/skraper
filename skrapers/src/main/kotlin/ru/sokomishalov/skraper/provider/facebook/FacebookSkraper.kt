@@ -33,6 +33,7 @@ import ru.sokomishalov.skraper.internal.serialization.getInt
 import ru.sokomishalov.skraper.internal.serialization.getString
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
 import ru.sokomishalov.skraper.model.*
+import java.time.Instant
 
 
 /**
@@ -151,10 +152,11 @@ open class FacebookSkraper @JvmOverloads constructor(
         return text ?: repostText
     }
 
-    private fun Element.extractPostPublishDateTime(): Long? {
+    private fun Element.extractPostPublishDateTime(): Instant? {
         return getFirstElementByAttribute("data-utime")
             ?.attr("data-utime")
             ?.toLongOrNull()
+            ?.let { Instant.ofEpochSecond(it) }
     }
 
     private fun JsonNode.extractPostReactionCount(): Int? {

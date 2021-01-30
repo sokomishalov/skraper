@@ -29,6 +29,7 @@ import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 import java.time.Duration
+import java.time.Instant
 import kotlin.text.Charsets.UTF_8
 
 
@@ -185,11 +186,11 @@ open class TwitterSkraper @JvmOverloads constructor(
             ?.wholeText()
     }
 
-    private fun Element.extractTweetPublishDate(): Long? {
+    private fun Element.extractTweetPublishDate(): Instant? {
         return getFirstElementByClass("js-short-timestamp")
             ?.attr("data-time-ms")
             ?.toLongOrNull()
-            ?.div(1000)
+            ?.let { Instant.ofEpochMilli(it) }
     }
 
     private fun Element.extractTweetLikes(): Int? {
