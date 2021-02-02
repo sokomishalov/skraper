@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.twitter
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck

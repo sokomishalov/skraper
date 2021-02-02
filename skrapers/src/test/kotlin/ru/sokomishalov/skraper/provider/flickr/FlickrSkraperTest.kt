@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.flickr
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.provider.SkraperTck
 
