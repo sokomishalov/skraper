@@ -20,7 +20,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getMetaPropertyMap
 import ru.sokomishalov.skraper.internal.map.firstNotNull
@@ -38,7 +38,7 @@ import kotlin.text.Charsets.UTF_8
 suspend fun SkraperClient.fetchBytes(
     url: URLString,
     method: HttpMethodType = GET,
-    headers: Map<String, String> = emptyMap(),
+    headers: Map<String, String> = DEFAULT_HEADERS,
     body: ByteArray? = null
 ): ByteArray? {
     return runCatching {
@@ -49,7 +49,7 @@ suspend fun SkraperClient.fetchBytes(
 suspend fun SkraperClient.fetchJson(
     url: URLString,
     method: HttpMethodType = GET,
-    headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+    headers: Map<String, String> = DEFAULT_HEADERS,
     body: ByteArray? = null
 ): JsonNode? {
     return runCatching {
@@ -62,7 +62,7 @@ suspend fun SkraperClient.fetchJson(
 suspend fun SkraperClient.fetchDocument(
     url: URLString,
     method: HttpMethodType = GET,
-    headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+    headers: Map<String, String> = DEFAULT_HEADERS,
     body: ByteArray? = null,
     charset: Charset = UTF_8
 ): Document? {
@@ -79,13 +79,7 @@ suspend fun SkraperClient.fetchDocument(
             when {
                 htmlRedirectUrl != null
                         && htmlRedirectUrl != url
-                        && htmlRedirectUrl.startsWith("http") -> fetchDocument(
-                    htmlRedirectUrl,
-                    method,
-                    headers,
-                    body,
-                    charset
-                )
+                        && htmlRedirectUrl.startsWith("http") -> fetchDocument(htmlRedirectUrl, method, headers, body, charset)
                 else -> document
             }
         }
@@ -97,7 +91,7 @@ suspend fun SkraperClient.fetchDocument(
  */
 suspend fun SkraperClient.fetchMediaWithOpenGraphMeta(
     media: Media,
-    headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+    headers: Map<String, String> = DEFAULT_HEADERS,
     charset: Charset = UTF_8
 ): Media {
     val page = fetchDocument(

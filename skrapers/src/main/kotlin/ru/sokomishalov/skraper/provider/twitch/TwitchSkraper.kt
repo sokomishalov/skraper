@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.*
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
@@ -200,10 +200,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                         val token = client.fetchJson(
                             url = restBaseUrl.buildFullURL(path = "/vods/${videoId}/access_token"),
                             method = GET,
-                            headers = mapOf(
-                                "Client-ID" to clientId,
-                                "User-Agent" to DEFAULT_USER_AGENT
-                            )
+                            headers = DEFAULT_HEADERS + mapOf("Client-ID" to clientId)
                         )
 
                         val videoMeta = client.fetchBytes(
@@ -214,8 +211,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                                     "nauthsig" to token?.getString("sig"),
                                     "allow_source" to "true"
                                 )
-                            ),
-                            method = GET
+                            )
                         )?.toString(UTF_8)
 
                         val m3u8urls = videoMeta
@@ -319,10 +315,9 @@ open class TwitchSkraper @JvmOverloads constructor(
         return client.fetchJson(
             url = graphBaseUrl,
             method = POST,
-            headers = mapOf(
+            headers = DEFAULT_HEADERS + mapOf(
                 "Client-ID" to clientId,
-                "Accept-Language" to "en-US",
-                "User-Agent" to DEFAULT_USER_AGENT
+                "Accept-Language" to "en-US"
             ),
             body = "{ \"query\": \"${query.replace("\n", " ").replace("\"", "\\\"")}\" }".toByteArray(UTF_8)
         )

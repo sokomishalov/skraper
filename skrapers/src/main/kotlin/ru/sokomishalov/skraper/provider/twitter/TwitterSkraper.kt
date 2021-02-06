@@ -21,6 +21,8 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
+import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
@@ -278,7 +280,6 @@ open class TwitterSkraper @JvmOverloads constructor(
     }
 
     companion object {
-        private val SEARCH_ENGINE_USER_AGENTS = setOf("Googlebot", "Slurp", "Yandex", "msnbot", "bingbot")
-        private val DEFAULT_HEADERS: Map<String, String> get() = mapOf("User-Agent" to SEARCH_ENGINE_USER_AGENTS.random())
+        private val DEFAULT_HEADERS: Map<String, String> by lazy { mapOf(USER_AGENT_HEADER to CRAWLER_USER_AGENTS.random()) }
     }
 }

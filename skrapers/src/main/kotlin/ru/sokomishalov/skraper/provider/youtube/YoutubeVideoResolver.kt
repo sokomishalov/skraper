@@ -18,7 +18,6 @@ package ru.sokomishalov.skraper.provider.youtube
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.fetchBytes
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
 import ru.sokomishalov.skraper.internal.serialization.getInt
@@ -46,7 +45,7 @@ class YoutubeVideoResolver(
             else -> video.url
         }
 
-        val page = client.fetchBytes(url = url, headers = mapOf("User-Agent" to DEFAULT_USER_AGENT))?.toString(UTF_8)
+        val page = client.fetchBytes(url = url)?.toString(UTF_8)
 
         return page?.let { p ->
             YT_PLAYER_CONFIG_REGEXES
@@ -99,10 +98,7 @@ class YoutubeVideoResolver(
                                 val videoId = getString("videoDetails.videoId")
                                 val embedVideoUrl = "${baseUrl}/embed/$videoId"
 
-                                val page = client.fetchBytes(
-                                    url = embedVideoUrl,
-                                    headers = mapOf("User-Agent" to DEFAULT_USER_AGENT)
-                                )?.toString(UTF_8)
+                                val page = client.fetchBytes(url = embedVideoUrl)?.toString(UTF_8)
 
                                 page?.let { p ->
                                     POSSIBLE_JS_URL_REGEXES
@@ -134,7 +130,7 @@ class YoutubeVideoResolver(
     }
 
     private suspend fun getSignature(jsUrl: String, s: String): String {
-        val js = client.fetchBytes(url = jsUrl, headers = mapOf("User-Agent" to DEFAULT_USER_AGENT))?.toString(UTF_8)
+        val js = client.fetchBytes(url = jsUrl)?.toString(UTF_8)
 
         val transformFunctions = js.getTransformFunctions()
         val variable = transformFunctions.firstOrNull()?.variable

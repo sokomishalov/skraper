@@ -15,5 +15,12 @@
  */
 package ru.sokomishalov.skraper.internal.consts
 
-const val DEFAULT_POSTS_LIMIT: Int = 50
-const val DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36"
+internal const val DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36"
+internal const val USER_AGENT_HEADER = "User-Agent"
+internal const val DEFAULT_POSTS_LIMIT = 50
+
+@JvmField
+internal val DEFAULT_HEADERS = mapOf(USER_AGENT_HEADER to DEFAULT_USER_AGENT)
+
+@JvmField
+internal val CRAWLER_USER_AGENTS = setOf("Googlebot", "Slurp", "Yandex", "msnbot", "bingbot")

@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_USER_AGENT
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
 import ru.sokomishalov.skraper.model.URLString
 import java.io.File
 
@@ -34,7 +34,7 @@ interface SkraperClient {
     suspend fun request(
         url: URLString,
         method: HttpMethodType = GET,
-        headers: Map<String, String> = mapOf("User-Agent" to DEFAULT_USER_AGENT),
+        headers: Map<String, String> = DEFAULT_HEADERS,
         body: ByteArray? = null
     ): ByteArray?
 
