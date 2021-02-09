@@ -31,7 +31,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.sokomishalov.commons</groupId>
+            <groupId>ru.sokomishalov.commons</groupId>
             <artifactId>commons-spring</artifactId>
             <version>${sokomishalov-commons.version}</version>
         </dependency>

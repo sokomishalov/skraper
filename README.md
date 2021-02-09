@@ -149,7 +149,7 @@ repositories {
     maven { url = uri("http://jitpack.io") }
 }
 dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.6.1")
+    implementation("com.github.sokomishalov.skraper:skrapers:0.6.3")
 }
 ```
 
