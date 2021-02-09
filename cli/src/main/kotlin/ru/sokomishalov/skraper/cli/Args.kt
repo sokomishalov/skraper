@@ -32,41 +32,41 @@ class Args(parser: ArgParser) {
     }
 
     val skraper by parser.positional(
-            name = "PROVIDER",
-            help = "skraper provider, options: ${SKRAPERS.joinToString { it.name }}"
+        name = "PROVIDER",
+        help = "skraper provider, options: ${SKRAPERS.joinToString { it.name }}"
     ) {
         SKRAPERS
-                .find { this == it.name }
-                .let { requireNotNull(it) { "Unknown provider" } }
+            .find { this == it.name }
+            .let { requireNotNull(it) { "Unknown provider" } }
     }
 
     val path by parser.positional(
-            name = "PATH",
-            help = "path to user/community/channel/topic/trend"
+        name = "PATH",
+        help = "path to user/community/channel/topic/trend"
     )
 
     val amount by parser.storing(
-            "-n", "--limit",
-            help = "posts limit (50 by default)"
+        "-n", "--limit",
+        help = "posts limit (50 by default)"
     ) { toInt() }.default { 50 }
 
     val outputType by parser.storing(
-            "-t", "--type",
-            help = "output type, options: ${Serialization.values().joinToString().toLowerCase()}"
+        "-t", "--type",
+        help = "output type, options: ${Serialization.values().joinToString().toLowerCase()}"
     ) { Serialization.valueOf(toUpperCase()) }.default { LOG }
 
     val output by parser.storing(
-            "-o", "--output",
-            help = "output path"
+        "-o", "--output",
+        help = "output path"
     ) { File(this) }.default { File("") }
 
     val onlyMedia by parser.flagging(
-            "-m", "--media-only",
-            help = "scrape media only"
+        "-m", "--media-only",
+        help = "scrape media only"
     )
 
     val parallelDownloads by parser.storing(
-            "--parallel-downloads",
-            help = "amount of parallel downloads for media items if enabled flag --media-only (4 by default)"
+        "--parallel-downloads",
+        help = "amount of parallel downloads for media items if enabled flag --media-only (4 by default)"
     ) { toInt() }.default { 4 }
 }

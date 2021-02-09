@@ -46,8 +46,8 @@ fun main(args: Array<String>) = mainBody(columns = 100) {
 
     val posts = runBlocking {
         parsedArgs.skraper.getPosts(
-                path = "/${parsedArgs.path.removePrefix("/")}",
-                limit = parsedArgs.amount
+            path = "/${parsedArgs.path.removePrefix("/")}",
+            limit = parsedArgs.amount
         )
     }
 
@@ -72,13 +72,13 @@ private fun List<Post>.persistMedia(parsedArgs: Args) {
                 async {
                     runCatching {
                         Skraper.download(
-                                media = media,
-                                destDir = targetDir,
-                                filename = when (post.media.size) {
-                                    1 -> post.id
-                                    else -> "${post.id}_${index + 1}"
-                                },
-                                client = DEFAULT_CLIENT
+                            media = media,
+                            destDir = targetDir,
+                            filename = when (post.media.size) {
+                                1 -> post.id
+                                else -> "${post.id}_${index + 1}"
+                            },
+                            client = DEFAULT_CLIENT
                         )
                     }.onSuccess { path ->
                         println(path)
@@ -111,8 +111,8 @@ private fun List<Post>.persistMeta(parsedArgs: Args) {
     }
 
     fileToWrite
-            .apply { parentFile.mkdirs() }
-            .writeText(text = content, charset = UTF_8)
+        .apply { parentFile.mkdirs() }
+        .writeText(text = content, charset = UTF_8)
 
     println(fileToWrite.path.cyan())
 }

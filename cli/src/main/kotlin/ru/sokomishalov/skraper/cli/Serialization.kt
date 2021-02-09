@@ -81,22 +81,22 @@ enum class Serialization(val extension: String) {
             }
 
             val csvSchema = CsvSchema
-                    .builder()
-                    .addColumn("ID")
-                    .addColumn("Text")
-                    .addColumn("Published at")
-                    .addColumn("Rating")
-                    .addColumn("Comments count")
-                    .addColumn("Views count")
-                    .addColumn("Media")
-                    .build()
-                    .withHeader()
+                .builder()
+                .addColumn("ID")
+                .addColumn("Text")
+                .addColumn("Published at")
+                .addColumn("Rating")
+                .addColumn("Comments count")
+                .addColumn("Views count")
+                .addColumn("Media")
+                .build()
+                .withHeader()
 
 
             return mapper(CsvFactory())
-                    .registerModule(csvModule)
-                    .writer(csvSchema)
-                    .writeValueAsString(this)
+                .registerModule(csvModule)
+                .writer(csvSchema)
+                .writeValueAsString(this)
         }
     };
 
@@ -104,15 +104,15 @@ enum class Serialization(val extension: String) {
 
     internal fun List<Post>.serialize(factory: JsonFactory): String {
         return mapper(factory)
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(this)
+            .writerWithDefaultPrettyPrinter()
+            .writeValueAsString(this)
     }
 
 
     internal fun mapper(typeFactory: JsonFactory): ObjectMapper {
         return ObjectMapper(typeFactory)
-                .registerKotlinModule()
-                .registerModule(JavaTimeModule())
-                .registerModule(Jdk8Module())
+            .registerKotlinModule()
+            .registerModule(JavaTimeModule())
+            .registerModule(Jdk8Module())
     }
 }
