@@ -17,7 +17,8 @@ package ru.sokomishalov.skraper.provider.twitch
 
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
-import ru.sokomishalov.skraper.*
+import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
@@ -172,7 +173,7 @@ open class TwitchSkraper @JvmOverloads constructor(
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Video -> {
-                val page = client.fetchDocument(media.url)
+                val page = client.fetchDocument(HttpRequest(media.url))
                 val clientId = page?.extractClientId().orEmpty()
 
                 val isClipPath = "/clip/" in media.url
@@ -198,21 +199,25 @@ open class TwitchSkraper @JvmOverloads constructor(
                         val videoId = media.url.extractVideoIdFromPath()
 
                         val token = client.fetchJson(
-                            url = restBaseUrl.buildFullURL(path = "/vods/${videoId}/access_token"),
-                            method = GET,
-                            headers = DEFAULT_HEADERS + mapOf("Client-ID" to clientId)
+                            HttpRequest(
+                                url = restBaseUrl.buildFullURL(path = "/vods/${videoId}/access_token"),
+                                method = GET,
+                                headers = DEFAULT_HEADERS + mapOf("Client-ID" to clientId)
+                            )
                         )
 
-                        val videoMeta = client.fetchBytes(
-                            url = usherBaseUrl.buildFullURL(
-                                path = "/${videoId}.m3u8",
-                                queryParams = mapOf(
-                                    "nauth" to token?.getString("token"),
-                                    "nauthsig" to token?.getString("sig"),
-                                    "allow_source" to "true"
+                        val videoMeta = client.fetchString(
+                            HttpRequest(
+                                url = usherBaseUrl.buildFullURL(
+                                    path = "/${videoId}.m3u8",
+                                    queryParams = mapOf(
+                                        "nauth" to token?.getString("token"),
+                                        "nauthsig" to token?.getString("sig"),
+                                        "allow_source" to "true"
+                                    )
                                 )
                             )
-                        )?.toString(UTF_8)
+                        )
 
                         val m3u8urls = videoMeta
                             ?.lines()
@@ -231,7 +236,7 @@ open class TwitchSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getPage(path: String): Document? {
-        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
     }
 
     private fun Document?.extractClientId(): String {
@@ -313,13 +318,15 @@ open class TwitchSkraper @JvmOverloads constructor(
 
     private suspend fun graphRequest(clientId: String, query: String): JsonNode? {
         return client.fetchJson(
-            url = graphBaseUrl,
-            method = POST,
-            headers = DEFAULT_HEADERS + mapOf(
-                "Client-ID" to clientId,
-                "Accept-Language" to "en-US"
-            ),
-            body = "{ \"query\": \"${query.replace("\n", " ").replace("\"", "\\\"")}\" }".toByteArray(UTF_8)
+            HttpRequest(
+                url = graphBaseUrl,
+                method = POST,
+                headers = DEFAULT_HEADERS + mapOf(
+                    "Client-ID" to clientId,
+                    "Accept-Language" to "en-US"
+                ),
+                body = "{ \"query\": \"${query.replace("\n", " ").replace("\"", "\\\"")}\" }".toByteArray(UTF_8)
+            )
         )
     }
 

@@ -25,12 +25,9 @@ import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.model.URLString
 import java.io.DataOutputStream
-import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.HttpURLConnection.*
 import java.net.URL
-import java.net.URLDecoder
-import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -38,11 +35,11 @@ import kotlin.text.Charsets.UTF_8
  */
 
 @PublishedApi
-internal suspend fun URL.openRedirectableStream(
+internal suspend fun URL.openRedirectableConnection(
     method: HttpMethodType = GET,
     headers: Map<String, String> = emptyMap(),
     body: ByteArray? = null
-): InputStream = withContext(IO) {
+): HttpURLConnection = withContext(IO) {
     val conn = openConnection() as HttpURLConnection
 
     conn.applyData(method, headers, body)
@@ -56,20 +53,9 @@ internal suspend fun URL.openRedirectableStream(
                 setRequestProperty("Cookie", conn.getHeaderField("Set-Cookie"))
                 applyData(method, headers, body)
             }
-            newConn.inputStream
+            newConn
         }
-        else -> conn.inputStream
-    }
-}
-
-@PublishedApi
-internal suspend fun URL.request(
-    method: HttpMethodType = GET,
-    headers: Map<String, String> = emptyMap(),
-    body: ByteArray? = null
-): ByteArray {
-    return withContext(IO) {
-        openRedirectableStream(method, headers, body).readBytes()
+        else -> conn
     }
 }
 
@@ -78,21 +64,6 @@ val URLString.path: String
 
 val URLString.host: String
     get() = URL(this).host
-
-val URLString.queryParams: Map<String, String>
-    get() {
-        return URL(this)
-            .query
-            .split("&".toRegex())
-            .map {
-                val idx = it.indexOf("=")
-                val key = URLDecoder.decode(it.substring(0, idx), UTF_8.name())
-                val value = URLDecoder.decode(it.substring(idx + 1), UTF_8.name())
-
-                key to value
-            }
-            .toMap()
-    }
 
 private fun HttpURLConnection.applyData(
     method: HttpMethodType,

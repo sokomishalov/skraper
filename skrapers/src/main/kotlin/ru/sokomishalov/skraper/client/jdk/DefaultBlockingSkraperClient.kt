@@ -21,12 +21,12 @@ package ru.sokomishalov.skraper.client.jdk
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
-import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.HttpMethodType
-import ru.sokomishalov.skraper.internal.net.openRedirectableStream
-import ru.sokomishalov.skraper.internal.net.request
-import ru.sokomishalov.skraper.model.URLString
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.HttpResponse
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.internal.net.openRedirectableConnection
 import java.io.File
+import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.channels.Channels
 
@@ -37,31 +37,33 @@ import java.nio.channels.Channels
  */
 object DefaultBlockingSkraperClient : SkraperClient {
 
-    override suspend fun request(
-        url: URLString,
-        method: HttpMethodType,
-        headers: Map<String, String>,
-        body: ByteArray?
-    ): ByteArray? {
+    override suspend fun request(request: HttpRequest): HttpResponse {
         return withContext(IO) {
-            URL(url).request(
-                method = method,
-                headers = headers,
-                body = body
-            )
+            with(request.connection()) {
+                HttpResponse(
+                    status = responseCode,
+                    headers = headerFields.mapValues { (_, v) -> v.toString() },
+                    body = inputStream.readBytes()
+                )
+            }
         }
     }
 
-    override suspend fun download(
-        url: URLString,
-        destFile: File
-    ) {
-        withContext(IO) {
-            Channels.newChannel(URL(url).openRedirectableStream()).use { rbc ->
+    override suspend fun download(request: HttpRequest, destFile: File) {
+        return withContext(IO) {
+            Channels.newChannel(request.connection().inputStream).use { rbc ->
                 destFile.outputStream().use { fos ->
                     fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
                 }
             }
         }
+    }
+
+    private suspend fun HttpRequest.connection(): HttpURLConnection {
+        return URL(url).openRedirectableConnection(
+            method = method,
+            headers = headers,
+            body = body
+        )
     }
 }

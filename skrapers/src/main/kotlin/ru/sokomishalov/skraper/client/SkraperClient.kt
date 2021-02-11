@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper
+package ru.sokomishalov.skraper.client
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
-import ru.sokomishalov.skraper.client.HttpMethodType
-import ru.sokomishalov.skraper.client.HttpMethodType.GET
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
-import ru.sokomishalov.skraper.model.URLString
 import java.io.File
 
 /**
@@ -31,21 +27,13 @@ interface SkraperClient {
     /**
      * execute http request
      */
-    suspend fun request(
-        url: URLString,
-        method: HttpMethodType = GET,
-        headers: Map<String, String> = DEFAULT_HEADERS,
-        body: ByteArray? = null
-    ): ByteArray?
+    suspend fun request(request: HttpRequest): HttpResponse
 
     /**
      * download files
      */
-    suspend fun download(
-        url: URLString,
-        destFile: File
-    ) {
-        request(url = url)?.let { withContext(IO) { destFile.writeBytes(it) } }
+    suspend fun download(request: HttpRequest, destFile: File) {
+        request(request).body?.let { withContext(IO) { destFile.writeBytes(it) } }
     }
 
 }

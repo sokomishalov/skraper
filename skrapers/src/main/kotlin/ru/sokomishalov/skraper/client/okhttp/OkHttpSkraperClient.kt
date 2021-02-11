@@ -29,9 +29,9 @@ import okio.Buffer
 import okio.BufferedSink
 import okio.buffer
 import okio.sink
-import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.HttpMethodType
-import ru.sokomishalov.skraper.model.URLString
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.HttpResponse
+import ru.sokomishalov.skraper.client.SkraperClient
 import java.io.File
 import java.io.IOException
 import kotlin.coroutines.resumeWithException
@@ -47,43 +47,27 @@ class OkHttpSkraperClient(
     private val client: OkHttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun request(
-        url: URLString,
-        method: HttpMethodType,
-        headers: Map<String, String>,
-        body: ByteArray?
-    ): ByteArray? {
-        val request = Request
-            .Builder()
-            .url(url)
-            .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
-            .method(method = method.name, body = body?.createRequest(contentType = headers["Content-Type"]))
-            .build()
-
+    override suspend fun request(request: HttpRequest): HttpResponse {
         return client
-            .newCall(request)
+            .newCall(request.prepareCall())
             .await()
-            .body
-            ?.run { withContext(IO) { bytes() } }
+            .let {
+                HttpResponse(
+                    status = it.code,
+                    headers = it.headers.toMap(),
+                    body = withContext(IO) { it.body?.bytes() }
+                )
+            }
     }
 
-    override suspend fun download(
-        url: URLString,
-        destFile: File
-    ) {
-        val request: Request = Request
-            .Builder()
-            .url(url)
-            .build()
-
-        val responseBody = client
-            .newCall(request)
+    override suspend fun download(request: HttpRequest, destFile: File) {
+        val response = client
+            .newCall(request.prepareCall())
             .await()
-            .body
 
         withContext(IO) {
             destFile.sink().buffer().use { sink ->
-                responseBody?.source()?.use { source ->
+                response.body?.source()?.use { source ->
                     val sinkBuffer: Buffer = sink.buffer
                     val bufferSize = 8 * 1024
 
@@ -93,6 +77,18 @@ class OkHttpSkraperClient(
                 }
             }
         }
+    }
+
+    private fun HttpRequest.prepareCall(): Request {
+        return Request
+            .Builder()
+            .url(url)
+            .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
+            .method(
+                method = method.name,
+                body = body?.createRequest(contentType = headers["Content-Type"])
+            )
+            .build()
     }
 
     private suspend fun Call.await(): Response {

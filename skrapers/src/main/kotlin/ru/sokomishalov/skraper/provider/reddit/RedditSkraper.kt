@@ -19,10 +19,11 @@ package ru.sokomishalov.skraper.provider.reddit
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchJson
+import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchJson
-import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.internal.number.div
@@ -37,9 +38,11 @@ open class RedditSkraper @JvmOverloads constructor(
 
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
         val response = client.fetchJson(
-            baseUrl.buildFullURL(
-                path = "${path.removeSuffix("/")}.json",
-                queryParams = mapOf("limit" to limit)
+            HttpRequest(
+                url = baseUrl.buildFullURL(
+                    path = "${path.removeSuffix("/")}.json",
+                    queryParams = mapOf("limit" to limit)
+                )
             )
         )
 
@@ -63,9 +66,7 @@ open class RedditSkraper @JvmOverloads constructor(
 
     override suspend fun getPageInfo(path: String): PageInfo? {
         val response = client.fetchJson(
-            baseUrl.buildFullURL(
-                path = "${path.removeSuffix("/")}/about.json"
-            )
+            HttpRequest(url = baseUrl.buildFullURL(path = "${path.removeSuffix("/")}/about.json"))
         )
 
         val isUser = path.removePrefix("/").startsWith("u")

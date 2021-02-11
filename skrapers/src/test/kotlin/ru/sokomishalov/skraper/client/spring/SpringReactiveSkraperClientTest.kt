@@ -19,7 +19,7 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import reactor.netty.http.client.HttpClient
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.SkraperClientTck
 import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient.Companion.DEFAULT_CLIENT
 

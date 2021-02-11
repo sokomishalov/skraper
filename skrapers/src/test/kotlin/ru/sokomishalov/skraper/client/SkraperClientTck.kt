@@ -19,11 +19,7 @@ package ru.sokomishalov.skraper.client
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
-import ru.sokomishalov.skraper.fetchBytes
-import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.fetchJson
 import ru.sokomishalov.skraper.internal.serialization.getString
 import java.nio.file.Files
 import kotlin.test.assertEquals
@@ -38,23 +34,28 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Fetch byte array`() = runBlocking {
-        val bytes = client.request("https://www.wikipedia.org/")
+        val resp = client.request(HttpRequest("https://www.wikipedia.org/"))
 
-        assertNotNull(bytes)
-        assertTrue { bytes.isNotEmpty() }
+        assertNotNull(resp)
+        assertEquals(200, resp.status)
+        assertTrue { resp.headers.isNotEmpty() }
+        assertNotNull(resp.body)
+        assertTrue { resp.body!!.isNotEmpty() }
     }
 
     @Test
     fun `Redirect to https`() = runBlocking {
-        val bytes = client.request("http://twitter.com/")
+        val resp = client.request(HttpRequest("http://twitter.com/"))
 
-        assertNotNull(bytes)
-        assertTrue { bytes.isNotEmpty() }
+        assertNotNull(resp)
+        assertEquals(200, resp.status)
+        assertNotNull(resp.body)
+        assertTrue { resp.body!!.isNotEmpty() }
     }
 
     @Test
     fun `Fetch document`() = runBlocking {
-        val document = client.fetchDocument("https://facebook.com")
+        val document = client.fetchDocument(HttpRequest("https://facebook.com"))
 
         assertNotNull(document)
         assertTrue { document.body().hasParent() }
@@ -62,7 +63,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Fetch complex json`() = runBlocking {
-        val echoJson = client.fetchJson(
+        val echoJson = client.fetchJson(HttpRequest(
             url = "https://postman-echo.com/post",
             method = POST,
             headers = mapOf(
@@ -70,7 +71,7 @@ abstract class SkraperClientTck {
                 "Content-Type" to "application/json"
             ),
             body = """{"bar": "foo"}""".toByteArray(UTF_8)
-        )
+        ))
 
         assertNotNull(echoJson)
         assertEquals("bar", echoJson.getString("headers.foo"))
@@ -79,7 +80,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Bad url`() = runBlocking {
-        assertNull(client.fetchBytes("https://very-badurl.badurl"))
+        assertNull(client.fetchBytes(HttpRequest("https://very-badurl.badurl")))
     }
 
     @Test
@@ -89,7 +90,7 @@ abstract class SkraperClientTck {
         assertTrue { tempFile.exists() }
         assertEquals(0L, tempFile.length())
 
-        client.download("http://speedtest.tele2.net/1MB.zip", tempFile)
+        client.download(HttpRequest("http://speedtest.tele2.net/1MB.zip"), tempFile)
 
         assertTrue { tempFile.exists() }
         assertEquals(1L * 1024 * 1024, tempFile.length())

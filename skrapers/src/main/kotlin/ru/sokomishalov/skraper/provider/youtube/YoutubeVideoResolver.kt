@@ -16,8 +16,9 @@
 package ru.sokomishalov.skraper.provider.youtube
 
 import com.fasterxml.jackson.databind.JsonNode
-import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.fetchBytes
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchString
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
 import ru.sokomishalov.skraper.internal.serialization.getInt
@@ -27,7 +28,6 @@ import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.URLString
 import ru.sokomishalov.skraper.model.Video
 import java.util.regex.Pattern.DOTALL
-import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -45,7 +45,7 @@ class YoutubeVideoResolver(
             else -> video.url
         }
 
-        val page = client.fetchBytes(url = url)?.toString(UTF_8)
+        val page = client.fetchString(HttpRequest(url = url))
 
         return page?.let { p ->
             YT_PLAYER_CONFIG_REGEXES
@@ -98,7 +98,7 @@ class YoutubeVideoResolver(
                                 val videoId = getString("videoDetails.videoId")
                                 val embedVideoUrl = "${baseUrl}/embed/$videoId"
 
-                                val page = client.fetchBytes(url = embedVideoUrl)?.toString(UTF_8)
+                                val page = client.fetchString(HttpRequest(url = embedVideoUrl))
 
                                 page?.let { p ->
                                     POSSIBLE_JS_URL_REGEXES
@@ -130,7 +130,7 @@ class YoutubeVideoResolver(
     }
 
     private suspend fun getSignature(jsUrl: String, s: String): String {
-        val js = client.fetchBytes(url = jsUrl)?.toString(UTF_8)
+        val js = client.fetchString(HttpRequest(url = jsUrl))
 
         val transformFunctions = js.getTransformFunctions()
         val variable = transformFunctions.firstOrNull()?.variable

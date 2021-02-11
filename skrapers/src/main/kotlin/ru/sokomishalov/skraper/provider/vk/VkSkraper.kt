@@ -20,9 +20,10 @@ package ru.sokomishalov.skraper.provider.vk
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.model.*
@@ -82,8 +83,10 @@ open class VkSkraper @JvmOverloads constructor(
         return when (media) {
             is Video -> {
                 val page = client.fetchDocument(
-                    url = media.url,
-                    headers = emptyMap()
+                    HttpRequest(
+                        url = media.url,
+                        headers = emptyMap()
+                    )
                 )
                 val video = page?.getFirstElementByTag("video")
                 media.copy(
@@ -100,8 +103,10 @@ open class VkSkraper @JvmOverloads constructor(
             }
             is Image -> {
                 val page = client.fetchDocument(
-                    url = media.url,
-                    headers = emptyMap()
+                    HttpRequest(
+                        url = media.url,
+                        headers = emptyMap()
+                    )
                 )
                 val url = page
                     ?.getFirstElementByClass("PhotoviewPage__photo")
@@ -121,8 +126,10 @@ open class VkSkraper @JvmOverloads constructor(
 
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
-            url = baseUrl.buildFullURL(path = path),
-            headers = mapOf("Accept-Language" to "en-US")
+            HttpRequest(
+                url = baseUrl.buildFullURL(path = path),
+                headers = mapOf("Accept-Language" to "en-US")
+            )
         )
     }
 

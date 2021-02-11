@@ -18,10 +18,11 @@ package ru.sokomishalov.skraper.provider.ninegag
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchDocument
+import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.number.minus
@@ -60,7 +61,7 @@ open class NinegagSkraper @JvmOverloads constructor(
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Video -> {
-                val page = client.fetchDocument(media.url)
+                val page = client.fetchDocument(HttpRequest(media.url))
                 return page
                     ?.extractJsonData()
                     ?.getByPath("data.post")
@@ -73,7 +74,7 @@ open class NinegagSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserPage(path: String): Document? {
-        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
     }
 
     private tailrec suspend fun fetchPostsRecursively(

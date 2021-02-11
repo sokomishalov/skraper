@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper
 
+import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.internal.net.host

@@ -19,10 +19,11 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchDocument
+import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.number.div
@@ -98,7 +99,7 @@ open class PikabuSkraper @JvmOverloads constructor(
         return when (media) {
             is Video -> {
                 val page = client.fetchDocument(
-                    url = media.url,
+                    request = HttpRequest(url = media.url),
                     charset = Charset.forName("windows-1251")
                 )
                 return page
@@ -112,7 +113,7 @@ open class PikabuSkraper @JvmOverloads constructor(
 
     private suspend fun getPage(path: String): Document? {
         return client.fetchDocument(
-            url = baseUrl.buildFullURL(path = path),
+            request = HttpRequest(url = baseUrl.buildFullURL(path = path)),
             charset = Charset.forName("windows-1251")
         )
     }
