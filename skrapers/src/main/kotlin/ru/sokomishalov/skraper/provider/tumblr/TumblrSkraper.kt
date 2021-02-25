@@ -20,10 +20,11 @@ package ru.sokomishalov.skraper.provider.tumblr
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchDocument
+import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -64,7 +65,7 @@ open class TumblrSkraper @JvmOverloads constructor(
     }
 
     internal suspend fun getUserPage(username: String): Document? {
-        return client.fetchDocument(url = baseUrl.replace("://", "://${username}."))
+        return client.fetchDocument(HttpRequest(url = baseUrl.replace("://", "://${username}.")))
     }
 
     private suspend fun getNonUserPage(path: String): Document? {
@@ -74,7 +75,7 @@ open class TumblrSkraper @JvmOverloads constructor(
                 return getUserPage(username = username)
             }
 
-            else -> client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+            else -> client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
         }
     }
 

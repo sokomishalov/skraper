@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.client.jdk
+@file:Suppress("ArrayInDataClass")
 
-import ru.sokomishalov.skraper.client.SkraperClient
-import ru.sokomishalov.skraper.client.SkraperClientTck
+package ru.sokomishalov.skraper.client
 
+import ru.sokomishalov.skraper.client.HttpMethodType.GET
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
+import ru.sokomishalov.skraper.model.URLString
 
 /**
  * @author sokomishalov
  */
-class DefaultBlockingSkraperClientTest : SkraperClientTck() {
-    override val client: SkraperClient = DefaultBlockingSkraperClient
-}
+data class HttpRequest @JvmOverloads constructor(
+    val url: URLString,
+    val method: HttpMethodType = GET,
+    val headers: Map<String, String> = DEFAULT_HEADERS,
+    val body: ByteArray? = null
+)

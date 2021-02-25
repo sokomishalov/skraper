@@ -17,10 +17,11 @@ package ru.sokomishalov.skraper.provider.instagram
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchJson
+import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchJson
-import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -67,9 +68,11 @@ open class InstagramSkraper @JvmOverloads constructor(
 
     private suspend fun getUserInfo(path: String): JsonNode? {
         val json = client.fetchJson(
-            url = baseUrl.buildFullURL(
-                path = path,
-                queryParams = mapOf("__a" to 1)
+            HttpRequest(
+                url = baseUrl.buildFullURL(
+                    path = path,
+                    queryParams = mapOf("__a" to 1)
+                )
             )
         )
 
@@ -78,12 +81,14 @@ open class InstagramSkraper @JvmOverloads constructor(
 
     internal suspend fun getPostsByUserId(userId: Long?, limit: Int): List<Post> {
         val data = client.fetchJson(
-            url = baseUrl.buildFullURL(
-                path = "/graphql/query/",
-                queryParams = mapOf(
-                    "query_id" to gqlUserMediasQueryId,
-                    "id" to userId,
-                    "first" to limit
+            HttpRequest(
+                url = baseUrl.buildFullURL(
+                    path = "/graphql/query/",
+                    queryParams = mapOf(
+                        "query_id" to gqlUserMediasQueryId,
+                        "id" to userId,
+                        "first" to limit
+                    )
                 )
             )
         )
@@ -122,5 +127,10 @@ open class InstagramSkraper @JvmOverloads constructor(
                 )
             }
         )
+    }
+
+    companion object {
+        const val CHROME_WIN_UA =
+            "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36"
     }
 }

@@ -18,10 +18,11 @@ package ru.sokomishalov.skraper.provider.ifunny
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchDocument
+import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.serialization.getByPath
 import ru.sokomishalov.skraper.internal.serialization.getString
@@ -114,6 +115,6 @@ open class IFunnySkraper @JvmOverloads constructor(
 
 
     private suspend fun getPage(path: String): Document? {
-        return client.fetchDocument(url = baseUrl.buildFullURL(path = path))
+        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
     }
 }

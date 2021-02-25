@@ -17,10 +17,11 @@ package ru.sokomishalov.skraper.provider.pinterest
 
 import com.fasterxml.jackson.databind.JsonNode
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchDocument
+import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
-import ru.sokomishalov.skraper.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
@@ -28,7 +29,6 @@ import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Instant
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
 
@@ -90,7 +90,7 @@ open class PinterestSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserJson(path: String): JsonNode? {
-        val webPage = client.fetchDocument(baseUrl.buildFullURL(path = path))
+        val webPage = client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
         val infoJson = webPage?.getElementById("initial-state")?.html()
         return infoJson.readJsonNodes()
     }

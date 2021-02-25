@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
 import ru.sokomishalov.skraper.download
 import ru.sokomishalov.skraper.model.Media

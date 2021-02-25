@@ -18,7 +18,8 @@ package ru.sokomishalov.skraper.provider.twitter
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import ru.sokomishalov.skraper.*
+import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
@@ -32,7 +33,6 @@ import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 import java.time.Duration
 import java.time.Instant
-import kotlin.text.Charsets.UTF_8
 
 
 /**
@@ -104,10 +104,10 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Image -> client.fetchMediaWithOpenGraphMeta(media = media, headers = DEFAULT_HEADERS)
+            is Image -> client.fetchMediaWithOpenGraphMeta(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS))
             is Video -> {
-                val ogVideo = client.fetchMediaWithOpenGraphMeta(media = media, headers = DEFAULT_HEADERS) as Video
-                val page = client.fetchDocument(url = ogVideo.url, headers = DEFAULT_HEADERS)
+                val ogVideo = client.fetchMediaWithOpenGraphMeta(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS)) as Video
+                val page = client.fetchDocument(HttpRequest(url = ogVideo.url, headers = DEFAULT_HEADERS))
 
                 val urlFromPage = page
                     ?.getFirstElementByClass("js-tweet-text")
@@ -132,13 +132,13 @@ open class TwitterSkraper @JvmOverloads constructor(
                                     .substringAfterLast("/status/")
                                     .substringBefore("?")
 
-                                client.fetchJson(
+                                client.fetchJson(HttpRequest(
                                     url = apiBaseUrl.buildFullURL(path = "/1.1/videos/tweet/config/${tweetId}.json"),
                                     headers = mapOf(
                                         "Authorization" to token,
                                         "x-guest-token" to guestToken
                                     )
-                                )
+                                ))
                             }
                             else -> null
                         }
@@ -160,10 +160,10 @@ open class TwitterSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserPage(path: String): Document? {
-        return client.fetchDocument(
+        return client.fetchDocument(HttpRequest(
             url = baseUrl.buildFullURL(path = path),
             headers = DEFAULT_HEADERS
-        )
+        ))
     }
 
     private fun Document.extractJsonData(): JsonNode? {
@@ -255,7 +255,7 @@ open class TwitterSkraper @JvmOverloads constructor(
             ?.findLast { "main" in it }
 
         val jsPage = jsUrl?.let {
-            client.fetchBytes(it)?.toString(UTF_8)
+            client.fetchString(HttpRequest(url = it))
         }
 
         val token = jsPage?.let {
@@ -267,11 +267,11 @@ open class TwitterSkraper @JvmOverloads constructor(
         }
 
         val guestTokenNode = token?.let {
-            client.fetchJson(
+            client.fetchJson(HttpRequest(
                 url = apiBaseUrl.buildFullURL(path = "/1.1/guest/activate.json"),
                 method = POST,
                 headers = mapOf("Authorization" to it)
-            )
+            ))
         }
 
         val guestToken = guestTokenNode?.getString("guest_token")

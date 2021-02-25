@@ -15,6 +15,8 @@
  */
 package ru.sokomishalov.skraper
 
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegCliRunner
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegRunner
@@ -86,7 +88,7 @@ suspend fun Skraper.Companion.download(
 
         // otherwise try to download as is
         else -> {
-            client.download(url = resolved.url, destFile = destFile)
+            client.download(HttpRequest(url = resolved.url), destFile = destFile)
             destFile
         }
     }

@@ -30,8 +30,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.commons.core.serialization.OBJECT_MAPPER
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
 import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
+import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient
 import ru.sokomishalov.skraper.knownList
 

@@ -23,43 +23,36 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpHeaders.UnsafeHeadersList
 import io.ktor.http.HttpMethod
+import io.ktor.http.content.ByteArrayContent
+import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.reactive.asPublisher
-import ru.sokomishalov.skraper.SkraperClient
-import ru.sokomishalov.skraper.client.HttpMethodType
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.HttpResponse
+import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.internal.nio.aWrite
-import ru.sokomishalov.skraper.model.URLString
 import java.io.File
+import io.ktor.client.statement.HttpResponse as KtorHttpResponse
 
 class KtorSkraperClient(
     private val client: HttpClient = DEFAULT_CLIENT
 ) : SkraperClient {
 
-    override suspend fun request(
-        url: URLString,
-        method: HttpMethodType,
-        headers: Map<String, String>,
-        body: ByteArray?
-    ): ByteArray? {
-        return client.request(urlString = url) {
-            this.method = HttpMethod.parse(method.name)
-            headers.filterKeys { it !in UnsafeHeadersList }.forEach { (k, v) -> header(k, v) }
-            body?.let {
-                this.body = ByteArrayContent(
-                    bytes = it,
-                    contentType = headers[HttpHeaders.ContentType]?.let { t -> ContentType.parse(t) }
+    override suspend fun request(request: HttpRequest): HttpResponse {
+        return request
+            .call()
+            .let {
+                HttpResponse(
+                    status = it.status.value,
+                    headers = it.headers.toMap().mapValues { (_, v) -> v.toString() },
+                    body = it.content.toByteArray()
                 )
             }
-        }
     }
 
-    override suspend fun download(
-        url: URLString,
-        destFile: File
-    ) {
-        client
-            .get<HttpResponse>(urlString = url)
+    override suspend fun download(request: HttpRequest, destFile: File) {
+        request
+            .call()
             .content
             .run {
                 flow {
@@ -69,8 +62,20 @@ class KtorSkraperClient(
                     }
                 }
             }
-            .asPublisher()
             .aWrite(destFile)
+    }
+
+    private suspend fun HttpRequest.call(): KtorHttpResponse {
+        return client.request(urlString = url) {
+            method = HttpMethod.parse(this@call.method.name)
+            this@call.headers.filterKeys { it !in UnsafeHeadersList }.forEach { (k, v) -> header(k, v) }
+            this@call.body?.let {
+                body = ByteArrayContent(
+                    bytes = it,
+                    contentType = headers[HttpHeaders.ContentType]?.let { t -> ContentType.parse(t) }
+                )
+            }
+        }
     }
 
 

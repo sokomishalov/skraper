@@ -18,9 +18,10 @@ package ru.sokomishalov.skraper.provider.youtube
 import com.fasterxml.jackson.databind.JsonNode
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.SkraperClient
+import ru.sokomishalov.skraper.client.HttpRequest
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.fetchDocument
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
@@ -97,11 +98,13 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
-            url = baseUrl.buildFullURL(
-                path = path,
-                queryParams = mapOf("gl" to "EN", "hl" to "en")
-            ),
-            headers = emptyMap()
+            HttpRequest(
+                url = baseUrl.buildFullURL(
+                    path = path,
+                    queryParams = mapOf("gl" to "EN", "hl" to "en")
+                ),
+                headers = emptyMap()
+            )
         )
     }
 
@@ -198,8 +201,10 @@ open class YoutubeSkraper @JvmOverloads constructor(
             .run {
                 when {
                     endsWith("K") -> replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
-                    endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()?.times(1_000_000)
-                    endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()?.times(1_000_000_000)
+                    endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()
+                        ?.times(1_000_000)
+                    endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()
+                        ?.times(1_000_000_000)
                     else -> replace(".", "").toIntOrNull()
                 }
             }

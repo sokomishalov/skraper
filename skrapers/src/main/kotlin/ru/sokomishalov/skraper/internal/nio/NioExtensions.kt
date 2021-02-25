@@ -16,12 +16,10 @@
 package ru.sokomishalov.skraper.internal.nio
 
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
-import org.reactivestreams.Publisher
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousCloseException
@@ -35,18 +33,18 @@ import kotlin.coroutines.resumeWithException
  * @author sokomishalov
  */
 
-internal suspend fun Publisher<ByteBuffer>.aWrite(file: File): Long {
+internal suspend fun Flow<ByteBuffer>.aWrite(file: File): Long {
     val mutex = Mutex()
     val position = AtomicLong(0)
 
     file.useChannel { afc ->
-        asFlow().onEach {
+        collect {
             mutex.lock()
             suspendCancellableCoroutine<Int> { cont ->
                 afc.write(it, position.get(), Triple(position, mutex, cont), PositionedCompletionHandler)
                 cont.invokeOnCancellation { runCatching { afc.close() } }
             }
-        }.collect()
+        }
     }
 
     return position.get()
