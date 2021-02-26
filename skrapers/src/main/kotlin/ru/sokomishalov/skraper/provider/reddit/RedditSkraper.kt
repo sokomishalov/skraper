@@ -77,15 +77,15 @@ open class RedditSkraper @JvmOverloads constructor(
                     nick = getString("subreddit.display_name_prefixed"),
                     name = getString("subreddit.display_name"),
                     description = getString("subreddit.public_description"),
-                    avatarsMap = singleImageMap(url = getString("subreddit.icon_img")),
-                    coversMap = singleImageMap(url = getString("subreddit.banner_img"))
+                    avatar = getString("subreddit.icon_img")?.toImage(),
+                    cover = getString("subreddit.banner_img")?.toImage()
                 )
                 else -> PageInfo(
                     nick = getString("display_name_prefixed"),
                     name = getString("display_name"),
                     description = getString("public_description"),
-                    avatarsMap = singleImageMap(url = getString("icon_img")),
-                    coversMap = singleImageMap(url = getString("banner_background_image"))
+                    avatar = getString("icon_img")?.toImage(),
+                    cover = getString("banner_background_image")?.toImage()
                 )
             }
         }

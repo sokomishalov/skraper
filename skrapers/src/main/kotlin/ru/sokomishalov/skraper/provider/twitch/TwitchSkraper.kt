@@ -62,8 +62,8 @@ open class TwitchSkraper @JvmOverloads constructor(
                         nick = getString("name"),
                         name = getString("displayName"),
                         followersCount = getInt("followersCount"),
-                        avatarsMap = singleImageMap(url = getString("avatarURL")),
-                        coversMap = singleImageMap(url = getString("coverURL"))
+                        avatar = getString("avatarURL")?.toImage(),
+                        cover = getString("coverURL")?.toImage()
                     )
                 }
             }
@@ -80,8 +80,8 @@ open class TwitchSkraper @JvmOverloads constructor(
                         name = getString("data.user.displayName"),
                         followersCount = getInt("data.user.followers.totalCount"),
                         postsCount = getInt("data.user.videos.totalCount"),
-                        avatarsMap = singleImageMap(url = getString("data.user.profileImageURL")),
-                        coversMap = singleImageMap(url = getString("data.user.bannerImageURL"))
+                        avatar = getString("data.user.profileImageURL")?.toImage(),
+                        cover = getString("data.user.bannerImageURL")?.toImage()
                     )
                 }
             }

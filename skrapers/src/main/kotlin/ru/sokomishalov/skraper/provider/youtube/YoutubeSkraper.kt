@@ -30,7 +30,6 @@ import ru.sokomishalov.skraper.internal.serialization.getInt
 import ru.sokomishalov.skraper.internal.serialization.getString
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
 import ru.sokomishalov.skraper.model.*
-import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Duration
 import java.time.Duration.ZERO
 import java.time.Instant
@@ -76,8 +75,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
                 name = getString("metadata.channelMetadataRenderer.title"),
                 description = getString("metadata.channelMetadataRenderer.description"),
                 followersCount = getString("header.c4TabbedHeaderRenderer.subscriberCountText.runs.0.text")?.extractAmount(),
-                avatarsMap = getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails").extractImages(),
-                coversMap = getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails").extractImages()
+                avatar = getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails").extractImage(),
+                cover = getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails").extractImage()
             )
         }
     }
@@ -130,26 +129,17 @@ open class YoutubeSkraper @JvmOverloads constructor(
         ))
     }
 
-    private fun JsonNode?.extractImages(): Map<MediaSize, Image> {
+    private fun JsonNode?.extractImage(): Image? {
         return this
             ?.toList()
             ?.takeLast(3)
-            ?.mapIndexed { i, it ->
-                val url = it.getString("url")?.let { if (it.startsWith("//")) "https:${it}" else it }.orEmpty()
-                val ratio = it.getInt("width") / it.getInt("height")
+            ?.map { node ->
+                val url = node.getString("url")?.let { if (it.startsWith("//")) "https:${it}" else it }.orEmpty()
+                val ratio = node.getInt("width") / node.getInt("height")
 
-                val size = when (i) {
-                    0 -> SMALL
-                    1 -> MEDIUM
-                    else -> LARGE
-                }
-                size to Image(
-                    url = url,
-                    aspectRatio = ratio
-                )
+                Image(url = url, aspectRatio = ratio)
             }
-            ?.toMap()
-            .orEmpty()
+            ?.firstOrNull()
     }
 
     private fun String.extractTimeAgo(): Instant? {

@@ -81,18 +81,8 @@ open class TwitterSkraper @JvmOverloads constructor(
                 description = getString("description"),
                 postsCount = getInt("statuses_count"),
                 followersCount = getInt("followers_count"),
-                avatarsMap = singleImageMap(
-                    url = getFirstByPath(
-                        "profile_image_url_https",
-                        "profile_image_url"
-                    )?.asText()
-                ),
-                coversMap = singleImageMap(
-                    url = getFirstByPath(
-                        "profile_background_image_url_https",
-                        "profile_background_image_url"
-                    )?.asText()
-                )
+                avatar = getFirstByPath("profile_image_url_https", "profile_image_url")?.asText()?.toImage(),
+                cover = getFirstByPath("profile_background_image_url_https", "profile_background_image_url")?.asText()?.toImage()
             )
         }
     }

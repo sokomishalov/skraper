@@ -79,15 +79,15 @@ open class FacebookSkraper @JvmOverloads constructor(
                     nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
                     name = extractCommunityName(),
                     description = extractCommunityDescription(),
-                    avatarsMap = singleImageMap(url = extractCommunityAvatar()),
-                    coversMap = singleImageMap(url = extractCommunityCover())
+                    avatar = extractCommunityAvatar()?.toImage(),
+                    cover = extractCommunityCover()?.toImage()
                 )
                 else -> PageInfo(
                     nick = path.removePrefix("/").substringBefore("/"),
                     name = extractUserName(),
                     description = extractUserDescription(),
-                    avatarsMap = singleImageMap(url = extractUserAvatar()),
-                    coversMap = singleImageMap(url = extractUserCover())
+                    avatar = extractUserAvatar()?.toImage(),
+                    cover = extractUserCover()?.toImage()
                 )
             }
         }

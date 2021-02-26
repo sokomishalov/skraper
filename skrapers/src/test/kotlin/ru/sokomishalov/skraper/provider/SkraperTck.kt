@@ -30,12 +30,14 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
 import ru.sokomishalov.skraper.download
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 import ru.sokomishalov.skraper.model.ProviderInfo
 import java.nio.file.Files
 import java.util.*
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -83,6 +85,7 @@ abstract class SkraperTck {
         val posts = logAction { skraper.action() }
 
         assertTrue { posts.isNotEmpty() }
+        assertTrue { posts.isNotEmpty() && posts.size <= DEFAULT_POSTS_LIMIT }
         posts.forEach {
             assertNotNull(it.id)
             it.media.forEach { a ->
@@ -93,22 +96,18 @@ abstract class SkraperTck {
 
     protected fun assertPageInfo(action: suspend Skraper.() -> PageInfo?) = runBlocking {
         val pageInfo = logAction { skraper.action() }
+
         assertNotNull(pageInfo)
         assertNotNull(pageInfo.nick)
-        assertTrue { pageInfo.avatarsMap.isNotEmpty() }
-        pageInfo.avatarsMap.forEach {
-            assertTrue { it.value.url.isNotEmpty() }
-        }
+        assertFalse { pageInfo.avatar?.url.isNullOrBlank() }
     }
 
     protected fun assertProviderInfo(action: suspend Skraper.() -> ProviderInfo?) = runBlocking {
         val providerInfo = logAction { skraper.action() }
+
         assertNotNull(providerInfo)
         assertNotNull(providerInfo.name)
-        assertTrue { providerInfo.logoMap.isNotEmpty() }
-        providerInfo.logoMap.forEach {
-            assertTrue { it.value.url.isNotEmpty() }
-        }
+        assertFalse { providerInfo.logo?.url.isNullOrBlank() }
     }
 
     protected fun assertMediaResolved(media: Media) = runBlocking {
@@ -116,6 +115,7 @@ abstract class SkraperTck {
         assertTrue { canResolve }
 
         val resolved = logAction { skraper.resolve(media) }
+
         assertNotNull(resolved)
         assertNotNull(resolved.url)
         assertNotEquals(media.url, resolved.url)
@@ -123,14 +123,16 @@ abstract class SkraperTck {
 
     protected fun assertMediaDownloaded(media: Media) = runBlocking {
         val tmpDir = Files.createTempDirectory("skraper").toFile()
-        val downloaded = logAction {
+        val downloaded = runCatching { logAction {
             Skraper.download(
                 media = media,
                 destDir = tmpDir,
                 filename = UUID.randomUUID().toString(),
                 client = client
             )
-        }
+        } }.getOrNull()
+
+        assertNotNull(downloaded)
         assertTrue { downloaded.exists() }
         assertTrue { downloaded.length() > 0 }
     }

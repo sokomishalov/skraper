@@ -19,8 +19,6 @@ package ru.sokomishalov.skraper.model
 
 import ru.sokomishalov.skraper.internal.string.escapeUrl
 
-internal fun singleImageMap(url: URLString?): Map<MediaSize, Image> = url?.run { MediaSize.values().map { it to toImage() }.toMap() }.orEmpty()
-
 internal inline fun URLString.toImage(): Image = Image(url = this)
 
 internal inline fun URLString.toVideo(): Video = Video(url = this)

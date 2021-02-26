@@ -52,7 +52,7 @@ interface Skraper {
      */
     suspend fun getProviderInfo(): ProviderInfo? = ProviderInfo(
         name = name,
-        logoMap = singleImageMap(url = baseUrl.buildFullURL(path = "/favicon.ico"))
+        logo = baseUrl.buildFullURL(path = "/favicon.ico").toImage()
     )
 
     /**

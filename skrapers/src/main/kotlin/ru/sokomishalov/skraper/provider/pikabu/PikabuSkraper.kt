@@ -80,16 +80,16 @@ open class PikabuSkraper @JvmOverloads constructor(
                     name = extractCommunityName(),
                     postsCount = extractCommunityPostsCount(),
                     followersCount = extractCommunityFollowersCount(),
-                    avatarsMap = singleImageMap(url = extractCommunityAvatar()),
-                    coversMap = singleImageMap(url = extractPageCover())
+                    avatar = extractCommunityAvatar()?.toImage(),
+                    cover = extractPageCover()?.toImage()
                 )
                 else -> PageInfo(
                     nick = extractUserNick(),
                     name = extractUserNick(),
                     postsCount = extractUserPostsCount(),
                     followersCount = extractUserFollowersCount(),
-                    avatarsMap = singleImageMap(url = extractUserAvatar()),
-                    coversMap = singleImageMap(url = extractPageCover())
+                    avatar = extractUserAvatar()?.toImage(),
+                    cover = extractPageCover()?.toImage()
                 )
             }
         }

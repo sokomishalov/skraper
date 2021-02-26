@@ -27,7 +27,6 @@ import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
-import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.Locale.ROOT
@@ -73,7 +72,7 @@ open class PinterestSkraper @JvmOverloads constructor(
                 description = getString("profile.about"),
                 postsCount = getInt("profile.pin_count"),
                 followersCount = getInt("profile.follower_count"),
-                avatarsMap = extractLogoMap()
+                avatar = extractLogo()
             )
         }
     }
@@ -141,17 +140,11 @@ open class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    private fun JsonNode?.extractLogoMap(): Map<MediaSize, Image> {
-        val owner = this?.get("owner")
-
-        return when {
-            owner != null -> mapOf(
-                SMALL to owner.getString("image_medium_url").orEmpty().toImage(),
-                MEDIUM to owner.getString("image_small_url").orEmpty().toImage(),
-                LARGE to owner.getString("image_xlarge_url").orEmpty().toImage()
-            )
-            else -> singleImageMap(url = this?.getString("user.image_xlarge_url"))
-        }
+    private fun JsonNode?.extractLogo(): Image? {
+        return this
+            ?.getFirstByPath("owner.image_xlarge_url","owner.image_medium_url","owner.image_small_url","user.image_xlarge_url")
+            ?.asText()
+            ?.toImage()
     }
 
     companion object {
