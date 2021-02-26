@@ -26,7 +26,8 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 class InstagramSkraperTest : SkraperTck() {
     override val skraper: InstagramSkraper = InstagramSkraper(client = client)
     override val path: String = "/memes"
-    private val username: String = "memes"
+    private val username: String = "memes.video"
+    private val tag: String = "memes"
 
     @Test
     fun `Check user posts`() {
@@ -34,8 +35,18 @@ class InstagramSkraperTest : SkraperTck() {
     }
 
     @Test
+    fun `Check tag posts`() {
+        assertPosts { skraper.getTagPosts(tag = tag) }
+    }
+
+    @Test
     fun `Check user info`() {
         assertPageInfo { skraper.getUserInfo(username = username) }
+    }
+
+    @Test
+    fun `Check tag info`() {
+        assertPageInfo { skraper.getTagInfo(tag = tag) }
     }
 
     @Test

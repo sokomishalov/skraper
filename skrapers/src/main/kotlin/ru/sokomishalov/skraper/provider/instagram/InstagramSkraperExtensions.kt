@@ -28,10 +28,14 @@ suspend fun InstagramSkraper.getUserPosts(username: String, limit: Int = DEFAULT
     return getPosts(path = "/${username}", limit = limit)
 }
 
-suspend fun InstagramSkraper.getUserPosts(userId: Long, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPostsByUserId(userId = userId, limit = limit)
+suspend fun InstagramSkraper.getTagPosts(tag: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
+    return getPosts(path = "/explore/tags/${tag}", limit = limit)
 }
 
 suspend fun InstagramSkraper.getUserInfo(username: String): PageInfo? {
     return getPageInfo(path = "/${username}")
+}
+
+suspend fun InstagramSkraper.getTagInfo(tag: String): PageInfo? {
+    return getPageInfo(path = "/explore/tags/${tag}")
 }
