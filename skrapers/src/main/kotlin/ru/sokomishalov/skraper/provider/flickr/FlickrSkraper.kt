@@ -33,7 +33,6 @@ import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeHtml
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.*
-import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Instant
 
 
@@ -110,9 +109,11 @@ open class FlickrSkraper @JvmOverloads constructor(
             PageInfo(
                 nick = extractPageNick(),
                 name = extractPageName(),
+                followersCount = extractFollowersCount(),
+                postsCount = extractPostsCount(),
                 description = extractPageDescription(),
-                avatarsMap = extractPageLogoMap(),
-                coversMap = extractPageCoverMap()
+                avatar = extractPageLogo(),
+                cover = extractPageCover()
             )
         }
     }
@@ -210,35 +211,35 @@ open class FlickrSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPageNick(): String? {
-        return getFirstByPath("photostream-models", "person-models")
-            ?.firstOrNull()
-            ?.getFirstByPath("owner.pathAlias", "pathAlias")
+        return getFirstByPath("photostream-models.0.owner.pathAlias", "person-models.0.pathAlias")
             ?.unescapeNode()
     }
 
     private fun JsonNode.extractPageName(): String? {
-        return getFirstByPath("person-models", "photostream-models")
-            ?.firstOrNull()
-            ?.getFirstByPath("owner.username", "username")
+        return getFirstByPath("photostream-models.0.owner.username", "person-models.0.username")
             ?.unescapeNode()
     }
 
-    private fun JsonNode.extractPageCoverMap(): Map<MediaSize, Image> {
-        val coverPhotoUrls = findPath("coverPhotoUrls")
-        return mapOf(
-            SMALL to coverPhotoUrls?.getString("s").convertToImage(),
-            MEDIUM to coverPhotoUrls?.getString("l").convertToImage(),
-            LARGE to coverPhotoUrls?.getString("h").convertToImage()
-        )
+    private fun JsonNode.extractFollowersCount(): Int? {
+        return getInt("person-contacts-count-models.0.followerCount")
     }
 
-    private fun JsonNode.extractPageLogoMap(): Map<MediaSize, Image> {
-        val photoUrls = findPath("buddyicon")
-        return mapOf(
-            SMALL to photoUrls?.getString("small").convertToImage(),
-            MEDIUM to photoUrls?.getString("medium").convertToImage(),
-            LARGE to photoUrls?.getString("large").convertToImage()
-        )
+    private fun JsonNode.extractPostsCount(): Int? {
+        return getInt("person-profile-models.0.photoCount")
+    }
+
+    private fun JsonNode.extractPageCover(): Image? {
+        return getByPath("person-profile-models.0.coverPhotoUrls")
+            ?.getFirstByPath("h", "l", "s")
+            ?.asText()
+            ?.convertToImage()
+    }
+
+    private fun JsonNode.extractPageLogo(): Image? {
+        return getFirstByPath("photostream-models.0.owner.buddyicon","person-models.0.buddyicon")
+            ?.getFirstByPath("large", "medium", "small", "default")
+            ?.asText()
+            ?.convertToImage()
     }
 
     private fun String?.convertToImage(): Image {

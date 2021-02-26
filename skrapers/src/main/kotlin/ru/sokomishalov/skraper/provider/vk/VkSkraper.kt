@@ -73,8 +73,8 @@ open class VkSkraper @JvmOverloads constructor(
                 description = extractDescription(),
                 followersCount = extractFollowersCount(),
                 postsCount = extractPostsCount(),
-                avatarsMap = extractPageAvatarsMap(),
-                coversMap = extractPageCoversMap()
+                avatar = extractPageAvatar(),
+                cover = extractPageCover()
             )
         }
     }
@@ -274,21 +274,19 @@ open class VkSkraper @JvmOverloads constructor(
             ?.toIntOrNull()
     }
 
-    private fun Document.extractPageCoversMap(): Map<MediaSize, Image> {
-        return singleImageMap(
-            url = this
-                .getFirstElementByClass("groupCover__image")
-                ?.getBackgroundImageStyle()
-        )
+    private fun Document.extractPageCover(): Image? {
+        return this
+            .getFirstElementByClass("groupCover__image")
+            ?.getBackgroundImageStyle()
+            ?.toImage()
     }
 
-    private fun Document.extractPageAvatarsMap(): Map<MediaSize, Image> {
-        return singleImageMap(
-            url = this
-                .getFirstElementByClass("profile_panel")
-                ?.getFirstElementByTag("img")
-                ?.attr("src")
-        )
+    private fun Document.extractPageAvatar(): Image? {
+        return this
+            .getFirstElementByClass("profile_panel")
+            ?.getFirstElementByTag("img")
+            ?.attr("src")
+            ?.toImage()
     }
 
     companion object {

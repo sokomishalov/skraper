@@ -16,21 +16,21 @@
 package ru.sokomishalov.skraper.model
 
 /**
- * Represents a provider some user/community/channel/topic/trend page information
+ * Represents a provider some user/community/channel/topic/trend/hashtag page information
  * @property nick some nickname
  * @property name name
  * @property description page additional text info
  * @property postsCount posts count *(nullable - such data may not exist on the provider's page)
  * @property followersCount followers count *(nullable - such data may not exist on the provider's page)
- * @property avatarsMap avatar image of various sizes
- * @property coversMap cover image of various sizes *(may not exist at all)
+ * @property avatar avatar image of most available size
+ * @property cover cover image of most available size
  */
-data class PageInfo(
+data class PageInfo constructor(
     val nick: String? = null,
     val name: String? = nick,
     val description: String? = null,
     val postsCount: Int? = null,
     val followersCount: Int? = null,
-    val avatarsMap: Map<MediaSize, Image> = emptyMap(),
-    val coversMap: Map<MediaSize, Image> = emptyMap()
+    val avatar: Image? = null,
+    val cover: Image? = null
 )

@@ -19,9 +19,9 @@ package ru.sokomishalov.skraper.model
 /**
  * Represents a provider some short info.
  * @property name provider name
- * @property logoMap provider logos of various sizes
+ * @property logo provider logo
  */
 data class ProviderInfo(
     val name: String,
-    val logoMap: Map<MediaSize, Image> = emptyMap()
+    val logo: Image? = null
 )

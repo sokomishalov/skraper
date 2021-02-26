@@ -51,9 +51,10 @@ open class NinegagSkraper @JvmOverloads constructor(
 
         return dataJson?.getByPath("data.group")?.run {
             PageInfo(
-                nick = getString("name"),
+                nick = getString("url"),
+                name = getString("name"),
                 description = getString("description"),
-                avatarsMap = singleImageMap(url = getString("ogImageUrl"))
+                avatar = getString("ogImageUrl")?.toImage()
             )
         }
     }

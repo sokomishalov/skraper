@@ -25,10 +25,10 @@ import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.serialization.getByPath
+import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
 import ru.sokomishalov.skraper.internal.serialization.getString
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
 import ru.sokomishalov.skraper.model.*
-import ru.sokomishalov.skraper.model.MediaSize.*
 
 /**
  * @author sokomishalov
@@ -90,14 +90,8 @@ open class IFunnySkraper @JvmOverloads constructor(
             PageInfo(
                 nick = getString("nick"),
                 description = getString("about"),
-                avatarsMap = getByPath("photo.thumb")?.run {
-                    mapOf(
-                        SMALL to getString("small_url").orEmpty().toImage(),
-                        MEDIUM to getString("medium_url").orEmpty().toImage(),
-                        LARGE to getString("large_url").orEmpty().toImage()
-                    )
-                } ?: singleImageMap(url = getByPath("photo.url")?.asText().orEmpty()),
-                coversMap = singleImageMap(url = getString("coverUrl"))
+                avatar = getFirstByPath("photo.thumb.large_url", "photo.thumb.large_url", "photo.thumb.large_url", "photo.url")?.asText()?.toImage(),
+                cover = getString("coverUrl")?.toImage()
             )
         }
     }

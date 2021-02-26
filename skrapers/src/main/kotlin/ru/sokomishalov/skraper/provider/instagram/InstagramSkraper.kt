@@ -26,7 +26,6 @@ import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
-import ru.sokomishalov.skraper.model.MediaSize.*
 import java.time.Instant
 
 
@@ -78,11 +77,7 @@ open class InstagramSkraper @JvmOverloads constructor(
                 postsCount = getFirstByPath("edge_hashtag_to_media.count", "edge_owner_to_timeline_media.count")?.asInt(),
                 followersCount = getInt("edge_followed_by.count"),
                 description = getString("biography"),
-                avatarsMap = mapOf(
-                    SMALL to getString("profile_pic_url").orEmpty().toImage(),
-                    MEDIUM to getString("profile_pic_url").orEmpty().toImage(),
-                    LARGE to getString("profile_pic_url_hd").orEmpty().toImage()
-                )
+                avatar = getFirstByPath("profile_pic_url_hd","profile_pic_url")?.asText()?.toImage(),
             )
         }
     }

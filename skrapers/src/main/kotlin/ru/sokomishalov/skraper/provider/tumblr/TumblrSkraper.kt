@@ -102,8 +102,8 @@ open class TumblrSkraper @JvmOverloads constructor(
             nick = extractPageNick(),
             name = extractPageName(),
             description = extractPageDescription(),
-            avatarsMap = extractPageAvatarMap(),
-            coversMap = extractPageCoverMap()
+            avatar = extractPageAvatar(),
+            cover = extractPageCover()
         )
     }
 
@@ -193,21 +193,19 @@ open class TumblrSkraper @JvmOverloads constructor(
             ?.attr("content")
     }
 
-    private fun Document?.extractPageAvatarMap(): Map<MediaSize, Image> {
-        return singleImageMap(
-            url = this
-                ?.getFirstElementByClass("user-avatar")
-                ?.getFirstElementByTag("img")
-                ?.attr("src")
-        )
+    private fun Document?.extractPageAvatar(): Image? {
+        return this
+            ?.getFirstElementByClass("user-avatar")
+            ?.getFirstElementByTag("img")
+            ?.attr("src")
+            ?.toImage()
     }
 
-    private fun Document?.extractPageCoverMap(): Map<MediaSize, Image> {
-        return singleImageMap(
-            url = this
-                ?.getFirstElementByClass("cover")
-                ?.attr("data-bg-image")
-        )
+    private fun Document?.extractPageCover(): Image? {
+        return this
+            ?.getFirstElementByClass("cover")
+            ?.attr("data-bg-image")
+            ?.toImage()
     }
 
     companion object {
