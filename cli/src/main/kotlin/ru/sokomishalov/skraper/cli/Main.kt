@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
+@file:JvmName("Main")
+
 package ru.sokomishalov.skraper.cli
 
-import com.andreapivetta.kolor.cyan
-import com.andreapivetta.kolor.green
-import com.andreapivetta.kolor.magenta
-import com.andreapivetta.kolor.red
+import com.github.ajalt.mordant.TermColors
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.mainBody
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -38,11 +37,10 @@ import java.util.concurrent.Executors
 import kotlin.system.exitProcess
 import kotlin.text.Charsets.UTF_8
 
-
 fun main(args: Array<String>) = mainBody(columns = 100) {
     val parsedArgs = ArgParser(args = args.ifEmpty { arrayOf("--help") }).parseInto(::Args)
 
-    println("${"Skraper".green()} ${"v.0.5.1".magenta()} started")
+    with(t) { println("${green("Skraper")} ${magenta("v.0.5.1")} started") }
 
     val posts = runBlocking {
         parsedArgs.skraper.getPosts(
@@ -83,7 +81,7 @@ private fun List<Post>.persistMedia(parsedArgs: Args) {
                     }.onSuccess { path ->
                         println(path)
                     }.onFailure { thr ->
-                        println("Cannot download ${media.url} , Reason: ${thr.toString().red()}")
+                        with(t) { println("Cannot download ${media.url} , Reason: ${red(thr.toString())}") }
                     }
                 }
             }
@@ -114,5 +112,8 @@ private fun List<Post>.persistMeta(parsedArgs: Args) {
         .apply { parentFile.mkdirs() }
         .writeText(text = content, charset = UTF_8)
 
-    println(fileToWrite.path.cyan())
+    with(t) { println(cyan(fileToWrite.path)) }
 }
+
+@JvmField
+val t = TermColors()

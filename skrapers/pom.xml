@@ -13,8 +13,12 @@
     <artifactId>skrapers</artifactId>
     <version>${revision}</version>
 
-    <dependencies>
+    <properties>
+        <reactor-netty.version>1.0.4</reactor-netty.version>
+        <logback.version>1.2.3</logback.version>
+    </properties>
 
+    <dependencies>
         <!-- COMPILE  -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
