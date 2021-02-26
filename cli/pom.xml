@@ -14,6 +14,8 @@
     <version>${revision}</version>
 
     <properties>
+        <mordant.version>1.2.1</mordant.version>
+        <argparser.version>2.0.7</argparser.version>
         <maven.skip.deploy>true</maven.skip.deploy>
     </properties>
 
@@ -29,9 +31,9 @@
             <version>${argparser.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.andreapivetta.kolor</groupId>
-            <artifactId>kolor</artifactId>
-            <version>${kolor.version}</version>
+            <groupId>com.github.ajalt</groupId>
+            <artifactId>mordant</artifactId>
+            <version>${mordant.version}</version>
         </dependency>
         <dependency>
             <groupId>io.ktor</groupId>
@@ -70,13 +72,6 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>bintray</id>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
-
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <finalName>${project.artifactId}</finalName>
@@ -103,7 +98,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ru.sokomishalov.skraper.cli.MainKt</mainClass>
+                            <mainClass>ru.sokomishalov.skraper.cli.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

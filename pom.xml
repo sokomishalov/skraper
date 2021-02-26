@@ -18,19 +18,13 @@
         <kotlinx-coroutines.version>1.4.2</kotlinx-coroutines.version>
         <jackson.version>2.12.1</jackson.version>
         <jsoup.version>1.13.1</jsoup.version>
-        <reactor-netty.version>1.0.4</reactor-netty.version>
         <okhttp3.version>4.9.1</okhttp3.version>
         <spring.version>5.3.3</spring.version>
-        <spring-boot.version>2.4.3</spring-boot.version>
         <ktor.version>1.5.1</ktor.version>
-        <argparser.version>2.0.7</argparser.version>
-        <kolor.version>1.0.0</kolor.version>
-        <telegram-bots.version>5.0.1.1</telegram-bots.version>
-        <sokomishalov-commons.version>1.2.1</sokomishalov-commons.version>
-        <logback.version>1.2.3</logback.version>
 
         <flatten-plugin.version>1.2.5</flatten-plugin.version>
         <license-plugin.version>3.0</license-plugin.version>
+        <dokka-plugin.version>1.4.10.2</dokka-plugin.version>
     </properties>
 
     <modules>
@@ -38,6 +32,32 @@
         <module>cli</module>
         <module>telegram-bot</module>
     </modules>
+
+    <name>Skraper</name>
+    <description>Kotlin/Java library and cli tool for scraping posts and media from various sources with neither authorization nor full page rendering</description>
+    <url>https://github.com/sokomishalov/skraper/</url>
+
+    <developers>
+        <developer>
+            <name>Mikhael Sokolov</name>
+            <email>sokomishalov@mail.ru</email>
+            <organization>ru.sokomishalov</organization>
+            <url>https://sokomishalov.github.io/about-me</url>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://choosealicense.com/licenses/apache-2.0/</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/sokomishalov/skraper</url>
+        <connection>scm:git:git://github.com/sokomishalov/skraper.git</connection>
+        <developerConnection>scm:git:ssh://github.com/sokomishalov/skraper.git</developerConnection>
+    </scm>
 
     <build>
         <plugins>
@@ -85,18 +105,113 @@
         </pluginManagement>
     </build>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
+    <profiles>
+        <profile>
+            <id>jitpack</id>
+            <repositories>
+                <repository>
+                    <id>jitpack.io</id>
+                    <url>https://jitpack.io</url>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>ossrh</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>${dokka-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>pre-site</phase>
+                                <goals>
+                                    <goal>dokka</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <dokkaPlugins>
+                                <plugin>
+                                    <groupId>org.jetbrains.dokka</groupId>
+                                    <artifactId>kotlin-as-java-plugin</artifactId>
+                                    <version>${dokka-plugin.version}</version>
+                                </plugin>
+                            </dokkaPlugins>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>jcenter</id>
+                    <name>JCenter</name>
+                    <url>https://jcenter.bintray.com/</url>
+                </pluginRepository>
+            </pluginRepositories>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 
 </project>

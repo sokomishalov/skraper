@@ -1,9 +1,10 @@
 Skraper
 ========
-~~Here should be some modern logo~~
+~~Here should be some fancy logo~~
 
 [![Apache License 2](https://img.shields.io/badge/license-ASF2-blue.svg)](https://choosealicense.com/licenses/apache-2.0/)
-[![](https://jitpack.io/v/sokomishalov/skraper.svg)](https://jitpack.io/#sokomishalov/skraper)
+[![](https://img.shields.io/maven-central/v/ru.sokomishalov.skraper/skrapers)](https://mvnrepository.com/artifact/ru.sokomishalov.skraper/skrapers)
+[![](https://img.shields.io/jitpack/v/github/sokomishalov/skraper)](https://jitpack.io/#sokomishalov/skraper)
 
 # Overview
 
@@ -127,30 +128,17 @@ Examples:
 Maven:
 
 ```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-<dependencies>
 <dependency>
-    <groupId>com.github.sokomishalov.skraper</groupId>
+    <groupId>ru.sokomishalov.skraper</groupId>
     <artifactId>skrapers</artifactId>
-    <version>0.6.1</version>
+    <version>0.7.0</version>
 </dependency>
-</dependencies>
 ```
 
 Gradle kotlin dsl:
 
 ```kotlin
-repositories {
-    maven { url = uri("http://jitpack.io") }
-}
-dependencies {
-    implementation("com.github.sokomishalov.skraper:skrapers:0.6.3")
-}
+implementation("ru.sokomishalov.skraper:skrapers:0.7.0")
 ```
 
 ## Usage
@@ -294,28 +282,8 @@ Output:
   "description": "http://memes.com is your number one website for the funniest content on the web. You will find funny pictures, funny memes and much more.",
   "postsCount": 10848,
   "followersCount": 154718,
-  "avatarsMap": {
-    "SMALL": {
-      "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
-    },
-    "MEDIUM": {
-      "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
-    },
-    "LARGE": {
-      "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
-    }
-  },
-  "coversMap": {
-    "SMALL": {
-      "url": "https://abs.twimg.com/images/themes/theme1/bg.png"
-    },
-    "MEDIUM": {
-      "url": "https://abs.twimg.com/images/themes/theme1/bg.png"
-    },
-    "LARGE": {
-      "url": "https://abs.twimg.com/images/themes/theme1/bg.png"
-    }
-  }
+  "avatar": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg",
+  "cover": "https://abs.twimg.com/images/themes/theme1/bg.png"
 }
 ```
 
@@ -393,17 +361,7 @@ Output:
 ```json5
 {
   "name": "Instagram",
-  "logoMap": {
-    "SMALL": {
-      "url": "https://instagram.com/favicon.ico"
-    },
-    "MEDIUM": {
-      "url": "https://instagram.com/favicon.ico"
-    },
-    "LARGE": {
-      "url": "https://instagram.com/favicon.ico"
-    }
-  }
+  "logo": "https://instagram.com/favicon.ico"
 }
 ```
 
