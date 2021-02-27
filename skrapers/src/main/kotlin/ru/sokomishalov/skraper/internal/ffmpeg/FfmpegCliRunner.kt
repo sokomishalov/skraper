@@ -27,7 +27,7 @@ import java.time.Duration
 /**
  * @author sokomishalov
  */
-class FfmpegCliRunner(
+open class FfmpegCliRunner @JvmOverloads constructor(
     private val processLivenessCheckInterval: Duration = Duration.ofMillis(50)
 ) : FfmpegRunner {
 
