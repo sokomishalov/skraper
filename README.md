@@ -326,13 +326,13 @@ There is "static" method which allows to download any media from all known imple
 suspend fun main() {
     val tmpDir = Files.createTempDirectory("skraper").toFile()
 
-    val testVideo = Skraper.download(
+    val testVideo = Skrapers.download(
         media = Video("https://youtu.be/fjUO7xaUHJQ"),
         destDir = tmpDir,
         filename = "Gandalf"
     )
 
-    val testImage = Skraper.download(
+    val testImage = Skrapers.download(
         media = Image("https://www.pinterest.ru/pin/89509111320495523/"),
         destDir = tmpDir,
         filename = "Do_no_harm"

@@ -17,10 +17,10 @@
 
 package ru.sokomishalov.skraper.internal.ffmpeg
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import java.io.InputStream
 import java.time.Duration
 
 
@@ -28,38 +28,36 @@ import java.time.Duration
  * @author sokomishalov
  */
 open class FfmpegCliRunner @JvmOverloads constructor(
-    private val processLivenessCheckInterval: Duration = Duration.ofMillis(50)
+    private val processTimeout: Duration = Duration.ofHours(1),
+    private val processLivenessCheckInterval: Duration = Duration.ofMillis(100),
 ) : FfmpegRunner {
 
-    private companion object {
-        init {
-            FfmpegCliRunner().checkFfmpegExistence()
-        }
+    init {
+        checkFfmpegExistence()
     }
 
-    override suspend fun run(
-        cmd: String,
-        timeout: Duration,
-        stdin: (InputStream) -> Unit
-    ): Int {
-        val process = Runtime.getRuntime().exec("ffmpeg $cmd")
-
-        withTimeoutOrNull(timeout.toMillis()) {
-            stdin(process.inputStream)
-            process.await()
+    override suspend fun run(cmd: String): Int {
+        return runCatching {
+            with(Runtime.getRuntime().exec("ffmpeg $cmd")) {
+                await()
+                exitValue()
+            }
+        }.getOrElse {
+            -1
         }
-
-        return runCatching { process.exitValue() }.getOrElse { -1 }
     }
 
     private suspend fun Process.await() {
-        while (isAlive) delay(processLivenessCheckInterval.toMillis())
+        withTimeoutOrNull(processTimeout.toMillis()) {
+            while (isAlive) delay(processLivenessCheckInterval.toMillis())
+        }
     }
 
     private fun checkFfmpegExistence() {
-        runBlocking {
-            run(cmd = "-version", timeout = Duration.ofSeconds(2)).let { code ->
-                if (code != 0) System.err.println("`ffmpeg` is not present in OS, some functions may work unreliably")
+        GlobalScope.launch {
+            val code = run("-version")
+            if (code != 0) {
+                println("`ffmpeg` is not present in OS, some functions may work unreliably")
             }
         }
     }

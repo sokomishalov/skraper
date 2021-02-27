@@ -27,9 +27,9 @@ import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
-import ru.sokomishalov.skraper.download
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
@@ -122,13 +122,13 @@ abstract class SkraperTck {
     }
 
     protected fun assertMediaDownloaded(media: Media) = runBlocking {
+        Skrapers.setClient(client)
         val tmpDir = Files.createTempDirectory("skraper").toFile()
         val downloaded = runCatching { logAction {
-            Skraper.download(
+            Skrapers.download(
                 media = media,
                 destDir = tmpDir,
-                filename = UUID.randomUUID().toString(),
-                client = client
+                filename = UUID.randomUUID().toString()
             )
         } }.getOrNull()
 

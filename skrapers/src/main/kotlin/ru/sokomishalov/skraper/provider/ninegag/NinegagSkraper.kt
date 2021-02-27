@@ -41,6 +41,8 @@ open class NinegagSkraper @JvmOverloads constructor(
     override val baseUrl: URLString = "https://9gag.com"
 ) : Skraper {
 
+    override val name: String = "9GAG"
+
     override suspend fun getPosts(path: String, limit: Int): List<Post> {
         return fetchPostsRecursively(path, limit)
     }
