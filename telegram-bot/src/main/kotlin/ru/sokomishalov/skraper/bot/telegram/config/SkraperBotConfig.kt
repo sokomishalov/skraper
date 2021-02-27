@@ -29,11 +29,10 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import ru.sokomishalov.commons.core.serialization.OBJECT_MAPPER
-import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient
-import ru.sokomishalov.skraper.knownList
 
 
 /**
@@ -51,9 +50,8 @@ class SkraperBotConfig {
 
     @Bean
     @Primary
-    fun webClient(mapper: ObjectMapper): WebClient {
-        return WebClient
-            .builder()
+    fun webClient(webClientBuilder: WebClient.Builder, mapper: ObjectMapper): WebClient {
+        return webClientBuilder
             .clientConnector(ReactorClientHttpConnector(
                 HttpClient
                     .create()
@@ -79,11 +77,6 @@ class SkraperBotConfig {
 
     @Bean
     fun skraperClient(webClient: WebClient): SkraperClient {
-        return SpringReactiveSkraperClient(webClient)
-    }
-
-    @Bean
-    fun knownSkrapers(client: SkraperClient): List<Skraper> {
-        return Skraper.knownList(client)
+        return SpringReactiveSkraperClient(webClient).also { Skrapers.setClient(it) }
     }
 }

@@ -17,25 +17,23 @@ package ru.sokomishalov.skraper.cli
 
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
-import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.cli.Serialization.LOG
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
-import ru.sokomishalov.skraper.knownList
-import ru.sokomishalov.skraper.name
 import java.io.File
 
 class Args(parser: ArgParser) {
 
-    companion object {
-        internal val DEFAULT_CLIENT = KtorSkraperClient()
-        internal val SKRAPERS = Skraper.knownList(client = DEFAULT_CLIENT)
+    init {
+        Skrapers.setClient(KtorSkraperClient())
     }
 
     val skraper by parser.positional(
         name = "PROVIDER",
-        help = "skraper provider, options: ${SKRAPERS.joinToString { it.name }}"
+        help = "skraper provider, options: ${Skrapers.available().joinToString { it.name }}"
     ) {
-        SKRAPERS
+        Skrapers
+            .available()
             .find { this == it.name }
             .let { requireNotNull(it) { "Unknown provider" } }
     }

@@ -25,11 +25,8 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.cli.Args.Companion.DEFAULT_CLIENT
-import ru.sokomishalov.skraper.download
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.name
 import java.io.File
 import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter.ofPattern
@@ -40,7 +37,7 @@ import kotlin.text.Charsets.UTF_8
 fun main(args: Array<String>) = mainBody(columns = 100) {
     val parsedArgs = ArgParser(args = args.ifEmpty { arrayOf("--help") }).parseInto(::Args)
 
-    with(t) { println("${green("Skraper")} ${magenta("v.0.5.1")} started") }
+    with(t) { println("${green("Skraper")} ${magenta("v.0.7.0")} started") }
 
     val posts = runBlocking {
         parsedArgs.skraper.getPosts(
@@ -69,14 +66,13 @@ private fun List<Post>.persistMedia(parsedArgs: Args) {
             post.media.mapIndexed { index, media ->
                 async {
                     runCatching {
-                        Skraper.download(
+                        Skrapers.download(
                             media = media,
                             destDir = targetDir,
                             filename = when (post.media.size) {
                                 1 -> post.id
                                 else -> "${post.id}_${index + 1}"
-                            },
-                            client = DEFAULT_CLIENT
+                            }
                         )
                     }.onSuccess { path ->
                         println(path)

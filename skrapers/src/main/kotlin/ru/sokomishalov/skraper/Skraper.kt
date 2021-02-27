@@ -27,9 +27,9 @@ import ru.sokomishalov.skraper.model.*
 interface Skraper {
 
     /**
-     * added for some static extensions
+     * @return provider name
      */
-    companion object
+    val name: String get() = this::class.java.simpleName.removeSuffix("Skraper").toLowerCase()
 
     /**
      * @return provider base url
@@ -50,10 +50,7 @@ interface Skraper {
     /**
      * @return provider info
      */
-    suspend fun getProviderInfo(): ProviderInfo? = ProviderInfo(
-        name = name,
-        logo = baseUrl.buildFullURL(path = "/favicon.ico").toImage()
-    )
+    suspend fun getProviderInfo(): ProviderInfo? = ProviderInfo(name, baseUrl.buildFullURL(path = "/favicon.ico").toImage())
 
     /**
      * @param path page specific url path (should start with "/")

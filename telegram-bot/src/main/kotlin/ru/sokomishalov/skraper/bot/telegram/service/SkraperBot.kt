@@ -32,11 +32,9 @@ import org.telegram.telegrambots.meta.api.objects.media.InputMediaVideo
 import ru.sokomishalov.commons.core.collections.toMap
 import ru.sokomishalov.commons.core.log.Loggable
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.download
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.model.*
-import ru.sokomishalov.skraper.name
-import ru.sokomishalov.skraper.resolve
 import java.io.File
 import java.nio.file.Files.createTempDirectory
 import kotlin.text.RegexOption.*
@@ -45,10 +43,7 @@ import kotlin.text.RegexOption.*
  * @author sokomishalov
  */
 @Service
-class SkraperBot(
-    private val knownSkrapers: List<Skraper>,
-    private val mapper: ObjectMapper
-) {
+class SkraperBot(private val mapper: ObjectMapper) {
 
     suspend fun receive(update: Update): PartialBotApiMethod<*>? {
         logDebug { "INCOMING:\n${mapper.writeValueAsString(update)}" }
@@ -67,7 +62,7 @@ class SkraperBot(
         if (url.isNullOrBlank()) return sendText(message, "URL not found in the message")
 
         // 2. find suitable skraper
-        val supportedSkraper: Skraper? = knownSkrapers.find { it.supports(url.orEmpty()) }
+        val supportedSkraper: Skraper? = Skrapers.findSuitable(url)
         if (supportedSkraper == null) return sendText(message, "Unsupported URL")
 
         logDebug { "Provider: ${supportedSkraper.name.capitalize()}, URL: $url" }
@@ -83,10 +78,9 @@ class SkraperBot(
                     latestPost
                         .media
                         .toMap { media ->
-                            media to Skraper.download(
+                            media to Skrapers.download(
                                 media = media,
-                                destDir = tmpDir,
-                                skrapers = knownSkrapers
+                                destDir = tmpDir
                             )
                         }
                         .let { items ->
@@ -99,19 +93,10 @@ class SkraperBot(
 
                 else -> {
                     listOf(Video(url), Audio(url), Image(url))
-                        .map { media ->
-                            media to Skraper.resolve(
-                                media = media,
-                                skrapers = knownSkrapers
-                            )
-                        }
+                        .map { media -> media to Skrapers.resolve(media = media) }
                         .firstOrNull { (original, resolved) -> original.url != resolved.url }
                         ?.let { (_, resolved) ->
-                            val file = Skraper.download(
-                                media = resolved,
-                                destDir = tmpDir,
-                                skrapers = knownSkrapers
-                            )
+                            val file = Skrapers.download(media = resolved, destDir = tmpDir)
                             sendMedia(message, mapOf(resolved to file))
                         }
                         ?: saySorry(message)

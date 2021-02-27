@@ -72,7 +72,7 @@ open class InstagramSkraper @JvmOverloads constructor(
 
         return infoNodes?.run {
             PageInfo(
-                nick = getString("username"),
+                nick = getFirstByPath("username", "name")?.asText(),
                 name = getString("full_name"),
                 postsCount = getFirstByPath("edge_hashtag_to_media.count", "edge_owner_to_timeline_media.count")?.asInt(),
                 followersCount = getInt("edge_followed_by.count"),
