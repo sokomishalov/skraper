@@ -62,7 +62,7 @@ class SkraperBot(private val mapper: ObjectMapper) {
         if (url.isNullOrBlank()) return sendText(message, "URL not found in the message")
 
         // 2. find suitable skraper
-        val supportedSkraper: Skraper? = Skrapers.findSuitable(url)
+        val supportedSkraper: Skraper? = Skrapers.suitable(url)
         if (supportedSkraper == null) return sendText(message, "Unsupported URL")
 
         logDebug { "Provider: ${supportedSkraper.name.capitalize()}, URL: $url" }

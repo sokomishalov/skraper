@@ -52,9 +52,9 @@ object Skrapers {
 
     /**
      * @param url potential provider relative url
-     * @return skraper which supports this url or null if none of skrapers is suitable
+     * @return skraper which supports this url or null if none of skrapers supports it
      */
-    suspend fun findSuitable(url: URLString): Skraper? {
+    suspend fun suitable(url: URLString): Skraper? {
         return providers.find { it.supports(url) }
     }
 
@@ -74,7 +74,7 @@ object Skrapers {
 
             // otherwise
             else -> {
-                findSuitable(media.url)
+                suitable(media.url)
                     ?.resolve(media)
                     ?.run {
                         when {
