@@ -33,6 +33,7 @@ import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
 import ru.sokomishalov.skraper.provider.pikabu.PikabuSkraper
 import ru.sokomishalov.skraper.provider.pinterest.PinterestSkraper
 import ru.sokomishalov.skraper.provider.reddit.RedditSkraper
+import ru.sokomishalov.skraper.provider.tiktok.TikTokSkraper
 import ru.sokomishalov.skraper.provider.tumblr.TumblrSkraper
 import ru.sokomishalov.skraper.provider.twitch.TwitchSkraper
 import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
@@ -59,7 +60,7 @@ suspend fun Skraper.Companion.download(
     skrapers: List<Skraper> = knownList(client),
     ffmpegRunner: FfmpegRunner = FfmpegCliRunner()
 ): File {
-    val resolved = skrapers.lookForDirectMediaRecursively(media)
+    val resolved = resolve(media = media, client = client, skrapers = skrapers)
     val extension = resolved.extractFileExtension()
 
     val destFile = File("${destDir.absolutePath}$separator${filename}.${extension}").apply { destDir.mkdirs() }
@@ -109,19 +110,20 @@ suspend fun Skraper.Companion.resolve(
 }
 
 fun Skraper.Companion.knownList(client: SkraperClient): List<Skraper> = listOf(
-    FacebookSkraper(client = client),
-    InstagramSkraper(client = client),
-    TwitterSkraper(client = client),
-    YoutubeSkraper(client = client),
-    TwitchSkraper(client = client),
-    RedditSkraper(client = client),
-    NinegagSkraper(client = client),
-    PinterestSkraper(client = client),
-    FlickrSkraper(client = client),
-    TumblrSkraper(client = client),
-    IFunnySkraper(client = client),
-    VkSkraper(client = client),
-    PikabuSkraper(client = client)
+    FacebookSkraper(client),
+    InstagramSkraper(client),
+    TwitterSkraper(client),
+    YoutubeSkraper(client),
+    TikTokSkraper(client),
+    TwitchSkraper(client),
+    RedditSkraper(client),
+    NinegagSkraper(client),
+    PinterestSkraper(client),
+    FlickrSkraper(client),
+    TumblrSkraper(client),
+    IFunnySkraper(client),
+    VkSkraper(client),
+    PikabuSkraper(client)
 )
 
 inline val Skraper.name: String
