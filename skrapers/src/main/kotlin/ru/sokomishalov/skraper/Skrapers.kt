@@ -38,6 +38,7 @@ import ru.sokomishalov.skraper.provider.tumblr.TumblrSkraper
 import ru.sokomishalov.skraper.provider.twitch.TwitchSkraper
 import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
 import ru.sokomishalov.skraper.provider.vk.VkSkraper
+import ru.sokomishalov.skraper.provider.telegram.TelegramSkraper
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
 import java.io.File
 
@@ -175,6 +176,7 @@ object Skrapers {
         TwitterSkraper(client),
         YoutubeSkraper(client),
         TikTokSkraper(client),
+        TelegramSkraper(client),
         TwitchSkraper(client),
         RedditSkraper(client),
         NinegagSkraper(client),

@@ -23,9 +23,9 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
-import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.jsoup.getBackgroundImageStyle
+import ru.sokomishalov.skraper.internal.jsoup.getBackgroundImageUrl
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.number.div
@@ -120,7 +120,7 @@ open class FlickrSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Image -> client.fetchMediaWithOpenGraphMeta(media)
+            is Image -> client.fetchOpenGraphMedia(media)
             else -> media
         }
     }
@@ -148,7 +148,7 @@ open class FlickrSkraper @JvmOverloads constructor(
 
     private fun Element?.getBackgroundImage(): String? {
         return this
-            ?.getBackgroundImageStyle()
+            ?.getBackgroundImageUrl()
             ?.let { "https:$it" }
     }
 

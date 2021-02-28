@@ -20,7 +20,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
-import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.iterable.mapThis
@@ -72,7 +72,7 @@ class TikTokSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Video -> client.fetchMediaWithOpenGraphMeta(media)
+            is Video -> client.fetchOpenGraphMedia(media)
             else -> media
         }
     }
