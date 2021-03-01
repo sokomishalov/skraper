@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress(
+    "DuplicatedCode"
+)
+
 package ru.sokomishalov.skraper.provider.youtube
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -190,12 +194,10 @@ open class YoutubeSkraper @JvmOverloads constructor(
             .trim()
             .run {
                 when {
-                    endsWith("K") -> replace("K", "").replace(".", "").toIntOrNull()?.times(1_000)
-                    endsWith("M", ignoreCase = true) -> replace("M", "").replace(".", "").toIntOrNull()
-                        ?.times(1_000_000)
-                    endsWith("B", ignoreCase = true) -> replace("B", "").replace(".", "").toIntOrNull()
-                        ?.times(1_000_000_000)
-                    else -> replace(".", "").toIntOrNull()
+                    endsWith("K", ignoreCase = true) -> replace("K", "").substringBeforeLast(".").toIntOrNull()?.times(1_000)
+                    endsWith("M", ignoreCase = true) -> replace("M", "").substringBeforeLast(".").toIntOrNull()?.times(1_000_000)
+                    endsWith("B", ignoreCase = true) -> replace("B", "").substringBeforeLast(".").toIntOrNull()?.times(1_000_000_000)
+                    else -> substringBeforeLast(".").toIntOrNull()
                 }
             }
     }

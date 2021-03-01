@@ -215,7 +215,7 @@ open class VkSkraper @JvmOverloads constructor(
             ?.getStyle("padding-top")
             ?.removeSuffix("%")
             ?.toDoubleOrNull()
-            ?.run { 100 / this }
+            ?.let { 100 / it }
 
         return thumbElement
             ?.getElementsByTag("a")
@@ -230,7 +230,7 @@ open class VkSkraper @JvmOverloads constructor(
                     )
                     else -> Image(
                         url = getFirstElementByClass("thumb_map_img")
-                            ?.getBackgroundImageStyle()
+                            ?.getBackgroundImageUrl()
                             ?: hrefLink,
                         aspectRatio = aspectRatio
                     )
@@ -277,7 +277,7 @@ open class VkSkraper @JvmOverloads constructor(
     private fun Document.extractPageCover(): Image? {
         return this
             .getFirstElementByClass("groupCover__image")
-            ?.getBackgroundImageStyle()
+            ?.getBackgroundImageUrl()
             ?.toImage()
     }
 

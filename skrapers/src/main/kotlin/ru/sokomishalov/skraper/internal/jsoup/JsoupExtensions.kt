@@ -70,7 +70,7 @@ internal inline fun Element.getStyle(name: String): String? {
     return getStyleMap()[name]
 }
 
-internal fun Element.getBackgroundImageStyle(): String {
+internal fun Element.getBackgroundImageUrl(): String {
     return this
         .getStyle("background-image")
         .orEmpty()

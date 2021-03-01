@@ -94,9 +94,9 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Image -> client.fetchMediaWithOpenGraphMeta(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS))
+            is Image -> client.fetchOpenGraphMedia(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS))
             is Video -> {
-                val ogVideo = client.fetchMediaWithOpenGraphMeta(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS)) as Video
+                val ogVideo = client.fetchOpenGraphMedia(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS)) as Video
                 val page = client.fetchDocument(HttpRequest(url = ogVideo.url, headers = DEFAULT_HEADERS))
 
                 val urlFromPage = page

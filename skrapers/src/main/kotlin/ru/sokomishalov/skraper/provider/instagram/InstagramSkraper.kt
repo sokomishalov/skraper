@@ -20,7 +20,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
-import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.number.div
@@ -83,7 +83,7 @@ open class InstagramSkraper @JvmOverloads constructor(
     }
 
     override suspend fun resolve(media: Media): Media {
-        return client.fetchMediaWithOpenGraphMeta(media)
+        return client.fetchOpenGraphMedia(media)
     }
 
     private fun String.isTagPath() = "explore/tags/" in this

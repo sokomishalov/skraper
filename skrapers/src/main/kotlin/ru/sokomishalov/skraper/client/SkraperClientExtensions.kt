@@ -66,7 +66,7 @@ suspend fun SkraperClient.fetchDocument(request: HttpRequest, charset: Charset =
 /**
  * @see <a href="https://ogp.me/">open graph protocol</a>
  */
-suspend fun SkraperClient.fetchMediaWithOpenGraphMeta(
+suspend fun SkraperClient.fetchOpenGraphMedia(
     media: Media,
     request: HttpRequest = HttpRequest(url = media.url)
 ): Media {

@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
-import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.serialization.getByPath
@@ -78,7 +78,7 @@ open class IFunnySkraper @JvmOverloads constructor(
     }
 
     override suspend fun resolve(media: Media): Media {
-        return client.fetchMediaWithOpenGraphMeta(media)
+        return client.fetchOpenGraphMedia(media)
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {

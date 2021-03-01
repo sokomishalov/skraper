@@ -22,7 +22,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchJson
-import ru.sokomishalov.skraper.client.fetchMediaWithOpenGraphMeta
+import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.net.path
@@ -93,7 +93,7 @@ open class RedditSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Image -> client.fetchMediaWithOpenGraphMeta(media)
+            is Image -> client.fetchOpenGraphMedia(media)
             is Video -> {
                 val posts = getPosts(path = media.url.path, limit = 1)
                 posts
