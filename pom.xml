@@ -24,7 +24,7 @@
 
         <flatten-plugin.version>1.2.5</flatten-plugin.version>
         <license-plugin.version>3.0</license-plugin.version>
-        <dokka-plugin.version>1.4.10.2</dokka-plugin.version>
+        <dokka-plugin.version>1.4.20-dev-65</dokka-plugin.version>
     </properties>
 
     <modules>
