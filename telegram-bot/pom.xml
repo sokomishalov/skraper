@@ -15,7 +15,7 @@
 
     <properties>
         <spring-boot.version>2.4.3</spring-boot.version>
-        <telegram-bots.version>5.0.1.1</telegram-bots.version>
+        <telegram-bots.version>5.1.0</telegram-bots.version>
         <sokomishalov-commons.version>1.2.1</sokomishalov-commons.version>
     </properties>
 
