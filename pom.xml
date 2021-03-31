@@ -23,7 +23,7 @@
         <ktor.version>1.5.2</ktor.version>
 
         <flatten-plugin.version>1.2.7</flatten-plugin.version>
-        <license-plugin.version>3.0</license-plugin.version>
+        <license-plugin.version>4.0</license-plugin.version>
         <dokka-plugin.version>1.4.30</dokka-plugin.version>
     </properties>
 
