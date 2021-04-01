@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019-present Mikhael Sokolov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,12 +33,12 @@ import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
 import ru.sokomishalov.skraper.provider.pikabu.PikabuSkraper
 import ru.sokomishalov.skraper.provider.pinterest.PinterestSkraper
 import ru.sokomishalov.skraper.provider.reddit.RedditSkraper
+import ru.sokomishalov.skraper.provider.telegram.TelegramSkraper
 import ru.sokomishalov.skraper.provider.tiktok.TikTokSkraper
 import ru.sokomishalov.skraper.provider.tumblr.TumblrSkraper
 import ru.sokomishalov.skraper.provider.twitch.TwitchSkraper
 import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
 import ru.sokomishalov.skraper.provider.vk.VkSkraper
-import ru.sokomishalov.skraper.provider.telegram.TelegramSkraper
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
 import java.io.File
 
