@@ -106,8 +106,7 @@ open class FacebookSkraper @JvmOverloads constructor(
             ?.get("pre_display_requires")
             ?.map { it.findPath("__bbox") }
             ?.mapNotNull { it?.getByPath("result.data.feedback") }
-            ?.map { it.getString("share_fbid").orEmpty() to it }
-            ?.toMap()
+            ?.associate { it.getString("share_fbid").orEmpty() to it }
             .orEmpty()
     }
 
@@ -140,17 +139,10 @@ open class FacebookSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractPostText(): String? {
-        val text = getFirstElementByClass("userContent")
-            ?.getFirstElementByTag("p")
-            ?.wholeText()
-            ?.toString()
-
-        val repostText = getFirstElementByAttributeValue("data-testid", "post_message")
-            ?.getFirstElementByTag("p")
-            ?.wholeText()
-            ?.toString()
-
-        return text ?: repostText
+        return getElementsByAttributeValue("data-testid", "post_message")
+            .mapNotNull { it.getFirstElementByTag("p")?.wholeText() }
+            .ifEmpty { return null }
+            .joinToString(separator = "\n\n")
     }
 
     private fun Element.extractPostPublishDateTime(): Instant? {

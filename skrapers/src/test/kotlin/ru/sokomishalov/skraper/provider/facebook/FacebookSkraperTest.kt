@@ -25,7 +25,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class FacebookSkraperTest : SkraperTck() {
     override val skraper: FacebookSkraper = FacebookSkraper(client = client)
-    override val path: String = "/memes/posts"
+    override val path: String = "/memes"
     private val community: String = "dracibrno"
     private val username: String = "DonaldTrump"
 

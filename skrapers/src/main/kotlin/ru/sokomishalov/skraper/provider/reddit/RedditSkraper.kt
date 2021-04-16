@@ -109,7 +109,7 @@ open class RedditSkraper @JvmOverloads constructor(
     private fun JsonNode.extractText(): String {
         return listOf(getString("title"), getString("selftext"))
             .filterNot { s -> s.isNullOrEmpty() }
-            .joinToString("\n")
+            .joinToString("\n\n")
     }
 
     private fun JsonNode.extractPostMediaItems(): List<Media> {
