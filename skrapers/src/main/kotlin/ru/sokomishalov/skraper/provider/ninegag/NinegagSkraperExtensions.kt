@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.ninegag
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -23,28 +23,28 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun NinegagSkraper.getHotPosts(limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/hot", limit = limit)
+fun NinegagSkraper.getHotPosts(): Flow<Post> {
+    return getPosts(path = "/hot")
 }
 
-suspend fun NinegagSkraper.getTrendingPosts(limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/trending", limit = limit)
+fun NinegagSkraper.getTrendingPosts(): Flow<Post> {
+    return getPosts(path = "/trending")
 }
 
-suspend fun NinegagSkraper.getFreshPosts(limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/fresh", limit = limit)
+fun NinegagSkraper.getFreshPosts(): Flow<Post> {
+    return getPosts(path = "/fresh")
 }
 
-suspend fun NinegagSkraper.getTopicHotPosts(topic: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${topic}/${"hot"}", limit = limit)
+fun NinegagSkraper.getTopicHotPosts(topic: String): Flow<Post> {
+    return getPosts(path = "/${topic}/${"hot"}")
 }
 
-suspend fun NinegagSkraper.getTopicFreshPosts(topic: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${topic}/${"fresh"}", limit = limit)
+fun NinegagSkraper.getTopicFreshPosts(topic: String): Flow<Post> {
+    return getPosts(path = "/${topic}/${"fresh"}")
 }
 
-suspend fun NinegagSkraper.getTagPosts(tag: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/tag/${tag}", limit = limit)
+fun NinegagSkraper.getTagPosts(tag: String): Flow<Post> {
+    return getPosts(path = "/tag/${tag}")
 }
 
 suspend fun NinegagSkraper.getTopicInfo(topic: String): PageInfo? {

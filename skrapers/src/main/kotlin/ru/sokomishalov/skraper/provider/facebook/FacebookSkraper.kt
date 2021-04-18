@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.facebook
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
@@ -24,6 +26,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttribute
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -42,29 +45,29 @@ import java.time.Instant
  */
 open class FacebookSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://facebook.com"
+    override val baseUrl: String = "https://facebook.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val postsPath = path.substringBefore("/posts") + "/posts"
         val page = getPage(path = postsPath)
 
-        val posts = page.extractPosts(limit)
+        val posts = page.extractPosts()
         val jsonData = page.extractJsonData()
         val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
 
-        return posts.map {
-            val id = it.extractPostId()
+        posts.emitThis(this) {
+            val id = extractPostId()
             val metaInfoJson = metaInfoJsonMap[id]
 
             Post(
                 id = id,
-                text = it.extractPostText(),
-                publishedAt = it.extractPostPublishDateTime(),
+                text = extractPostText(),
+                publishedAt = extractPostPublishDateTime(),
                 rating = metaInfoJson?.extractPostReactionCount(),
                 commentsCount = metaInfoJson?.extractPostCommentsCount(),
                 viewsCount = metaInfoJson?.extractPostViewsCount(),
-                media = it.extractPostMediaItems()
+                media = extractPostMediaItems()
             )
         }
     }
@@ -106,8 +109,7 @@ open class FacebookSkraper @JvmOverloads constructor(
             ?.get("pre_display_requires")
             ?.map { it.findPath("__bbox") }
             ?.mapNotNull { it?.getByPath("result.data.feedback") }
-            ?.map { it.getString("share_fbid").orEmpty() to it }
-            ?.toMap()
+            ?.associate { it.getString("share_fbid").orEmpty() to it }
             .orEmpty()
     }
 
@@ -126,10 +128,9 @@ open class FacebookSkraper @JvmOverloads constructor(
             }
     }
 
-    private fun Document?.extractPosts(limit: Int): List<Element> {
+    private fun Document?.extractPosts(): List<Element> {
         return this
             ?.getElementsByClass("userContentWrapper")
-            ?.take(limit)
             .orEmpty()
     }
 

@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.telegram
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -23,8 +23,8 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun TelegramSkraper.getChannelPosts(channel: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${channel}", limit = limit)
+fun TelegramSkraper.getChannelPosts(channel: String): Flow<Post> {
+    return getPosts(path = "/${channel}")
 }
 
 suspend fun TelegramSkraper.getChannelInfo(channel: String): PageInfo? {

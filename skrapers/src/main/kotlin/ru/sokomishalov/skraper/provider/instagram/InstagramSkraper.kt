@@ -16,13 +16,15 @@
 package ru.sokomishalov.skraper.provider.instagram
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -34,10 +36,10 @@ import java.time.Instant
  */
 open class InstagramSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://instagram.com"
+    override val baseUrl: String = "https://instagram.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val nodes = fetchJsonNodes(path)
 
         val postNodes = when {
@@ -45,11 +47,9 @@ open class InstagramSkraper @JvmOverloads constructor(
             else -> nodes?.getByPath("entry_data.ProfilePage.0.graphql.user.edge_owner_to_timeline_media.edges")
         }
 
-        return postNodes
+        postNodes
             ?.map { it["node"] }
-            ?.take(limit)
-            .orEmpty()
-            .mapThis {
+            ?.emitThis(this) {
                 Post(
                     id = getString("id").orEmpty(),
                     text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
@@ -74,10 +74,13 @@ open class InstagramSkraper @JvmOverloads constructor(
             PageInfo(
                 nick = getFirstByPath("username", "name")?.asText(),
                 name = getString("full_name"),
-                postsCount = getFirstByPath("edge_hashtag_to_media.count", "edge_owner_to_timeline_media.count")?.asInt(),
+                postsCount = getFirstByPath(
+                    "edge_hashtag_to_media.count",
+                    "edge_owner_to_timeline_media.count"
+                )?.asInt(),
                 followersCount = getInt("edge_followed_by.count"),
                 description = getString("biography"),
-                avatar = getFirstByPath("profile_pic_url_hd","profile_pic_url")?.asText()?.toImage(),
+                avatar = getFirstByPath("profile_pic_url_hd", "profile_pic_url")?.asText()?.toImage(),
             )
         }
     }

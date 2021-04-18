@@ -22,7 +22,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 
 class TumblrSkraperTest : SkraperTck() {
     override val skraper: TumblrSkraper = TumblrSkraper(client = client)
-    override val path: String = "/dashboard/blog/thedankest"
+    override val path: String = "/blog/view/thedankest"
     private val username: String = "thedankest"
 
     @Test

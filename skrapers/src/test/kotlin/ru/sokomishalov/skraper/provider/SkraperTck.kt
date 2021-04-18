@@ -20,8 +20,10 @@ package ru.sokomishalov.skraper.provider
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.databind.json.JsonMapper
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
@@ -30,7 +32,6 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
@@ -53,9 +54,8 @@ abstract class SkraperTck {
         private val log: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
 
         @JvmStatic
-        private val mapper: ObjectMapper = ObjectMapper().apply {
-            registerModule(JavaTimeModule())
-            registerModule(Jdk8Module())
+        private val mapper: ObjectMapper = JsonMapper().apply {
+            findAndRegisterModules()
             disable(WRITE_DATES_AS_TIMESTAMPS)
             setSerializationInclusion(NON_NULL)
         }
@@ -76,16 +76,10 @@ abstract class SkraperTck {
         assertPageInfo { getPageInfo(path = path) }
     }
 
-    @Test
-    fun `Check provider info`() {
-        assertProviderInfo { getProviderInfo() }
-    }
-
-    protected fun assertPosts(action: suspend Skraper.() -> List<Post>) = runBlocking {
-        val posts = logAction { skraper.action() }
+    protected fun assertPosts(action: Skraper.() -> Flow<Post>) = runBlocking {
+        val posts = logAction { skraper.action() }.take(50).toList()
 
         assertTrue { posts.isNotEmpty() }
-        assertTrue { posts.isNotEmpty() && posts.size <= DEFAULT_POSTS_LIMIT }
         posts.forEach {
             assertNotNull(it.id)
             it.media.forEach { a ->

@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.tumblr
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -24,10 +24,10 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun TumblrSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getUserPage(username = username).extractPosts(limit = limit)
+fun TumblrSkraper.getUserPosts(username: String): Flow<Post> {
+    return getPosts("/blow/view/${username}")
 }
 
-suspend fun TumblrSkraper.getUserInfo(username: String): PageInfo {
-    return getUserPage(username = username).extractPageInfo()
+suspend fun TumblrSkraper.getUserInfo(username: String): PageInfo? {
+    return getPageInfo("/blow/view/${username}")
 }

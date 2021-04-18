@@ -20,13 +20,15 @@
 package ru.sokomishalov.skraper.provider.youtube
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getByPath
@@ -44,21 +46,20 @@ import java.time.temporal.TemporalAmount
 
 open class YoutubeSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://www.youtube.com"
+    override val baseUrl: String = "https://www.youtube.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val page = getUserPage(path = path)
 
         val jsonMetadata = page?.readJsonMetadata()
 
         val videoItems = jsonMetadata
             ?.findParents("gridVideoRenderer")
-            ?.take(limit)
             ?.map { it["gridVideoRenderer"] }
             .orEmpty()
 
-        return videoItems.mapThis {
+        videoItems.emitThis(this) {
             Post(
                 id = getString("videoId").orEmpty(),
                 text = getString("title.runs.0.text"),
@@ -85,7 +86,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun supports(url: URLString): Boolean {
+    override fun supports(url: String): Boolean {
         return setOf("youtube.com", "youtu.be")
             .any { url.host.removePrefix("www.") in it }
     }

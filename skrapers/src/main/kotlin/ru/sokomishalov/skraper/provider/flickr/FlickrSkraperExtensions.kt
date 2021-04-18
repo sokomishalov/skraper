@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.flickr
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -24,12 +24,12 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun FlickrSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/photos/${username}", limit = limit)
+fun FlickrSkraper.getUserPosts(username: String): Flow<Post> {
+    return getPosts(path = "/photos/${username}")
 }
 
-suspend fun FlickrSkraper.getTagPosts(tag: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/photos/tags/${tag}", limit = limit)
+fun FlickrSkraper.getTagPosts(tag: String): Flow<Post> {
+    return getPosts(path = "/photos/tags/${tag}")
 }
 
 suspend fun FlickrSkraper.getUserPageInfo(username: String): PageInfo? {

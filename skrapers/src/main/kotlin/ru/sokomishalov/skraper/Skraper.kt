@@ -15,11 +15,13 @@
  */
 package ru.sokomishalov.skraper
 
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
 import ru.sokomishalov.skraper.internal.net.host
-import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.Media
+import ru.sokomishalov.skraper.model.PageInfo
+import ru.sokomishalov.skraper.model.Post
 
 /**
  * Interface for the minimum provider functionality
@@ -34,7 +36,7 @@ interface Skraper {
     /**
      * @return provider base url
      */
-    val baseUrl: URLString
+    val baseUrl: String
 
     /**
      * @return http client
@@ -42,15 +44,10 @@ interface Skraper {
     val client: SkraperClient get() = DefaultBlockingSkraperClient
 
     /**
-     * @param url potential provider relative url
-     * @return true if such skraper supports this url
+     * @param path page specific url path (should start with "/")
+     * @return flow of posts
      */
-    suspend fun supports(url: URLString): Boolean = url.host.removePrefix("www.") in baseUrl.host
-
-    /**
-     * @return provider info
-     */
-    suspend fun getProviderInfo(): ProviderInfo? = ProviderInfo(name, baseUrl.buildFullURL(path = "/favicon.ico").toImage())
+    fun getPosts(path: String): Flow<Post>
 
     /**
      * @param path page specific url path (should start with "/")
@@ -59,11 +56,10 @@ interface Skraper {
     suspend fun getPageInfo(path: String): PageInfo?
 
     /**
-     * @param path page specific url path (should start with "/")
-     * @param limit for an amount of posts to return
-     * @return list of posts
+     * @param url potential provider relative url
+     * @return true if such skraper supports this url
      */
-    suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
+    fun supports(url: String): Boolean = url.host.removePrefix("www.") in baseUrl.host
 
     /**
      * @param media with provider relative url

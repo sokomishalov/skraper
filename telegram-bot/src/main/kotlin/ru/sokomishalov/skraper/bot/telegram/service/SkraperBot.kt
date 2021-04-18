@@ -20,7 +20,7 @@
 
 package ru.sokomishalov.skraper.bot.telegram.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.flow.firstOrNull
 import org.springframework.stereotype.Service
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.*
@@ -34,7 +34,10 @@ import ru.sokomishalov.commons.core.log.Loggable
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.internal.net.path
-import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.Audio
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Media
+import ru.sokomishalov.skraper.model.Video
 import java.io.File
 import java.nio.file.Files.createTempDirectory
 import kotlin.text.RegexOption.*
@@ -43,16 +46,9 @@ import kotlin.text.RegexOption.*
  * @author sokomishalov
  */
 @Service
-class SkraperBot(private val mapper: ObjectMapper) {
+class SkraperBot {
 
     suspend fun receive(update: Update): PartialBotApiMethod<*>? {
-        logDebug { "INCOMING:\n${mapper.writeValueAsString(update)}" }
-        val method = doReceive(update)
-        logDebug { "OUTGOING:\n${mapper.writeValueAsString(method)}" }
-        return method
-    }
-
-    private suspend fun doReceive(update: Update): PartialBotApiMethod<*>? {
         // 0. say hello
         val message = requireNotNull(update.message)
         if (message.text.orEmpty() == "/start") return sendText(message, "Hello!")
@@ -68,8 +64,7 @@ class SkraperBot(private val mapper: ObjectMapper) {
         logDebug { "Provider: ${supportedSkraper.name.capitalize()}, URL: $url" }
 
         // 3. try to either scrape posts and download attachments or just download attachment
-        val posts = runCatching { supportedSkraper.getPosts(path = url.path, limit = 1) }.getOrElse { emptyList() }
-        val latestPost = posts.firstOrNull()
+        val latestPost = runCatching { supportedSkraper.getPosts(path = url.path).firstOrNull() }.getOrNull()
         val tmpDir = createTempDirectory("skraper-bot").toFile()
 
         return runCatching {
@@ -109,7 +104,7 @@ class SkraperBot(private val mapper: ObjectMapper) {
         }
     }
 
-    private fun extractUrlFromMessage(text: String): URLString? {
+    private fun extractUrlFromMessage(text: String): String? {
         return URL_REGEX
             .find(text)
             ?.groupValues
@@ -179,9 +174,6 @@ class SkraperBot(private val mapper: ObjectMapper) {
     }
 
     companion object : Loggable {
-        private val URL_REGEX: Regex =
-            "(?:^|[\\W])((ht)tp(s?)://|www\\.)(([\\w\\-]+\\.)+?([\\w\\-.~]+/?)*[\\p{Alnum}.,%_=?&#\\-+()\\[\\]*$~@!:/{};']*)".toRegex(
-                setOf(IGNORE_CASE, MULTILINE, DOT_MATCHES_ALL)
-            )
+        private val URL_REGEX: Regex = "(?:^|[\\W])((ht)tp(s?)://|www\\.)(([\\w\\-]+\\.)+?([\\w\\-.~]+/?)*[\\p{Alnum}.,%_=?&#\\-+()\\[\\]*$~@!:/{};']*)".toRegex(setOf(IGNORE_CASE, MULTILINE, DOT_MATCHES_ALL))
     }
 }

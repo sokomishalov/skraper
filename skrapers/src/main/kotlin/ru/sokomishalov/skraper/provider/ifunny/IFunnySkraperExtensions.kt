@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.ifunny
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -23,12 +23,12 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun IFunnySkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/user/${username}", limit = limit)
+fun IFunnySkraper.getUserPosts(username: String): Flow<Post> {
+    return getPosts(path = "/user/${username}")
 }
 
-suspend fun IFunnySkraper.getCatalogLatestPosts(catalog: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${catalog}", limit = limit)
+fun IFunnySkraper.getCatalogLatestPosts(catalog: String): Flow<Post> {
+    return getPosts(path = "/${catalog}")
 }
 
 suspend fun IFunnySkraper.getUserInfo(username: String): PageInfo? {

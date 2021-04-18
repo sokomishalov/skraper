@@ -17,6 +17,8 @@
 
 package ru.sokomishalov.skraper.provider.tumblr
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
@@ -25,7 +27,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
@@ -41,22 +43,42 @@ import java.util.Locale.ENGLISH
 
 open class TumblrSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://tumblr.com"
+    override val baseUrl: String = "https://tumblr.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val page = getNonUserPage(path = path)
 
-        return page.extractPosts(limit)
+        val articles = page
+            ?.getElementsByTag("article")
+            ?.toList()
+            .orEmpty()
+
+        articles.emitThis(this) {
+            Post(
+                id = extractPostId(),
+                text = extractPostText(),
+                publishedAt = extractPostPublishedDate(),
+                rating = extractPostNotes(),
+                commentsCount = extractPostNotes(),
+                media = extractPostMediaItems()
+            )
+        }
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
         val page = getNonUserPage(path = path)
 
-        return page.extractPageInfo()
+        return PageInfo(
+            nick = page.extractPageNick(),
+            name = page.extractPageName(),
+            description = page.extractPageDescription(),
+            avatar = page.extractPageAvatar(),
+            cover = page.extractPageCover()
+        )
     }
 
-    override suspend fun supports(url: URLString): Boolean {
+    override fun supports(url: String): Boolean {
         return "tumblr.com" in url.host
     }
 
@@ -70,41 +92,16 @@ open class TumblrSkraper @JvmOverloads constructor(
 
     private suspend fun getNonUserPage(path: String): Document? {
         return when {
-            path.contains("/dashboard/blog/", ignoreCase = true) -> {
+            "/dashboard/blog/" in path -> {
                 val username = path.substringAfter("/dashboard/blog/").substringBefore("/")
                 return getUserPage(username = username)
             }
-
+            "/blog/view/" in path -> {
+                val username = path.substringAfter("/blog/view/").substringBefore("/")
+                return getUserPage(username = username)
+            }
             else -> client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
         }
-    }
-
-    internal fun Document?.extractPosts(limit: Int): List<Post> {
-        val articles = this
-            ?.getElementsByTag("article")
-            ?.take(limit)
-            .orEmpty()
-
-        return articles.mapThis {
-            Post(
-                id = extractPostId(),
-                text = extractPostText(),
-                publishedAt = extractPostPublishedDate(),
-                rating = extractPostNotes(),
-                commentsCount = extractPostNotes(),
-                media = extractPostMediaItems()
-            )
-        }
-    }
-
-    internal fun Document?.extractPageInfo(): PageInfo {
-        return PageInfo(
-            nick = extractPageNick(),
-            name = extractPageName(),
-            description = extractPageDescription(),
-            avatar = extractPageAvatar(),
-            cover = extractPageCover()
-        )
     }
 
     private fun Element.extractPostId(): String {

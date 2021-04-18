@@ -25,7 +25,6 @@ import ru.sokomishalov.skraper.internal.serialization.getInt
 import ru.sokomishalov.skraper.internal.serialization.getString
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
-import ru.sokomishalov.skraper.model.URLString
 import ru.sokomishalov.skraper.model.Video
 import java.util.regex.Pattern.DOTALL
 
@@ -35,7 +34,7 @@ import java.util.regex.Pattern.DOTALL
  * @see <a href="https://github.com/sealedtx/java-youtube-downloader">sealedtx/java-youtube-downloader</a>
  */
 class YoutubeVideoResolver(
-    private val baseUrl: URLString,
+    private val baseUrl: String,
     private val client: SkraperClient
 ) {
 

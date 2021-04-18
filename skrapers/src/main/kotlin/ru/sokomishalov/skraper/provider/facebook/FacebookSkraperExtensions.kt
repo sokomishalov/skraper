@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.facebook
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -24,16 +24,16 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun FacebookSkraper.getCommunityPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${community}/posts", limit = limit)
+fun FacebookSkraper.getCommunityPosts(community: String): Flow<Post> {
+    return getPosts(path = "/${community}/posts")
 }
 
 suspend fun FacebookSkraper.getCommunityInfo(community: String): PageInfo? {
     return getPageInfo(path = "/${community}")
 }
 
-suspend fun FacebookSkraper.getUserPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${username}/posts", limit = limit)
+fun FacebookSkraper.getUserPosts(username: String): Flow<Post> {
+    return getPosts(path = "/${username}/posts")
 }
 
 suspend fun FacebookSkraper.getUserInfo(username: String): PageInfo? {

@@ -22,7 +22,7 @@ import java.time.Duration
  * @property url media url
  */
 sealed class Media {
-    abstract val url: URLString
+    abstract val url: String
 }
 
 /**
@@ -31,7 +31,7 @@ sealed class Media {
  * @property aspectRatio width to height ratio
  */
 data class Image(
-    override val url: URLString,
+    override val url: String,
     val aspectRatio: Double? = null
 ) : Media()
 
@@ -43,7 +43,7 @@ data class Image(
  * @property duration video duration
  */
 data class Video(
-    override val url: URLString,
+    override val url: String,
     val aspectRatio: Double? = null,
     val thumbnail: Image? = null,
     val duration: Duration? = null
@@ -55,6 +55,6 @@ data class Video(
  * @property duration audio duration
  */
 data class Audio(
-    override val url: URLString,
+    override val url: String,
     val duration: Duration? = null
 ) : Media()

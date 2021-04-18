@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.pinterest
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -24,8 +24,8 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun PinterestSkraper.getUserPosts(username: String, topic: String = "", limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${username}/${topic}", limit = limit)
+fun PinterestSkraper.getUserPosts(username: String, topic: String = ""): Flow<Post> {
+    return getPosts(path = "/${username}/${topic}")
 }
 
 suspend fun PinterestSkraper.getUserInfo(username: String): PageInfo? {
