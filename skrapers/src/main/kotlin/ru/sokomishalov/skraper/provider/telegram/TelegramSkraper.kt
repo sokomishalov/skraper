@@ -47,22 +47,33 @@ open class TelegramSkraper @JvmOverloads constructor(
 
     override fun getPosts(path: String): Flow<Post> = flow {
         val fixedPath = if (path.startsWith("/s/")) path else "/s$path"
-        val document = fetchDocument(fixedPath)
+        var nextPath = fixedPath
+        while (true) {
+            val document = fetchDocument(nextPath)
 
-        val postsNodes = document
-            ?.getFirstElementByTag("main")
-            ?.getElementsByClass("tgme_widget_message")
-            ?.reversed()
-            .orEmpty()
+            val cursorId = nextPath.substringAfterLast("/").toLongOrNull()
+            val postsNodes = document
+                ?.getFirstElementByTag("main")
+                ?.getElementsByClass("tgme_widget_message")
+                ?.filter {
+                    val id = it.extractId().substringAfterLast("/").toLongOrNull()
+                    if (id != null && cursorId != null) cursorId >= id else true
+                }
+                ?.reversed()
 
-        postsNodes.emitThis(this) {
-            Post(
-                id = extractId(),
-                text = extractText(),
-                viewsCount = extractViewsCount(),
-                publishedAt = extractPublishedAt(),
-                media = extractMedia()
-            )
+            if (postsNodes.isNullOrEmpty()) break
+
+            postsNodes.dropLast(1).emitThis(this) {
+                Post(
+                    id = extractId(),
+                    text = extractText(),
+                    viewsCount = extractViewsCount(),
+                    publishedAt = extractPublishedAt(),
+                    media = extractMedia()
+                )
+            }
+
+            nextPath = "/s${postsNodes.lastOrNull()?.extractId()}"
         }
     }
 
