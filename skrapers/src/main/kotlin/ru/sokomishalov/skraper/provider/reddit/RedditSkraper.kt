@@ -41,29 +41,36 @@ open class RedditSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val response = client.fetchJson(
-            HttpRequest(
-                url = baseUrl.buildFullURL(
-                    path = "${path.removeSuffix("/")}.json",
-                    queryParams = mapOf("limit" to DEFAULT_POSTS_BATCH)
+        var nextPage: String? = null
+
+        while (true) {
+            val response = client.fetchJson(
+                HttpRequest(
+                    url = baseUrl.buildFullURL(
+                        path = "${path.removeSuffix("/")}.json",
+                        queryParams = mapOf("limit" to DEFAULT_POSTS_BATCH, "after" to nextPage)
+                    )
                 )
             )
-        )
 
-        val posts = response
-            ?.getFirstByPath("data.children", "0.data.children")
-            ?.mapNotNull { it["data"] }
-            .orEmpty()
+            val posts = response
+                ?.getFirstByPath("data.children", "0.data.children")
+                ?.mapNotNull { it["data"] }
 
-        posts.emitThis(this) {
-            Post(
-                id = getString("id").orEmpty(),
-                text = extractText(),
-                publishedAt = getLong("created_utc")?.let { Instant.ofEpochSecond(it) },
-                rating = getInt("score"),
-                commentsCount = getInt("num_comments"),
-                media = extractPostMediaItems()
-            )
+            if (posts.isNullOrEmpty()) break
+
+            posts.emitThis(this) {
+                Post(
+                    id = getString("id").orEmpty(),
+                    text = extractText(),
+                    publishedAt = getLong("created_utc")?.let { Instant.ofEpochSecond(it) },
+                    rating = getInt("score"),
+                    commentsCount = getInt("num_comments"),
+                    media = extractPostMediaItems()
+                )
+            }
+
+            nextPage = response.getString("data.after")
         }
     }
 

@@ -77,7 +77,7 @@ abstract class SkraperTck {
     }
 
     protected fun assertPosts(action: Skraper.() -> Flow<Post>) = runBlocking {
-        val posts = logAction { skraper.action() }.take(50).toList()
+        val posts = logAction { skraper.action().take(50).toList() }
 
         assertTrue { posts.isNotEmpty() }
         posts.forEach {
