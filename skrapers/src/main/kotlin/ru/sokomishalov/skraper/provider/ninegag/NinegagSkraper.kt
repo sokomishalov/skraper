@@ -43,8 +43,6 @@ open class NinegagSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://9gag.com"
 ) : Skraper {
 
-    override val name: String = "9GAG"
-
     override fun getPosts(path: String): Flow<Post> = flow {
         var nextPath = path
         while (true) {

@@ -30,21 +30,16 @@ class Args(parser: ArgParser) {
 
     val skraper by parser.positional(
         name = "PROVIDER",
-        help = "skraper provider, options: ${Skrapers.available().joinToString { it.name }}"
-    ) {
-        Skrapers
-            .available()
-            .find { this == it.name }
-            .let { requireNotNull(it) { "Unknown provider" } }
-    }
+        help = "skraper provider, options: ${Skrapers.available().joinToString { it.provider }}"
+    ) { Skrapers.available().find { this == it.provider }.let { requireNotNull(it) { "Unknown provider" } } }
 
     val path by parser.positional(
         name = "PATH",
         help = "path to user/community/channel/topic/trend"
     )
 
-    val amount by parser.storing(
-        "-n", "--limit",
+    val limit by parser.storing(
+        "-n", "-l", "--limit",
         help = "posts limit (50 by default)"
     ) { toInt() }.default { 50 }
 
@@ -63,7 +58,7 @@ class Args(parser: ArgParser) {
         help = "scrape media only"
     )
 
-    val parallelDownloads by parser.storing(
+    val threads by parser.storing(
         "--parallel-downloads",
         help = "amount of parallel downloads for media items if enabled flag --media-only (4 by default)"
     ) { toInt() }.default { 4 }

@@ -85,7 +85,7 @@ optional arguments:
 
 positional arguments:
   PROVIDER                                  skraper provider, options: [facebook, instagram,
-                                            twitter, youtube, twitch, reddit, ninegag, pinterest,
+                                            twitter, youtube, twitch, reddit, 9gag, pinterest,
                                             flickr, tumblr, ifunny, vk, pikabu]
 
   PATH                                      path to user/community/channel/topic/trend
@@ -195,8 +195,7 @@ interface:
 
 ```kotlin
 interface Skraper {
-    val baseUrl: URLString
-    val name: String
+    val baseUrl: String
     val client: SkraperClient
     fun supports(url: String): Boolean
     fun getPosts(path: String): Flow<Post>

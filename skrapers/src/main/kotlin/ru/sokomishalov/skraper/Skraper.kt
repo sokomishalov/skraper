@@ -29,11 +29,6 @@ import ru.sokomishalov.skraper.model.Post
 interface Skraper {
 
     /**
-     * @return provider name
-     */
-    val name: String get() = this::class.java.simpleName.removeSuffix("Skraper").toLowerCase()
-
-    /**
      * @return provider base url
      */
     val baseUrl: String

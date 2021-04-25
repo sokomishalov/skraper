@@ -38,13 +38,13 @@ import kotlin.text.Charsets.UTF_8
 fun main(args: Array<String>) = mainBody(columns = 100) {
     val parsedArgs = ArgParser(args = args.ifEmpty { arrayOf("--help") }).parseInto(::Args)
 
-    with(t) { println("${green("Skraper")} ${magenta("v.0.7.0")} started") }
+    with(t) { println("${green("Skraper")} ${magenta("v.0.8.0")} started") }
 
     val posts = runBlocking {
         parsedArgs
             .skraper
             .getPosts("/${parsedArgs.path.removePrefix("/")}")
-            .take(parsedArgs.amount)
+            .take(parsedArgs.limit)
             .toList()
     }
 
@@ -63,7 +63,7 @@ private fun List<Post>.persistMedia(parsedArgs: Args) {
     }
     val targetDir = File("${root}/${provider}/${requestedPath}").apply { mkdirs() }
 
-    runBlocking(context = Executors.newFixedThreadPool(parsedArgs.parallelDownloads).asCoroutineDispatcher()) {
+    runBlocking(context = Executors.newFixedThreadPool(parsedArgs.threads).asCoroutineDispatcher()) {
         flatMap { post ->
             post.media.mapIndexed { index, media ->
                 async {
