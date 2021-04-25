@@ -145,10 +145,6 @@ implementation("ru.sokomishalov.skraper:skrapers:0.7.0")
 
 ## Usage
 
-### Demo
-
-You may take a look at library usage in this [android sample app](./example/android) or [telegram bot](./telegram-bot)
-
 ### Instantiate specific scraper
 
 As mentioned before, the provider implementation list is:
