@@ -35,7 +35,6 @@ import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
-import ru.sokomishalov.skraper.model.ProviderInfo
 import java.nio.file.Files
 import java.util.*
 import kotlin.test.assertFalse
@@ -94,14 +93,6 @@ abstract class SkraperTck {
         assertNotNull(pageInfo)
         assertNotNull(pageInfo.nick)
         assertFalse { pageInfo.avatar?.url.isNullOrBlank() }
-    }
-
-    protected fun assertProviderInfo(action: suspend Skraper.() -> ProviderInfo?) = runBlocking {
-        val providerInfo = logAction { skraper.action() }
-
-        assertNotNull(providerInfo)
-        assertNotNull(providerInfo.name)
-        assertFalse { providerInfo.logo?.url.isNullOrBlank() }
     }
 
     protected fun assertMediaResolved(media: Media) = runBlocking {

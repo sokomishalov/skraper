@@ -50,8 +50,7 @@ internal fun Document?.getMetaPropertyMap(): Map<String, String> {
     return this
         ?.getElementsByTag("meta")
         ?.filter { it.hasAttr("property") }
-        ?.map { it.attr("property") to it.attr("content") }
-        ?.toMap()
+        ?.associate { it.attr("property") to it.attr("content") }
         .orEmpty()
 }
 
@@ -61,8 +60,7 @@ internal fun Element.getStyleMap(): Map<String, String> {
         else -> attr("style")
             .split(";")
             .filter { it.isNotBlank() }
-            .map { it.substringBefore(":").trim() to it.substringAfter(":") }
-            .toMap()
+            .associate { it.substringBefore(":").trim() to it.substringAfter(":") }
     }
 }
 

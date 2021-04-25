@@ -78,8 +78,7 @@ class YoutubeVideoResolver(
 
                 val jsonCipher = cipherData
                     .map { it.split("=".toRegex()) }
-                    .map { it[0] to it[1] }
-                    .toMap()
+                    .associate { it[0] to it[1] }
 
                 val urlWithSig = jsonCipher["url"]
                     ?.unescapeUrl()

@@ -29,7 +29,6 @@ import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaVideo
-import ru.sokomishalov.commons.core.collections.toMap
 import ru.sokomishalov.commons.core.log.Loggable
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
@@ -72,8 +71,8 @@ class SkraperBot {
                 latestPost != null -> {
                     latestPost
                         .media
-                        .toMap { media ->
-                            media to Skrapers.download(
+                        .associateWith { media ->
+                            Skrapers.download(
                                 media = media,
                                 destDir = tmpDir
                             )
