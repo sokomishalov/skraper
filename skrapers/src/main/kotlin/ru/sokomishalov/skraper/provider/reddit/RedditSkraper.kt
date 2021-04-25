@@ -64,8 +64,10 @@ open class RedditSkraper @JvmOverloads constructor(
                     id = getString("id").orEmpty(),
                     text = extractText(),
                     publishedAt = getLong("created_utc")?.let { Instant.ofEpochSecond(it) },
-                    rating = getInt("score"),
-                    commentsCount = getInt("num_comments"),
+                    statistics = PostStatistics(
+                        likes = getInt("score"),
+                        comments = getInt("num_comments"),
+                    ),
                     media = extractPostMediaItems()
                 )
             }

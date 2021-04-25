@@ -20,17 +20,28 @@ package ru.sokomishalov.skraper.model
  * @property nick some nickname
  * @property name name
  * @property description page additional text info
- * @property postsCount posts count *(nullable - such data may not exist on the provider's page)
- * @property followersCount followers count *(nullable - such data may not exist on the provider's page)
- * @property avatar avatar image of most available size
- * @property cover cover image of most available size
+ * @property statistics page stats
+ * @property avatar avatar image
+ * @property cover cover image
  */
-data class PageInfo constructor(
+data class PageInfo(
     val nick: String? = null,
     val name: String? = nick,
     val description: String? = null,
-    val postsCount: Int? = null,
-    val followersCount: Int? = null,
+    val statistics: PageStatistics = PageStatistics(),
     val avatar: Image? = null,
     val cover: Image? = null
+)
+
+
+/**
+ * Represents page statistics
+ * @property posts posts count
+ * @property followers followers count
+ * @property following following count
+ */
+data class PageStatistics(
+    val posts: Int? = null,
+    val followers: Int? = null,
+    val following: Int? = null,
 )

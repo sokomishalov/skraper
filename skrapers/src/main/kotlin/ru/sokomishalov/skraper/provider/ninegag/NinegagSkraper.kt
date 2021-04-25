@@ -60,8 +60,10 @@ open class NinegagSkraper @JvmOverloads constructor(
                     id = getString("id").orEmpty(),
                     text = getString("title"),
                     publishedAt = getLong("creationTs")?.let { Instant.ofEpochSecond(it) },
-                    rating = getInt("upVoteCount") - getInt("downVoteCount"),
-                    commentsCount = getInt("commentsCount"),
+                    statistics = PostStatistics(
+                        likes = getInt("upVoteCount") - getInt("downVoteCount"),
+                        comments = getInt("commentsCount"),
+                    ),
                     media = extractPostMediaItems()
                 )
             }

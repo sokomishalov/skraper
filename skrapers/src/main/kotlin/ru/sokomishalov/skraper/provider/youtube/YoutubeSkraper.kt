@@ -63,8 +63,10 @@ open class YoutubeSkraper @JvmOverloads constructor(
             Post(
                 id = getString("videoId").orEmpty(),
                 text = getString("title.runs.0.text"),
-                viewsCount = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
                 publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
+                statistics = PostStatistics(
+                    views = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
+                ),
                 media = extractVideos()
             )
         }
@@ -79,7 +81,9 @@ open class YoutubeSkraper @JvmOverloads constructor(
                 nick = getString("metadata.channelMetadataRenderer.vanityChannelUrl")?.substringAfter("/user/"),
                 name = getString("metadata.channelMetadataRenderer.title"),
                 description = getString("metadata.channelMetadataRenderer.description"),
-                followersCount = getString("header.c4TabbedHeaderRenderer.subscriberCountText.runs.0.text")?.extractAmount(),
+                statistics = PageStatistics(
+                    followers = getString("header.c4TabbedHeaderRenderer.subscriberCountText.runs.0.text")?.extractAmount(),
+                ),
                 avatar = getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails").extractImage(),
                 cover = getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails").extractImage()
             )

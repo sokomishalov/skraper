@@ -63,8 +63,10 @@ open class PikabuSkraper @JvmOverloads constructor(
                 id = extractPostId(),
                 text = String(caption.toByteArray(UTF_8)),
                 publishedAt = extractPostPublishDate(),
-                rating = extractPostRating(),
-                commentsCount = extractPostCommentsCount(),
+                statistics = PostStatistics(
+                    likes = extractPostLikes(),
+                    comments = extractPostCommentsCount(),
+                ),
                 media = storyBlocks.extractPostMediaItems()
             )
         }
@@ -79,16 +81,20 @@ open class PikabuSkraper @JvmOverloads constructor(
                 isCommunity -> PageInfo(
                     nick = extractCommunityNick(),
                     name = extractCommunityName(),
-                    postsCount = extractCommunityPostsCount(),
-                    followersCount = extractCommunityFollowersCount(),
+                    statistics = PageStatistics(
+                        posts = extractCommunityPostsCount(),
+                        followers = extractCommunityFollowersCount(),
+                    ),
                     avatar = extractCommunityAvatar()?.toImage(),
                     cover = extractPageCover()?.toImage()
                 )
                 else -> PageInfo(
                     nick = extractUserNick(),
                     name = extractUserNick(),
-                    postsCount = extractUserPostsCount(),
-                    followersCount = extractUserFollowersCount(),
+                    statistics = PageStatistics(
+                        posts = extractUserPostsCount(),
+                        followers = extractUserFollowersCount(),
+                    ),
                     avatar = extractUserAvatar()?.toImage(),
                     cover = extractPageCover()?.toImage()
                 )
@@ -138,7 +144,7 @@ open class PikabuSkraper @JvmOverloads constructor(
             ?.run { ISO_DATE_TIME.parse(this, Instant::from) }
     }
 
-    private fun Element.extractPostRating(): Int? {
+    private fun Element.extractPostLikes(): Int? {
         return getFirstElementByClass("story__rating-count")
             ?.wholeText()
             ?.toIntOrNull()

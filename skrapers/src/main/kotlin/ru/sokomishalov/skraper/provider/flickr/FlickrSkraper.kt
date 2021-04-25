@@ -71,9 +71,11 @@ open class FlickrSkraper @JvmOverloads constructor(
                     id = id,
                     text = jsonPost?.extractPostText(),
                     publishedAt = jsonPost?.extractPostPublishDate(),
-                    commentsCount = jsonPost?.extractPostCommentsCount(),
-                    viewsCount = jsonPost?.extractPostViewsCount(),
-                    rating = jsonPost?.extractPostRating(),
+                    statistics = PostStatistics(
+                        likes = jsonPost?.extractPostLikes(),
+                        comments = jsonPost?.extractPostCommentsCount(),
+                        views = jsonPost?.extractPostViewsCount(),
+                    ),
                     media = listOf(
                         Image(
                             url = url,
@@ -88,9 +90,11 @@ open class FlickrSkraper @JvmOverloads constructor(
                     id = key,
                     text = value?.extractPostText(),
                     publishedAt = value?.extractPostPublishDate(),
-                    commentsCount = value?.extractPostCommentsCount(),
-                    rating = value?.extractPostRating(),
-                    viewsCount = value?.extractPostViewsCount(),
+                    statistics = PostStatistics(
+                        likes = value?.extractPostLikes(),
+                        comments = value?.extractPostCommentsCount(),
+                        views = value?.extractPostViewsCount(),
+                    ),
                     media = listOf(
                         Image(
                             url = value.extractPostAttachmentUrl(),
@@ -110,9 +114,11 @@ open class FlickrSkraper @JvmOverloads constructor(
             PageInfo(
                 nick = extractPageNick(),
                 name = extractPageName(),
-                followersCount = extractFollowersCount(),
-                postsCount = extractPostsCount(),
                 description = extractPageDescription(),
+                statistics = PageStatistics(
+                    followers = extractFollowersCount(),
+                    posts = extractPostsCount(),
+                ),
                 avatar = extractPageLogo(),
                 cover = extractPageCover()
             )
@@ -177,7 +183,7 @@ open class FlickrSkraper @JvmOverloads constructor(
             ?.let { Instant.ofEpochSecond(it) }
     }
 
-    private fun JsonNode.extractPostRating(): Int? {
+    private fun JsonNode.extractPostLikes(): Int? {
         return getFirstByPath("engagement.commentCount", "commentCount")
             ?.asInt()
     }

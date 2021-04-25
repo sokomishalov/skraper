@@ -60,8 +60,10 @@ open class TwitterSkraper @JvmOverloads constructor(
             Post(
                 id = extractTweetId(),
                 text = extractTweetText(),
-                rating = extractTweetLikes(),
-                commentsCount = extractTweetReplies(),
+                statistics = PostStatistics(
+                    likes = extractTweetLikes(),
+                    comments = extractTweetReplies(),
+                ),
                 publishedAt = extractTweetPublishDate(),
                 media = extractTweetMediaItems()
             )
@@ -80,8 +82,10 @@ open class TwitterSkraper @JvmOverloads constructor(
                 nick = getString("screen_name"),
                 name = getString("name"),
                 description = getString("description"),
-                postsCount = getInt("statuses_count"),
-                followersCount = getInt("followers_count"),
+                statistics = PageStatistics(
+                    posts = getInt("statuses_count"),
+                    followers = getInt("followers_count"),
+                ),
                 avatar = getFirstByPath("profile_image_url_https", "profile_image_url")?.asText()?.toImage(),
                 cover = getFirstByPath("profile_background_image_url_https", "profile_background_image_url")?.asText()?.toImage()
             )

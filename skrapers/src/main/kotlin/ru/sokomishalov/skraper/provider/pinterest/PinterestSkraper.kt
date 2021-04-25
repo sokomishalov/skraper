@@ -52,8 +52,10 @@ open class PinterestSkraper @JvmOverloads constructor(
                 id = extractPostId(),
                 text = extractPostText(),
                 publishedAt = extractPostPublishDate(),
-                rating = extractPostRating(),
-                commentsCount = extractPostCommentsCount(),
+                statistics = PostStatistics(
+                    likes = extractPostLikes(),
+                    comments = extractPostCommentsCount(),
+                ),
                 media = extractPostMediaItems()
             )
         }
@@ -72,8 +74,10 @@ open class PinterestSkraper @JvmOverloads constructor(
                 nick = getString("profile.username"),
                 name = getString("profile.full_name"),
                 description = getString("profile.about"),
-                postsCount = getInt("profile.pin_count"),
-                followersCount = getInt("profile.follower_count"),
+                statistics = PageStatistics(
+                    posts = getInt("profile.pin_count"),
+                    followers = getInt("profile.follower_count"),
+                ),
                 avatar = extractLogo()
             )
         }
@@ -115,7 +119,7 @@ open class PinterestSkraper @JvmOverloads constructor(
         return getString("created_at")?.let { DATE_FORMATTER.parse(it, Instant::from) }
     }
 
-    private fun JsonNode.extractPostRating(): Int? {
+    private fun JsonNode.extractPostLikes(): Int? {
         return getInt("aggregated_pin_data.aggregated_stats.saves")
     }
 

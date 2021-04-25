@@ -21,18 +21,29 @@ import java.time.Instant
  * Represents a provider some user/community/channel/topic/trend post.
  * @property id provider's internal post id
  * @property text title and/or description
- * @property publishedAt publish timestamp (nullable - such data may not exist at all)
- * @property rating rating (likes, pins, etc.) count (nullable - such data may not exist at all)
- * @property commentsCount comments count (nullable - such data may not exist at all)
- * @property viewsCount views count (nullable - such data may not exist at all)
+ * @property publishedAt publish timestamp
+ * @property statistics page stats
  * @property media post media items
  */
 data class Post(
     val id: String,
     val text: String? = "",
     val publishedAt: Instant? = null,
-    val rating: Int? = null,
-    val commentsCount: Int? = null,
-    val viewsCount: Int? = null,
+    val statistics: PostStatistics = PostStatistics(),
     val media: List<Media> = emptyList()
+)
+
+
+/**
+ * Represents post stats.
+ * @property likes likes count
+ * @property reposts reposts count
+ * @property comments comments count
+ * @property views views count
+ */
+data class PostStatistics(
+    val likes: Int? = null,
+    val reposts: Int? = null,
+    val comments: Int? = null,
+    val views: Int? = null,
 )

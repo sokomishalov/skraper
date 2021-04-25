@@ -59,8 +59,10 @@ open class TumblrSkraper @JvmOverloads constructor(
                 id = extractPostId(),
                 text = extractPostText(),
                 publishedAt = extractPostPublishedDate(),
-                rating = extractPostNotes(),
-                commentsCount = extractPostNotes(),
+                statistics = PostStatistics(
+                    likes = extractPostNotes(),
+                    comments = extractPostNotes(),
+                ),
                 media = extractPostMediaItems()
             )
         }

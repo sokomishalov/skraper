@@ -58,9 +58,11 @@ open class VkSkraper @JvmOverloads constructor(
                 id = extractPostId(),
                 text = extractPostCaption(),
                 publishedAt = extractPostPublishedDate(),
-                rating = extractPostLikes(),
-                commentsCount = extractPostReplies(),
-                viewsCount = extractViewsCount(),
+                statistics = PostStatistics(
+                    likes = extractPostLikes(),
+                    comments = extractPostReplies(),
+                    views = extractViewsCount(),
+                ),
                 media = extractPostMediaItems()
             )
         }
@@ -74,8 +76,10 @@ open class VkSkraper @JvmOverloads constructor(
                 nick = extractPageNick(),
                 name = extractPageName(),
                 description = extractDescription(),
-                followersCount = extractFollowersCount(),
-                postsCount = extractPostsCount(),
+                statistics = PageStatistics(
+                    followers = extractFollowersCount(),
+                    posts = extractPostsCount(),
+                ),
                 avatar = extractPageAvatar(),
                 cover = extractPageCover()
             )

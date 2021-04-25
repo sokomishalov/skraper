@@ -67,7 +67,9 @@ open class TelegramSkraper @JvmOverloads constructor(
                 Post(
                     id = extractId(),
                     text = extractText(),
-                    viewsCount = extractViewsCount(),
+                    statistics = PostStatistics(
+                        views = extractViewsCount(),
+                    ),
                     publishedAt = extractPublishedAt(),
                     media = extractMedia()
                 )
@@ -86,7 +88,9 @@ open class TelegramSkraper @JvmOverloads constructor(
                 nick = title()?.substringAfterLast("@"),
                 name = getFirstElementByClass("tgme_page_title")?.getFirstElementByTag("span")?.wholeText(),
                 description = getFirstElementByClass("tgme_page_description")?.wholeText(),
-                followersCount = getFirstElementByClass("tgme_page_extra")?.ownText()?.substringBeforeLast(" members")?.replace(" ", "")?.toIntOrNull(),
+                statistics = PageStatistics(
+                    followers = getFirstElementByClass("tgme_page_extra")?.ownText()?.substringBeforeLast(" members")?.replace(" ", "")?.toIntOrNull(),
+                ),
                 avatar = getFirstElementByClass("tgme_page_photo_image")?.attr("src")?.toImage()
             )
         }

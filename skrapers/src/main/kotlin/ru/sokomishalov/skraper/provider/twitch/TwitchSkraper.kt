@@ -143,7 +143,9 @@ open class TwitchSkraper @JvmOverloads constructor(
                     PageInfo(
                         nick = getString("name"),
                         name = getString("displayName"),
-                        followersCount = getInt("followersCount"),
+                        statistics = PageStatistics(
+                            followers = getInt("followersCount"),
+                        ),
                         avatar = getString("avatarURL")?.toImage(),
                         cover = getString("coverURL")?.toImage()
                     )
@@ -160,8 +162,10 @@ open class TwitchSkraper @JvmOverloads constructor(
                     PageInfo(
                         nick = getString("data.user.login"),
                         name = getString("data.user.displayName"),
-                        followersCount = getInt("data.user.followers.totalCount"),
-                        postsCount = getInt("data.user.videos.totalCount"),
+                        statistics = PageStatistics(
+                            followers = getInt("data.user.followers.totalCount"),
+                            posts = getInt("data.user.videos.totalCount"),
+                        ),
                         avatar = getString("data.user.profileImageURL")?.toImage(),
                         cover = getString("data.user.bannerImageURL")?.toImage()
                     )
@@ -280,7 +284,9 @@ open class TwitchSkraper @JvmOverloads constructor(
                 id = getString("id").orEmpty(),
                 text = getString("title"),
                 publishedAt = getString("publishedAt")?.let { ISO_DATE_TIME.parse(it, Instant::from) },
-                viewsCount = getInt("viewCount"),
+                statistics = PostStatistics(
+                    views = getInt("viewCount"),
+                ),
                 media = listOf(Video(
                     url = baseUrl.buildFullURL(path = "/videos/${getString("id")}"),
                     duration = getLong("lengthSeconds")?.let { Duration.ofSeconds(it) }
@@ -295,7 +301,9 @@ open class TwitchSkraper @JvmOverloads constructor(
                 id = getString("id").orEmpty(),
                 publishedAt = getString("createdAt")?.let { ISO_DATE_TIME.parse(it, Instant::from) },
                 text = getString("title"),
-                viewsCount = getInt("viewCount"),
+                statistics = PostStatistics(
+                    views = getInt("viewCount"),
+                ),
                 media = listOf(Video(
                     url = getFirstByPath("embedURL", "url")?.asText().orEmpty(),
                     duration = getLong("durationSeconds")?.let { Duration.ofSeconds(it) }

@@ -52,9 +52,11 @@ class TikTokSkraper @JvmOverloads constructor(
                 id = getString("id").orEmpty(),
                 text = getString("desc"),
                 publishedAt = getLong("createTime")?.let { Instant.ofEpochSecond(it) },
-                rating = getInt("stats.diggCount"),
-                commentsCount = getInt("stats.commentCount"),
-                viewsCount = getInt("stats.playCount"),
+                statistics = PostStatistics(
+                    likes = getInt("stats.diggCount"),
+                    comments = getInt("stats.commentCount"),
+                    views = getInt("stats.playCount"),
+                ),
                 media = run {
                     val aspectRatio = getDouble("video.width") / getDouble("video.height")
                     listOf(
@@ -88,8 +90,10 @@ class TikTokSkraper @JvmOverloads constructor(
                 name = getString("user.uniqueId"),
                 nick = getString("user.nickname").orEmpty(),
                 description = getString("user.signature"),
-                postsCount = getInt("stats.videoCount"),
-                followersCount = getInt("stats.followerCount"),
+                statistics = PageStatistics(
+                    posts = getInt("stats.videoCount"),
+                    followers = getInt("stats.followerCount"),
+                ),
                 avatar = getFirstByPath("user.avatarLarger", "user.avatarMedium", "user.avatarThumb")?.asText()?.toImage()
             )
         }

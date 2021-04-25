@@ -66,8 +66,10 @@ open class FacebookSkraper @JvmOverloads constructor(
                     id = dataFt.extractPostId(),
                     text = extractPostText(),
                     publishedAt = dataFt.extractPostPublishedAt(),
-                    rating = extractPostRating(),
-                    commentsCount = extractPostCommentsCount(),
+                    statistics = PostStatistics(
+                        likes = extractPostLikes(),
+                        comments = extractPostCommentsCount(),
+                    ),
                     media = extractPostMedia()
                 )
             }
@@ -154,7 +156,7 @@ open class FacebookSkraper @JvmOverloads constructor(
         return this?.get("page_insights")?.firstOrNull()?.getLong("post_context.publish_time")?.let { Instant.ofEpochSecond(it) }
     }
 
-    private fun Element.extractPostRating(): Int? {
+    private fun Element.extractPostLikes(): Int? {
         return getFirstElementByClass("like_def")?.wholeText()?.substringAfterLast(":")?.trim()?.toIntOrNull()
     }
 

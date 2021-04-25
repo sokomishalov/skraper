@@ -203,7 +203,7 @@ interface Skraper {
     val name: String
     val client: SkraperClient
     fun supports(url: String): Boolean
-    suspend fun getPosts(path: String): Flow<Post>
+    fun getPosts(path: String): Flow<Post>
     suspend fun getPageInfo(path: String): PageInfo?
     suspend fun resolve(media: Media): Media
 }
@@ -223,7 +223,7 @@ functions from plain Java.
 To scrape the latest posts for specific user, channel or trend use skraper like that:
 
 ```kotlin
-suspen fun main() {
+suspend fun main() {
     val skraper = FacebookSkraper()
     val posts = skraper.getUserPosts(username = "memes").take(2).toList() // extension for getPosts()
     val serializer = JsonMapper().writerWithDefaultPrettyPrinter()
@@ -239,8 +239,10 @@ Received data structure is similar to each other provider's. Output data example
     "id": "5029851093699104",
     "text": "gotta love em!",
     "publishedAt": 1580744400000,
-    "rating": 79,
-    "commentsCount": 3,
+    "statistics": {
+      "likes": 79,
+      "comments": 3
+    },
     "media": [
       {
         "url": "https://facebook.com/memes/posts/5029851093699104?__xts__%5B0%5D=68.ARA2yRI2YnlXQRKX7Pdphh8ztgvnP11aYE_bZFPNmqLpJZLhwJaG24gDPUTiKDLv-J_E09u2vLjCXalpmEuGSmVR0BkVtcng_i6QV8x5e-aZUv0Mkn1wwKLlhp5NNH6zQWKlqDqRjZrwvcKeUi0unzzulRCHRvDIrbz2leM6PLescFySwMYbMmKFc7ctqaC_F7nJ09Ya0lz9Pqaq_Rh6UsNKom6fqdgHAuoHV894a3QRuyY0BC6fQuXZLOLbRIfEVK3cF9Z5UQiXUYruCySF-WpQEV0k72x6DIjT6B3iovYFnBGHaji9VAx2PByZ-MDs33D1Hz96Mk-O1Pj7zBwO6FvXGhkUJgepiwUOVd0q-pV83rS5EhjtPFDylNoNO2xkDUSIi483p49vumVPWtmab8LX1V6w2anf55kh6pedCXcH3D8rBjz8DaTBnv995u9kk5im-1-HdAGQHyKrCZpaA0QyC-I4oGsCoIJGck3RO8u_SoHcfe2tKjTgPe6j9p1D&__tn__=-R",
@@ -253,8 +255,10 @@ Received data structure is similar to each other provider's. Output data example
     "id": "4990218157662398",
     "text": "Interesting",
     "publishedAt": 1580742000000,
-    "rating": 3092,
-    "commentsCount": 514,
+    "statistics": {
+      "likes": 3092,
+      "comments": 514
+    },
     "media": [
       {
         "url": "https://scontent.fhrk1-1.fna.fbcdn.net/v/t1.0-0/p526x296/52333452_10157743612509879_529328953723191296_n.png?_nc_cat=1&_nc_ohc=oNMb8_mCbD8AX-w9zeY&_nc_ht=scontent.fhrk1-1.fna&oh=ca8a719518ecfb1a24f871282b860124&oe=5E910D0C",
@@ -287,8 +291,10 @@ Output:
   "nick": "memes",
   "name": "Memes.com",
   "description": "http://memes.com is your number one website for the funniest content on the web. You will find funny pictures, funny memes and much more.",
-  "postsCount": 10848,
-  "followersCount": 154718,
+  "statistics": {
+    "posts": 10848,
+    "followers": 154718
+  },
   "avatar": {
     "url": "https://pbs.twimg.com/profile_images/824808708332941313/mJ4xM6PH_normal.jpg"
   },

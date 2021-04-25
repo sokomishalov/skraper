@@ -54,9 +54,11 @@ open class InstagramSkraper @JvmOverloads constructor(
                     id = getString("id").orEmpty(),
                     text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
                     publishedAt = getLong("taken_at_timestamp")?.let { Instant.ofEpochSecond(it) },
-                    rating = getInt("edge_media_preview_like.count"),
-                    viewsCount = getInt("video_view_count"),
-                    commentsCount = getInt("edge_media_to_comment.count"),
+                    statistics = PostStatistics(
+                        likes = getInt("edge_media_preview_like.count"),
+                        views = getInt("video_view_count"),
+                        comments = getInt("edge_media_to_comment.count"),
+                    ),
                     media = extractPostMediaItems()
                 )
             }
@@ -74,11 +76,10 @@ open class InstagramSkraper @JvmOverloads constructor(
             PageInfo(
                 nick = getFirstByPath("username", "name")?.asText(),
                 name = getString("full_name"),
-                postsCount = getFirstByPath(
-                    "edge_hashtag_to_media.count",
-                    "edge_owner_to_timeline_media.count"
-                )?.asInt(),
-                followersCount = getInt("edge_followed_by.count"),
+                statistics = PageStatistics(
+                    posts = getFirstByPath("edge_hashtag_to_media.count", "edge_owner_to_timeline_media.count")?.asInt(),
+                    followers = getInt("edge_followed_by.count"),
+                ),
                 description = getString("biography"),
                 avatar = getFirstByPath("profile_pic_url_hd", "profile_pic_url")?.asText()?.toImage(),
             )
