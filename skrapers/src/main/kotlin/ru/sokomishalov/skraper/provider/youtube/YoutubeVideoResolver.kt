@@ -135,15 +135,9 @@ class YoutubeVideoResolver(
         val transformFunctionsMap = js.getTransformFunctionsMap(variable)
 
         return transformFunctions
-            .fold(
-                s.toCharArray(),
-                { sign: CharArray?, jsFun: JsFunction ->
-                    transformFunctionsMap[jsFun.name]?.apply(
-                        sign,
-                        jsFun.argument
-                    )
-                })
-            .let { String(it!!) }
+            .fold(s.toCharArray()) { sign: CharArray?, jsFun: JsFunction -> transformFunctionsMap[jsFun.name]?.apply(sign, jsFun.argument) }
+            ?.let { String(it) }
+            .orEmpty()
     }
 
     private fun String?.getTransformFunctions(): List<JsFunction> {
@@ -167,16 +161,15 @@ class YoutubeVideoResolver(
     private fun String.getInitialFunctionName(): String? {
         return KNOWN_INITIAL_FUNCTION_REGEXES
             .map { it.find(this)?.groupValues?.get(1) }
-            .first { it != null }
+            .firstOrNull { it != null }
     }
 
     private fun String?.getTransformFunctionsMap(variable: String?): Map<String?, CipherFunction?> {
         return getTransformObject(variable)
-            .map { obj ->
+            .associate { obj ->
                 val split = obj.split(":".toRegex(), 2).toTypedArray()
                 split[0] to split[1].mapFunction()
             }
-            .toMap()
     }
 
     private fun String?.getTransformObject(variable: String?): List<String> {
