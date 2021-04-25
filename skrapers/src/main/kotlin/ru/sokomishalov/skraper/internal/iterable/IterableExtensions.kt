@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE")
-
 package ru.sokomishalov.skraper.internal.iterable
 
+import kotlinx.coroutines.flow.FlowCollector
+
+
+internal suspend inline fun <T, R> Iterable<T>.emitThis(collector: FlowCollector<R>, transform: T.() -> R) = forEach { collector.emit(transform(it)) }
 
 internal inline fun <T, R> Iterable<T>.mapThis(transform: T.() -> R): List<R> = map(transform)

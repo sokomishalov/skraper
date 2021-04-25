@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.flickr
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -25,6 +27,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.getBackgroundImageUrl
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -41,27 +44,25 @@ import java.time.Instant
  */
 open class FlickrSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://flickr.com"
+    override val baseUrl: String = "https://flickr.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val page = getPage(path = path)
 
         val domPosts = page
             ?.getElementsByClass("photo-list-photo-view")
-            ?.take(limit)
             .orEmpty()
 
         val jsonPosts = page
             .parseModelJson()
             ?.findPath("_data")
-            ?.map { it.getString("id").orEmpty() to it }
-            ?.toMap()
+            ?.associate { it.getString("id").orEmpty() to it }
             .orEmpty()
 
-        return when {
-            domPosts.isNotEmpty() -> domPosts.map { domPost ->
-                val url = domPost.getBackgroundImage().orEmpty()
+        when {
+            domPosts.isNotEmpty() -> domPosts.emitThis(this) {
+                val url = getBackgroundImage().orEmpty()
                 val id = url.substringAfterLast("/").substringBefore("_")
 
                 val jsonPost = jsonPosts[id]
@@ -76,28 +77,28 @@ open class FlickrSkraper @JvmOverloads constructor(
                     media = listOf(
                         Image(
                             url = url,
-                            aspectRatio = domPost.extractPostAspectRatio()
+                            aspectRatio = extractPostAspectRatio()
                         )
                     )
                 )
             }
-            jsonPosts.isNotEmpty() -> jsonPosts.map {
-                Post(
-                    id = it.key,
-                    text = it.value?.extractPostText(),
-                    publishedAt = it.value?.extractPostPublishDate(),
-                    commentsCount = it.value?.extractPostCommentsCount(),
-                    rating = it.value?.extractPostRating(),
-                    viewsCount = it.value?.extractPostViewsCount(),
+
+            jsonPosts.isNotEmpty() -> jsonPosts.forEach { (key, value) ->
+                emit(Post(
+                    id = key,
+                    text = value?.extractPostText(),
+                    publishedAt = value?.extractPostPublishDate(),
+                    commentsCount = value?.extractPostCommentsCount(),
+                    rating = value?.extractPostRating(),
+                    viewsCount = value?.extractPostViewsCount(),
                     media = listOf(
                         Image(
-                            url = it.value.extractPostAttachmentUrl(),
-                            aspectRatio = it.value.extractPostAspectRatio()
+                            url = value.extractPostAttachmentUrl(),
+                            aspectRatio = value.extractPostAspectRatio()
                         )
                     )
-                )
+                ))
             }
-            else -> emptyList()
         }
     }
 

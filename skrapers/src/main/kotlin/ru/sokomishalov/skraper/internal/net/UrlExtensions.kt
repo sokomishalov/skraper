@@ -23,7 +23,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
-import ru.sokomishalov.skraper.model.URLString
 import java.io.DataOutputStream
 import java.net.HttpURLConnection
 import java.net.HttpURLConnection.*
@@ -59,10 +58,10 @@ internal suspend fun URL.openRedirectableConnection(
     }
 }
 
-val URLString.path: String
+val String.path: String
     get() = URL(this).path
 
-val URLString.host: String
+val String.host: String
     get() = URL(this).host
 
 private fun HttpURLConnection.applyData(

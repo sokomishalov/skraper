@@ -16,23 +16,24 @@
 package ru.sokomishalov.skraper.provider.facebook
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
-import ru.sokomishalov.skraper.client.HttpRequest
-import ru.sokomishalov.skraper.client.SkraperClient
-import ru.sokomishalov.skraper.client.fetchDocument
-import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
+import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttribute
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.number.div
-import ru.sokomishalov.skraper.internal.serialization.getByPath
-import ru.sokomishalov.skraper.internal.serialization.getInt
+import ru.sokomishalov.skraper.internal.serialization.getDouble
+import ru.sokomishalov.skraper.internal.serialization.getLong
 import ru.sokomishalov.skraper.internal.serialization.getString
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
+import ru.sokomishalov.skraper.internal.string.unescapeJson
 import ru.sokomishalov.skraper.model.*
 import java.time.Instant
 
@@ -42,46 +43,56 @@ import java.time.Instant
  */
 open class FacebookSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://facebook.com"
+    override val baseUrl: String = "https://facebook.com",
+    private val mobileBaseUrl: String = "https://m.facebook.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val postsPath = path.substringBefore("/posts") + "/posts"
-        val page = getPage(path = postsPath)
+        var nextPath = postsPath
+        while (true) {
+            val fetchResult = client.fetchString(HttpRequest(url = mobileBaseUrl.buildFullURL(path = nextPath)))
 
-        val posts = page.extractPosts(limit)
-        val jsonData = page.extractJsonData()
-        val metaInfoJsonMap = jsonData.prepareMetaInfoMap()
+            val (document, nextPage) = fetchResult?.extractDocumentAndNextPage() ?: break
+            nextPath = nextPage ?: break
 
-        return posts.map {
-            val id = it.extractPostId()
-            val metaInfoJson = metaInfoJsonMap[id]
+            val posts = document?.getElementsByTag("article")
+            if (posts.isNullOrEmpty()) break
 
-            Post(
-                id = id,
-                text = it.extractPostText(),
-                publishedAt = it.extractPostPublishDateTime(),
-                rating = metaInfoJson?.extractPostReactionCount(),
-                commentsCount = metaInfoJson?.extractPostCommentsCount(),
-                viewsCount = metaInfoJson?.extractPostViewsCount(),
-                media = it.extractPostMediaItems()
-            )
+            posts.emitThis(this) {
+                val dataFt = attr("data-ft")?.readJsonNodes()
+
+                Post(
+                    id = dataFt.extractPostId(),
+                    text = extractPostText(),
+                    publishedAt = dataFt.extractPostPublishedAt(),
+                    rating = extractPostRating(),
+                    commentsCount = extractPostCommentsCount(),
+                    media = extractPostMedia()
+                )
+            }
         }
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getPage(path = path)
+        val aboutPath = path.substringBefore("/about") + "/about"
+
+        val page = client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = aboutPath)))
+
         return page?.run {
             val isCommunity = getFirstElementByAttributeValue("data-key", "tab_community") != null
 
             when {
-                isCommunity -> PageInfo(
-                    nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
-                    name = extractCommunityName(),
-                    description = extractCommunityDescription(),
-                    avatar = extractCommunityAvatar()?.toImage(),
-                    cover = extractCommunityCover()?.toImage()
-                )
+                isCommunity -> {
+                    val serverJsonData = extractJsonData()
+                    PageInfo(
+                        nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
+                        name = serverJsonData?.extractCommunityName(),
+                        description = extractCommunityDescription(),
+                        avatar = extractCommunityAvatar()?.toImage(),
+                        cover = serverJsonData?.extractCommunityCover()?.toImage()
+                    )
+                }
                 else -> PageInfo(
                     nick = path.removePrefix("/").substringBefore("/"),
                     name = extractUserName(),
@@ -93,22 +104,96 @@ open class FacebookSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun getPage(path: String): Document? {
-        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
-    }
-
     override suspend fun resolve(media: Media): Media {
         return client.fetchOpenGraphMedia(media)
     }
 
-    private fun JsonNode?.prepareMetaInfoMap(): Map<String, JsonNode> {
-        return this
-            ?.get("pre_display_requires")
-            ?.map { it.findPath("__bbox") }
-            ?.mapNotNull { it?.getByPath("result.data.feedback") }
-            ?.map { it.getString("share_fbid").orEmpty() to it }
-            ?.toMap()
-            .orEmpty()
+    private fun String.extractDocumentAndNextPage(): Pair<Document?, String?> {
+        return when {
+            startsWith("for (;;);") -> {
+                val nextPath = "/page_content[^\"]+\""
+                    .toRegex()
+                    .find(this)
+                    ?.groupValues
+                    ?.firstOrNull()
+                    ?.substringBeforeLast("\\\"")
+                    ?.unescapeJson()
+                    ?.unescapeJson()
+
+                val doc = substringAfter("for (;;);")
+                    .readJsonNodes()
+                    ?.getString("payload.actions.0.html")
+                    ?.let { Jsoup.parse(it) }
+
+                doc to nextPath
+            }
+            else -> {
+                val nextPath = "/page_content[^\"]+\""
+                    .toRegex()
+                    .find(this)
+                    ?.groupValues
+                    ?.firstOrNull()
+                    ?.substringBeforeLast("\"")
+
+                val doc = Jsoup.parse(this)
+
+                doc to nextPath
+            }
+        }
+    }
+
+    private fun JsonNode?.extractPostId(): String {
+        return this?.getString("top_level_post_id").orEmpty()
+    }
+
+    private fun Element.extractPostText(): String? {
+        return getElementsByTag("p")?.joinToString(separator = "\n\n") { it.wholeText() }
+    }
+
+    private fun JsonNode?.extractPostPublishedAt(): Instant? {
+        return this?.get("page_insights")?.firstOrNull()?.getLong("post_context.publish_time")?.let { Instant.ofEpochSecond(it) }
+    }
+
+    private fun Element.extractPostRating(): Int? {
+        return getFirstElementByClass("like_def")?.wholeText()?.substringAfterLast(":")?.trim()?.toIntOrNull()
+    }
+
+    private fun Element.extractPostCommentsCount(): Int? {
+        return getFirstElementByClass("cmt_def")?.wholeText()?.substringAfterLast(":")?.trim()?.toIntOrNull()
+    }
+
+    private fun Element.extractPostMedia(): List<Media> {
+        val nativeVideoNode = getFirstElementByAttributeValue("data-sigil", "inlineVideo")
+        return when {
+            nativeVideoNode != null -> {
+                val dataStore = nativeVideoNode.attr("data-store")?.readJsonNodes()
+                listOf(
+                    Video(
+                        url = dataStore?.getString("src").orEmpty(),
+                        aspectRatio = dataStore?.getDouble("width") / dataStore?.getDouble("height")
+                    )
+                )
+            }
+            else -> {
+                val links = getElementsByTag("a").drop(1)
+                links.mapNotNull { node ->
+                    val imgNode = node.getFirstElementByTag("img")
+
+                    when {
+                        node.hasClass("touchable") -> Video(
+                            url = node?.attr("href").orEmpty(),
+                        )
+                        imgNode != null -> with(imgNode) {
+                            Image(
+                                url = attr("src"),
+                                aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
+                            )
+                        }
+                        else -> null
+                    }
+                }
+            }
+        }
     }
 
     private fun Document?.extractJsonData(): JsonNode? {
@@ -117,65 +202,15 @@ open class FacebookSkraper @JvmOverloads constructor(
 
         return this
             ?.getElementsByTag("script")
-            ?.find { s -> s.html().startsWith(infoJsonPrefix) }
-            ?.run {
-                html()
-                    .removePrefix(infoJsonPrefix)
-                    .removeSuffix(infoJsonSuffix)
-                    .readJsonNodes()
-            }
+            ?.mapNotNull { it.html() }
+            ?.find { s -> s.startsWith(infoJsonPrefix) }
+            ?.removePrefix(infoJsonPrefix)
+            ?.removeSuffix(infoJsonSuffix)
+            ?.readJsonNodes()
     }
 
-    private fun Document?.extractPosts(limit: Int): List<Element> {
-        return this
-            ?.getElementsByClass("userContentWrapper")
-            ?.take(limit)
-            .orEmpty()
-    }
-
-    private fun Element.extractPostId(): String {
-        return getFirstElementByAttributeValue("name", "ft_ent_identifier")
-            ?.attr("value")
-            .orEmpty()
-    }
-
-    private fun Element.extractPostText(): String? {
-        val text = getFirstElementByClass("userContent")
-            ?.getFirstElementByTag("p")
-            ?.wholeText()
-            ?.toString()
-
-        val repostText = getFirstElementByAttributeValue("data-testid", "post_message")
-            ?.getFirstElementByTag("p")
-            ?.wholeText()
-            ?.toString()
-
-        return text ?: repostText
-    }
-
-    private fun Element.extractPostPublishDateTime(): Instant? {
-        return getFirstElementByAttribute("data-utime")
-            ?.attr("data-utime")
-            ?.toLongOrNull()
-            ?.let { Instant.ofEpochSecond(it) }
-    }
-
-    private fun JsonNode.extractPostReactionCount(): Int? {
-        return getInt("reaction_count.count")
-    }
-
-    private fun JsonNode.extractPostCommentsCount(): Int? {
-        return getInt("display_comments_count.count")
-    }
-
-    private fun JsonNode.extractPostViewsCount(): Int? {
-        return getInt("seen_by_count.count")
-
-    }
-
-    private fun Document.extractCommunityCover(): String? {
-        return extractJsonData()
-            ?.findPath("coverPhotoData")
+    private fun JsonNode.extractCommunityCover(): String? {
+        return findPath("coverPhotoData")
             ?.getString("uri")
     }
 
@@ -184,20 +219,15 @@ open class FacebookSkraper @JvmOverloads constructor(
             ?.attr("content")
     }
 
-    private fun Element.extractCommunityDescription(): String {
-        return getFirstElementByClass("stat_elem")
-            ?.getElementsByTag("span")
-            ?.getOrNull(1)
-            ?.wholeText()
-            .orEmpty()
+    private fun Element.extractCommunityDescription(): String? {
+        return getFirstElementByAttributeValue("property", "og:description")
+            ?.attr("content")
+            ?.split("[0-9]+. ".toRegex())
+            ?.lastOrNull()
     }
 
-    private fun Element.extractCommunityName(): String {
-        return getFirstElementByClass("stat_elem")
-            ?.getFirstElementByTag("span")
-            ?.parent()
-            ?.wholeText()
-            .orEmpty()
+    private fun JsonNode.extractCommunityName(): String? {
+        return findPath("pageName")?.asText()
     }
 
     private fun Element.extractUserDescription(): String? {
@@ -222,47 +252,5 @@ open class FacebookSkraper @JvmOverloads constructor(
     private fun Element.extractUserCover(): String? {
         return getFirstElementByClass("coverPhotoImg")
             ?.attr("src")
-    }
-
-    private fun Element.extractPostMediaItems(): List<Media> {
-        return getElementsByTag("a")
-            .filter { it.hasAttr("ajaxify") && "/stories" !in it.attr("ajaxify") }
-            .mapNotNull { node ->
-                val videoNode = node.getFirstElementByTag("video")
-                val imgNode = node.getFirstElementByTag("img")
-
-                when {
-                    videoNode != null
-                            || "/videos" in node.attr("ajaxify")
-                            || "/watch" in node.attr("ajaxify") -> Video(
-                        url = node
-                            ?.attr("href")
-                            ?.let { "${baseUrl}${it}" }
-                            .orEmpty(),
-                        aspectRatio = videoNode
-                            ?.attr("data-original-aspect-ratio")
-                            ?.toDoubleOrNull()
-                    )
-                    imgNode != null -> with(imgNode) {
-                        Image(
-                            url = attr("data-src"),
-                            aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                        )
-                    }
-                    else -> null
-                }
-            }.ifEmpty {
-                getFirstElementByClass("uiScaledImageContainer")
-                    ?.getFirstElementByTag("img")
-                    ?.run {
-                        listOf(
-                            Image(
-                                url = attr("data-src"),
-                                aspectRatio = attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                            )
-                        )
-                    }
-                    .orEmpty()
-            }
     }
 }

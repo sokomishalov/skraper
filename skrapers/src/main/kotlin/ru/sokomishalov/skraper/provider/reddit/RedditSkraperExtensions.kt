@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.reddit
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -24,24 +24,24 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun RedditSkraper.getCommunityHotPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/", limit = limit)
+fun RedditSkraper.getCommunityHotPosts(community: String): Flow<Post> {
+    return getPosts(path = "/r/${community.removePrefix("r/")}/")
 }
 
-suspend fun RedditSkraper.getCommunityNewPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/new", limit = limit)
+fun RedditSkraper.getCommunityNewPosts(community: String): Flow<Post> {
+    return getPosts(path = "/r/${community.removePrefix("r/")}/new")
 }
 
-suspend fun RedditSkraper.getCommunityRisingPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/rising", limit = limit)
+fun RedditSkraper.getCommunityRisingPosts(community: String): Flow<Post> {
+    return getPosts(path = "/r/${community.removePrefix("r/")}/rising")
 }
 
-suspend fun RedditSkraper.getCommunityControversialPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/controversial", limit = limit)
+fun RedditSkraper.getCommunityControversialPosts(community: String): Flow<Post> {
+    return getPosts(path = "/r/${community.removePrefix("r/")}/controversial")
 }
 
-suspend fun RedditSkraper.getCommunityTopPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/top", limit = limit)
+fun RedditSkraper.getCommunityTopPosts(community: String): Flow<Post> {
+    return getPosts(path = "/r/${community.removePrefix("r/")}/top")
 }
 
 suspend fun RedditSkraper.getUserInfo(username: String): PageInfo? {

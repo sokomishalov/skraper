@@ -19,6 +19,9 @@
 
 package ru.sokomishalov.skraper.provider.telegram
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
@@ -26,7 +29,7 @@ import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.model.*
@@ -39,28 +42,38 @@ import java.time.ZonedDateTime
  */
 open class TelegramSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://t.me"
+    override val baseUrl: String = "https://t.me"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val fixedPath = if (path.startsWith("/s/")) path else "/s$path"
-        val document = fetchDocument(fixedPath)
+        var nextPath = fixedPath
+        while (true) {
+            val document = fetchDocument(nextPath)
 
-        val postsNodes = document
-            ?.getFirstElementByTag("main")
-            ?.getElementsByClass("tgme_widget_message")
-            ?.reversed()
-            ?.take(limit)
-            .orEmpty()
+            val cursorId = nextPath.substringAfterLast("/").toLongOrNull()
+            val postsNodes = document
+                ?.getFirstElementByTag("main")
+                ?.getElementsByClass("tgme_widget_message")
+                ?.filter {
+                    val id = it.extractId().substringAfterLast("/").toLongOrNull()
+                    if (id != null && cursorId != null) cursorId >= id else true
+                }
+                ?.reversed()
 
-        return postsNodes.mapThis {
-            Post(
-                id = extractId(),
-                text = extractText(),
-                viewsCount = extractViewsCount(),
-                publishedAt = extractPublishedAt(),
-                media = extractMedia()
-            )
+            if (postsNodes.isNullOrEmpty()) break
+
+            postsNodes.dropLast(1).emitThis(this) {
+                Post(
+                    id = extractId(),
+                    text = extractText(),
+                    viewsCount = extractViewsCount(),
+                    publishedAt = extractPublishedAt(),
+                    media = extractMedia()
+                )
+            }
+
+            nextPath = "/s${postsNodes.lastOrNull()?.extractId()}"
         }
     }
 
@@ -73,7 +86,7 @@ open class TelegramSkraper @JvmOverloads constructor(
                 nick = title()?.substringAfterLast("@"),
                 name = getFirstElementByClass("tgme_page_title")?.getFirstElementByTag("span")?.wholeText(),
                 description = getFirstElementByClass("tgme_page_description")?.wholeText(),
-                followersCount = getFirstElementByClass("tgme_page_extra")?.ownText()?.substringBeforeLast(" members")?.replace(" ","") ?.toIntOrNull(),
+                followersCount = getFirstElementByClass("tgme_page_extra")?.ownText()?.substringBeforeLast(" members")?.replace(" ", "")?.toIntOrNull(),
                 avatar = getFirstElementByClass("tgme_page_photo_image")?.attr("src")?.toImage()
             )
         }
@@ -84,7 +97,7 @@ open class TelegramSkraper @JvmOverloads constructor(
             supports(media.url) -> {
                 val path = media.url.path.removePrefix("/s")
                 val posts = getPosts(path)
-                posts.find { it.id == path }?.media?.firstOrNull() ?: media
+                posts.firstOrNull { it.id == path }?.media?.firstOrNull() ?: media
             }
             else -> media
         }

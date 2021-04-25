@@ -16,13 +16,15 @@
 package ru.sokomishalov.skraper.provider.pinterest
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -37,15 +39,15 @@ import java.util.Locale.ROOT
  */
 open class PinterestSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://pinterest.com"
+    override val baseUrl: String = "https://pinterest.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val infoJsonNode = getUserJson(path = path)
 
-        val feedList = infoJsonNode.extractFeed(limit)
+        val feedList = infoJsonNode.extractFeed()
 
-        return feedList.mapThis {
+        feedList.emitThis(this) {
             Post(
                 id = extractPostId(),
                 text = extractPostText(),
@@ -77,7 +79,7 @@ open class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun supports(url: URLString): Boolean {
+    override fun supports(url: String): Boolean {
         return "pinterest" in url.host
     }
 
@@ -94,12 +96,10 @@ open class PinterestSkraper @JvmOverloads constructor(
         return infoJson.readJsonNodes()
     }
 
-    private fun JsonNode?.extractFeed(limit: Int): List<JsonNode> {
+    private fun JsonNode?.extractFeed(): List<JsonNode> {
         return this
-            ?.get("resourceResponses")
-            ?.get(1)
-            ?.getByPath("response.data")
-            ?.take(limit)
+            ?.getByPath("resourceResponses.1.response.data")
+            ?.toList()
             .orEmpty()
     }
 

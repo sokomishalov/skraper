@@ -23,6 +23,8 @@ import com.xenomachina.argparser.mainBody
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.model.Post
@@ -39,10 +41,11 @@ fun main(args: Array<String>) = mainBody(columns = 100) {
     with(t) { println("${green("Skraper")} ${magenta("v.0.7.0")} started") }
 
     val posts = runBlocking {
-        parsedArgs.skraper.getPosts(
-            path = "/${parsedArgs.path.removePrefix("/")}",
-            limit = parsedArgs.amount
-        )
+        parsedArgs
+            .skraper
+            .getPosts("/${parsedArgs.path.removePrefix("/")}")
+            .take(parsedArgs.amount)
+            .toList()
     }
 
     when {

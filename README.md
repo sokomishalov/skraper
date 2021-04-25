@@ -200,10 +200,11 @@ interface:
 ```kotlin
 interface Skraper {
     val baseUrl: URLString
-    val client: SkraperClient get() = DefaultBlockingSkraperClient
-    suspend fun getProviderInfo(): ProviderInfo?
+    val name: String
+    val client: SkraperClient
+    fun supports(url: String): Boolean
+    suspend fun getPosts(path: String): Flow<Post>
     suspend fun getPageInfo(path: String): PageInfo?
-    suspend fun getPosts(path: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post>
     suspend fun resolve(media: Media): Media
 }
 ```
@@ -224,8 +225,9 @@ To scrape the latest posts for specific user, channel or trend use skraper like 
 ```kotlin
 suspen fun main() {
     val skraper = FacebookSkraper()
-    val posts = skraper.getUserPosts(username = "memes", limit = 2) // extension for getPosts()
-    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
+    val posts = skraper.getUserPosts(username = "memes").take(2).toList() // extension for getPosts()
+    val serializer = JsonMapper().writerWithDefaultPrettyPrinter()
+    println(serializer.writeValueAsString(posts))
 }
 ```
 
@@ -273,7 +275,8 @@ It is possible to scrape user/channel/trend info for some purposes:
 suspend fun main() {
     val skraper = TwitterSkraper()
     val pageInfo = skraper.getUserInfo(username = "memes") // extension for `getPageInfo()`
-    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(pageInfo))
+    val serializer = JsonMapper().writerWithDefaultPrettyPrinter()
+    println(serializer.writeValueAsString(pageInfo))
 }
 ```
 
@@ -303,7 +306,8 @@ Sometimes you need to know direct media link:
 suspend fun main() {
     val skraper = InstagramSkraper()
     val info = skraper.resolve(Video(url = "https://www.instagram.com/p/B-flad2F5o7/"))
-    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(info))
+    val serializer = JsonMapper().writerWithDefaultPrettyPrinter()
+    println(serializer.writeValueAsString(info))
 }
 ```
 
@@ -350,29 +354,6 @@ Output:
 ```log
 /var/folders/sf/hm2h5chx5fl4f70bj77xccsc0000gp/T/skraper8377953374796527777/Gandalf.mp4
 /var/folders/sf/hm2h5chx5fl4f70bj77xccsc0000gp/T/skraper8377953374796527777/Do_no_harm.jpg
-```
-
-### Scrape provider logo
-
-It is also possible to scrape provider info for some purposes:
-
-```kotlin
-suspend fun main() {
-    val skraper = InstagramSkraper()
-    val info = skraper.getProviderInfo()
-    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(info))
-}
-```
-
-Output:
-
-```json5
-{
-  "name": "Instagram",
-  "logo": {
-    "url": "https://instagram.com/favicon.ico"
-  }
-}
 ```
 
 # Telegram bot

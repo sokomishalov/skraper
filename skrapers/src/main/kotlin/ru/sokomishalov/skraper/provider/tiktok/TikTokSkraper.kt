@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.tiktok
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
@@ -24,7 +26,7 @@ import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -37,15 +39,15 @@ class TikTokSkraper @JvmOverloads constructor(
     override val baseUrl: String = "https://tiktok.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val pageJson = getPagePropsJson(path = path)
 
         val posts = pageJson
             ?.get("items")
-            ?.take(limit)
+            ?.toList()
             .orEmpty()
 
-        return posts.mapThis {
+        posts.emitThis(this) {
             Post(
                 id = getString("id").orEmpty(),
                 text = getString("desc"),

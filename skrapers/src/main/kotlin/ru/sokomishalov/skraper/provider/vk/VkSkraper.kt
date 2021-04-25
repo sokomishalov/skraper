@@ -17,6 +17,8 @@
 
 package ru.sokomishalov.skraper.provider.vk
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
@@ -24,6 +26,7 @@ import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.model.*
@@ -39,18 +42,18 @@ import java.util.Locale.ENGLISH
  */
 open class VkSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://vk.com"
+    override val baseUrl: String = "https://vk.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val page = getUserPage(path = path)
 
         val posts = page
             ?.getElementsByClass("wall_item")
-            ?.take(limit)
+            ?.toList()
             .orEmpty()
 
-        return posts.mapThis {
+        posts.emitThis(this) {
             Post(
                 id = extractPostId(),
                 text = extractPostCaption(),
@@ -229,9 +232,7 @@ open class VkSkraper @JvmOverloads constructor(
                         aspectRatio = aspectRatio
                     )
                     else -> Image(
-                        url = getFirstElementByClass("thumb_map_img")
-                            ?.getBackgroundImageUrl()
-                            ?: hrefLink,
+                        url = getFirstElementByClass("thumb_map_img")?.getBackgroundImageUrl() ?: hrefLink,
                         aspectRatio = aspectRatio
                     )
                 }

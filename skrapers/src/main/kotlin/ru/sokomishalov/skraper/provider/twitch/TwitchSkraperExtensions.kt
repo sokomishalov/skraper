@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.twitch
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.internal.string.escapeUrl
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
@@ -24,24 +24,24 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun TwitchSkraper.getUserVideoPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${username}/videos", limit = limit)
+fun TwitchSkraper.getUserVideoPosts(username: String): Flow<Post> {
+    return getPosts(path = "/${username}/videos")
 }
 
-suspend fun TwitchSkraper.getUserClipPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/${username}/clips", limit = limit)
+fun TwitchSkraper.getUserClipPosts(username: String): Flow<Post> {
+    return getPosts(path = "/${username}/clips")
 }
 
 suspend fun TwitchSkraper.getUserInfo(username: String): PageInfo? {
     return getPageInfo(path = "/${username}")
 }
 
-suspend fun TwitchSkraper.getGameVideoPosts(game: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/directory/game/${game.escapeUrl()}/videos", limit = limit)
+fun TwitchSkraper.getGameVideoPosts(game: String): Flow<Post> {
+    return getPosts(path = "/directory/game/${game.escapeUrl()}/videos")
 }
 
-suspend fun TwitchSkraper.getGameClipPosts(game: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/directory/game/${game.escapeUrl()}/clips", limit = limit)
+fun TwitchSkraper.getGameClipPosts(game: String): Flow<Post> {
+    return getPosts(path = "/directory/game/${game.escapeUrl()}/clips")
 }
 
 suspend fun TwitchSkraper.getGameInfo(game: String): PageInfo? {

@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.twitter
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
@@ -24,7 +26,7 @@ import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -40,22 +42,21 @@ import java.time.Instant
  */
 open class TwitterSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://twitter.com",
-    private val apiBaseUrl: URLString = "https://api.twitter.com"
+    override val baseUrl: String = "https://twitter.com",
+    private val apiBaseUrl: String = "https://api.twitter.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val page = getUserPage(path = path)
 
         val posts = page
             ?.body()
             ?.getElementById("stream-items-id")
             ?.getElementsByClass("stream-item")
-            ?.take(limit)
             ?.mapNotNull { it.getFirstElementByClass("tweet") }
             .orEmpty()
 
-        return posts.mapThis {
+        posts.emitThis(this) {
             Post(
                 id = extractTweetId(),
                 text = extractTweetText(),
@@ -87,7 +88,7 @@ open class TwitterSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun supports(url: URLString): Boolean {
+    override fun supports(url: String): Boolean {
         return arrayOf("twitter.com", "t.co")
             .any { url.host.removePrefix("www.") in it }
     }

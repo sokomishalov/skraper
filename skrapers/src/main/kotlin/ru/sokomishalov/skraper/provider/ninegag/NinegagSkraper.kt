@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.ninegag
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
@@ -23,7 +25,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.number.minus
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -38,13 +40,34 @@ import java.time.Instant
  */
 open class NinegagSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://9gag.com"
+    override val baseUrl: String = "https://9gag.com"
 ) : Skraper {
 
     override val name: String = "9GAG"
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        return fetchPostsRecursively(path, limit)
+    override fun getPosts(path: String): Flow<Post> = flow {
+        var nextPath = path
+        while (true) {
+            val page = getUserPage(path = nextPath)
+            val dataJson = page.extractJsonData()
+
+            val posts = dataJson?.getByPath("data.posts")
+
+            if (posts == null || posts.isEmpty) break
+
+            posts.emitThis(this) {
+                Post(
+                    id = getString("id").orEmpty(),
+                    text = getString("title"),
+                    publishedAt = getLong("creationTs")?.let { Instant.ofEpochSecond(it) },
+                    rating = getInt("upVoteCount") - getInt("downVoteCount"),
+                    commentsCount = getInt("commentsCount"),
+                    media = extractPostMediaItems()
+                )
+            }
+
+            nextPath = "${path.substringBefore("?")}?${dataJson.getString("data.nextCursor").orEmpty()}"
+        }
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
@@ -79,37 +102,6 @@ open class NinegagSkraper @JvmOverloads constructor(
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
     }
-
-    private tailrec suspend fun fetchPostsRecursively(
-        path: String,
-        limit: Int,
-        total: List<Post> = emptyList()
-    ): List<Post> {
-        val page = getUserPage(path = path)
-        val dataJson = page.extractJsonData()
-        val nextPath = "${path.substringBefore("?")}?${dataJson?.getString("data.nextCursor").orEmpty()}"
-
-        val posts = dataJson
-            ?.getByPath("data.posts")
-            ?.take(limit)
-            ?.mapThis {
-                Post(
-                    id = getString("id").orEmpty(),
-                    text = getString("title"),
-                    publishedAt = getLong("creationTs")?.let { Instant.ofEpochSecond(it) },
-                    rating = getInt("upVoteCount") - getInt("downVoteCount"),
-                    commentsCount = getInt("commentsCount"),
-                    media = extractPostMediaItems()
-                )
-            }
-            .orEmpty()
-
-        return when {
-            total.size + posts.size < limit && nextPath != path -> fetchPostsRecursively(nextPath, limit, total + posts)
-            else -> total + posts
-        }
-    }
-
 
     private fun Document?.extractJsonData(): JsonNode? {
         return this

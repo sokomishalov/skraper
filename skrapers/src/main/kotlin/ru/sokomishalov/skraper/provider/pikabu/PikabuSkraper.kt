@@ -15,6 +15,8 @@
  */
 package ru.sokomishalov.skraper.provider.pikabu
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
@@ -24,7 +26,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
@@ -36,18 +38,17 @@ import kotlin.text.Charsets.UTF_8
 
 open class PikabuSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://pikabu.ru"
+    override val baseUrl: String = "https://pikabu.ru"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val page = getPage(path = path)
 
         val stories = page
             ?.getElementsByTag("article")
-            ?.take(limit)
             .orEmpty()
 
-        return stories.mapThis {
+        stories.emitThis(this) {
             val storyBlocks = getElementsByClass("story-block")
 
             val title = extractPostTitle()

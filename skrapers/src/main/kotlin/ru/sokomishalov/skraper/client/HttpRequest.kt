@@ -19,13 +19,12 @@ package ru.sokomishalov.skraper.client
 
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
-import ru.sokomishalov.skraper.model.URLString
 
 /**
  * @author sokomishalov
  */
 data class HttpRequest @JvmOverloads constructor(
-    val url: URLString,
+    val url: String,
     val method: HttpMethodType = GET,
     val headers: Map<String, String> = DEFAULT_HEADERS,
     val body: ByteArray? = null

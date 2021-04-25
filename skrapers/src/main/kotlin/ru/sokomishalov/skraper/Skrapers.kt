@@ -24,7 +24,10 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegCliRunner
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegRunner
 import ru.sokomishalov.skraper.internal.net.path
-import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.model.Audio
+import ru.sokomishalov.skraper.model.Image
+import ru.sokomishalov.skraper.model.Media
+import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
 import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
 import ru.sokomishalov.skraper.provider.ifunny.IFunnySkraper
@@ -55,7 +58,7 @@ object Skrapers {
      * @param url potential provider relative url
      * @return skraper which supports this url or null if none of skrapers supports it
      */
-    suspend fun suitable(url: URLString): Skraper? {
+    fun suitable(url: String): Skraper? {
         return providers.find { it.supports(url) }
     }
 

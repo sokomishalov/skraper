@@ -16,6 +16,8 @@
 package ru.sokomishalov.skraper.provider.ifunny
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
@@ -35,18 +37,17 @@ import ru.sokomishalov.skraper.model.*
  */
 open class IFunnySkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://ifunny.co"
+    override val baseUrl: String = "https://ifunny.co"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
+    override fun getPosts(path: String): Flow<Post> = flow {
         val page = getPage(path = path)
 
         val posts = page
             ?.getElementsByClass("stream__item")
-            ?.take(limit)
             .orEmpty()
 
-        return posts.mapNotNull {
+        posts.forEach {
             val a = it.getFirstElementByTag("a")
 
             val img = a?.getFirstElementByTag("img")
@@ -59,19 +60,21 @@ open class IFunnySkraper @JvmOverloads constructor(
                 .toDoubleOrNull()
                 ?.let { r -> 1.0 / r }
 
-            Post(
-                id = link.substringBeforeLast("?").substringAfterLast("/"),
-                media = listOf(
-                    when {
-                        isVideo -> Video(
-                            url = "${baseUrl}${link}",
-                            aspectRatio = aspectRatio
-                        )
-                        else -> Image(
-                            url = img?.attr("data-src").orEmpty(),
-                            aspectRatio = aspectRatio
-                        )
-                    }
+            emit(
+                Post(
+                    id = link.substringBeforeLast("?").substringAfterLast("/"),
+                    media = listOf(
+                        when {
+                            isVideo -> Video(
+                                url = "${baseUrl}${link}",
+                                aspectRatio = aspectRatio
+                            )
+                            else -> Image(
+                                url = img?.attr("data-src").orEmpty(),
+                                aspectRatio = aspectRatio
+                            )
+                        }
+                    )
                 )
             )
         }

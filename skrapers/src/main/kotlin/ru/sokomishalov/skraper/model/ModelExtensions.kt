@@ -19,11 +19,11 @@ package ru.sokomishalov.skraper.model
 
 import ru.sokomishalov.skraper.internal.string.escapeUrl
 
-internal inline fun URLString.toImage(): Image = Image(url = this)
+internal inline fun String.toImage(): Image = Image(url = this)
 
-internal inline fun URLString.toVideo(): Video = Video(url = this)
+internal inline fun String.toVideo(): Video = Video(url = this)
 
-internal fun URLString.buildFullURL(path: String, queryParams: Map<String, Any?> = emptyMap()): URLString {
+internal fun String.buildFullURL(path: String, queryParams: Map<String, Any?> = emptyMap()): String {
     val baseUrlString = removeSuffix("/")
     val pathString = "/" + path.removePrefix("/").removeSuffix("/")
     val queryParamsString = queryParams

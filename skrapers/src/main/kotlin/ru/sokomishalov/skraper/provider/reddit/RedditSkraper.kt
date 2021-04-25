@@ -18,13 +18,17 @@
 package ru.sokomishalov.skraper.provider.reddit
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchJson
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.mapThis
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_BATCH
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -33,34 +37,40 @@ import java.time.Instant
 
 open class RedditSkraper @JvmOverloads constructor(
     override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: URLString = "https://reddit.com"
+    override val baseUrl: String = "https://reddit.com"
 ) : Skraper {
 
-    override suspend fun getPosts(path: String, limit: Int): List<Post> {
-        val response = client.fetchJson(
-            HttpRequest(
-                url = baseUrl.buildFullURL(
-                    path = "${path.removeSuffix("/")}.json",
-                    queryParams = mapOf("limit" to limit)
+    override fun getPosts(path: String): Flow<Post> = flow {
+        var nextPage: String? = null
+
+        while (true) {
+            val response = client.fetchJson(
+                HttpRequest(
+                    url = baseUrl.buildFullURL(
+                        path = "${path.removeSuffix("/")}.json",
+                        queryParams = mapOf("limit" to DEFAULT_POSTS_BATCH, "after" to nextPage)
+                    )
                 )
             )
-        )
 
-        val posts = response
-            ?.getFirstByPath("data.children", "0.data.children")
-            ?.toList()
-            .orEmpty()
-            .mapNotNull { it["data"] }
+            val posts = response
+                ?.getFirstByPath("data.children", "0.data.children")
+                ?.mapNotNull { it["data"] }
 
-        return posts.mapThis {
-            Post(
-                id = getString("id").orEmpty(),
-                text = extractText(),
-                publishedAt = getLong("created_utc")?.let { Instant.ofEpochSecond(it) },
-                rating = getInt("score"),
-                commentsCount = getInt("num_comments"),
-                media = extractPostMediaItems()
-            )
+            if (posts.isNullOrEmpty()) break
+
+            posts.emitThis(this) {
+                Post(
+                    id = getString("id").orEmpty(),
+                    text = extractText(),
+                    publishedAt = getLong("created_utc")?.let { Instant.ofEpochSecond(it) },
+                    rating = getInt("score"),
+                    commentsCount = getInt("num_comments"),
+                    media = extractPostMediaItems()
+                )
+            }
+
+            nextPage = response.getString("data.after")
         }
     }
 
@@ -95,8 +105,7 @@ open class RedditSkraper @JvmOverloads constructor(
         return when (media) {
             is Image -> client.fetchOpenGraphMedia(media)
             is Video -> {
-                val posts = getPosts(path = media.url.path, limit = 1)
-                posts
+                getPosts(path = media.url.path)
                     .firstOrNull()
                     ?.media
                     ?.firstOrNull()

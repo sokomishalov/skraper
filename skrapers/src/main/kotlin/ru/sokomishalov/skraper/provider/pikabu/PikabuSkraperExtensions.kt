@@ -15,7 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.pikabu
 
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_LIMIT
+import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -24,40 +24,40 @@ import ru.sokomishalov.skraper.model.Post
  * @author sokomishalov
  */
 
-suspend fun PikabuSkraper.getHotPosts(limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/hot", limit = limit)
+fun PikabuSkraper.getHotPosts(): Flow<Post> {
+    return getPosts(path = "/hot")
 }
 
-suspend fun PikabuSkraper.getBestPosts(limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/best", limit = limit)
+fun PikabuSkraper.getBestPosts(): Flow<Post> {
+    return getPosts(path = "/best")
 }
 
-suspend fun PikabuSkraper.getNewPosts(limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/new", limit = limit)
+fun PikabuSkraper.getNewPosts(): Flow<Post> {
+    return getPosts(path = "/new")
 }
 
-suspend fun PikabuSkraper.getCommunityHotPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/community/${community}/${""}", limit = limit)
+fun PikabuSkraper.getCommunityHotPosts(community: String): Flow<Post> {
+    return getPosts(path = "/community/${community}/${""}")
 }
 
-suspend fun PikabuSkraper.getCommunityBestPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/community/${community}/${"best"}", limit = limit)
+fun PikabuSkraper.getCommunityBestPosts(community: String): Flow<Post> {
+    return getPosts(path = "/community/${community}/${"best"}")
 }
 
-suspend fun PikabuSkraper.getCommunityNewPosts(community: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/community/${community}/${"new"}", limit = limit)
+fun PikabuSkraper.getCommunityNewPosts(community: String): Flow<Post> {
+    return getPosts(path = "/community/${community}/${"new"}")
 }
 
-suspend fun PikabuSkraper.getUserLatestPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${""}", limit = limit)
+fun PikabuSkraper.getUserLatestPosts(username: String): Flow<Post> {
+    return getPosts(path = "/@${username.removePrefix("@")}/${""}")
 }
 
-suspend fun PikabuSkraper.getUserBestPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${"rating"}", limit = limit)
+fun PikabuSkraper.getUserBestPosts(username: String): Flow<Post> {
+    return getPosts(path = "/@${username.removePrefix("@")}/${"rating"}")
 }
 
-suspend fun PikabuSkraper.getUserOwnPosts(username: String, limit: Int = DEFAULT_POSTS_LIMIT): List<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${"mine"}", limit = limit)
+fun PikabuSkraper.getUserOwnPosts(username: String): Flow<Post> {
+    return getPosts(path = "/@${username.removePrefix("@")}/${"mine"}")
 }
 
 suspend fun PikabuSkraper.getUserInfo(username: String): PageInfo? {
