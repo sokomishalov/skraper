@@ -1,0 +1,36 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "02:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.jetbrains.kotlinx:kotlinx-coroutines-reactive
+    versions:
+    - 1.4.3-native-mt
+  - dependency-name: org.jetbrains.dokka:dokka-maven-plugin
+    versions:
+    - 1.4.20-dev-65
+  - dependency-name: org.jetbrains.kotlin:kotlin-maven-allopen
+    versions:
+    - 1.4.21-2
+    - 1.4.31
+  - dependency-name: org.jetbrains.kotlin:kotlin-maven-plugin
+    versions:
+    - 1.4.21-2
+    - 1.4.31
+  - dependency-name: org.jetbrains.kotlin:kotlin-test-junit5
+    versions:
+    - 1.4.31
+  - dependency-name: org.jetbrains.kotlin:kotlin-stdlib
+    versions:
+    - 1.4.21-2
+    - 1.4.31
+  - dependency-name: org.telegram:telegrambots-spring-boot-starter
+    versions:
+    - 5.0.1.1
+  - dependency-name: org.jetbrains.kotlin:kotlin-test-junit
+    versions:
+    - 1.4.21-2
