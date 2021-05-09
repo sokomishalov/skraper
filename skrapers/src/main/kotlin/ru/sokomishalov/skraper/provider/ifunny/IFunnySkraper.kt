@@ -25,7 +25,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.serialization.getByPath
 import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
@@ -54,7 +54,7 @@ open class IFunnySkraper @JvmOverloads constructor(
 
             if (rawPosts.isNullOrEmpty()) break
 
-            rawPosts.emitThis(this) {
+            emitBatch(rawPosts) {
                 val a = getFirstElementByTag("a")
 
                 val img = a?.getFirstElementByTag("img")

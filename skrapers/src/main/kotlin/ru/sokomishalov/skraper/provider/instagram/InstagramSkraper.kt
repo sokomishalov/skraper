@@ -24,7 +24,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -47,21 +47,21 @@ open class InstagramSkraper @JvmOverloads constructor(
             else -> nodes?.getByPath("entry_data.ProfilePage.0.graphql.user.edge_owner_to_timeline_media.edges")
         }
 
-        postNodes
-            ?.map { it["node"] }
-            ?.emitThis(this) {
-                Post(
-                    id = getString("id").orEmpty(),
-                    text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
-                    publishedAt = getLong("taken_at_timestamp")?.let { Instant.ofEpochSecond(it) },
-                    statistics = PostStatistics(
-                        likes = getInt("edge_media_preview_like.count"),
-                        views = getInt("video_view_count"),
-                        comments = getInt("edge_media_to_comment.count"),
-                    ),
-                    media = extractPostMediaItems()
-                )
-            }
+        val rawPosts = postNodes?.map { it["node"] }.orEmpty()
+
+        emitBatch(rawPosts) {
+            Post(
+                id = getString("id").orEmpty(),
+                text = getString("edge_media_to_caption.edges.0.node.text").orEmpty(),
+                publishedAt = getLong("taken_at_timestamp")?.let { Instant.ofEpochSecond(it) },
+                statistics = PostStatistics(
+                    likes = getInt("edge_media_preview_like.count"),
+                    views = getInt("video_view_count"),
+                    comments = getInt("edge_media_to_comment.count"),
+                ),
+                media = extractPostMediaItems()
+            )
+        }
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {

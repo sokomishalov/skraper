@@ -26,7 +26,7 @@ import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -47,7 +47,7 @@ class TikTokSkraper @JvmOverloads constructor(
             ?.toList()
             .orEmpty()
 
-        rawPosts.emitThis(this) {
+        emitBatch(rawPosts) {
             Post(
                 id = getString("id").orEmpty(),
                 text = getString("desc"),

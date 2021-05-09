@@ -24,7 +24,7 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
@@ -59,7 +59,7 @@ open class FacebookSkraper @JvmOverloads constructor(
             val rawPosts = document?.getElementsByTag("article")
             if (rawPosts.isNullOrEmpty()) break
 
-            rawPosts.emitThis(this) {
+            emitBatch(rawPosts) {
                 val dataFt = attr("data-ft")?.readJsonNodes()
 
                 Post(

@@ -28,7 +28,7 @@ import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getByPath
@@ -54,12 +54,12 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
         val jsonMetadata = page?.readJsonMetadata()
 
-        val videoItems = jsonMetadata
+        val rawPosts = jsonMetadata
             ?.findParents("gridVideoRenderer")
             ?.map { it["gridVideoRenderer"] }
             .orEmpty()
 
-        videoItems.emitThis(this) {
+        emitBatch(rawPosts) {
             Post(
                 id = getString("videoId").orEmpty(),
                 text = getString("title.runs.0.text"),

@@ -27,7 +27,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getBackgroundImageUrl
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -50,7 +50,7 @@ open class FlickrSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val page = getPage(path = path)
 
-        val domPosts = page
+        val rawPosts = page
             ?.getElementsByClass("photo-list-photo-view")
             .orEmpty()
 
@@ -61,7 +61,7 @@ open class FlickrSkraper @JvmOverloads constructor(
             .orEmpty()
 
         when {
-            domPosts.isNotEmpty() -> domPosts.emitThis(this) {
+            rawPosts.isNotEmpty() -> emitBatch(rawPosts) {
                 val url = getBackgroundImage().orEmpty()
                 val id = url.substringAfterLast("/").substringBefore("_")
 

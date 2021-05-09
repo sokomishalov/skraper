@@ -55,7 +55,7 @@ fun main(args: Array<String>) = mainBody(columns = 100) {
 }
 
 private fun List<Post>.persistMedia(parsedArgs: Args) {
-    val provider = parsedArgs.skraper.name
+    val provider = parsedArgs.skraper.provider
     val requestedPath = parsedArgs.path
     val root = when {
         parsedArgs.output.isFile -> parsedArgs.output.parentFile.absolutePath
@@ -90,7 +90,7 @@ private fun List<Post>.persistMedia(parsedArgs: Args) {
 }
 
 private fun List<Post>.persistMeta(parsedArgs: Args) {
-    val provider = parsedArgs.skraper.name
+    val provider = parsedArgs.skraper.provider
     val requestedPath = parsedArgs.path
 
     val content = with(parsedArgs.outputType) { serialize() }

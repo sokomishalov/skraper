@@ -25,7 +25,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.number.minus
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -53,7 +53,7 @@ open class NinegagSkraper @JvmOverloads constructor(
 
             if (rawPosts == null || rawPosts.isEmpty) break
 
-            rawPosts.emitThis(this) {
+            emitBatch(rawPosts) {
                 Post(
                     id = getString("id").orEmpty(),
                     text = getString("title"),

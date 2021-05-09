@@ -24,5 +24,5 @@ import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
 
 internal val Skraper.provider: String get() = when (this) {
     is NinegagSkraper -> "9gag"
-    else -> this::class.java.simpleName.removeSuffix("Skraper").toLowerCase()
+    else -> this::class.java.simpleName.removeSuffix("Skraper").lowercase()
 }

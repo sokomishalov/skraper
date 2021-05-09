@@ -18,4 +18,4 @@ package ru.sokomishalov.skraper.internal.iterable
 import kotlinx.coroutines.flow.FlowCollector
 
 
-internal suspend inline fun <T, R> Iterable<T>.emitThis(collector: FlowCollector<R>, transform: T.() -> R) = forEach { collector.emit(transform(it)) }
+internal suspend inline fun <T, R> FlowCollector<R>.emitBatch(batch: Iterable<T>, transform: T.() -> R) = batch.forEach { emit(transform(it)) }

@@ -45,8 +45,8 @@ class Args(parser: ArgParser) {
 
     val outputType by parser.storing(
         "-t", "--type",
-        help = "output type, options: ${Serialization.values().joinToString().toLowerCase()}"
-    ) { Serialization.valueOf(toUpperCase()) }.default { LOG }
+        help = "output type, options: ${Serialization.values().joinToString().lowercase()}"
+    ) { Serialization.valueOf(uppercase()) }.default { LOG }
 
     val output by parser.storing(
         "-o", "--output",

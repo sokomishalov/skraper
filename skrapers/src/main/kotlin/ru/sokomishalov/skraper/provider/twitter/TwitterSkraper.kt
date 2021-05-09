@@ -26,7 +26,7 @@ import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -56,7 +56,7 @@ open class TwitterSkraper @JvmOverloads constructor(
             ?.mapNotNull { it.getFirstElementByClass("tweet") }
             .orEmpty()
 
-        rawPosts.emitThis(this) {
+        emitBatch(rawPosts) {
             Post(
                 id = extractTweetId(),
                 text = extractTweetText(),

@@ -24,7 +24,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -45,9 +45,9 @@ open class PinterestSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val infoJsonNode = getUserJson(path = path)
 
-        val feedList = infoJsonNode.extractFeed()
+        val rawPosts = infoJsonNode.extractFeed()
 
-        feedList.emitThis(this) {
+        emitBatch(rawPosts) {
             Post(
                 id = extractPostId(),
                 text = extractPostText(),

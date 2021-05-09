@@ -27,7 +27,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
@@ -49,12 +49,12 @@ open class TumblrSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val page = getNonUserPage(path = path)
 
-        val articles = page
+        val rawPosts = page
             ?.getElementsByTag("article")
             ?.toList()
             .orEmpty()
 
-        articles.emitThis(this) {
+        emitBatch(rawPosts) {
             Post(
                 id = extractPostId(),
                 text = extractPostText(),

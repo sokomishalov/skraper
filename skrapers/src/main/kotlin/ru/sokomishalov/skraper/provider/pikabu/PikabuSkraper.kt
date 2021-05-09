@@ -26,7 +26,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
@@ -44,11 +44,11 @@ open class PikabuSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val page = getPage(path = path)
 
-        val stories = page
+        val rawPosts = page
             ?.getElementsByTag("article")
             .orEmpty()
 
-        stories.emitThis(this) {
+        emitBatch(rawPosts) {
             val storyBlocks = getElementsByClass("story-block")
 
             val title = extractPostTitle()

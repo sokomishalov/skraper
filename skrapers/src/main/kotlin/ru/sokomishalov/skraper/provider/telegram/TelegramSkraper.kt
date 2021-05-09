@@ -29,7 +29,7 @@ import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.model.*
@@ -63,7 +63,9 @@ open class TelegramSkraper @JvmOverloads constructor(
 
             if (postsNodes.isNullOrEmpty()) break
 
-            postsNodes.dropLast(1).emitThis(this) {
+            val rawPosts = postsNodes.dropLast(1)
+
+            emitBatch(rawPosts) {
                 Post(
                     id = extractId(),
                     text = extractText(),

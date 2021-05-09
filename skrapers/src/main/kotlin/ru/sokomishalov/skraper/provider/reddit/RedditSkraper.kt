@@ -28,7 +28,7 @@ import ru.sokomishalov.skraper.client.fetchJson
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_BATCH
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -59,7 +59,7 @@ open class RedditSkraper @JvmOverloads constructor(
 
             if (rawPosts.isNullOrEmpty()) break
 
-            rawPosts.emitThis(this) {
+            emitBatch(rawPosts) {
                 Post(
                     id = getString("id").orEmpty(),
                     text = extractText(),

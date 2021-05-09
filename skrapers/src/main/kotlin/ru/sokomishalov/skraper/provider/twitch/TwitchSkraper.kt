@@ -29,7 +29,7 @@ import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_BATCH
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.*
@@ -73,7 +73,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                             ?.mapNotNull { it["node"] }
                             .orEmpty()
 
-                        clipNodes.emitClipPosts(this)
+                        emitClipPosts(clipNodes)
                     }
                     isVideoPath -> {
                         val json = getGame(
@@ -86,7 +86,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                             ?.mapNotNull { it["node"] }
                             .orEmpty()
 
-                        videoNodes.emitVideoPosts(this)
+                        emitVideoPosts(videoNodes)
                     }
                 }
             }
@@ -105,7 +105,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                             ?.mapNotNull { it["node"] }
                             .orEmpty()
 
-                        clipNodes.emitClipPosts(this)
+                        emitClipPosts(clipNodes)
                     }
                     isVideoPath -> {
                         val json = getUser(
@@ -118,7 +118,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                             ?.mapNotNull { it["node"] }
                             .orEmpty()
 
-                        videoNodes.emitVideoPosts(this)
+                        emitVideoPosts(videoNodes)
                     }
                 }
             }
@@ -278,8 +278,8 @@ open class TwitchSkraper @JvmOverloads constructor(
             .substringBefore("?")
     }
 
-    private suspend fun List<JsonNode>.emitVideoPosts(collector: FlowCollector<Post>) {
-        emitThis(collector) {
+    private suspend fun FlowCollector<Post>.emitVideoPosts(rawPosts: List<JsonNode>) {
+        emitBatch(rawPosts) {
             Post(
                 id = getString("id").orEmpty(),
                 text = getString("title"),
@@ -295,8 +295,8 @@ open class TwitchSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun List<JsonNode>.emitClipPosts(collector: FlowCollector<Post>) {
-        emitThis(collector) {
+    private suspend fun FlowCollector<Post>.emitClipPosts(rawPosts: List<JsonNode>) {
+        emitBatch(rawPosts) {
             Post(
                 id = getString("id").orEmpty(),
                 publishedAt = getString("createdAt")?.let { ISO_DATE_TIME.parse(it, Instant::from) },

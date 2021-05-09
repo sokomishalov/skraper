@@ -26,7 +26,7 @@ import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.iterable.emitThis
+import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.model.*
 import java.time.Instant
@@ -52,7 +52,7 @@ open class VkSkraper @JvmOverloads constructor(
             ?.toList()
             .orEmpty()
 
-        rawPosts.emitThis(this) {
+        emitBatch(rawPosts) {
             Post(
                 id = extractPostId(),
                 text = extractPostCaption(),
