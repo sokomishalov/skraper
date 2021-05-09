@@ -61,8 +61,9 @@ open class TwitterSkraper @JvmOverloads constructor(
                 id = extractTweetId(),
                 text = extractTweetText(),
                 statistics = PostStatistics(
-                    likes = extractTweetLikes(),
-                    comments = extractTweetReplies(),
+                    likes = extractLikesCount(),
+                    reposts = extractRepostsCount(),
+                    comments = extractCommentsCount(),
                 ),
                 publishedAt = extractTweetPublishDate(),
                 media = extractTweetMediaItems()
@@ -190,15 +191,22 @@ open class TwitterSkraper @JvmOverloads constructor(
             ?.let { Instant.ofEpochMilli(it) }
     }
 
-    private fun Element.extractTweetLikes(): Int? {
+    private fun Element.extractLikesCount(): Int? {
         return getFirstElementByClass("ProfileTweet-action--favorite")
             ?.getFirstElementByClass("ProfileTweet-actionCount")
             ?.attr("data-tweet-stat-count")
             ?.toIntOrNull()
     }
 
-    private fun Element.extractTweetReplies(): Int? {
+    private fun Element.extractCommentsCount(): Int? {
         return getFirstElementByClass("ProfileTweet-action--reply")
+            ?.getFirstElementByClass("ProfileTweet-actionCount")
+            ?.attr("data-tweet-stat-count")
+            ?.toIntOrNull()
+    }
+
+    private fun Element.extractRepostsCount(): Int? {
+        return getFirstElementByClass("ProfileTweet-action--retweet")
             ?.getFirstElementByClass("ProfileTweet-actionCount")
             ?.attr("data-tweet-stat-count")
             ?.toIntOrNull()

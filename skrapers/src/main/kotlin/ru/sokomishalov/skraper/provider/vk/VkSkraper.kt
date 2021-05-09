@@ -58,9 +58,10 @@ open class VkSkraper @JvmOverloads constructor(
                 text = extractPostCaption(),
                 publishedAt = extractPostPublishedDate(),
                 statistics = PostStatistics(
-                    likes = extractPostLikes(),
-                    comments = extractPostReplies(),
-                    views = extractViewsCount(),
+                    likes = extractPostLikesCount(),
+                    reposts = extractPostsRepostsCount(),
+                    comments = extractPostCommentsCount(),
+                    views = extractPostsViewsCount(),
                 ),
                 media = extractPostMediaItems()
             )
@@ -194,23 +195,31 @@ open class VkSkraper @JvmOverloads constructor(
             }
     }
 
-    private fun Element.extractPostLikes(): Int? {
-        return getFirstElementByClass("v_like")
-            ?.wholeText()
+    private fun Element.extractPostLikesCount(): Int? {
+        return getFirstElementByClass("item_like")
+            ?.attr("aria-label")
+            ?.substringBefore(" ")
             ?.toIntOrNull()
     }
 
-    private fun Element.extractPostReplies(): Int? {
-        return getFirstElementByClass("v_replies")
-            ?.wholeText()
+    private fun Element.extractPostCommentsCount(): Int? {
+        return getFirstElementByClass("item_replies")
+            ?.attr("aria-label")
+            ?.substringBefore(" ")
             ?.toIntOrNull()
     }
 
-    private fun Element.extractViewsCount(): Int? {
+    private fun Element.extractPostsRepostsCount(): Int? {
+        return getFirstElementByClass("item_share")
+            ?.attr("aria-label")
+            ?.substringBefore(" ")
+            ?.toIntOrNull()
+    }
+
+    private fun Element.extractPostsViewsCount(): Int? {
         return getFirstElementByClass("item_views")
             ?.attr("aria-label")
-            ?.replace("views", "")
-            ?.trim()
+            ?.substringBefore(" ")
             ?.toIntOrNull()
     }
 

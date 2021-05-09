@@ -184,12 +184,12 @@ open class FlickrSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPostLikes(): Int? {
-        return getFirstByPath("engagement.commentCount", "commentCount")
+        return getFirstByPath("engagement.faveCount", "faveCount")
             ?.asInt()
     }
 
     private fun JsonNode.extractPostCommentsCount(): Int? {
-        return getFirstByPath("engagement.faveCount", "faveCount")
+        return getFirstByPath("engagement.commentCount", "commentCount")
             ?.asInt()
     }
 
