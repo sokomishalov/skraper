@@ -86,6 +86,7 @@ open class TwitterSkraper @JvmOverloads constructor(
                 statistics = PageStatistics(
                     posts = getInt("statuses_count"),
                     followers = getInt("followers_count"),
+                    following = getInt("friends_count"),
                 ),
                 avatar = getFirstByPath("profile_image_url_https", "profile_image_url")?.asText()?.toImage(),
                 cover = getFirstByPath("profile_background_image_url_https", "profile_background_image_url")?.asText()?.toImage()

@@ -78,6 +78,7 @@ open class PinterestSkraper @JvmOverloads constructor(
                 statistics = PageStatistics(
                     posts = getInt("profile.pin_count"),
                     followers = getInt("profile.follower_count"),
+                    following = getInt("profile.following_count"),
                 ),
                 avatar = extractLogo()
             )

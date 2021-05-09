@@ -24,9 +24,13 @@ import ru.sokomishalov.skraper.provider.SkraperTck
  */
 class PinterestSkraperTest : SkraperTck() {
     override val skraper: PinterestSkraper = PinterestSkraper(client = client)
-    override val path: String = "/levato/meme"
+    override val path: String = "/levato"
     private val username: String = "levato"
     private val topic: String = "meme"
+
+    override fun `Check posts`() {
+        assertPosts { getPosts(path = "${path}/${topic}") }
+    }
 
     @Test
     fun `Check user posts`() {

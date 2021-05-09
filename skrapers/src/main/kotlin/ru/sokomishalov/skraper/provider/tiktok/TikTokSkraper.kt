@@ -93,6 +93,7 @@ class TikTokSkraper @JvmOverloads constructor(
                 statistics = PageStatistics(
                     posts = getInt("stats.videoCount"),
                     followers = getInt("stats.followerCount"),
+                    following = getInt("stats.followingCount"),
                 ),
                 avatar = getFirstByPath("user.avatarLarger", "user.avatarMedium", "user.avatarThumb")?.asText()?.toImage()
             )

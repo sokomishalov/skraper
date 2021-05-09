@@ -252,7 +252,7 @@ open class PikabuSkraper @JvmOverloads constructor(
             ?.getElementsByClass("profile__digital")
             ?.getOrNull(1)
             ?.attr("aria-label")
-            ?.trim()
+            ?.filter { !it.isWhitespace() }
             ?.toIntOrNull()
     }
 
@@ -262,7 +262,7 @@ open class PikabuSkraper @JvmOverloads constructor(
             ?.getOrNull(3)
             ?.getFirstElementByTag("b")
             ?.wholeText()
-            ?.trim()
+            ?.filter { !it.isWhitespace() }
             ?.toIntOrNull()
     }
 

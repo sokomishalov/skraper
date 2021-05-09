@@ -66,12 +66,12 @@ abstract class SkraperTck {
     protected open val client: SkraperClient = KtorSkraperClient()
 
     @Test
-    fun `Check posts`() {
+    open fun `Check posts`() {
         assertPosts { getPosts(path = path) }
     }
 
     @Test
-    fun `Check page info`() {
+    open fun `Check page info`() {
         assertPageInfo { getPageInfo(path = path) }
     }
 

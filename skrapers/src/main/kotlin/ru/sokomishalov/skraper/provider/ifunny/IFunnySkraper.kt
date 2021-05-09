@@ -27,10 +27,7 @@ import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
-import ru.sokomishalov.skraper.internal.serialization.getByPath
-import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
-import ru.sokomishalov.skraper.internal.serialization.getString
-import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
+import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 
 /**
@@ -99,6 +96,11 @@ open class IFunnySkraper @JvmOverloads constructor(
             PageInfo(
                 nick = getString("nick"),
                 description = getString("about"),
+                statistics = PageStatistics(
+                    posts = getInt("num.total_posts"),
+                    followers = getInt("num.subscribers"),
+                    following = getInt("num.subscriptions"),
+                ),
                 avatar = getFirstByPath("photo.thumb.large_url", "photo.thumb.large_url", "photo.thumb.large_url", "photo.url")?.asText()?.toImage(),
                 cover = getString("coverUrl")?.toImage()
             )

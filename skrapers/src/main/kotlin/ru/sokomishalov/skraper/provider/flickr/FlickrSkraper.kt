@@ -117,6 +117,7 @@ open class FlickrSkraper @JvmOverloads constructor(
                 description = extractPageDescription(),
                 statistics = PageStatistics(
                     followers = extractFollowersCount(),
+                    following = extractFollowingCount(),
                     posts = extractPostsCount(),
                 ),
                 avatar = extractPageLogo(),
@@ -229,6 +230,10 @@ open class FlickrSkraper @JvmOverloads constructor(
 
     private fun JsonNode.extractFollowersCount(): Int? {
         return getInt("person-contacts-count-models.0.followerCount")
+    }
+
+    private fun JsonNode.extractFollowingCount(): Int? {
+        return getInt("person-contacts-count-models.0.followingCount")
     }
 
     private fun JsonNode.extractPostsCount(): Int? {

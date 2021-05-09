@@ -79,6 +79,7 @@ open class InstagramSkraper @JvmOverloads constructor(
                 statistics = PageStatistics(
                     posts = getFirstByPath("edge_hashtag_to_media.count", "edge_owner_to_timeline_media.count")?.asInt(),
                     followers = getInt("edge_followed_by.count"),
+                    following = getInt("edge_follow.count"),
                 ),
                 description = getString("biography"),
                 avatar = getFirstByPath("profile_pic_url_hd", "profile_pic_url")?.asText()?.toImage(),
