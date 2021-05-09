@@ -49,11 +49,11 @@ open class NinegagSkraper @JvmOverloads constructor(
             val page = getUserPage(path = nextPath)
             val dataJson = page.extractJsonData()
 
-            val posts = dataJson?.getByPath("data.posts")
+            val rawPosts = dataJson?.getByPath("data.posts")
 
-            if (posts == null || posts.isEmpty) break
+            if (rawPosts == null || rawPosts.isEmpty) break
 
-            posts.emitThis(this) {
+            rawPosts.emitThis(this) {
                 Post(
                     id = getString("id").orEmpty(),
                     text = getString("title"),

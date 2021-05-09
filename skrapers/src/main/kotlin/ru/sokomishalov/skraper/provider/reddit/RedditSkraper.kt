@@ -53,13 +53,13 @@ open class RedditSkraper @JvmOverloads constructor(
                 )
             )
 
-            val posts = response
+            val rawPosts = response
                 ?.getFirstByPath("data.children", "0.data.children")
                 ?.mapNotNull { it["data"] }
 
-            if (posts.isNullOrEmpty()) break
+            if (rawPosts.isNullOrEmpty()) break
 
-            posts.emitThis(this) {
+            rawPosts.emitThis(this) {
                 Post(
                     id = getString("id").orEmpty(),
                     text = extractText(),

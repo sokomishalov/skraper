@@ -27,7 +27,6 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitThis
-import ru.sokomishalov.skraper.internal.iterable.mapThis
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.model.*
 import java.time.Instant
@@ -48,12 +47,12 @@ open class VkSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val page = getUserPage(path = path)
 
-        val posts = page
+        val rawPosts = page
             ?.getElementsByClass("wall_item")
             ?.toList()
             .orEmpty()
 
-        posts.emitThis(this) {
+        rawPosts.emitThis(this) {
             Post(
                 id = extractPostId(),
                 text = extractPostCaption(),
@@ -226,9 +225,9 @@ open class VkSkraper @JvmOverloads constructor(
 
         return thumbElement
             ?.getElementsByTag("a")
-            ?.mapThis {
-                val isVideo = attr("href").startsWith("/video")
-                val hrefLink = "${baseUrl}${attr("href")}"
+            ?.map {
+                val isVideo = it.attr("href").startsWith("/video")
+                val hrefLink = "${baseUrl}${it.attr("href")}"
 
                 when {
                     isVideo -> Video(
@@ -236,7 +235,7 @@ open class VkSkraper @JvmOverloads constructor(
                         aspectRatio = aspectRatio
                     )
                     else -> Image(
-                        url = getFirstElementByClass("thumb_map_img")?.getBackgroundImageUrl() ?: hrefLink,
+                        url = it.getFirstElementByClass("thumb_map_img")?.getBackgroundImageUrl() ?: hrefLink,
                         aspectRatio = aspectRatio
                     )
                 }

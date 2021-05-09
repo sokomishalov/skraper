@@ -49,14 +49,14 @@ open class TwitterSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val page = getUserPage(path = path)
 
-        val posts = page
+        val rawPosts = page
             ?.body()
             ?.getElementById("stream-items-id")
             ?.getElementsByClass("stream-item")
             ?.mapNotNull { it.getFirstElementByClass("tweet") }
             .orEmpty()
 
-        posts.emitThis(this) {
+        rawPosts.emitThis(this) {
             Post(
                 id = extractTweetId(),
                 text = extractTweetText(),

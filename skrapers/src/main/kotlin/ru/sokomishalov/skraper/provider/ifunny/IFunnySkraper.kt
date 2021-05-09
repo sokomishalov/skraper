@@ -25,6 +25,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.internal.iterable.emitThis
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.serialization.getByPath
 import ru.sokomishalov.skraper.internal.serialization.getFirstByPath
@@ -53,34 +54,29 @@ open class IFunnySkraper @JvmOverloads constructor(
 
             if (rawPosts.isNullOrEmpty()) break
 
-            rawPosts.forEach {
-                val a = it.getFirstElementByTag("a")
+            rawPosts.emitThis(this) {
+                val a = getFirstElementByTag("a")
 
                 val img = a?.getFirstElementByTag("img")
                 val link = a?.attr("href").orEmpty()
 
                 val isVideo = "video" in link || "gif" in link
 
-                val aspectRatio = it
-                    .attr("data-ratio")
-                    .toDoubleOrNull()
-                    ?.let { r -> 1.0 / r }
+                val aspectRatio = attr("data-ratio").toDoubleOrNull()?.let { r -> 1.0 / r }
 
-                emit(
-                    Post(
-                        id = link.substringBeforeLast("?").substringAfterLast("/"),
-                        media = listOf(
-                            when {
-                                isVideo -> Video(
-                                    url = "${baseUrl}${link}",
-                                    aspectRatio = aspectRatio
-                                )
-                                else -> Image(
-                                    url = img?.attr("data-src").orEmpty(),
-                                    aspectRatio = aspectRatio
-                                )
-                            }
-                        )
+                Post(
+                    id = link.substringBeforeLast("?").substringAfterLast("/"),
+                    media = listOf(
+                        when {
+                            isVideo -> Video(
+                                url = "${baseUrl}${link}",
+                                aspectRatio = aspectRatio
+                            )
+                            else -> Image(
+                                url = img?.attr("data-src").orEmpty(),
+                                aspectRatio = aspectRatio
+                            )
+                        }
                     )
                 )
             }

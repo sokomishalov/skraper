@@ -42,12 +42,12 @@ class TikTokSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val pageJson = getPagePropsJson(path = path)
 
-        val posts = pageJson
+        val rawPosts = pageJson
             ?.get("items")
             ?.toList()
             .orEmpty()
 
-        posts.emitThis(this) {
+        rawPosts.emitThis(this) {
             Post(
                 id = getString("id").orEmpty(),
                 text = getString("desc"),

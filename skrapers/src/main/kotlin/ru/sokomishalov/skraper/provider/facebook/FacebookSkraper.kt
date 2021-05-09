@@ -56,10 +56,10 @@ open class FacebookSkraper @JvmOverloads constructor(
             val (document, nextPage) = fetchResult?.extractDocumentAndNextPage() ?: break
             nextPath = nextPage ?: break
 
-            val posts = document?.getElementsByTag("article")
-            if (posts.isNullOrEmpty()) break
+            val rawPosts = document?.getElementsByTag("article")
+            if (rawPosts.isNullOrEmpty()) break
 
-            posts.emitThis(this) {
+            rawPosts.emitThis(this) {
                 val dataFt = attr("data-ft")?.readJsonNodes()
 
                 Post(
