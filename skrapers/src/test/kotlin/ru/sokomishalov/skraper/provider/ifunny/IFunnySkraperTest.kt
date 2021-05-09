@@ -37,7 +37,7 @@ class IFunnySkraperTest : SkraperTck() {
 
     @Test
     fun `Check catalog posts`() {
-        assertPosts { skraper.getCatalogLatestPosts(catalog = catalog) }
+        assertPosts { skraper.getCatalogPosts(catalog = catalog) }
     }
 
     @Test

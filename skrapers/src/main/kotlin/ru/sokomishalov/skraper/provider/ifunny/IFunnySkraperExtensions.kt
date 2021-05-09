@@ -27,7 +27,7 @@ fun IFunnySkraper.getUserPosts(username: String): Flow<Post> {
     return getPosts(path = "/user/${username}")
 }
 
-fun IFunnySkraper.getCatalogLatestPosts(catalog: String): Flow<Post> {
+fun IFunnySkraper.getCatalogPosts(catalog: String): Flow<Post> {
     return getPosts(path = "/${catalog}")
 }
 

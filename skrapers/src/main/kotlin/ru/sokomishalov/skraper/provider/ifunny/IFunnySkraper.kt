@@ -41,42 +41,52 @@ open class IFunnySkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getPage(path = path)
+        var nextPath = when {
+            path.startsWith("/user") -> path
+            else -> path.removeSuffix("/") + "/page"
+        }
 
-        val posts = page
-            ?.getElementsByClass("stream__item")
-            .orEmpty()
+        while (true) {
+            val page = getPage(path = nextPath)
 
-        posts.forEach {
-            val a = it.getFirstElementByTag("a")
+            val rawPosts = page?.getElementsByClass("stream__item")
 
-            val img = a?.getFirstElementByTag("img")
-            val link = a?.attr("href").orEmpty()
+            if (rawPosts.isNullOrEmpty()) break
 
-            val isVideo = "video" in link || "gif" in link
+            rawPosts.forEach {
+                val a = it.getFirstElementByTag("a")
 
-            val aspectRatio = it
-                .attr("data-ratio")
-                .toDoubleOrNull()
-                ?.let { r -> 1.0 / r }
+                val img = a?.getFirstElementByTag("img")
+                val link = a?.attr("href").orEmpty()
 
-            emit(
-                Post(
-                    id = link.substringBeforeLast("?").substringAfterLast("/"),
-                    media = listOf(
-                        when {
-                            isVideo -> Video(
-                                url = "${baseUrl}${link}",
-                                aspectRatio = aspectRatio
-                            )
-                            else -> Image(
-                                url = img?.attr("data-src").orEmpty(),
-                                aspectRatio = aspectRatio
-                            )
-                        }
+                val isVideo = "video" in link || "gif" in link
+
+                val aspectRatio = it
+                    .attr("data-ratio")
+                    .toDoubleOrNull()
+                    ?.let { r -> 1.0 / r }
+
+                emit(
+                    Post(
+                        id = link.substringBeforeLast("?").substringAfterLast("/"),
+                        media = listOf(
+                            when {
+                                isVideo -> Video(
+                                    url = "${baseUrl}${link}",
+                                    aspectRatio = aspectRatio
+                                )
+                                else -> Image(
+                                    url = img?.attr("data-src").orEmpty(),
+                                    aspectRatio = aspectRatio
+                                )
+                            }
+                        )
                     )
                 )
-            )
+            }
+
+            val nextPageNumber = nextPath.substringAfterLast("/page").toIntOrNull()?.plus(1) ?: break
+            nextPath = nextPath.substringBeforeLast("/page") + "/page${nextPageNumber}"
         }
     }
 
