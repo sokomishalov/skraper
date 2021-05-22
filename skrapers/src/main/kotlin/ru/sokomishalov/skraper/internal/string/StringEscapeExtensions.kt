@@ -49,7 +49,7 @@ internal fun String.unescapeJson(): String {
                     }
                     substring(i, i + 4).toCharArray().forEach { x ->
                         if (x.isLetterOrDigit().not()) throw RuntimeException("Bad character in unicode escape.")
-                        hex.append(x.toLowerCase())
+                        hex.append(x.lowercaseChar())
                     }
                     i += 4
                     val code = hex.toString().toInt(16)

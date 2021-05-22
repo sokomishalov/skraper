@@ -120,6 +120,9 @@
                 <version>${kotlin.version}</version>
                 <configuration>
                     <jvmTarget>${java.version}</jvmTarget>
+                    <args>
+                        <arg>-Xopt-in=kotlinx.coroutines.DelicateCoroutinesApi</arg>
+                    </args>
                 </configuration>
                 <executions>
                     <execution>
