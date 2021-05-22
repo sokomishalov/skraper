@@ -160,7 +160,7 @@ open class VkSkraper @JvmOverloads constructor(
                         startsWith("today at ") -> {
                             removePrefix("today at ")
                                 .let {
-                                    LocalTime.parse(it.toUpperCase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
+                                    LocalTime.parse(it.uppercase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
                                 }
                                 .let {
                                     LocalDate
@@ -172,7 +172,7 @@ open class VkSkraper @JvmOverloads constructor(
                         startsWith("yesterday at ") -> {
                             removePrefix("yesterday at ")
                                 .let {
-                                    LocalTime.parse(it.toUpperCase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
+                                    LocalTime.parse(it.uppercase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
                                 }
                                 .let {
                                     LocalDate
