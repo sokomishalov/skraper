@@ -42,33 +42,38 @@ open class PikabuSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getPage(path = path)
+        var page = 0
+        while (true) {
+            val document = getPage(path = path, page = ++page)
 
-        val rawPosts = page
-            ?.getElementsByTag("article")
-            .orEmpty()
+            val rawPosts = document
+                ?.getElementsByTag("article")
+                .orEmpty()
 
-        emitBatch(rawPosts) {
-            val storyBlocks = getElementsByClass("story-block")
+            if (rawPosts.isEmpty()) break;
 
-            val title = extractPostTitle()
-            val text = storyBlocks.parseText()
+            emitBatch(rawPosts) {
+                val storyBlocks = getElementsByClass("story-block")
 
-            val caption = when {
-                text.isBlank() -> title
-                else -> "${title}\n\n${text}"
+                val title = extractPostTitle()
+                val text = storyBlocks.parseText()
+
+                val caption = when {
+                    text.isBlank() -> title
+                    else -> "${title}\n\n${text}"
+                }
+
+                Post(
+                    id = extractPostId(),
+                    text = String(caption.toByteArray(UTF_8)),
+                    publishedAt = extractPostPublishDate(),
+                    statistics = PostStatistics(
+                        likes = extractPostLikes(),
+                        comments = extractPostCommentsCount(),
+                    ),
+                    media = storyBlocks.extractPostMediaItems()
+                )
             }
-
-            Post(
-                id = extractPostId(),
-                text = String(caption.toByteArray(UTF_8)),
-                publishedAt = extractPostPublishDate(),
-                statistics = PostStatistics(
-                    likes = extractPostLikes(),
-                    comments = extractPostCommentsCount(),
-                ),
-                media = storyBlocks.extractPostMediaItems()
-            )
         }
     }
 
@@ -118,9 +123,9 @@ open class PikabuSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun getPage(path: String): Document? {
+    private suspend fun getPage(path: String, page: Int = 1): Document? {
         return client.fetchDocument(
-            request = HttpRequest(url = baseUrl.buildFullURL(path = path)),
+            request = HttpRequest(url = baseUrl.buildFullURL(path = path, queryParams = mapOf("page" to page))),
             charset = Charset.forName("windows-1251")
         )
     }
