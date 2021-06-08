@@ -79,8 +79,8 @@ open class TumblrSkraper @JvmOverloads constructor(
         )
     }
 
-    override fun supports(url: String): Boolean {
-        return "tumblr.com" in url.host
+    override fun supports(media: Media): Boolean {
+        return "tumblr.com" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {

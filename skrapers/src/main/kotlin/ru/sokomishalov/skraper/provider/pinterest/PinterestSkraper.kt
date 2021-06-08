@@ -84,8 +84,8 @@ open class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return "pinterest" in url.host
+    override fun supports(media: Media): Boolean {
+        return "pinterest" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {

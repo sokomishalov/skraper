@@ -33,10 +33,7 @@ import ru.sokomishalov.commons.core.log.Loggable
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.internal.net.path
-import ru.sokomishalov.skraper.model.Audio
-import ru.sokomishalov.skraper.model.Image
-import ru.sokomishalov.skraper.model.Media
-import ru.sokomishalov.skraper.model.Video
+import ru.sokomishalov.skraper.model.*
 import java.io.File
 import java.nio.file.Files.createTempDirectory
 import kotlin.text.RegexOption.*
@@ -57,7 +54,7 @@ class SkraperBot {
         if (url.isNullOrBlank()) return sendText(message, "URL not found in the message")
 
         // 2. find suitable skraper
-        val supportedSkraper: Skraper? = Skrapers.suitable(url)
+        val supportedSkraper: Skraper? = Skrapers.findSuitable(UnknownMedia(url))
         if (supportedSkraper == null) return sendText(message, "Unsupported URL")
 
         logDebug { "Provider: ${supportedSkraper.javaClass.simpleName}, URL: $url" }
@@ -111,7 +108,7 @@ class SkraperBot {
             ?.trim()
     }
 
-    private suspend fun sendText(message: Message, msg: String): SendMessage {
+    private fun sendText(message: Message, msg: String): SendMessage {
         return SendMessage().apply {
             chatId = message.chatId.toString()
             text = msg
@@ -119,7 +116,7 @@ class SkraperBot {
         }
     }
 
-    private suspend fun sendMedia(
+    private fun sendMedia(
         message: Message,
         attachments: Map<Media, File>
     ): PartialBotApiMethod<*>? {
@@ -143,13 +140,18 @@ class SkraperBot {
                         chatId = message.chatId.toString()
                         audio = InputFile(file, file.nameWithoutExtension)
                     }
+                    is UnknownMedia -> SendMessage().apply {
+                        replyToMessageId = message.messageId
+                        chatId = message.chatId.toString()
+                        text = media.url
+                    }
                 }
             }
             else -> {
                 SendMediaGroup().apply {
                     replyToMessageId = message.messageId
                     chatId = message.chatId.toString()
-                    medias = attachments.map { (media, file) ->
+                    medias = attachments.mapNotNull { (media, file) ->
                         when (media) {
                             is Image -> InputMediaPhoto().apply {
                                 setMedia(file, file.nameWithoutExtension)
@@ -157,10 +159,10 @@ class SkraperBot {
                             is Video -> InputMediaVideo().apply {
                                 setMedia(file, file.nameWithoutExtension)
                             }
-
                             is Audio -> InputMediaPhoto().apply {
                                 setMedia(file, file.nameWithoutExtension)
                             }
+                            is UnknownMedia -> null
                         }
                     }
                 }
@@ -168,7 +170,7 @@ class SkraperBot {
         }
     }
 
-    private suspend fun saySorry(message: Message): SendMessage {
+    private fun saySorry(message: Message): SendMessage {
         return sendText(message, "Unable to download media for this link, sorry :(")
     }
 

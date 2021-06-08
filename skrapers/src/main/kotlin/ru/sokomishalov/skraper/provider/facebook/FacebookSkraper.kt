@@ -105,8 +105,8 @@ open class FacebookSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return "facebook.com" in url.host
+    override fun supports(media: Media): Boolean {
+        return "facebook.com" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {

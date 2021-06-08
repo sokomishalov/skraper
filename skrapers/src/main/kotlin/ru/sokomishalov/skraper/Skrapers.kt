@@ -24,10 +24,7 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegCliRunner
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegRunner
 import ru.sokomishalov.skraper.internal.net.path
-import ru.sokomishalov.skraper.model.Audio
-import ru.sokomishalov.skraper.model.Image
-import ru.sokomishalov.skraper.model.Media
-import ru.sokomishalov.skraper.model.Video
+import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
 import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
 import ru.sokomishalov.skraper.provider.ifunny.IFunnySkraper
@@ -55,11 +52,11 @@ object Skrapers {
     }
 
     /**
-     * @param url potential provider relative url
+     * @param media media item
      * @return skraper which supports this url or null if none of skrapers supports it
      */
-    fun suitable(url: String): Skraper? {
-        return providers.find { it.supports(url) }
+    fun findSuitable(media: Media): Skraper? {
+        return providers.find { it.supports(media) }
     }
 
     /**
@@ -78,7 +75,7 @@ object Skrapers {
 
             // otherwise
             else -> {
-                suitable(media.url)
+                findSuitable(media)
                     ?.resolve(media)
                     ?.run {
                         when {
@@ -87,6 +84,7 @@ object Skrapers {
                                 is Image -> media.copy(url = url)
                                 is Video -> media.copy(url = url)
                                 is Audio -> media.copy(url = url)
+                                is UnknownMedia -> media.copy(url = url)
                             }
                         }
                     }
@@ -166,6 +164,7 @@ object Skrapers {
             is Image -> filename.substringAfterLast(".", "png")
             is Video -> filename.substringAfterLast(".", "mp4")
             is Audio -> filename.substringAfterLast(".", "mp3")
+            is UnknownMedia -> filename.substringAfterLast(".")
         }
     }
 

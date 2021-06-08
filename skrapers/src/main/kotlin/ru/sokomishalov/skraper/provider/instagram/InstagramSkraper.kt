@@ -87,8 +87,8 @@ open class InstagramSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return "instagram.com" in url.host
+    override fun supports(media: Media): Boolean {
+        return "instagram.com" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {

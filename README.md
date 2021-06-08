@@ -198,7 +198,7 @@ interface Skraper {
     val client: SkraperClient
     fun getPosts(path: String): Flow<Post>
     suspend fun getPageInfo(path: String): PageInfo?
-    fun supports(url: String): Boolean
+    fun supports(media: Media): Boolean
     suspend fun resolve(media: Media): Media
 }
 ```

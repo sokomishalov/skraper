@@ -45,10 +45,10 @@ interface Skraper {
     suspend fun getPageInfo(path: String): PageInfo?
 
     /**
-     * @param url potential provider relative url
-     * @return true if such skraper supports this url
+     * @param media media item
+     * @return true if such skraper supports this media and can resolve/download it
      */
-    fun supports(url: String): Boolean
+    fun supports(media: Media): Boolean
 
     /**
      * @param media with provider relative url

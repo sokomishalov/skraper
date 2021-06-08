@@ -89,8 +89,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return arrayOf("youtube.com", "youtu.be").any { it in url.host }
+    override fun supports(media: Media): Boolean {
+        return arrayOf("youtube.com", "youtu.be").any { it in media.url.host }
     }
 
     override suspend fun resolve(media: Media): Media {

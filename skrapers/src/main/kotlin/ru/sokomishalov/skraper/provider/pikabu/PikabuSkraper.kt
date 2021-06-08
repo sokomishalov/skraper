@@ -107,8 +107,8 @@ open class PikabuSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return "pikabu.ru" in url.host
+    override fun supports(media: Media): Boolean {
+        return "pikabu.ru" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {

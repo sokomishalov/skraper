@@ -58,3 +58,11 @@ data class Audio(
     override val url: String,
     val duration: Duration? = null
 ) : Media()
+
+/**
+ * Represents an unknown media.
+ * @property url some url
+ */
+data class UnknownMedia(
+    override val url: String
+): Media()

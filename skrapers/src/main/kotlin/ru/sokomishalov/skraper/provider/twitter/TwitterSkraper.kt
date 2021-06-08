@@ -92,8 +92,8 @@ open class TwitterSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return arrayOf("twitter.com", "t.co").any { it in url.host }
+    override fun supports(media: Media): Boolean {
+        return arrayOf("twitter.com", "t.co").any { it in media.url.host }
     }
 
     override suspend fun resolve(media: Media): Media {

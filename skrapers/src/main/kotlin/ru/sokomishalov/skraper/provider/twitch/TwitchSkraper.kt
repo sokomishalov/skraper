@@ -171,8 +171,8 @@ open class TwitchSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return "twitch.tv" in url.host
+    override fun supports(media: Media): Boolean {
+        return "twitch.tv" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {
