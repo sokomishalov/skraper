@@ -28,6 +28,7 @@ import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
 import java.nio.charset.Charset
@@ -37,8 +38,7 @@ import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import kotlin.text.Charsets.UTF_8
 
 open class PikabuSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://pikabu.ru"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -107,6 +107,10 @@ open class PikabuSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun supports(media: Media): Boolean {
+        return "pikabu.ru" in media.url.host
+    }
+
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Video -> {
@@ -125,7 +129,7 @@ open class PikabuSkraper @JvmOverloads constructor(
 
     private suspend fun getPage(path: String, page: Int = 1): Document? {
         return client.fetchDocument(
-            request = HttpRequest(url = baseUrl.buildFullURL(path = path, queryParams = mapOf("page" to page))),
+            request = HttpRequest(url = BASE_URL.buildFullURL(path = path, queryParams = mapOf("page" to page))),
             charset = Charset.forName("windows-1251")
         )
     }
@@ -133,7 +137,7 @@ open class PikabuSkraper @JvmOverloads constructor(
     private fun Element.extractPostId(): String {
         return getFirstElementByClass("story__title-link")
             ?.attr("href")
-            ?.substringAfter("${baseUrl}/story/")
+            ?.substringAfter("${BASE_URL}/story/")
             .orEmpty()
     }
 
@@ -281,5 +285,9 @@ open class PikabuSkraper @JvmOverloads constructor(
     private fun Elements.parseText(): String {
         return filter { b -> "story-block_type_text" in b.classNames() }
             .joinToString("\n") { b -> b.wholeText() }
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://pikabu.ru"
     }
 }

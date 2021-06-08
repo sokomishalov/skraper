@@ -28,6 +28,7 @@ import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getDouble
 import ru.sokomishalov.skraper.internal.serialization.getLong
@@ -42,16 +43,14 @@ import java.time.Instant
  * @author sokomishalov
  */
 open class FacebookSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://facebook.com",
-    private val mobileBaseUrl: String = "https://m.facebook.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
         val postsPath = path.substringBefore("/posts") + "/posts"
         var nextPath = postsPath
         while (true) {
-            val fetchResult = client.fetchString(HttpRequest(url = mobileBaseUrl.buildFullURL(path = nextPath)))
+            val fetchResult = client.fetchString(HttpRequest(url = MOBILE_BASE_URL.buildFullURL(path = nextPath)))
 
             val (document, nextPage) = fetchResult?.extractDocumentAndNextPage() ?: break
             nextPath = nextPage ?: break
@@ -79,7 +78,7 @@ open class FacebookSkraper @JvmOverloads constructor(
     override suspend fun getPageInfo(path: String): PageInfo? {
         val aboutPath = path.substringBefore("/about") + "/about"
 
-        val page = client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = aboutPath)))
+        val page = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = aboutPath)))
 
         return page?.run {
             val isCommunity = getFirstElementByAttributeValue("data-key", "tab_community") != null
@@ -104,6 +103,10 @@ open class FacebookSkraper @JvmOverloads constructor(
                 )
             }
         }
+    }
+
+    override fun supports(media: Media): Boolean {
+        return "facebook.com" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -254,5 +257,10 @@ open class FacebookSkraper @JvmOverloads constructor(
     private fun Element.extractUserCover(): String? {
         return getFirstElementByClass("coverPhotoImg")
             ?.attr("src")
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://facebook.com"
+        const val MOBILE_BASE_URL: String = "https://m.facebook.com"
     }
 }

@@ -29,6 +29,7 @@ import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_BATCH
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -36,8 +37,7 @@ import ru.sokomishalov.skraper.model.*
 import java.time.Instant
 
 open class RedditSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://reddit.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -46,7 +46,7 @@ open class RedditSkraper @JvmOverloads constructor(
         while (true) {
             val response = client.fetchJson(
                 HttpRequest(
-                    url = baseUrl.buildFullURL(
+                    url = BASE_URL.buildFullURL(
                         path = "${path.removeSuffix("/")}.json",
                         queryParams = mapOf("limit" to DEFAULT_POSTS_BATCH, "after" to nextPage)
                     )
@@ -78,7 +78,7 @@ open class RedditSkraper @JvmOverloads constructor(
 
     override suspend fun getPageInfo(path: String): PageInfo? {
         val response = client.fetchJson(
-            HttpRequest(url = baseUrl.buildFullURL(path = "${path.removeSuffix("/")}/about.json"))
+            HttpRequest(url = BASE_URL.buildFullURL(path = "${path.removeSuffix("/")}/about.json"))
         )
 
         val isUser = path.removePrefix("/").startsWith("u")
@@ -103,6 +103,10 @@ open class RedditSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun supports(media: Media): Boolean {
+        return "reddit.com" in media.url.host
+    }
+
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Image -> client.fetchOpenGraphMedia(media)
@@ -113,7 +117,7 @@ open class RedditSkraper @JvmOverloads constructor(
                     ?.firstOrNull()
                     ?: media
             }
-            is Audio -> media
+            else -> media
         }
     }
 
@@ -147,5 +151,9 @@ open class RedditSkraper @JvmOverloads constructor(
             )
             else -> previewMedia
         }
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://reddit.com"
     }
 }

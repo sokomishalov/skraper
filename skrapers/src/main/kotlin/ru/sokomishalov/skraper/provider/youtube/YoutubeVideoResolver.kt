@@ -33,7 +33,7 @@ import java.util.regex.Pattern.DOTALL
  * A reduced version of this library
  * @see <a href="https://github.com/sealedtx/java-youtube-downloader">sealedtx/java-youtube-downloader</a>
  */
-class YoutubeVideoResolver(
+internal class YoutubeVideoResolver(
     private val baseUrl: String,
     private val client: SkraperClient
 ) {

@@ -31,6 +31,7 @@ import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.model.*
 import java.time.Duration
@@ -41,8 +42,7 @@ import java.time.ZonedDateTime
  * @author sokomishalov
  */
 open class TelegramSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://t.me"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -98,9 +98,13 @@ open class TelegramSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun supports(media: Media): Boolean {
+        return "t.me" in media.url.host
+    }
+
     override suspend fun resolve(media: Media): Media {
         return when {
-            supports(media.url) -> {
+            media.url.host.removePrefix("www.") in BASE_URL.host -> {
                 val path = media.url.path.removePrefix("/s")
                 val posts = getPosts(path)
                 posts.firstOrNull { it.id == path }?.media?.firstOrNull() ?: media
@@ -197,6 +201,10 @@ open class TelegramSkraper @JvmOverloads constructor(
     }
 
     private suspend fun fetchDocument(path: String): Document? {
-        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path)))
+        return client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path)))
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://t.me"
     }
 }

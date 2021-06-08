@@ -195,11 +195,10 @@ interface:
 
 ```kotlin
 interface Skraper {
-    val baseUrl: String
     val client: SkraperClient
-    fun supports(url: String): Boolean
     fun getPosts(path: String): Flow<Post>
     suspend fun getPageInfo(path: String): PageInfo?
+    fun supports(media: Media): Boolean
     suspend fun resolve(media: Media): Media
 }
 ```

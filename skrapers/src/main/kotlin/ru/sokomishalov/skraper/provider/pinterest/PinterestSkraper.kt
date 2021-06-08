@@ -38,8 +38,7 @@ import java.util.Locale.ROOT
  * @author sokomishalov
  */
 open class PinterestSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://pinterest.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -85,8 +84,8 @@ open class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return "pinterest" in url.host
+    override fun supports(media: Media): Boolean {
+        return "pinterest" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -97,7 +96,7 @@ open class PinterestSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserJson(path: String): JsonNode? {
-        val webPage = client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
+        val webPage = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
         val infoJson = webPage?.getElementById("initial-state")?.html()
         return infoJson.readJsonNodes()
     }
@@ -158,6 +157,7 @@ open class PinterestSkraper @JvmOverloads constructor(
     }
 
     companion object {
+        const val BASE_URL: String = "https://pinterest.com"
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z", ROOT)
     }
 }

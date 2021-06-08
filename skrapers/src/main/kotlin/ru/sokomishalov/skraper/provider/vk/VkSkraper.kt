@@ -28,6 +28,7 @@ import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.model.*
 import java.time.Instant
 import java.time.LocalDate
@@ -40,8 +41,7 @@ import java.util.Locale.ENGLISH
  * @author sokomishalov
  */
 open class VkSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://vk.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -84,6 +84,10 @@ open class VkSkraper @JvmOverloads constructor(
                 cover = extractPageCover()
             )
         }
+    }
+
+    override fun supports(media: Media): Boolean {
+        return "vk.com" in media.url.host
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -134,7 +138,7 @@ open class VkSkraper @JvmOverloads constructor(
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
             HttpRequest(
-                url = baseUrl.buildFullURL(path = path),
+                url = BASE_URL.buildFullURL(path = path),
                 headers = mapOf("Accept-Language" to "en-US")
             )
         )
@@ -160,7 +164,7 @@ open class VkSkraper @JvmOverloads constructor(
                         startsWith("today at ") -> {
                             removePrefix("today at ")
                                 .let {
-                                    LocalTime.parse(it.toUpperCase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
+                                    LocalTime.parse(it.uppercase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
                                 }
                                 .let {
                                     LocalDate
@@ -172,7 +176,7 @@ open class VkSkraper @JvmOverloads constructor(
                         startsWith("yesterday at ") -> {
                             removePrefix("yesterday at ")
                                 .let {
-                                    LocalTime.parse(it.toUpperCase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
+                                    LocalTime.parse(it.uppercase(), VK_SHORT_TIME_AGO_DATE_FORMATTER)
                                 }
                                 .let {
                                     LocalDate
@@ -236,7 +240,7 @@ open class VkSkraper @JvmOverloads constructor(
             ?.getElementsByTag("a")
             ?.map {
                 val isVideo = it.attr("href").startsWith("/video")
-                val hrefLink = "${baseUrl}${it.attr("href")}"
+                val hrefLink = "${BASE_URL}${it.attr("href")}"
 
                 when {
                     isVideo -> Video(
@@ -303,6 +307,8 @@ open class VkSkraper @JvmOverloads constructor(
     }
 
     companion object {
+        const val BASE_URL: String = "https://vk.com"
+
         private val VK_SHORT_TIME_AGO_DATE_FORMATTER = DateTimeFormatterBuilder()
             .appendPattern("h:mm a")
             .parseLenient()

@@ -41,9 +41,7 @@ import java.time.Instant
  * @author sokomishalov
  */
 open class TwitterSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://twitter.com",
-    private val apiBaseUrl: String = "https://api.twitter.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -94,9 +92,8 @@ open class TwitterSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(url: String): Boolean {
-        return arrayOf("twitter.com", "t.co")
-            .any { url.host.removePrefix("www.") in it }
+    override fun supports(media: Media): Boolean {
+        return arrayOf("twitter.com", "t.co").any { it in media.url.host }
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -130,7 +127,7 @@ open class TwitterSkraper @JvmOverloads constructor(
                                     .substringBefore("?")
 
                                 client.fetchJson(HttpRequest(
-                                    url = apiBaseUrl.buildFullURL(path = "/1.1/videos/tweet/config/${tweetId}.json"),
+                                    url = API_BASE_URL.buildFullURL(path = "/1.1/videos/tweet/config/${tweetId}.json"),
                                     headers = mapOf(
                                         "Authorization" to token,
                                         "x-guest-token" to guestToken
@@ -158,7 +155,7 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(HttpRequest(
-            url = baseUrl.buildFullURL(path = path),
+            url = BASE_URL.buildFullURL(path = path),
             headers = DEFAULT_HEADERS
         ))
     }
@@ -236,7 +233,7 @@ open class TwitterSkraper @JvmOverloads constructor(
             }
             videosElement != null -> listOf(
                 Video(
-                    url = "${baseUrl}/i/status/${extractTweetId()}",
+                    url = "${BASE_URL}/i/status/${extractTweetId()}",
                     aspectRatio = videosElement
                         .getFirstElementByClass("PlayableMedia-player")
                         ?.getStyle("padding-bottom")
@@ -272,7 +269,7 @@ open class TwitterSkraper @JvmOverloads constructor(
 
         val guestTokenNode = token?.let {
             client.fetchJson(HttpRequest(
-                url = apiBaseUrl.buildFullURL(path = "/1.1/guest/activate.json"),
+                url = API_BASE_URL.buildFullURL(path = "/1.1/guest/activate.json"),
                 method = POST,
                 headers = mapOf("Authorization" to it)
             ))
@@ -284,6 +281,8 @@ open class TwitterSkraper @JvmOverloads constructor(
     }
 
     companion object {
+        const val BASE_URL: String = "https://twitter.com"
+        const val API_BASE_URL: String = "https://api.twitter.com"
         private val DEFAULT_HEADERS: Map<String, String> by lazy { mapOf(USER_AGENT_HEADER to CRAWLER_USER_AGENTS.random()) }
     }
 }

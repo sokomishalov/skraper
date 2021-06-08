@@ -21,10 +21,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.internal.map.firstNotNull
 import ru.sokomishalov.skraper.internal.number.div
-import ru.sokomishalov.skraper.model.Audio
-import ru.sokomishalov.skraper.model.Image
-import ru.sokomishalov.skraper.model.Media
-import ru.sokomishalov.skraper.model.Video
+import ru.sokomishalov.skraper.model.*
 
 internal inline fun Element.getFirstElementByClass(name: String): Element? {
     return getElementsByClass(name).firstOrNull()
@@ -124,6 +121,12 @@ internal fun Document.extractOpenGraphMedia(media: Media): Media {
                 val audioUrl = firstNotNull("og:audio", "og:audio:url", "og:audio:secure_url")
                 media.copy(
                     url = audioUrl ?: media.url
+                )
+            }
+            is UnknownMedia -> {
+                val url = firstNotNull("og:url")
+                media.copy(
+                    url = url ?: media.url
                 )
             }
         }
