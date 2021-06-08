@@ -45,8 +45,7 @@ import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.TemporalAmount
 
 open class YoutubeSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://www.youtube.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -91,15 +90,12 @@ open class YoutubeSkraper @JvmOverloads constructor(
     }
 
     override fun supports(url: String): Boolean {
-        return setOf("youtube.com", "youtu.be")
-            .any { url.host.removePrefix("www.") in it }
+        return arrayOf("youtube.com", "youtu.be").any { it in url.host }
     }
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Video -> runCatching {
-                YoutubeVideoResolver(client = client, baseUrl = baseUrl).getVideo(media)
-            }.getOrNull() ?: media
+            is Video -> runCatching { YoutubeVideoResolver(client = client, baseUrl = BASE_URL).getVideo(media) }.getOrNull() ?: media
             else -> media
         }
     }
@@ -107,7 +103,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
     private suspend fun getUserPage(path: String): Document? {
         return client.fetchDocument(
             HttpRequest(
-                url = baseUrl.buildFullURL(
+                url = BASE_URL.buildFullURL(
                     path = path,
                     queryParams = mapOf("gl" to "EN", "hl" to "en")
                 ),
@@ -127,7 +123,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     private fun JsonNode.extractVideos(): List<Video> {
         return listOf(Video(
-            url = baseUrl + getString("navigationEndpoint.commandMetadata.webCommandMetadata.url"),
+            url = BASE_URL + getString("navigationEndpoint.commandMetadata.webCommandMetadata.url"),
             duration = getString("thumbnailOverlays.0.thumbnailOverlayTimeStatusRenderer.text.simpleText")?.extractDuration(),
             thumbnail = getByPath("thumbnail.thumbnails")?.lastOrNull()?.run {
                 Image(
@@ -205,5 +201,9 @@ open class YoutubeSkraper @JvmOverloads constructor(
                     else -> substringBeforeLast(".").toIntOrNull()
                 }
             }
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://www.youtube.com"
     }
 }

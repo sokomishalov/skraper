@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.number.minus
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -39,8 +40,7 @@ import java.time.Instant
  * @author sokomishalov
  */
 open class NinegagSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://9gag.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -84,6 +84,10 @@ open class NinegagSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun supports(url: String): Boolean {
+        return "9gag.com" in url.host
+    }
+
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Video -> {
@@ -100,7 +104,7 @@ open class NinegagSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserPage(path: String): Document? {
-        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
+        return client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
     }
 
     private fun Document?.extractJsonData(): JsonNode? {
@@ -132,5 +136,9 @@ open class NinegagSkraper @JvmOverloads constructor(
                 }
             ))
         }
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://9gag.com"
     }
 }

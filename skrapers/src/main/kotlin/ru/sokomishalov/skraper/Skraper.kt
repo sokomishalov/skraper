@@ -18,7 +18,6 @@ package ru.sokomishalov.skraper
 import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
@@ -27,11 +26,6 @@ import ru.sokomishalov.skraper.model.Post
  * Interface for the minimum provider functionality
  */
 interface Skraper {
-
-    /**
-     * @return provider base url
-     */
-    val baseUrl: String
 
     /**
      * @return http client
@@ -54,7 +48,7 @@ interface Skraper {
      * @param url potential provider relative url
      * @return true if such skraper supports this url
      */
-    fun supports(url: String): Boolean = url.host.removePrefix("www.") in baseUrl.host
+    fun supports(url: String): Boolean
 
     /**
      * @param media with provider relative url

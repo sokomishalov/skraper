@@ -42,8 +42,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale.ENGLISH
 
 open class TumblrSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://tumblr.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -89,7 +88,7 @@ open class TumblrSkraper @JvmOverloads constructor(
     }
 
     internal suspend fun getUserPage(username: String): Document? {
-        return client.fetchDocument(HttpRequest(url = baseUrl.replace("://", "://${username}.")))
+        return client.fetchDocument(HttpRequest(url = BASE_URL.replace("://", "://${username}.")))
     }
 
     private suspend fun getNonUserPage(path: String): Document? {
@@ -102,7 +101,7 @@ open class TumblrSkraper @JvmOverloads constructor(
                 val username = path.substringAfter("/blog/view/").substringBefore("/")
                 return getUserPage(username = username)
             }
-            else -> client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
+            else -> client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
         }
     }
 
@@ -208,6 +207,7 @@ open class TumblrSkraper @JvmOverloads constructor(
     }
 
     companion object {
+        const val BASE_URL: String = "https://tumblr.com"
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d'th,' yyyy").withLocale(ENGLISH)
         private val DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a, EEEE, MMMM d, yyyy").withLocale(ENGLISH)
     }

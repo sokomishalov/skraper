@@ -25,6 +25,7 @@ import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -35,8 +36,7 @@ import java.time.Instant
  * @author sokomishalov
  */
 open class InstagramSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://instagram.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -87,6 +87,10 @@ open class InstagramSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun supports(url: String): Boolean {
+        return "instagram.com" in url.host
+    }
+
     override suspend fun resolve(media: Media): Media {
         return client.fetchOpenGraphMedia(media)
     }
@@ -96,7 +100,7 @@ open class InstagramSkraper @JvmOverloads constructor(
     private fun JsonNode.extractPostMediaItems(): List<Media> {
         val isVideo = this["is_video"].asBoolean()
         val aspectRatio = this["dimensions"]?.run { getDouble("width") / getDouble("height") }
-        val shortcodeUrl = "${baseUrl}/p/${getString("shortcode")}"
+        val shortcodeUrl = "${BASE_URL}/p/${getString("shortcode")}"
 
         return listOf(
             when {
@@ -119,7 +123,7 @@ open class InstagramSkraper @JvmOverloads constructor(
     }
 
     private suspend fun fetchJsonNodes(path: String): JsonNode? {
-        val document = client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path)))
+        val document = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path)))
         return document
             ?.getElementsByTag("script")
             ?.map { it.html() }
@@ -127,5 +131,9 @@ open class InstagramSkraper @JvmOverloads constructor(
             ?.substringAfter("= ")
             ?.substringBeforeLast(";")
             .readJsonNodes()
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://instagram.com"
     }
 }

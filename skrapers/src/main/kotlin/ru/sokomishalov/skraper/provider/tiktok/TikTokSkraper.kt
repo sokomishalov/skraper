@@ -27,6 +27,7 @@ import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
@@ -35,8 +36,7 @@ import java.time.Instant
 
 
 class TikTokSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://tiktok.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -61,7 +61,7 @@ class TikTokSkraper @JvmOverloads constructor(
                     val aspectRatio = getDouble("video.width") / getDouble("video.height")
                     listOf(
                         Video(
-                            url = "${baseUrl}/@${getString("author.uniqueId")}/video/${getString("id")}",
+                            url = "${BASE_URL}/@${getString("author.uniqueId")}/video/${getString("id")}",
                             aspectRatio = aspectRatio,
                             duration = getLong("video.duration")?.let { Duration.ofSeconds(it) },
                             thumbnail = Image(
@@ -72,13 +72,6 @@ class TikTokSkraper @JvmOverloads constructor(
                     )
                 }
             )
-        }
-    }
-
-    override suspend fun resolve(media: Media): Media {
-        return when (media) {
-            is Video -> client.fetchOpenGraphMedia(media)
-            else -> media
         }
     }
 
@@ -100,11 +93,21 @@ class TikTokSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun supports(url: String): Boolean {
+        return "tiktok.com" in url.host
+    }
+
+    override suspend fun resolve(media: Media): Media {
+        return when (media) {
+            is Video -> client.fetchOpenGraphMedia(media)
+            else -> media
+        }
+    }
 
     private suspend fun getPagePropsJson(path: String): JsonNode? {
         val document = client.fetchDocument(
             HttpRequest(
-                url = "${baseUrl}${path}",
+                url = "${BASE_URL}${path}",
                 headers = mapOf(USER_AGENT_HEADER to CRAWLER_USER_AGENTS.random())
             )
         )
@@ -115,5 +118,9 @@ class TikTokSkraper @JvmOverloads constructor(
             ?.readJsonNodes()
 
         return json?.getByPath("props.pageProps")
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://tiktok.com"
     }
 }

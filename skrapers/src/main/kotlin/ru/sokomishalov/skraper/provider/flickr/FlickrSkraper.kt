@@ -31,6 +31,7 @@ import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getBackgroundImageUrl
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeHtml
@@ -43,8 +44,7 @@ import java.time.Instant
  * @author sokomishalov
  */
 open class FlickrSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://flickr.com"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -86,22 +86,24 @@ open class FlickrSkraper @JvmOverloads constructor(
             }
 
             jsonPosts.isNotEmpty() -> jsonPosts.forEach { (key, value) ->
-                emit(Post(
-                    id = key,
-                    text = value?.extractPostText(),
-                    publishedAt = value?.extractPostPublishDate(),
-                    statistics = PostStatistics(
-                        likes = value?.extractPostLikes(),
-                        comments = value?.extractPostCommentsCount(),
-                        views = value?.extractPostViewsCount(),
-                    ),
-                    media = listOf(
-                        Image(
-                            url = value.extractPostAttachmentUrl(),
-                            aspectRatio = value.extractPostAspectRatio()
+                emit(
+                    Post(
+                        id = key,
+                        text = value?.extractPostText(),
+                        publishedAt = value?.extractPostPublishDate(),
+                        statistics = PostStatistics(
+                            likes = value?.extractPostLikes(),
+                            comments = value?.extractPostCommentsCount(),
+                            views = value?.extractPostViewsCount(),
+                        ),
+                        media = listOf(
+                            Image(
+                                url = value.extractPostAttachmentUrl(),
+                                aspectRatio = value.extractPostAspectRatio()
+                            )
                         )
                     )
-                ))
+                )
             }
         }
     }
@@ -126,6 +128,10 @@ open class FlickrSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun supports(url: String): Boolean {
+        return "flickr.com" in url.host
+    }
+
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Image -> client.fetchOpenGraphMedia(media)
@@ -134,7 +140,7 @@ open class FlickrSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getPage(path: String): Document? {
-        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
+        return client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
     }
 
     private fun Document?.parseModelJson(): JsonNode? {
@@ -248,7 +254,7 @@ open class FlickrSkraper @JvmOverloads constructor(
     }
 
     private fun JsonNode.extractPageLogo(): Image? {
-        return getFirstByPath("photostream-models.0.owner.buddyicon","person-models.0.buddyicon")
+        return getFirstByPath("photostream-models.0.owner.buddyicon", "person-models.0.buddyicon")
             ?.getFirstByPath("large", "medium", "small", "default")
             ?.asText()
             ?.convertToImage()
@@ -264,5 +270,9 @@ open class FlickrSkraper @JvmOverloads constructor(
         }.getOrElse {
             this?.asText().orEmpty()
         }
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://flickr.com"
     }
 }

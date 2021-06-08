@@ -27,6 +27,7 @@ import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.model.*
 
@@ -34,8 +35,7 @@ import ru.sokomishalov.skraper.model.*
  * @author sokomishalov
  */
 open class IFunnySkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient,
-    override val baseUrl: String = "https://ifunny.co"
+    override val client: SkraperClient = DefaultBlockingSkraperClient
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -66,7 +66,7 @@ open class IFunnySkraper @JvmOverloads constructor(
                     media = listOf(
                         when {
                             isVideo -> Video(
-                                url = "${baseUrl}${link}",
+                                url = "${BASE_URL}${link}",
                                 aspectRatio = aspectRatio
                             )
                             else -> Image(
@@ -81,6 +81,10 @@ open class IFunnySkraper @JvmOverloads constructor(
             val nextPageNumber = nextPath.substringAfterLast("/page").toIntOrNull()?.plus(1) ?: break
             nextPath = nextPath.substringBeforeLast("/page") + "/page${nextPageNumber}"
         }
+    }
+
+    override fun supports(url: String): Boolean {
+        return "ifunny.co" in url.host
     }
 
     override suspend fun resolve(media: Media): Media {
@@ -120,6 +124,10 @@ open class IFunnySkraper @JvmOverloads constructor(
 
 
     private suspend fun getPage(path: String): Document? {
-        return client.fetchDocument(HttpRequest(url = baseUrl.buildFullURL(path = path)))
+        return client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
+    }
+
+    companion object {
+        const val BASE_URL: String = "https://ifunny.co"
     }
 }
