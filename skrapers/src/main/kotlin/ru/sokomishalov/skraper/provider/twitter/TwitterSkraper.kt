@@ -24,7 +24,6 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -98,10 +97,10 @@ open class TwitterSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Image -> client.fetchOpenGraphMedia(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS))
+            is Image -> client.fetchOpenGraphMedia(media = media, HttpRequest(url = media.url, headers = mapOf(USER_AGENT_HEADER to USER_AGENT)))
             is Video -> {
-                val ogVideo = client.fetchOpenGraphMedia(media = media, HttpRequest(url = media.url, headers = DEFAULT_HEADERS)) as Video
-                val page = client.fetchDocument(HttpRequest(url = ogVideo.url, headers = DEFAULT_HEADERS))
+                val ogVideo = client.fetchOpenGraphMedia(media = media, HttpRequest(url = media.url, headers = mapOf(USER_AGENT_HEADER to USER_AGENT))) as Video
+                val page = client.fetchDocument(HttpRequest(url = ogVideo.url, headers = mapOf(USER_AGENT_HEADER to USER_AGENT)))
 
                 val urlFromPage = page
                     ?.getFirstElementByClass("js-tweet-text")
@@ -154,10 +153,11 @@ open class TwitterSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getUserPage(path: String): Document? {
-        return client.fetchDocument(HttpRequest(
-            url = BASE_URL.buildFullURL(path = path),
-            headers = DEFAULT_HEADERS
-        ))
+        return client.fetchDocument(
+            HttpRequest(
+                url = BASE_URL.buildFullURL(path = path),
+                headers = mapOf(USER_AGENT_HEADER to USER_AGENT)
+            ))
     }
 
     private fun Document.extractJsonData(): JsonNode? {
@@ -283,6 +283,6 @@ open class TwitterSkraper @JvmOverloads constructor(
     companion object {
         const val BASE_URL: String = "https://twitter.com"
         const val API_BASE_URL: String = "https://api.twitter.com"
-        private val DEFAULT_HEADERS: Map<String, String> by lazy { mapOf(USER_AGENT_HEADER to CRAWLER_USER_AGENTS.random()) }
+        const val USER_AGENT: String = "Googlebot"
     }
 }

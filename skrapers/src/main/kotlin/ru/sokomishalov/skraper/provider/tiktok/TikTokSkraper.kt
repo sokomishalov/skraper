@@ -24,7 +24,6 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
-import ru.sokomishalov.skraper.internal.consts.CRAWLER_USER_AGENTS
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.net.host
@@ -108,7 +107,7 @@ class TikTokSkraper @JvmOverloads constructor(
         val document = client.fetchDocument(
             HttpRequest(
                 url = "${BASE_URL}${path}",
-                headers = mapOf(USER_AGENT_HEADER to CRAWLER_USER_AGENTS.random())
+                headers = mapOf(USER_AGENT_HEADER to USER_AGENT)
             )
         )
 
@@ -122,5 +121,6 @@ class TikTokSkraper @JvmOverloads constructor(
 
     companion object {
         const val BASE_URL: String = "https://tiktok.com"
+        const val USER_AGENT: String = "Slurp"
     }
 }

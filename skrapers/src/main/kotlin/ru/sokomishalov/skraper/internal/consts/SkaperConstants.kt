@@ -21,7 +21,4 @@ internal const val USER_AGENT_HEADER = "User-Agent"
 @JvmField
 internal val DEFAULT_HEADERS = mapOf(USER_AGENT_HEADER to DEFAULT_USER_AGENT)
 
-@JvmField
-internal val CRAWLER_USER_AGENTS = setOf("Googlebot", "Slurp", "Yandex", "msnbot", "bingbot")
-
 internal const val DEFAULT_POSTS_BATCH = 50
