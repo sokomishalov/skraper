@@ -41,6 +41,11 @@
             <artifactId>commons-spring</artifactId>
             <version>${sokomishalov-commons.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ru.sokomishalov.commons</groupId>
+            <artifactId>commons-coroutines</artifactId>
+            <version>${sokomishalov-commons.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.telegram</groupId>
@@ -55,7 +60,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- TEST -->
     </dependencies>
 
     <dependencyManagement>
