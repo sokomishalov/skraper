@@ -24,10 +24,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
@@ -45,7 +45,7 @@ import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.TemporalAmount
 
 open class YoutubeSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient
+    override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {

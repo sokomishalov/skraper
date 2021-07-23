@@ -22,8 +22,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.*
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -43,7 +43,7 @@ import java.time.Instant
  * @author sokomishalov
  */
 open class FacebookSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient
+    override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -59,7 +59,7 @@ open class FacebookSkraper @JvmOverloads constructor(
             if (rawPosts.isNullOrEmpty()) break
 
             emitBatch(rawPosts) {
-                val dataFt = attr("data-ft")?.readJsonNodes()
+                val dataFt = attr("data-ft").readJsonNodes()
 
                 Post(
                     id = dataFt.extractPostId(),
@@ -151,8 +151,8 @@ open class FacebookSkraper @JvmOverloads constructor(
         return this?.getString("top_level_post_id").orEmpty()
     }
 
-    private fun Element.extractPostText(): String? {
-        return getElementsByTag("p")?.joinToString(separator = "\n\n") { it.wholeText() }
+    private fun Element.extractPostText(): String {
+        return getElementsByTag("p").joinToString(separator = "\n\n") { it.wholeText() }
     }
 
     private fun JsonNode?.extractPostPublishedAt(): Instant? {
@@ -171,7 +171,7 @@ open class FacebookSkraper @JvmOverloads constructor(
         val nativeVideoNode = getFirstElementByAttributeValue("data-sigil", "inlineVideo")
         return when {
             nativeVideoNode != null -> {
-                val dataStore = nativeVideoNode.attr("data-store")?.readJsonNodes()
+                val dataStore = nativeVideoNode.attr("data-store").readJsonNodes()
                 listOf(
                     Video(
                         url = dataStore?.getString("src").orEmpty(),

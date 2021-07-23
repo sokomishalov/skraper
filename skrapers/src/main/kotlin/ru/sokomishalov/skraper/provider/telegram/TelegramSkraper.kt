@@ -25,10 +25,10 @@ import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.net.host
@@ -42,7 +42,7 @@ import java.time.ZonedDateTime
  * @author sokomishalov
  */
 open class TelegramSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient
+    override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -87,7 +87,7 @@ open class TelegramSkraper @JvmOverloads constructor(
 
         return document?.run {
             PageInfo(
-                nick = title()?.substringAfterLast("@"),
+                nick = title().substringAfterLast("@"),
                 name = getFirstElementByClass("tgme_page_title")?.getFirstElementByTag("span")?.wholeText(),
                 description = getFirstElementByClass("tgme_page_description")?.wholeText(),
                 statistics = PageStatistics(
@@ -163,7 +163,7 @@ open class TelegramSkraper @JvmOverloads constructor(
         return when {
             videoUrlNode != null -> {
                 val aspectRatio = videoNode.attr("data-ratio")
-                    ?.toDoubleOrNull()
+                    .toDoubleOrNull()
                     ?: getFirstElementByClass("tgme_widget_message_video_wrap")
                         ?.calculatePaddingTopAspectRatio()
 

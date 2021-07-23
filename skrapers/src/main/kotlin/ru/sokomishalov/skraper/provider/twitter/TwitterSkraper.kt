@@ -21,9 +21,9 @@ import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -40,7 +40,7 @@ import java.time.Instant
  * @author sokomishalov
  */
 open class TwitterSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient
+    override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {

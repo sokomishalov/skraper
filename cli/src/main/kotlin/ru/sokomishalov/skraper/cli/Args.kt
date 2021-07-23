@@ -25,7 +25,7 @@ import java.io.File
 class Args(parser: ArgParser) {
 
     init {
-        Skrapers.setClient(KtorSkraperClient())
+        Skrapers.client = KtorSkraperClient()
     }
 
     val skraper by parser.positional(

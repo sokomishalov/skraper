@@ -21,11 +21,11 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.net.host
@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import kotlin.text.Charsets.UTF_8
 
 open class PikabuSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient
+    override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -177,7 +177,7 @@ open class PikabuSkraper @JvmOverloads constructor(
                         aspectRatio = b
                             .getFirstElementByTag("rect")
                             ?.run {
-                                attr("width")?.toDoubleOrNull() / attr("height")?.toDoubleOrNull()
+                                attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
                             }
                     )
                 }
@@ -199,10 +199,10 @@ open class PikabuSkraper @JvmOverloads constructor(
             url = "${attr("data-source")}$ext",
             thumbnail = Image(
                 url = "${attr("data-source")}.jpg",
-                aspectRatio = attr("data-ratio")?.toDoubleOrNull()
+                aspectRatio = attr("data-ratio").toDoubleOrNull()
             ),
-            aspectRatio = attr("data-ratio")?.toDoubleOrNull(),
-            duration = attr("data-duration")?.toLongOrNull()?.let { Duration.ofSeconds(it) }
+            aspectRatio = attr("data-ratio").toDoubleOrNull(),
+            duration = attr("data-duration").toLongOrNull()?.let { Duration.ofSeconds(it) }
         )
     }
 

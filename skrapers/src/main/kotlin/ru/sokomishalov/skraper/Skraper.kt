@@ -17,7 +17,6 @@ package ru.sokomishalov.skraper
 
 import kotlinx.coroutines.flow.Flow
 import ru.sokomishalov.skraper.client.SkraperClient
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
@@ -30,7 +29,7 @@ interface Skraper {
     /**
      * @return http client
      */
-    val client: SkraperClient get() = DefaultBlockingSkraperClient
+    val client: SkraperClient get() = Skrapers.client
 
     /**
      * @param path page specific url path (should start with "/")

@@ -18,19 +18,17 @@ package ru.sokomishalov.skraper.client.ktor
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.content.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpHeaders.UnsafeHeadersList
 import io.ktor.http.HttpMethod
-import io.ktor.http.content.ByteArrayContent
+import io.ktor.http.content.*
 import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.flow
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.HttpResponse
 import ru.sokomishalov.skraper.client.SkraperClient
-import ru.sokomishalov.skraper.internal.nio.aWrite
 import java.io.File
 import io.ktor.client.statement.HttpResponse as KtorHttpResponse
 

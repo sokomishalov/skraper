@@ -22,11 +22,11 @@ import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -42,7 +42,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale.ENGLISH
 
 open class TumblrSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient
+    override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
@@ -157,7 +157,7 @@ open class TumblrSkraper @JvmOverloads constructor(
             val video = f.getFirstElementByTag("video")
             val img = f.getFirstElementByTag("img")
 
-            val aspectRatio = f.attr("data-orig-width")?.toDoubleOrNull() / f.attr("data-orig-height")?.toDoubleOrNull()
+            val aspectRatio = f.attr("data-orig-width").toDoubleOrNull() / f.attr("data-orig-height").toDoubleOrNull()
 
             when {
                 video != null -> Video(

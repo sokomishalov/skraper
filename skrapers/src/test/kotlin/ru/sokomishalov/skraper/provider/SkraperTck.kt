@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -64,6 +65,11 @@ abstract class SkraperTck {
     protected abstract val path: String
 
     protected open val client: SkraperClient = KtorSkraperClient()
+
+    @BeforeEach
+    internal fun setUp() {
+        Skrapers.client = client
+    }
 
     @Test
     open fun `Check posts`() {
@@ -107,7 +113,6 @@ abstract class SkraperTck {
     }
 
     protected fun assertMediaDownloaded(media: Media) = runBlocking {
-        Skrapers.setClient(client)
         val tmpDir = Files.createTempDirectory("skraper").toFile()
         val downloaded = runCatching { logAction {
             Skrapers.download(

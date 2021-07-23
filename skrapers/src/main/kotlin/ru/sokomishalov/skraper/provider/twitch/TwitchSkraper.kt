@@ -23,10 +23,10 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
+import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
-import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_BATCH
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
@@ -43,7 +43,7 @@ import kotlin.text.Charsets.UTF_8
  * @author sokomishalov
  */
 open class TwitchSkraper @JvmOverloads constructor(
-    override val client: SkraperClient = DefaultBlockingSkraperClient
+    override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {

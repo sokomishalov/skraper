@@ -77,6 +77,6 @@ class SkraperBotConfig {
 
     @Bean
     fun skraperClient(webClient: WebClient): SkraperClient {
-        return SpringReactiveSkraperClient(webClient).also { Skrapers.setClient(it) }
+        return SpringReactiveSkraperClient(webClient).also { Skrapers.client = it }
     }
 }

@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 @file:JvmName("Skrapers")
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package ru.sokomishalov.skraper
 
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
+import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.client.okhttp.OkHttpSkraperClient
+import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegCliRunner
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegRunner
 import ru.sokomishalov.skraper.internal.net.path
+import ru.sokomishalov.skraper.internal.reflection.classPathCheck
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
 import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
@@ -41,14 +45,19 @@ import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
 import ru.sokomishalov.skraper.provider.vk.VkSkraper
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
 import java.io.File
+import java.util.*
 
 object Skrapers {
+
+    var client: SkraperClient = initClient()
+    var providers: List<Skraper> = initSkrapers()
+    var ffmpegRunner: FfmpegRunner = FfmpegCliRunner()
 
     /**
      * @return list of all available skrapers
      */
     fun available(): List<Skraper> {
-        return providers.toList()
+        return providers
     }
 
     /**
@@ -140,23 +149,6 @@ object Skrapers {
         }
     }
 
-    /**
-     * Set client for all available skrapers
-     * @param client client to set
-     */
-    fun setClient(client: SkraperClient) {
-        this.providers = implementations(client)
-    }
-
-    /**
-     * Set ffmpeg runner
-     * @param ffmpegRunner ffmpeg runner implementation
-     */
-    fun setFfmpegRunner(ffmpegRunner: FfmpegRunner) {
-        this.ffmpegRunner = ffmpegRunner
-    }
-
-
     private fun Media.extractFileExtension(): String {
         val filename = url.path
 
@@ -169,27 +161,49 @@ object Skrapers {
     }
 
     private fun Media.extractFileNameWithoutExtension(): String {
-        return url.path.substringAfterLast("/").substringBeforeLast(".")
+        return url
+            .path
+            .substringAfterLast("/")
+            .substringBeforeLast(".")
     }
 
-    private fun implementations(client: SkraperClient): List<Skraper> = listOf(
-        FacebookSkraper(client),
-        InstagramSkraper(client),
-        TwitterSkraper(client),
-        YoutubeSkraper(client),
-        TikTokSkraper(client),
-        TelegramSkraper(client),
-        TwitchSkraper(client),
-        RedditSkraper(client),
-        NinegagSkraper(client),
-        PinterestSkraper(client),
-        FlickrSkraper(client),
-        TumblrSkraper(client),
-        IFunnySkraper(client),
-        VkSkraper(client),
-        PikabuSkraper(client)
-    )
+    private fun initSkrapers(): List<Skraper> {
+        val spiSkrapers = ServiceLoader
+            .load(Skraper::class.java)
+            .toList()
 
-    private var providers: List<Skraper> = implementations(DefaultBlockingSkraperClient)
-    private var ffmpegRunner: FfmpegRunner = FfmpegCliRunner()
+        val knownSkrapers = listOf(
+            FacebookSkraper(),
+            InstagramSkraper(),
+            TwitterSkraper(),
+            YoutubeSkraper(),
+            TikTokSkraper(),
+            TelegramSkraper(),
+            TwitchSkraper(),
+            RedditSkraper(),
+            NinegagSkraper(),
+            PinterestSkraper(),
+            FlickrSkraper(),
+            TumblrSkraper(),
+            IFunnySkraper(),
+            VkSkraper(),
+            PikabuSkraper()
+        )
+
+        return spiSkrapers + knownSkrapers
+    }
+
+    private fun initClient(): SkraperClient {
+        val spiClient = ServiceLoader
+            .load(SkraperClient::class.java)
+            .firstOrNull()
+
+        return when {
+            spiClient != null -> spiClient
+            classPathCheck("io.ktor.client.HttpClient") -> KtorSkraperClient()
+            classPathCheck("okhttp3.OkHttpClient") -> OkHttpSkraperClient()
+            classPathCheck("org.springframework.web.reactive.function.client.WebClient") -> SpringReactiveSkraperClient()
+            else -> DefaultBlockingSkraperClient
+        }
+    }
 }
