@@ -51,7 +51,7 @@ class InstagramSkraperTest : SkraperTck() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Video("https://www.instagram.com/p/CK7n_i1lfi1/"))
+        assertMediaResolved(Video("https://www.instagram.com/p/B-flad2F5o7/"))
         assertMediaResolved(Image("https://www.instagram.com/p/B-gwQJelNjs/"))
     }
 
