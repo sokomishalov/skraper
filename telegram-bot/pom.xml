@@ -41,16 +41,16 @@
             <artifactId>commons-spring</artifactId>
             <version>${sokomishalov-commons.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ru.sokomishalov.commons</groupId>
-            <artifactId>commons-coroutines</artifactId>
-            <version>${sokomishalov-commons.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-spring-boot-starter</artifactId>
             <version>${telegram-bots.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-reactor</artifactId>
         </dependency>
 
         <!-- OPTIONAL -->
