@@ -25,9 +25,9 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun TumblrSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts("/blow/view/${username}")
+    return getPosts("/blog/view/${username}")
 }
 
 suspend fun TumblrSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo("/blow/view/${username}")
+    return getPageInfo("/blog/view/${username}")
 }
