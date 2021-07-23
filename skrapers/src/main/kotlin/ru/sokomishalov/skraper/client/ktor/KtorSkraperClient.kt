@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.flow
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.HttpResponse
 import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.internal.nio.aWrite
 import java.io.File
 import io.ktor.client.statement.HttpResponse as KtorHttpResponse
 
