@@ -71,6 +71,8 @@ internal fun Element.getBackgroundImageUrl(): String {
         .orEmpty()
         .trim()
         .removeSurrounding("url(", ")")
+        .removeSurrounding("\"", "\"")
+        .removeSurrounding("'", "'")
 }
 
 internal fun Element.getFirstAttr(vararg attrs: String): String? {

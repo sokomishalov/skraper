@@ -301,8 +301,8 @@ open class VkSkraper @JvmOverloads constructor(
     private fun Document.extractPageAvatar(): Image? {
         return this
             .getFirstElementByClass("profile_panel")
-            ?.getFirstElementByTag("img")
-            ?.attr("src")
+            ?.getFirstElementByClass("Avatar__image")
+            ?.getBackgroundImageUrl()
             ?.toImage()
     }
 
