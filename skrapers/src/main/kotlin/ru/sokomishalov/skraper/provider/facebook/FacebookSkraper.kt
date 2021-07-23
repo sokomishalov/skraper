@@ -76,7 +76,7 @@ open class FacebookSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
-        val aboutPath = path.substringBefore("/about") + "/about"
+        val aboutPath = path.substringBefore("/posts")
 
         val page = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = aboutPath)))
 
