@@ -46,7 +46,7 @@ class SkraperBot {
 
     suspend fun receive(update: Update): PartialBotApiMethod<*>? {
         // 0. say hello
-        val message = requireNotNull(update.message)
+        val message = update.message ?: return null
         if (message.text.orEmpty() == "/start") return sendText(message, "Hello!")
 
         // 1. extract url
@@ -60,7 +60,7 @@ class SkraperBot {
         logDebug { "Provider: ${supportedSkraper.javaClass.simpleName}, URL: $url" }
 
         // 3. try to either scrape posts and download attachments or just download attachment
-        val latestPost = runCatching { supportedSkraper.getPosts(path = url.path).firstOrNull() }.getOrNull()
+        val latestPost = runCatching {  supportedSkraper.getPosts(path = url.path).firstOrNull() }.getOrNull()
         val tmpDir = createTempDirectory("skraper-bot").toFile()
 
         return runCatching {
