@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  codec:
+    max-in-memory-size: -1
   profiles:
     active: secret
   main:
