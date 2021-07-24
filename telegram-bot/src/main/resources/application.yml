@@ -28,3 +28,4 @@ management:
 logging:
   level:
     ru.sokomishalov.skraper: debug
+    org.zalando.logbook: trace

@@ -16,6 +16,7 @@
     <properties>
         <spring-boot.version>2.5.3</spring-boot.version>
         <telegram-bots.version>5.3.0</telegram-bots.version>
+        <logbook.version>2.11.0</logbook.version>
         <sokomishalov-commons.version>1.2.1</sokomishalov-commons.version>
     </properties>
 
@@ -51,6 +52,12 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-reactor</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>logbook-spring-boot-webflux-autoconfigure</artifactId>
+            <version>${logbook.version}</version>
         </dependency>
 
         <!-- OPTIONAL -->

@@ -37,11 +37,9 @@ class WebhookController(
 ) {
 
     @PostMapping("/webhook")
-    suspend fun webhook(@RequestBody update: Update): BotApiMethod<*>? {
-        return when (val method = bot.receive(update)) {
-            is BotApiMethod<*> -> method
-            is PartialBotApiMethod<*> -> withContext<Any?>(IO) { sender.send(method) }.let { null }
-            else -> null
-        }
+    suspend fun webhook(@RequestBody update: Update): BotApiMethod<*>? = when (val method = bot.receive(update)) {
+        is BotApiMethod<*> -> method
+        is PartialBotApiMethod<*> -> withContext(IO) { sender.send(method) }.let { null }
+        else -> null
     }
 }
