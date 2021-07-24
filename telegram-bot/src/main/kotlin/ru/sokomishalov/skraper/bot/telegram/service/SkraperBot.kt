@@ -82,8 +82,7 @@ class SkraperBot {
 
                 else -> {
                     listOf(Video(url), Audio(url), Image(url))
-                        .map { media -> media to Skrapers.resolve(media = media) }
-                        .firstOrNull { (original, resolved) -> original.url != resolved.url }
+                        .firstNotNullOfOrNull { media -> media to Skrapers.resolve(media = media) }
                         ?.let { (_, resolved) ->
                             val file = Skrapers.download(media = resolved, destDir = tmpDir)
                             sendMedia(message, mapOf(resolved to file))
