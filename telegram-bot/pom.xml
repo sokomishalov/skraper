@@ -60,6 +60,12 @@
             <version>${logbook.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-cio-jvm</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>
+
         <!-- OPTIONAL -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
