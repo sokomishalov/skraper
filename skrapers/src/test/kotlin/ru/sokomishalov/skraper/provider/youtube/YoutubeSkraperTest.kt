@@ -45,4 +45,9 @@ class YoutubeSkraperTest : SkraperTck() {
     fun `Check media downloading`() {
         assertMediaDownloaded(Video("https://youtu.be/fjUO7xaUHJQ"))
     }
+
+    @Test
+    fun `Check search posts`() {
+        assertPosts { skraper.getSearchPosts("Nothing Else Matters") }
+    }
 }

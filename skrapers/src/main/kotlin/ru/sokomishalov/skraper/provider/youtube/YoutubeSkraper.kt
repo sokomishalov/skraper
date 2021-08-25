@@ -53,9 +53,11 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
         val jsonMetadata = page?.readJsonMetadata()
 
+        val fieldName = if(path.startsWith(SEARCH_PREFIX)) "videoRenderer" else "gridVideoRenderer"
+
         val rawPosts = jsonMetadata
-            ?.findParents("gridVideoRenderer")
-            ?.map { it["gridVideoRenderer"] }
+            ?.findParents(fieldName)
+            ?.map { it[fieldName] }
             .orEmpty()
 
         emitBatch(rawPosts) {
@@ -64,7 +66,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
                 text = getString("title.runs.0.text"),
                 publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
                 statistics = PostStatistics(
-                    views = getString("viewCountText.simpleText")?.substringBefore(" ")?.toIntOrNull(),
+                    views = getString("viewCountText.simpleText")?.substringBefore(" ")?.replace(",","")?.toIntOrNull(),
                 ),
                 media = extractVideos()
             )
@@ -205,5 +207,6 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     companion object {
         const val BASE_URL: String = "https://www.youtube.com"
+        const val SEARCH_PREFIX: String = "/results"
     }
 }
