@@ -25,9 +25,9 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun TwitterSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/${username}")
+    return getPosts(uri = "/${username}")
 }
 
 suspend fun TwitterSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}")
+    return getPageInfo(uri = "/${username}")
 }

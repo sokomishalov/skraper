@@ -25,17 +25,17 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun InstagramSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/${username}")
+    return getPosts(uri = "/${username}")
 }
 
 fun InstagramSkraper.getTagPosts(tag: String): Flow<Post> {
-    return getPosts(path = "/explore/tags/${tag}")
+    return getPosts(uri = "/explore/tags/${tag}")
 }
 
 suspend fun InstagramSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}")
+    return getPageInfo(uri = "/${username}")
 }
 
 suspend fun InstagramSkraper.getTagInfo(tag: String): PageInfo? {
-    return getPageInfo(path = "/explore/tags/${tag}")
+    return getPageInfo(uri = "/explore/tags/${tag}")
 }

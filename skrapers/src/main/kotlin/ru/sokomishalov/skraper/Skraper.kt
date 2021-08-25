@@ -32,16 +32,16 @@ interface Skraper {
     val client: SkraperClient get() = Skrapers.client
 
     /**
-     * @param path page specific url path (should start with "/")
+     * @param uri page specific uri (path + query parameters) - should start with "/"
      * @return flow of posts
      */
-    fun getPosts(path: String): Flow<Post>
+    fun getPosts(uri: String): Flow<Post>
 
     /**
-     * @param path page specific url path (should start with "/")
+     * @param uri page specific uri (path + query parameters) - should start with "/"
      * @return page info
      */
-    suspend fun getPageInfo(path: String): PageInfo?
+    suspend fun getPageInfo(uri: String): PageInfo?
 
     /**
      * @param media media item

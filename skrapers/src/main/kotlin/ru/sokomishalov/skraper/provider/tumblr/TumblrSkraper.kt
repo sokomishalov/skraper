@@ -45,8 +45,8 @@ open class TumblrSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getNonUserPage(path = path)
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val page = getNonUserPage(path = uri)
 
         val rawPosts = page
             ?.getElementsByTag("article")
@@ -67,8 +67,8 @@ open class TumblrSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getNonUserPage(path = path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val page = getNonUserPage(path = uri)
 
         return PageInfo(
             nick = page.extractPageNick(),

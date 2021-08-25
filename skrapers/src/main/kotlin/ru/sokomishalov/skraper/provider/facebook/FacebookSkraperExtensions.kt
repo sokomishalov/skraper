@@ -25,17 +25,17 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun FacebookSkraper.getCommunityPosts(community: String): Flow<Post> {
-    return getPosts(path = "/${community}/posts")
+    return getPosts(uri = "/${community}/posts")
 }
 
 suspend fun FacebookSkraper.getCommunityInfo(community: String): PageInfo? {
-    return getPageInfo(path = "/${community}")
+    return getPageInfo(uri = "/${community}")
 }
 
 fun FacebookSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/${username}/posts")
+    return getPosts(uri = "/${username}/posts")
 }
 
 suspend fun FacebookSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}")
+    return getPageInfo(uri = "/${username}")
 }

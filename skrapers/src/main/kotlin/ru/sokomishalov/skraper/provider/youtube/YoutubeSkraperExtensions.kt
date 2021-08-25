@@ -25,13 +25,13 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun YoutubeSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/user/${username}/videos")
+    return getPosts(uri = "/user/${username}/videos")
 }
 
 fun YoutubeSkraper.getSearchPosts(keyword: String): Flow<Post> {
-    return getPosts(path = "/results?search_query=${keyword.replace(" ", "+")}")
+    return getPosts(uri = "/results?search_query=${keyword.replace(" ", "+")}")
 }
 
 suspend fun YoutubeSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/user/${username}")
+    return getPageInfo(uri = "/user/${username}")
 }

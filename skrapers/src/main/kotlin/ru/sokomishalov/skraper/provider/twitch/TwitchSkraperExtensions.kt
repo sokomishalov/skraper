@@ -25,25 +25,25 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun TwitchSkraper.getUserVideoPosts(username: String): Flow<Post> {
-    return getPosts(path = "/${username}/videos")
+    return getPosts(uri = "/${username}/videos")
 }
 
 fun TwitchSkraper.getUserClipPosts(username: String): Flow<Post> {
-    return getPosts(path = "/${username}/clips")
+    return getPosts(uri = "/${username}/clips")
 }
 
 suspend fun TwitchSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}")
+    return getPageInfo(uri = "/${username}")
 }
 
 fun TwitchSkraper.getGameVideoPosts(game: String): Flow<Post> {
-    return getPosts(path = "/directory/game/${game.escapeUrl()}/videos")
+    return getPosts(uri = "/directory/game/${game.escapeUrl()}/videos")
 }
 
 fun TwitchSkraper.getGameClipPosts(game: String): Flow<Post> {
-    return getPosts(path = "/directory/game/${game.escapeUrl()}/clips")
+    return getPosts(uri = "/directory/game/${game.escapeUrl()}/clips")
 }
 
 suspend fun TwitchSkraper.getGameInfo(game: String): PageInfo? {
-    return getPageInfo(path = "/directory/game/${game.escapeUrl()}")
+    return getPageInfo(uri = "/directory/game/${game.escapeUrl()}")
 }

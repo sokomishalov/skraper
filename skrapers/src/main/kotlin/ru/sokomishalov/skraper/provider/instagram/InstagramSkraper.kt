@@ -39,11 +39,11 @@ open class InstagramSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val nodes = fetchJsonNodes(path)
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val nodes = fetchJsonNodes(uri)
 
         val postNodes = when {
-            path.isTagPath() -> nodes?.getByPath("entry_data.TagPage.0.graphql.hashtag.edge_hashtag_to_media.edges")
+            uri.isTagPath() -> nodes?.getByPath("entry_data.TagPage.0.graphql.hashtag.edge_hashtag_to_media.edges")
             else -> nodes?.getByPath("entry_data.ProfilePage.0.graphql.user.edge_owner_to_timeline_media.edges")
         }
 
@@ -64,11 +64,11 @@ open class InstagramSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val nodes = fetchJsonNodes(path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val nodes = fetchJsonNodes(uri)
 
         val infoNodes = when {
-            path.isTagPath() -> nodes?.getByPath("entry_data.TagPage.0.graphql.hashtag")
+            uri.isTagPath() -> nodes?.getByPath("entry_data.TagPage.0.graphql.hashtag")
             else -> nodes?.getByPath("entry_data.ProfilePage.0.graphql.user")
         }
 

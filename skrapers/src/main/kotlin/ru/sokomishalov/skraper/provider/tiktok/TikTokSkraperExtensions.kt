@@ -21,9 +21,9 @@ import ru.sokomishalov.skraper.model.Post
 
 
 fun TikTokSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/@${username}?")
+    return getPosts(uri = "/@${username}?")
 }
 
 suspend fun TikTokSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/@${username}")
+    return getPageInfo(uri = "/@${username}")
 }

@@ -43,8 +43,8 @@ open class TwitterSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getUserPage(path = path)
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val page = getUserPage(path = uri)
 
         val rawPosts = page
             ?.body()
@@ -68,8 +68,8 @@ open class TwitterSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getUserPage(path = path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val page = getUserPage(path = uri)
 
         val userJson = page
             ?.extractJsonData()

@@ -25,9 +25,9 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun PinterestSkraper.getUserPosts(username: String, topic: String = ""): Flow<Post> {
-    return getPosts(path = "/${username}/${topic}")
+    return getPosts(uri = "/${username}/${topic}")
 }
 
 suspend fun PinterestSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}/${""}")
+    return getPageInfo(uri = "/${username}/${""}")
 }

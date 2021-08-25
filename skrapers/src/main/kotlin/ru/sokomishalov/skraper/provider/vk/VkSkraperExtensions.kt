@@ -25,17 +25,17 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun VkSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/${username}")
+    return getPosts(uri = "/${username}")
 }
 
 fun VkSkraper.getCommunityPosts(community: String): Flow<Post> {
-    return getPosts(path = "/${community}")
+    return getPosts(uri = "/${community}")
 }
 
 suspend fun VkSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}")
+    return getPageInfo(uri = "/${username}")
 }
 
 suspend fun VkSkraper.getCommunityInfo(community: String): PageInfo? {
-    return getPageInfo(path = "/${community}")
+    return getPageInfo(uri = "/${community}")
 }

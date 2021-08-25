@@ -41,10 +41,10 @@ open class PikabuSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
+    override fun getPosts(uri: String): Flow<Post> = flow {
         var page = 0
         while (true) {
-            val document = getPage(path = path, page = ++page)
+            val document = getPage(path = uri, page = ++page)
 
             val rawPosts = document
                 ?.getElementsByTag("article")
@@ -77,9 +77,9 @@ open class PikabuSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getPage(path = path)
-        val isCommunity = path.contains("community")
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val page = getPage(path = uri)
+        val isCommunity = uri.contains("community")
 
         return page?.run {
             when {

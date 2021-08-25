@@ -45,8 +45,8 @@ open class TelegramSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val fixedPath = if (path.startsWith("/s/")) path else "/s$path"
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val fixedPath = if (uri.startsWith("/s/")) uri else "/s$uri"
         var nextPath = fixedPath
         while (true) {
             val document = fetchDocument(nextPath)
@@ -81,8 +81,8 @@ open class TelegramSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val fixedPath = if (path.startsWith("/s/")) path.removePrefix("/s") else path
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val fixedPath = if (uri.startsWith("/s/")) uri.removePrefix("/s") else uri
         val document = fetchDocument(fixedPath)
 
         return document?.run {

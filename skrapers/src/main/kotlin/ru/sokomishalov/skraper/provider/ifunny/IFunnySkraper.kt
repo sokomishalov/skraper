@@ -39,10 +39,10 @@ open class IFunnySkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
+    override fun getPosts(uri: String): Flow<Post> = flow {
         var nextPath = when {
-            path.startsWith("/user") -> path
-            else -> path.removeSuffix("/") + "/page"
+            uri.startsWith("/user") -> uri
+            else -> uri.removeSuffix("/") + "/page"
         }
 
         while (true) {
@@ -91,8 +91,8 @@ open class IFunnySkraper @JvmOverloads constructor(
         return client.fetchOpenGraphMedia(media)
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getPage(path = path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val page = getPage(path = uri)
 
         val json = page.extractPageJson()?.getByPath("user.data")
 

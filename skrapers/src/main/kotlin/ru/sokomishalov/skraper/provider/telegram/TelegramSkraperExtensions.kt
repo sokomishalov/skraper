@@ -24,13 +24,13 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun TelegramSkraper.getChannelPosts(channel: String): Flow<Post> {
-    return getPosts(path = "/${channel}")
+    return getPosts(uri = "/${channel}")
 }
 
 suspend fun TelegramSkraper.getChannelInfo(channel: String): PageInfo? {
-    return getPageInfo(path = "/${channel}")
+    return getPageInfo(uri = "/${channel}")
 }
 
 suspend fun TelegramSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}")
+    return getPageInfo(uri = "/${username}")
 }

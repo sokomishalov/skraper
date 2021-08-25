@@ -46,8 +46,8 @@ open class FacebookSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val postsPath = path.substringBefore("/posts") + "/posts"
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val postsPath = uri.substringBefore("/posts") + "/posts"
         var nextPath = postsPath
         while (true) {
             val fetchResult = client.fetchString(HttpRequest(url = MOBILE_BASE_URL.buildFullURL(path = nextPath)))
@@ -75,8 +75,8 @@ open class FacebookSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val aboutPath = path.substringBefore("/posts")
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val aboutPath = uri.substringBefore("/posts")
 
         val page = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = aboutPath)))
 
@@ -87,7 +87,7 @@ open class FacebookSkraper @JvmOverloads constructor(
                 isCommunity -> {
                     val serverJsonData = extractJsonData()
                     PageInfo(
-                        nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
+                        nick = uri.removePrefix("/").removePrefix("pg/").substringBefore("/"),
                         name = serverJsonData?.extractCommunityName(),
                         description = extractCommunityDescription(),
                         avatar = extractCommunityAvatar()?.toImage(),
@@ -95,7 +95,7 @@ open class FacebookSkraper @JvmOverloads constructor(
                     )
                 }
                 else -> PageInfo(
-                    nick = path.removePrefix("/").substringBefore("/"),
+                    nick = uri.removePrefix("/").substringBefore("/"),
                     name = extractUserName(),
                     description = extractUserDescription(),
                     avatar = extractUserAvatar()?.toImage(),

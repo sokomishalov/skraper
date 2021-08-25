@@ -25,45 +25,45 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun PikabuSkraper.getHotPosts(): Flow<Post> {
-    return getPosts(path = "/hot")
+    return getPosts(uri = "/hot")
 }
 
 fun PikabuSkraper.getBestPosts(): Flow<Post> {
-    return getPosts(path = "/best")
+    return getPosts(uri = "/best")
 }
 
 fun PikabuSkraper.getNewPosts(): Flow<Post> {
-    return getPosts(path = "/new")
+    return getPosts(uri = "/new")
 }
 
 fun PikabuSkraper.getCommunityHotPosts(community: String): Flow<Post> {
-    return getPosts(path = "/community/${community}/${""}")
+    return getPosts(uri = "/community/${community}/${""}")
 }
 
 fun PikabuSkraper.getCommunityBestPosts(community: String): Flow<Post> {
-    return getPosts(path = "/community/${community}/${"best"}")
+    return getPosts(uri = "/community/${community}/${"best"}")
 }
 
 fun PikabuSkraper.getCommunityNewPosts(community: String): Flow<Post> {
-    return getPosts(path = "/community/${community}/${"new"}")
+    return getPosts(uri = "/community/${community}/${"new"}")
 }
 
 fun PikabuSkraper.getUserLatestPosts(username: String): Flow<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${""}")
+    return getPosts(uri = "/@${username.removePrefix("@")}/${""}")
 }
 
 fun PikabuSkraper.getUserBestPosts(username: String): Flow<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${"rating"}")
+    return getPosts(uri = "/@${username.removePrefix("@")}/${"rating"}")
 }
 
 fun PikabuSkraper.getUserOwnPosts(username: String): Flow<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${"mine"}")
+    return getPosts(uri = "/@${username.removePrefix("@")}/${"mine"}")
 }
 
 suspend fun PikabuSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/@${username.removePrefix("@")}/${""}")
+    return getPageInfo(uri = "/@${username.removePrefix("@")}/${""}")
 }
 
 suspend fun PikabuSkraper.getCommunityInfo(community: String): PageInfo? {
-    return getPageInfo(path = "/community/${community}/${""}")
+    return getPageInfo(uri = "/community/${community}/${""}")
 }

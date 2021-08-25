@@ -25,23 +25,23 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun RedditSkraper.getCommunityHotPosts(community: String): Flow<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/")
+    return getPosts(uri = "/r/${community.removePrefix("r/")}/")
 }
 
 fun RedditSkraper.getCommunityNewPosts(community: String): Flow<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/new")
+    return getPosts(uri = "/r/${community.removePrefix("r/")}/new")
 }
 
 fun RedditSkraper.getCommunityRisingPosts(community: String): Flow<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/rising")
+    return getPosts(uri = "/r/${community.removePrefix("r/")}/rising")
 }
 
 fun RedditSkraper.getCommunityControversialPosts(community: String): Flow<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/controversial")
+    return getPosts(uri = "/r/${community.removePrefix("r/")}/controversial")
 }
 
 fun RedditSkraper.getCommunityTopPosts(community: String): Flow<Post> {
-    return getPosts(path = "/r/${community.removePrefix("r/")}/top")
+    return getPosts(uri = "/r/${community.removePrefix("r/")}/top")
 }
 
 suspend fun RedditSkraper.getUserInfo(username: String): PageInfo? {

@@ -48,12 +48,12 @@ open class YoutubeSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getUserPage(path = path)
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val page = getUserPage(path = uri)
 
         val jsonMetadata = page?.readJsonMetadata()
 
-        val fieldName = if (path.startsWith(SEARCH_PREFIX)) "videoRenderer" else "gridVideoRenderer"
+        val fieldName = if (uri.startsWith(SEARCH_PREFIX)) "videoRenderer" else "gridVideoRenderer"
 
         val rawPosts = jsonMetadata
             ?.findParents(fieldName)
@@ -73,8 +73,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getUserPage(path = path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val page = getUserPage(path = uri)
         val jsonMetadata = page?.readJsonMetadata()
 
         return jsonMetadata?.run {

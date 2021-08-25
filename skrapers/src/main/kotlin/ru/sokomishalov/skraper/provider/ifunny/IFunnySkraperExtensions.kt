@@ -24,13 +24,13 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun IFunnySkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/user/${username}")
+    return getPosts(uri = "/user/${username}")
 }
 
 fun IFunnySkraper.getCatalogPosts(catalog: String): Flow<Post> {
-    return getPosts(path = "/${catalog}")
+    return getPosts(uri = "/${catalog}")
 }
 
 suspend fun IFunnySkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/user/${username}")
+    return getPageInfo(uri = "/user/${username}")
 }

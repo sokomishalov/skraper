@@ -41,8 +41,8 @@ open class PinterestSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val infoJsonNode = getUserJson(path = path)
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val infoJsonNode = getUserJson(path = uri)
 
         val rawPosts = infoJsonNode.extractFeed()
 
@@ -61,8 +61,8 @@ open class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val infoJsonNode = getUserJson(path = path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val infoJsonNode = getUserJson(path = uri)
 
         val json = infoJsonNode
             ?.get("resourceResponses")

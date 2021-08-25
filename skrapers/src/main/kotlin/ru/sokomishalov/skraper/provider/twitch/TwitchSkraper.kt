@@ -46,18 +46,18 @@ open class TwitchSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getPage(path)
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val page = getPage(uri)
 
         val clientId = page.extractClientId()
 
-        val isGamePath = path.removePrefix("/").startsWith("directory/game")
-        val isClipsPath = "/clips" in path
-        val isVideoPath = "/videos" in path
+        val isGamePath = uri.removePrefix("/").startsWith("directory/game")
+        val isClipsPath = "/clips" in uri
+        val isVideoPath = "/videos" in uri
 
         when {
             isGamePath -> {
-                val game = path.extractGameFromPath()
+                val game = uri.extractGameFromPath()
 
                 when {
                     isClipsPath -> {
@@ -88,7 +88,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                 }
             }
             else -> {
-                val username = path.extractChannelFromPath()
+                val username = uri.extractChannelFromPath()
 
                 when {
                     isClipsPath -> {
@@ -122,15 +122,15 @@ open class TwitchSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getPage(path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val page = getPage(uri)
 
         val clientId = page.extractClientId()
 
-        val isGamePath = path.removePrefix("/").startsWith("directory/game")
+        val isGamePath = uri.removePrefix("/").startsWith("directory/game")
         return when {
             isGamePath -> {
-                val game = path.extractGameFromPath()
+                val game = uri.extractGameFromPath()
                 val json = getGame(
                     game = game,
                     clientId = clientId
@@ -149,7 +149,7 @@ open class TwitchSkraper @JvmOverloads constructor(
                 }
             }
             else -> {
-                val username = path.extractChannelFromPath()
+                val username = uri.extractChannelFromPath()
                 val json = getUser(
                     username = username,
                     clientId = clientId

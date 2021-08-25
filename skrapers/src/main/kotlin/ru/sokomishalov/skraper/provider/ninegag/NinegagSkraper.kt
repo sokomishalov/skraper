@@ -43,8 +43,8 @@ open class NinegagSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        var nextPath = path
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        var nextPath = uri
         while (true) {
             val page = getUserPage(path = nextPath)
             val dataJson = page.extractJsonData()
@@ -66,12 +66,12 @@ open class NinegagSkraper @JvmOverloads constructor(
                 )
             }
 
-            nextPath = "${path.substringBefore("?")}?${dataJson.getString("data.nextCursor").orEmpty()}"
+            nextPath = "${uri.substringBefore("?")}?${dataJson.getString("data.nextCursor").orEmpty()}"
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getUserPage(path = path)
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val page = getUserPage(path = uri)
         val dataJson = page.extractJsonData()
 
         return dataJson?.getByPath("data.group")?.run {

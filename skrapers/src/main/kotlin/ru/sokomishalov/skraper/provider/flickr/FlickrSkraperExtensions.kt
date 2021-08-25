@@ -25,13 +25,13 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun FlickrSkraper.getUserPosts(username: String): Flow<Post> {
-    return getPosts(path = "/photos/${username}")
+    return getPosts(uri = "/photos/${username}")
 }
 
 fun FlickrSkraper.getTagPosts(tag: String): Flow<Post> {
-    return getPosts(path = "/photos/tags/${tag}")
+    return getPosts(uri = "/photos/tags/${tag}")
 }
 
 suspend fun FlickrSkraper.getUserPageInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/people/${username}")
+    return getPageInfo(uri = "/people/${username}")
 }

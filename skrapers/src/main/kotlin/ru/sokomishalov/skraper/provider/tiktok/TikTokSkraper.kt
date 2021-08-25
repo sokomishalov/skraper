@@ -38,8 +38,8 @@ class TikTokSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
-        val pageJson = getPagePropsJson(path = path)
+    override fun getPosts(uri: String): Flow<Post> = flow {
+        val pageJson = getPagePropsJson(path = uri)
 
         val rawPosts = pageJson
             ?.get("items")
@@ -74,8 +74,8 @@ class TikTokSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
-        val userJson = getPagePropsJson(path = path)?.get("userInfo")
+    override suspend fun getPageInfo(uri: String): PageInfo? {
+        val userJson = getPagePropsJson(path = uri)?.get("userInfo")
 
         return userJson?.run {
             PageInfo(

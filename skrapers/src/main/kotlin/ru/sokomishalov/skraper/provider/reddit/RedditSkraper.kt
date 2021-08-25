@@ -40,14 +40,14 @@ open class RedditSkraper @JvmOverloads constructor(
     override val client: SkraperClient = Skrapers.client
 ) : Skraper {
 
-    override fun getPosts(path: String): Flow<Post> = flow {
+    override fun getPosts(uri: String): Flow<Post> = flow {
         var nextPage: String? = null
 
         while (true) {
             val response = client.fetchJson(
                 HttpRequest(
                     url = BASE_URL.buildFullURL(
-                        path = "${path.removeSuffix("/")}.json",
+                        path = "${uri.removeSuffix("/")}.json",
                         queryParams = mapOf("limit" to DEFAULT_POSTS_BATCH, "after" to nextPage)
                     )
                 )
@@ -76,12 +76,12 @@ open class RedditSkraper @JvmOverloads constructor(
         }
     }
 
-    override suspend fun getPageInfo(path: String): PageInfo? {
+    override suspend fun getPageInfo(uri: String): PageInfo? {
         val response = client.fetchJson(
-            HttpRequest(url = BASE_URL.buildFullURL(path = "${path.removeSuffix("/")}/about.json"))
+            HttpRequest(url = BASE_URL.buildFullURL(path = "${uri.removeSuffix("/")}/about.json"))
         )
 
-        val isUser = path.removePrefix("/").startsWith("u")
+        val isUser = uri.removePrefix("/").startsWith("u")
 
         return response?.get("data")?.run {
             when {
@@ -111,7 +111,7 @@ open class RedditSkraper @JvmOverloads constructor(
         return when (media) {
             is Image -> client.fetchOpenGraphMedia(media)
             is Video -> {
-                getPosts(path = media.url.path)
+                getPosts(uri = media.url.path)
                     .firstOrNull()
                     ?.media
                     ?.firstOrNull()

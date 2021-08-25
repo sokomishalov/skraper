@@ -24,29 +24,29 @@ import ru.sokomishalov.skraper.model.Post
  */
 
 fun NinegagSkraper.getHotPosts(): Flow<Post> {
-    return getPosts(path = "/hot")
+    return getPosts(uri = "/hot")
 }
 
 fun NinegagSkraper.getTrendingPosts(): Flow<Post> {
-    return getPosts(path = "/trending")
+    return getPosts(uri = "/trending")
 }
 
 fun NinegagSkraper.getFreshPosts(): Flow<Post> {
-    return getPosts(path = "/fresh")
+    return getPosts(uri = "/fresh")
 }
 
 fun NinegagSkraper.getTopicHotPosts(topic: String): Flow<Post> {
-    return getPosts(path = "/${topic}/${"hot"}")
+    return getPosts(uri = "/${topic}/${"hot"}")
 }
 
 fun NinegagSkraper.getTopicFreshPosts(topic: String): Flow<Post> {
-    return getPosts(path = "/${topic}/${"fresh"}")
+    return getPosts(uri = "/${topic}/${"fresh"}")
 }
 
 fun NinegagSkraper.getTagPosts(tag: String): Flow<Post> {
-    return getPosts(path = "/tag/${tag}")
+    return getPosts(uri = "/tag/${tag}")
 }
 
 suspend fun NinegagSkraper.getTopicInfo(topic: String): PageInfo? {
-    return getPageInfo(path = "/${topic}/${""}")
+    return getPageInfo(uri = "/${topic}/${""}")
 }

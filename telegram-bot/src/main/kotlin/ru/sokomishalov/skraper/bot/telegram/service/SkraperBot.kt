@@ -58,7 +58,7 @@ class SkraperBot {
         if (supportedSkraper == null) return sendText(message, "Unsupported URL")
 
         // 3. try to either scrape posts and download attachments or just download attachment
-        val latestPost = runCatching {  supportedSkraper.getPosts(path = url.path).firstOrNull() }.getOrNull()
+        val latestPost = runCatching {  supportedSkraper.getPosts(uri = url.path).firstOrNull() }.getOrNull()
         val tmpDir = createTempDirectory("skraper-bot").toFile()
 
         return runCatching {

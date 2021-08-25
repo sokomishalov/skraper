@@ -29,7 +29,7 @@ class PinterestSkraperTest : SkraperTck() {
     private val topic: String = "meme"
 
     override fun `Check posts`() {
-        assertPosts { getPosts(path = "${path}/${topic}") }
+        assertPosts { getPosts(uri = "${path}/${topic}") }
     }
 
     @Test

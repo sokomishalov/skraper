@@ -88,12 +88,12 @@ abstract class SkraperTck {
 
     @Test
     open fun `Check posts`() {
-        assertPosts { getPosts(path = path) }
+        assertPosts { getPosts(uri = path) }
     }
 
     @Test
     open fun `Check page info`() {
-        assertPageInfo { getPageInfo(path = path) }
+        assertPageInfo { getPageInfo(uri = path) }
     }
 
     protected fun assertPosts(action: Skraper.() -> Flow<Post>) = runBlocking {
