@@ -53,7 +53,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
         val jsonMetadata = page?.readJsonMetadata()
 
-        val fieldName = if(path.startsWith(SEARCH_PREFIX)) "videoRenderer" else "gridVideoRenderer"
+        val fieldName = if (path.startsWith(SEARCH_PREFIX)) "videoRenderer" else "gridVideoRenderer"
 
         val rawPosts = jsonMetadata
             ?.findParents(fieldName)
@@ -184,9 +184,10 @@ open class YoutubeSkraper @JvmOverloads constructor(
             .split(":")
             .map { it.toLongOrNull() }
             .run {
-                val hours = getOrNull(0) ?: 0L
-                val minutes = getOrNull(1) ?: 0L
-                val seconds = getOrNull(2) ?: 0L
+                val hms = size == 3
+                val hours = if (hms) getOrNull(0) ?: 0L else 0
+                val minutes = getOrNull(if (hms) 1 else 0) ?: 0L
+                val seconds = getOrNull(if (hms) 2 else 1) ?: 0L
 
                 Duration.ofSeconds(seconds) + Duration.ofMinutes(minutes) + Duration.ofHours(hours)
             }

@@ -18,9 +18,13 @@
 package ru.sokomishalov.skraper.provider
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
+import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -37,6 +41,9 @@ import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 import java.nio.file.Files
+import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
 import java.util.*
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
@@ -56,6 +63,14 @@ abstract class SkraperTck {
         @JvmStatic
         private val mapper: ObjectMapper = JsonMapper().apply {
             findAndRegisterModules()
+            registerModule(SimpleModule().apply {
+                addSerializer(object : JsonSerializer<Duration>() {
+                    override fun handledType(): Class<Duration> = Duration::class.java
+                    override fun serialize(value: Duration, gen: JsonGenerator, serializers: SerializerProvider) {
+                        gen.writeString(ISO_LOCAL_TIME.format(LocalTime.of(0, 0) + value))
+                    }
+                })
+            })
             disable(WRITE_DATES_AS_TIMESTAMPS)
             setSerializationInclusion(NON_NULL)
         }
