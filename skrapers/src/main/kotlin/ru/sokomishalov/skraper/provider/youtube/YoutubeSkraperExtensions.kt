@@ -31,3 +31,7 @@ fun YoutubeSkraper.getUserPosts(username: String): Flow<Post> {
 suspend fun YoutubeSkraper.getUserInfo(username: String): PageInfo? {
     return getPageInfo(path = "/user/${username}")
 }
+
+fun YoutubeSkraper.getSearchPosts(keyword: String): Flow<Post> {
+    return getPosts(path = "/results?search_query=${keyword.replace(" ","+")}")
+}

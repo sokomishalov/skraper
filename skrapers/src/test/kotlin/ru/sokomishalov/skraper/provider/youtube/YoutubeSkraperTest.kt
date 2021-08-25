@@ -47,7 +47,7 @@ class YoutubeSkraperTest : SkraperTck() {
     }
 
     @Test
-    fun `Check search results`() {
-        assertPosts { skraper.getSearchResults("Nothing Else Matters") }
+    fun `Check search posts`() {
+        assertPosts { skraper.getSearchPosts("Nothing Else Matters") }
     }
 }

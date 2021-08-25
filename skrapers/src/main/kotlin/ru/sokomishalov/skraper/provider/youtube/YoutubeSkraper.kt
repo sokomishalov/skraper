@@ -53,9 +53,11 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
         val jsonMetadata = page?.readJsonMetadata()
 
+        val fieldName = if(path.startsWith(SEARCH_PREFIX)) "videoRenderer" else "gridVideoRenderer"
+
         val rawPosts = jsonMetadata
-            ?.findParents("gridVideoRenderer")
-            ?.map { it["gridVideoRenderer"] }
+            ?.findParents(fieldName)
+            ?.map { it[fieldName] }
             .orEmpty()
 
         emitBatch(rawPosts) {
@@ -203,43 +205,8 @@ open class YoutubeSkraper @JvmOverloads constructor(
             }
     }
 
-    fun getSearchResults(keyword: String): Flow<Post> = flow {
-        val page = getSearchResultsPage(keyword)
-
-        val jsonMetadata = page?.readJsonMetadata()
-
-        val rawPosts = jsonMetadata
-                ?.findParents("videoRenderer")
-                ?.map { it["videoRenderer"] }
-                .orEmpty()
-
-        emitBatch(rawPosts) {
-            Post(
-                    id = getString("videoId").orEmpty(),
-                    text = getString("title.runs.0.text"),
-                    publishedAt = getString("publishedTimeText")?.extractTimeAgo(),
-                    statistics = PostStatistics(
-                            views = getString("viewCountText.simpleText")?.substringBefore(" ")?.replace(",","")?.toIntOrNull(),
-                    ),
-                    media = extractVideos()
-            )
-        }
-    }
-
-    private suspend fun getSearchResultsPage(keyword: String): Document? {
-        return client.fetchDocument(
-                HttpRequest(
-                        url = BASE_URL.buildFullURL(
-                                path = SEARCH_PATH,
-                                queryParams = mapOf( "search_query" to keyword.replace(" ","+"), "gl" to "EN", "hl" to "en")
-                        ),
-                        headers = emptyMap()
-                )
-        )
-    }
-
     companion object {
         const val BASE_URL: String = "https://www.youtube.com"
-        const val SEARCH_PATH: String = "/results"
+        const val SEARCH_PREFIX: String = "/results"
     }
 }
