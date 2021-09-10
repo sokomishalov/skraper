@@ -15,7 +15,7 @@
 
     <properties>
         <reactor-netty.version>1.0.10</reactor-netty.version>
-        <logback.version>1.2.5</logback.version>
+        <logback.version>1.2.6</logback.version>
     </properties>
 
     <dependencies>
