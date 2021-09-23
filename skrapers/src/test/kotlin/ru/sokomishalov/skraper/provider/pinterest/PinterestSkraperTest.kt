@@ -28,6 +28,7 @@ class PinterestSkraperTest : SkraperTck() {
     private val username: String = "levato"
     private val topic: String = "meme"
 
+    @Test
     override fun `Check posts`() {
         assertPosts { getPosts(path = "${path}/${topic}") }
     }

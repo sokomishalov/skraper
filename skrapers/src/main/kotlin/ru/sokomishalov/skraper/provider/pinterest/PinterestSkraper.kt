@@ -103,7 +103,9 @@ open class PinterestSkraper @JvmOverloads constructor(
 
     private fun JsonNode?.extractFeed(): List<JsonNode> {
         return this
-            ?.getByPath("resourceResponses.1.response.data")
+            ?.getByPath("resources.BoardFeedResource")
+            ?.firstOrNull()
+            ?.get("data")
             ?.toList()
             .orEmpty()
     }
