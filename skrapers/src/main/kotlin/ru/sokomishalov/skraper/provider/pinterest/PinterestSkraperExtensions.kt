@@ -29,5 +29,5 @@ fun PinterestSkraper.getUserPosts(username: String, topic: String = ""): Flow<Po
 }
 
 suspend fun PinterestSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/${username}/${""}")
+    return getPageInfo(path = "/${username}")
 }

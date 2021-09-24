@@ -48,15 +48,26 @@ open class PinterestSkraper @JvmOverloads constructor(
 
         emitBatch(rawPosts) {
             Post(
-                id = extractPostId(),
-                text = extractPostText(),
-                publishedAt = extractPostPublishDate(),
+                id = getString("id").orEmpty(),
+                text = getString("description"),
+                publishedAt = getString("created_at")?.let { DATE_FORMATTER.parse(it, Instant::from) },
                 statistics = PostStatistics(
-                    likes = extractPostLikesCount(),
-                    reposts = extractPostRepostsCount(),
-                    comments = extractPostCommentsCount(),
+                    likes = getInt("aggregated_pin_data.aggregated_stats.saves"),
+                    reposts = getInt("repin_count"),
+                    comments = getInt("comment_count"),
                 ),
-                media = extractPostMediaItems()
+                media = when (val imageInfo = getByPath("images.orig")) {
+                    null -> getByPath("pin_thumbnail_urls")
+                        ?.mapNotNull { it.asText() }
+                        ?.map { Image(url = it) }
+                        .orEmpty()
+                    else -> listOf(Image(
+                        url = imageInfo.getString("url").orEmpty(),
+                        aspectRatio = imageInfo.run {
+                            getDouble("width") / getDouble("height")
+                        }
+                    ))
+                }
             )
         }
     }
@@ -64,22 +75,19 @@ open class PinterestSkraper @JvmOverloads constructor(
     override suspend fun getPageInfo(path: String): PageInfo? {
         val infoJsonNode = getUserJson(path = path)
 
-        val json = infoJsonNode
-            ?.get("resourceResponses")
-            ?.firstOrNull()
-            ?.getByPath("response.data")
+        val info = infoJsonNode.extractInfo()
 
-        return json?.run {
+        return info?.run {
             PageInfo(
-                nick = getString("profile.username"),
-                name = getString("profile.full_name"),
-                description = getString("profile.about"),
+                nick = getFirstByPath("profile.username", "owner.username")?.asText().orEmpty(),
+                name = getFirstByPath("profile.full_name", "owner.full_name")?.asText(),
+                description = getFirstByPath("profile.about", "description")?.asText(),
                 statistics = PageStatistics(
-                    posts = getInt("profile.pin_count"),
-                    followers = getInt("profile.follower_count"),
-                    following = getInt("profile.following_count"),
+                    posts = getFirstByPath("profile.pin_count", "pin_count")?.asInt(),
+                    followers = getFirstByPath("profile.follower_count", "follower_count")?.asInt(),
+                    following = getFirstByPath("profile.following_count")?.asInt(),
                 ),
-                avatar = extractLogo()
+                avatar = getFirstByPath("owner.image_xlarge_url", "owner.image_medium_url", "owner.image_small_url", "user.image_xlarge_url")?.asText()?.toImage()
             )
         }
     }
@@ -110,52 +118,11 @@ open class PinterestSkraper @JvmOverloads constructor(
             .orEmpty()
     }
 
-    private fun JsonNode.extractPostId(): String {
-        return getString("id").orEmpty()
-    }
-
-    private fun JsonNode.extractPostText(): String? {
-        return getString("description")
-    }
-
-    private fun JsonNode.extractPostPublishDate(): Instant? {
-        return getString("created_at")?.let { DATE_FORMATTER.parse(it, Instant::from) }
-    }
-
-    private fun JsonNode.extractPostLikesCount(): Int? {
-        return getInt("aggregated_pin_data.aggregated_stats.saves")
-    }
-
-    private fun JsonNode.extractPostCommentsCount(): Int? {
-        return getInt("comment_count")
-    }
-
-    private fun JsonNode.extractPostRepostsCount(): Int? {
-        return getInt("repin_count")
-    }
-
-    @Suppress("MoveVariableDeclarationIntoWhen")
-    private fun JsonNode.extractPostMediaItems(): List<Media> {
-        val imageInfo = getByPath("images.orig")
-        return when (imageInfo) {
-            null -> getByPath("pin_thumbnail_urls")
-                ?.mapNotNull { it.asText() }
-                ?.map { Image(url = it) }
-                .orEmpty()
-            else -> listOf(Image(
-                url = imageInfo.getString("url").orEmpty(),
-                aspectRatio = imageInfo.run {
-                    getDouble("width") / getDouble("height")
-                }
-            ))
-        }
-    }
-
-    private fun JsonNode?.extractLogo(): Image? {
+    private fun JsonNode?.extractInfo(): JsonNode? {
         return this
-            ?.getFirstByPath("owner.image_xlarge_url","owner.image_medium_url","owner.image_small_url","user.image_xlarge_url")
-            ?.asText()
-            ?.toImage()
+            ?.getByPath("resources.BoardResource")
+            ?.firstOrNull()
+            ?.get("data")
     }
 
     companion object {
