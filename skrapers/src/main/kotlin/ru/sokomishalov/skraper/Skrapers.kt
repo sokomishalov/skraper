@@ -51,7 +51,7 @@ object Skrapers {
 
     var client: SkraperClient = initClient()
     var providers: List<Skraper> = initSkrapers()
-    var ffmpegRunner: FfmpegRunner = FfmpegCliRunner()
+    var ffmpegRunner: FfmpegRunner = initFfmpegRunner()
 
     /**
      * @return list of all available skrapers
@@ -168,9 +168,7 @@ object Skrapers {
     }
 
     private fun initSkrapers(): List<Skraper> {
-        val spiSkrapers = ServiceLoader
-            .load(Skraper::class.java)
-            .toList()
+        val spiSkrapers = spi<Skraper>()
 
         val knownSkrapers = listOf(
             FacebookSkraper(),
@@ -194,9 +192,7 @@ object Skrapers {
     }
 
     private fun initClient(): SkraperClient {
-        val spiClient = ServiceLoader
-            .load(SkraperClient::class.java)
-            .firstOrNull()
+        val spiClient = spi<SkraperClient>().firstOrNull()
 
         return when {
             spiClient != null -> spiClient
@@ -206,4 +202,11 @@ object Skrapers {
             else -> DefaultBlockingSkraperClient
         }
     }
+
+    private fun initFfmpegRunner(): FfmpegRunner {
+        val spiFfmpegRunner = spi<FfmpegRunner>().firstOrNull()
+        return spiFfmpegRunner ?: FfmpegCliRunner()
+    }
+
+    private inline fun <reified T> spi(): List<T> = ServiceLoader.load(T::class.java)?.toList().orEmpty()
 }
