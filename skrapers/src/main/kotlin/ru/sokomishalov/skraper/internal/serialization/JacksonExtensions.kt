@@ -33,12 +33,12 @@ import com.fasterxml.jackson.databind.node.MissingNode
 
 @PublishedApi
 internal inline fun ByteArray?.readJsonNodes(): JsonNode? {
-    return JSON_MAPPER.readTree(this)
+    return this?.let { JSON_MAPPER.readTree(it) }
 }
 
 @PublishedApi
 internal inline fun String?.readJsonNodes(): JsonNode? {
-    return JSON_MAPPER.readTree(this)
+    return this?.let { JSON_MAPPER.readTree(it) }
 }
 
 internal fun JsonNode.getByKeyContaining(keyPart: String): JsonNode? {
