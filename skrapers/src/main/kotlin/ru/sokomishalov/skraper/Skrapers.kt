@@ -32,6 +32,7 @@ import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
 import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
 import ru.sokomishalov.skraper.provider.ifunny.IFunnySkraper
+import ru.sokomishalov.skraper.provider.imgur.ImgurSkraper
 import ru.sokomishalov.skraper.provider.instagram.InstagramSkraper
 import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
 import ru.sokomishalov.skraper.provider.pikabu.PikabuSkraper
@@ -185,7 +186,8 @@ object Skrapers {
             TumblrSkraper(),
             IFunnySkraper(),
             VkSkraper(),
-            PikabuSkraper()
+            PikabuSkraper(),
+            ImgurSkraper()
         )
 
         return spiSkrapers + knownSkrapers
