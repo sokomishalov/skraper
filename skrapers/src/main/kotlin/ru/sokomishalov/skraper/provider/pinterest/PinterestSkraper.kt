@@ -18,6 +18,7 @@ package ru.sokomishalov.skraper.provider.pinterest
 import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
@@ -25,6 +26,9 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttribute
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.jsoup.getMetaPropertyMap
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -42,53 +46,86 @@ open class PinterestSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val infoJsonNode = getUserJson(path = path)
+        val page = fetchPage(path = path)
+        val infoJsonNode = page.extractUserJson()
 
-        val rawPosts = infoJsonNode.extractFeed()
+        if (infoJsonNode != null) {
+            val rawPosts = infoJsonNode.extractFeed()
 
-        emitBatch(rawPosts) {
-            Post(
-                id = getString("id").orEmpty(),
-                text = getString("description"),
-                publishedAt = getString("created_at")?.let { DATE_FORMATTER.parse(it, Instant::from) },
-                statistics = PostStatistics(
-                    likes = getInt("aggregated_pin_data.aggregated_stats.saves"),
-                    reposts = getInt("repin_count"),
-                    comments = getInt("comment_count"),
-                ),
-                media = when (val imageInfo = getByPath("images.orig")) {
-                    null -> getByPath("pin_thumbnail_urls")
-                        ?.mapNotNull { it.asText() }
-                        ?.map { Image(url = it) }
-                        .orEmpty()
-                    else -> listOf(Image(
-                        url = imageInfo.getString("url").orEmpty(),
-                        aspectRatio = imageInfo.run {
-                            getDouble("width") / getDouble("height")
-                        }
-                    ))
-                }
-            )
+            emitBatch(rawPosts) {
+                Post(
+                    id = getString("id").orEmpty(),
+                    text = getString("description"),
+                    publishedAt = getString("created_at")?.let { DATE_FORMATTER.parse(it, Instant::from) },
+                    statistics = PostStatistics(
+                        likes = getInt("aggregated_pin_data.aggregated_stats.saves"),
+                        reposts = getInt("repin_count"),
+                        comments = getInt("comment_count"),
+                    ),
+                    media = when (val imageInfo = getByPath("images.orig")) {
+                        null -> getByPath("pin_thumbnail_urls")
+                            ?.mapNotNull { it.asText() }
+                            ?.map { Image(url = it) }
+                            .orEmpty()
+                        else -> listOf(Image(
+                            url = imageInfo.getString("url").orEmpty(),
+                            aspectRatio = imageInfo.run { getDouble("width") / getDouble("height") }
+                        ))
+                    }
+                )
+            }
+        } else {
+            val rawPosts = page?.getElementsByAttributeValue("data-test-id", "pin").orEmpty()
+            emitBatch(rawPosts) {
+                Post(
+                    id = attr("data-test-pin-id").orEmpty(),
+                    text = getFirstElementByAttribute("data-test-id")?.getFirstElementByTag("span")?.ownText(),
+                    media = listOf(
+                        Image(
+                            url = getFirstElementByTag("img")?.attr("src").orEmpty()
+                        )
+                    )
+                )
+            }
         }
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
-        val infoJsonNode = getUserJson(path = path)
+        val page = fetchPage(path = path)
+        val infoJsonNode = page.extractUserJson()
 
         val info = infoJsonNode.extractInfo()
 
-        return info?.run {
-            PageInfo(
-                nick = getFirstByPath("profile.username", "owner.username")?.asText().orEmpty(),
-                name = getFirstByPath("profile.full_name", "owner.full_name")?.asText(),
-                description = getFirstByPath("profile.about", "description")?.asText(),
-                statistics = PageStatistics(
-                    posts = getFirstByPath("profile.pin_count", "pin_count")?.asInt(),
-                    followers = getFirstByPath("profile.follower_count", "follower_count")?.asInt(),
-                    following = getFirstByPath("profile.following_count")?.asInt(),
-                ),
-                avatar = getFirstByPath("owner.image_xlarge_url", "owner.image_medium_url", "owner.image_small_url", "user.image_xlarge_url")?.asText()?.toImage()
-            )
+        return when {
+            info != null -> {
+                with(info) {
+                    PageInfo(
+                        nick = getFirstByPath("profile.username", "owner.username")?.asText().orEmpty(),
+                        name = getFirstByPath("profile.full_name", "owner.full_name")?.asText(),
+                        description = getFirstByPath("profile.about", "description")?.asText(),
+                        statistics = PageStatistics(
+                            posts = getFirstByPath("profile.pin_count", "pin_count")?.asInt(),
+                            followers = getFirstByPath("profile.follower_count", "follower_count")?.asInt(),
+                            following = getFirstByPath("profile.following_count")?.asInt(),
+                        ),
+                        avatar = getFirstByPath("owner.image_xlarge_url", "owner.image_medium_url", "owner.image_small_url", "user.image_xlarge_url")?.asText()?.toImage()
+                    )
+                }
+            }
+            else -> {
+                val meta = page.getMetaPropertyMap().ifEmpty { return null }
+                PageInfo(
+                    nick = meta["og:title"]?.substringAfter("(")?.substringBefore(")"),
+                    name = meta["og:title"]?.substringBefore("(")?.substringBeforeLast(" "),
+                    description = meta["og:description"]?.substringAfter("| "),
+                    statistics = PageStatistics(
+                        posts = meta["pinterestapp:pins"]?.toIntOrNull(),
+                        followers = meta["pinterestapp:followers"]?.toIntOrNull(),
+                        following = meta["pinterestapp:following"]?.toIntOrNull(),
+                    ),
+                    avatar = meta["og:image"]?.toImage()
+                )
+            }
         }
     }
 
@@ -103,9 +140,12 @@ open class PinterestSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun getUserJson(path: String): JsonNode? {
-        val webPage = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
-        val infoJson = webPage?.getElementById("initial-state")?.html()
+    private suspend fun fetchPage(path: String): Document? {
+        return client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
+    }
+
+    private fun Document?.extractUserJson(): JsonNode? {
+        val infoJson = this?.getElementById("initial-state")?.html()
         return infoJson.readJsonNodes()
     }
 

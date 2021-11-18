@@ -53,7 +53,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
         val jsonMetadata = page?.readJsonMetadata()
 
-        val fieldName = if (path.startsWith(SEARCH_PREFIX)) "videoRenderer" else "gridVideoRenderer"
+        val fieldName = if (path.startsWith("/results")) "videoRenderer" else "gridVideoRenderer"
 
         val rawPosts = jsonMetadata
             ?.findParents(fieldName)
@@ -208,6 +208,5 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     companion object {
         const val BASE_URL: String = "https://www.youtube.com"
-        const val SEARCH_PREFIX: String = "/results"
     }
 }
