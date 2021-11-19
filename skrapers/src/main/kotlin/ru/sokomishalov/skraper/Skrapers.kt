@@ -142,7 +142,7 @@ object Skrapers {
                 File(destFileMp4Path)
             }
 
-            // otherwise try to download as is
+            // otherwise, try to download as is
             else -> {
                 providers.random().client.download(HttpRequest(url = resolved.url), destFile = destFile)
                 destFile
