@@ -14,7 +14,7 @@
     <version>${revision}</version>
 
     <properties>
-        <spring-boot.version>2.5.6</spring-boot.version>
+        <spring-boot.version>2.6.0</spring-boot.version>
         <telegram-bots.version>5.4.0.1</telegram-bots.version>
         <logbook.version>2.14.0</logbook.version>
         <sokomishalov-commons.version>1.2.1</sokomishalov-commons.version>
