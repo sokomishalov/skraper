@@ -18,11 +18,11 @@ docker run -it --rm -e CHANGELOG_GITHUB_TOKEN -v "$(pwd)":/usr/local/src/your-ap
     -u sokomishalov \
     -p skraper \
     --unreleased false \
-    --future-release $NEW_VERSION
+    --future-release "$NEW_VERSION"
 git add CHANGELOG.md
 
 # deploy to maven central
-./mvnw clean deploy dokka:javadocJar -P ossrh -D skipTests
+./mvnw -P ossrh -D skipTests clean dokka:javadocJar deploy
 
 # commit changes
 git commit -m "$NEW_VERSION - new release"
