@@ -95,14 +95,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
-                <configuration>
-                    <additionalProperties>
-                        <encoding.source>UTF-8</encoding.source>
-                        <encoding.reporting>UTF-8</encoding.reporting>
-                        <java.source>${java.version}</java.source>
-                        <java.target>${java.version}</java.target>
-                    </additionalProperties>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>

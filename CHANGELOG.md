@@ -1,5 +1,55 @@
 # Changelog
 
+## [0.8.1](https://github.com/sokomishalov/skraper/tree/0.8.1) (2021-11-24)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.0...0.8.1)
+
+**Closed issues:**
+
+- Implement imgur skraper [\#223](https://github.com/sokomishalov/skraper/issues/223)
+- 0.8.0 Roadmap [\#152](https://github.com/sokomishalov/skraper/issues/152)
+
+**Merged pull requests:**
+
+- Bump dokka-maven-plugin from 1.5.31 to 1.6.0 [\#229](https://github.com/sokomishalov/skraper/pull/229) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump okhttp from 4.9.2 to 4.9.3 [\#228](https://github.com/sokomishalov/skraper/pull/228) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.5.6 to 2.6.0 [\#227](https://github.com/sokomishalov/skraper/pull/227) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 5.4.0 to 5.4.0.1 [\#222](https://github.com/sokomishalov/skraper/pull/222) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.5.31 to 1.6.0 [\#221](https://github.com/sokomishalov/skraper/pull/221) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.12 to 5.3.13 [\#220](https://github.com/sokomishalov/skraper/pull/220) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.2.6 to 1.2.7 [\#219](https://github.com/sokomishalov/skraper/pull/219) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.12 to 1.0.13 [\#218](https://github.com/sokomishalov/skraper/pull/218) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 5.3.0 to 5.4.0 [\#217](https://github.com/sokomishalov/skraper/pull/217) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 1.6.4 to 1.6.5 [\#216](https://github.com/sokomishalov/skraper/pull/216) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.11 to 5.3.12 [\#215](https://github.com/sokomishalov/skraper/pull/215) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.5.5 to 2.5.6 [\#214](https://github.com/sokomishalov/skraper/pull/214) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.10 to 5.3.11 [\#213](https://github.com/sokomishalov/skraper/pull/213) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.11 to 1.0.12 [\#212](https://github.com/sokomishalov/skraper/pull/212) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logbook-spring-boot-webflux-autoconfigure from 2.13.0 to 2.14.0 [\#211](https://github.com/sokomishalov/skraper/pull/211) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.5.30 to 1.5.31 [\#210](https://github.com/sokomishalov/skraper/pull/210) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 1.6.3 to 1.6.4 [\#209](https://github.com/sokomishalov/skraper/pull/209) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump okhttp from 4.9.1 to 4.9.2 [\#208](https://github.com/sokomishalov/skraper/pull/208) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jsoup from 1.14.2 to 1.14.3 [\#207](https://github.com/sokomishalov/skraper/pull/207) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jackson.version from 2.12.5 to 2.13.0 [\#206](https://github.com/sokomishalov/skraper/pull/206) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.5.30 to 1.5.31 [\#205](https://github.com/sokomishalov/skraper/pull/205) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.5.0 to 1.5.30 [\#204](https://github.com/sokomishalov/skraper/pull/204) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.9 to 5.3.10 [\#203](https://github.com/sokomishalov/skraper/pull/203) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.10 to 1.0.11 [\#202](https://github.com/sokomishalov/skraper/pull/202) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.2.5 to 1.2.6 [\#201](https://github.com/sokomishalov/skraper/pull/201) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump maven-javadoc-plugin from 3.3.0 to 3.3.1 [\#200](https://github.com/sokomishalov/skraper/pull/200) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logbook-spring-boot-webflux-autoconfigure from 2.12.0 to 2.13.0 [\#199](https://github.com/sokomishalov/skraper/pull/199) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlinx-coroutines-reactive from 1.5.1 to 1.5.2 [\#198](https://github.com/sokomishalov/skraper/pull/198) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jackson.version from 2.12.4 to 2.12.5 [\#197](https://github.com/sokomishalov/skraper/pull/197) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 1.6.2 to 1.6.3 [\#196](https://github.com/sokomishalov/skraper/pull/196) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.5.21 to 1.5.30 [\#195](https://github.com/sokomishalov/skraper/pull/195) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Added Search feature to Youtube Scraper [\#194](https://github.com/sokomishalov/skraper/pull/194) ([OmarELRayes](https://github.com/OmarELRayes))
+- Bump spring-boot.version from 2.5.3 to 2.5.4 [\#193](https://github.com/sokomishalov/skraper/pull/193) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logbook-spring-boot-webflux-autoconfigure from 2.11.0 to 2.12.0 [\#192](https://github.com/sokomishalov/skraper/pull/192) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jsoup from 1.14.1 to 1.14.2 [\#191](https://github.com/sokomishalov/skraper/pull/191) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.9 to 1.0.10 [\#190](https://github.com/sokomishalov/skraper/pull/190) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 1.6.1 to 1.6.2 [\#189](https://github.com/sokomishalov/skraper/pull/189) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.2.4 to 1.2.5 [\#188](https://github.com/sokomishalov/skraper/pull/188) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.8.0](https://github.com/sokomishalov/skraper/tree/0.8.0) (2021-07-23)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.7.0...0.8.0)
@@ -319,15 +369,15 @@
 
 ## [0.0.8](https://github.com/sokomishalov/skraper/tree/0.0.8) (2020-01-30)
 
-[Full Changelog](https://github.com/sokomishalov/skraper/compare/0...0.0.8)
-
-## [0](https://github.com/sokomishalov/skraper/tree/0) (2020-01-28)
-
-[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.7...0)
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.7...0.0.8)
 
 ## [0.0.7](https://github.com/sokomishalov/skraper/tree/0.0.7) (2020-01-28)
 
-[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.6...0.0.7)
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0...0.0.7)
+
+## [0](https://github.com/sokomishalov/skraper/tree/0) (2020-01-28)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.6...0)
 
 ## [0.0.6](https://github.com/sokomishalov/skraper/tree/0.0.6) (2020-01-20)
 
@@ -343,15 +393,15 @@
 
 ## [0.0.3](https://github.com/sokomishalov/skraper/tree/0.0.3) (2020-01-17)
 
-[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.2...0.0.3)
-
-## [0.0.2](https://github.com/sokomishalov/skraper/tree/0.0.2) (2020-01-17)
-
-[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.1.1...0.0.2)
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.1.1...0.0.3)
 
 ## [0.0.1.1](https://github.com/sokomishalov/skraper/tree/0.0.1.1) (2020-01-17)
 
-[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.1...0.0.1.1)
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.2...0.0.1.1)
+
+## [0.0.2](https://github.com/sokomishalov/skraper/tree/0.0.2) (2020-01-17)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.0.1...0.0.2)
 
 ## [0.0.1](https://github.com/sokomishalov/skraper/tree/0.0.1) (2020-01-16)
 
