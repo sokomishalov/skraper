@@ -37,9 +37,9 @@ git push origin master "$NEW_VERSION"
 ./mvnw build-helper:parse-version versions:set-property \
     -DversionString=\${revision} \
     -Dproperty=revision \
-    -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT -s settings-nexus-new.xml
+    -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
 
-NEW_SNAPSHOT=$(mvn help:evaluate -Dexpression=revision -q -DforceStdout -s settings-nexus-new.xml)
+NEW_SNAPSHOT=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
 
 git add pom.xml
 git commit -m "$NEW_SNAPSHOT - new development version"
