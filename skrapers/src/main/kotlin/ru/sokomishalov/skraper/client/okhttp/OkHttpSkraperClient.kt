@@ -83,7 +83,7 @@ class OkHttpSkraperClient(
         return Request
             .Builder()
             .url(url)
-            .headers(Headers.headersOf(*(headers.flatMap { listOf(it.key, it.value) }.toTypedArray())))
+            .headers(Headers.headersOf(*(headers.flatMap { (k, v) -> listOf(k, v) }.toTypedArray())))
             .method(
                 method = method.name,
                 body = body?.createRequest(contentType = headers["Content-Type"])
@@ -95,8 +95,7 @@ class OkHttpSkraperClient(
         return suspendCancellableCoroutine { continuation ->
             enqueue(object : Callback {
                 override fun onResponse(call: Call, response: Response) = continuation.resume(response) { }
-                override fun onFailure(call: Call, e: IOException) =
-                    if (continuation.isCancelled.not()) continuation.resumeWithException(e) else Unit
+                override fun onFailure(call: Call, e: IOException) = if (continuation.isCancelled.not()) continuation.resumeWithException(e) else Unit
             })
 
             continuation.invokeOnCancellation {
@@ -109,7 +108,7 @@ class OkHttpSkraperClient(
         return object : RequestBody() {
             override fun contentType(): MediaType? = contentType?.toMediaType()
             override fun contentLength(): Long = this@createRequest.size.toLong()
-            override fun writeTo(sink: BufferedSink) = sink.write(this@createRequest).run { Unit }
+            override fun writeTo(sink: BufferedSink) = sink.write(this@createRequest).run { }
         }
     }
 
