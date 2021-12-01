@@ -134,14 +134,14 @@ Maven:
 <dependency>
     <groupId>ru.sokomishalov.skraper</groupId>
     <artifactId>skrapers</artifactId>
-    <version>0.8.0</version>
+    <version>0.8.1</version>
 </dependency>
 ```
 
 Gradle kotlin dsl:
 
 ```kotlin
-implementation("ru.sokomishalov.skraper:skrapers:0.8.0")
+implementation("ru.sokomishalov.skraper:skrapers:0.8.1")
 ```
 
 ## Usage

@@ -31,6 +31,7 @@ import ru.sokomishalov.skraper.model.Post
 import java.io.File
 import java.time.LocalDateTime.now
 import java.time.format.DateTimeFormatter.ofPattern
+import java.util.*
 import java.util.concurrent.Executors
 import kotlin.system.exitProcess
 import kotlin.text.Charsets.UTF_8
@@ -38,7 +39,7 @@ import kotlin.text.Charsets.UTF_8
 fun main(args: Array<String>) = mainBody(columns = 100) {
     val parsedArgs = ArgParser(args = args.ifEmpty { arrayOf("--help") }).parseInto(::Args)
 
-    with(t) { println("${green("Skraper")} ${magenta("v.0.8.0")} started") }
+    with(t) { println("${green("Skraper")} ${extractCurrentVersion()?.let { magenta(it) }} started") }
 
     val posts = runBlocking {
         parsedArgs
@@ -111,6 +112,14 @@ private fun List<Post>.persistMeta(parsedArgs: Args) {
         .writeText(text = content, charset = UTF_8)
 
     with(t) { println(cyan(fileToWrite.path)) }
+}
+
+private fun extractCurrentVersion(): String? {
+    return runCatching {
+        Properties()
+            .apply { load(ClassLoader.getSystemResourceAsStream("git.properties")) }
+            .getProperty("git.build.version")
+    }.getOrNull()
 }
 
 @JvmField
