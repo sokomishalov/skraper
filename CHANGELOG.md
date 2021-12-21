@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.2](https://github.com/sokomishalov/skraper/tree/0.8.2) (2021-12-21)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.1...0.8.2)
+
+**Merged pull requests:**
+
+- Bump telegrambots-spring-boot-starter from 5.4.0.1 to 5.5.0 [\#233](https://github.com/sokomishalov/skraper/pull/233) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.6.0 to 2.6.1 [\#231](https://github.com/sokomishalov/skraper/pull/231) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 1.6.4 to 1.6.6 [\#230](https://github.com/sokomishalov/skraper/pull/230) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.8.1](https://github.com/sokomishalov/skraper/tree/0.8.1) (2021-11-24)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.0...0.8.1)
