@@ -44,3 +44,4 @@ NEW_SNAPSHOT=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
 git add pom.xml
 git commit -m "$NEW_SNAPSHOT - new development version"
 git push origin master
+rm pom.xml.versionsBackup
