@@ -248,7 +248,7 @@ open class TwitchSkraper @JvmOverloads constructor(
         return this
             ?.html()
             ?.let {
-                "(?<=(\"Client-ID\":\"))(.*?)(?=\",\")"
+                "(?<=(clientId=\"))(.*?)(?=\")"
                     .toRegex()
                     .find(it)
                     ?.value
