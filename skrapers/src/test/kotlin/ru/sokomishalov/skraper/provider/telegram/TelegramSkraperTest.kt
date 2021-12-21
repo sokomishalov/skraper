@@ -26,7 +26,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 class TelegramSkraperTest : SkraperTck() {
     override val skraper: TelegramSkraper = TelegramSkraper(client = client)
     override val path: String = "/memes"
-    private val channel: String = "trapandmouse"
+    private val channel: String = "meduzalive"
     private val username: String = "sokomishalov"
 
     @Test

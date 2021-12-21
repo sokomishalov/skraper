@@ -66,9 +66,7 @@ abstract class SkraperTck {
             registerModule(SimpleModule().apply {
                 addSerializer(object : JsonSerializer<Duration>() {
                     override fun handledType(): Class<Duration> = Duration::class.java
-                    override fun serialize(value: Duration, gen: JsonGenerator, serializers: SerializerProvider) {
-                        gen.writeString(ISO_LOCAL_TIME.format(LocalTime.of(0, 0) + value))
-                    }
+                    override fun serialize(value: Duration, gen: JsonGenerator, serializers: SerializerProvider) = gen.writeString(ISO_LOCAL_TIME.format(LocalTime.of(0, 0) + value))
                 })
             })
             disable(WRITE_DATES_AS_TIMESTAMPS)
