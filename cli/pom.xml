@@ -16,7 +16,7 @@
     <properties>
         <mordant.version>1.2.1</mordant.version>
         <argparser.version>2.0.7</argparser.version>
-        <maven.skip.deploy>true</maven.skip.deploy>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>

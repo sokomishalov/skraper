@@ -18,6 +18,7 @@
         <telegram-bots.version>5.5.0</telegram-bots.version>
         <logbook.version>2.14.0</logbook.version>
         <sokomishalov-commons.version>1.2.1</sokomishalov-commons.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>

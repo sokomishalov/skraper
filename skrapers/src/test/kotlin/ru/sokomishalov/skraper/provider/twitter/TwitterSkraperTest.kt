@@ -40,8 +40,6 @@ class TwitterSkraperTest : SkraperTck() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Video("https://twitter.com/SokoMishaLov/status/1145715899384643596"))
-        assertMediaResolved(Video("https://twitter.com/SokoMishaLov/status/1145720044917338112"))
         assertMediaResolved(Image("https://twitter.com/memes/status/1063195947725975555/photo/1"))
     }
 
