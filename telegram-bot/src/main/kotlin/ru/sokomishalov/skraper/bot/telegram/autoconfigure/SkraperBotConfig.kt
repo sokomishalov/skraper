@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.sokomishalov.skraper.bot.telegram.config
+package ru.sokomishalov.skraper.bot.telegram.autoconfigure
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
-import ru.sokomishalov.commons.core.serialization.OBJECT_MAPPER
-import ru.sokomishalov.commons.spring.config.CustomWebFluxConfigurer
-import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
 
 
 /**
@@ -30,9 +24,4 @@ import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
  */
 @Configuration
 @EnableConfigurationProperties(BotProperties::class)
-class SkraperBotConfig : CustomWebFluxConfigurer() {
-
-    @Bean
-    @Primary
-    fun mapper(): ObjectMapper = OBJECT_MAPPER
-}
+class SkraperBotConfig

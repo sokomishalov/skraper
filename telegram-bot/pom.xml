@@ -17,7 +17,6 @@
         <spring-boot.version>2.6.2</spring-boot.version>
         <telegram-bots.version>5.5.0</telegram-bots.version>
         <logbook.version>2.14.0</logbook.version>
-        <sokomishalov-commons.version>1.2.1</sokomishalov-commons.version>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
@@ -39,15 +38,22 @@
         </dependency>
 
         <dependency>
-            <groupId>ru.sokomishalov.commons</groupId>
-            <artifactId>commons-spring</artifactId>
-            <version>${sokomishalov-commons.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-spring-boot-starter</artifactId>
             <version>${telegram-bots.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
         <dependency>

@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.objects.Update
-import ru.sokomishalov.commons.core.common.unit
 import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
 
 /**
@@ -41,5 +40,5 @@ class LongPollingSkraperBot(
 ) : TelegramLongPollingBot() {
     override fun getBotUsername(): String = botProperties.username
     override fun getBotToken(): String = botProperties.token
-    override fun onUpdateReceived(update: Update): Unit = GlobalScope.launch(IO) { with(bot) { receive(update) }.also { send(it) } }.unit()
+    override fun onUpdateReceived(update: Update): Unit = GlobalScope.launch(IO) { with(bot) { receive(update) }.also { send(it) } }.let { }
 }

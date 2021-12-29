@@ -21,6 +21,7 @@
 package ru.sokomishalov.skraper.bot.telegram.service
 
 import kotlinx.coroutines.flow.firstOrNull
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.*
@@ -29,7 +30,6 @@ import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaVideo
-import ru.sokomishalov.commons.core.log.Loggable
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.internal.net.path
@@ -92,7 +92,7 @@ class SkraperBot {
                 }
             }
         }.getOrElse {
-            logError(it)
+            logger.error(it.message, it)
             saySorry(message)
         }
     }
@@ -171,7 +171,8 @@ class SkraperBot {
         return sendText(message, "Unable to download media for this link, sorry :(")
     }
 
-    companion object : Loggable {
+    companion object {
+        private val logger = LoggerFactory.getLogger(SkraperBot::class.java)
         private val URL_REGEX: Regex = "(?:^|[\\W])((ht)tp(s?)://|www\\.)(([\\w\\-]+\\.)+?([\\w\\-.~]+/?)*[\\p{Alnum}.,%_=?&#\\-+()\\[\\]*$~@!:/{};']*)".toRegex(setOf(IGNORE_CASE, MULTILINE, DOT_MATCHES_ALL))
     }
 }
