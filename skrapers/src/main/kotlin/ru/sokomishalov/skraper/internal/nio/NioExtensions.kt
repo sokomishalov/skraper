@@ -57,8 +57,7 @@ internal inline fun <T> File.useChannel(block: (AsynchronousFileChannel) -> T): 
 }
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-private object PositionedCompletionHandler :
-    CompletionHandler<Int, Triple<AtomicLong, Mutex, CancellableContinuation<Int>>> {
+private object PositionedCompletionHandler : CompletionHandler<Int, Triple<AtomicLong, Mutex, CancellableContinuation<Int>>> {
     override fun completed(bytesWritten: Int, attachment: Triple<AtomicLong, Mutex, CancellableContinuation<Int>>) {
         val (position, mutex, cont) = attachment
         position.addAndGet(bytesWritten.toLong())

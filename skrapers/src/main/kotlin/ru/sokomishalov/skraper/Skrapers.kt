@@ -27,7 +27,6 @@ import ru.sokomishalov.skraper.client.spring.SpringReactiveSkraperClient
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegCliRunner
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegRunner
 import ru.sokomishalov.skraper.internal.net.path
-import ru.sokomishalov.skraper.internal.reflection.classPathCheck
 import ru.sokomishalov.skraper.model.*
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
 import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
@@ -209,4 +208,6 @@ object Skrapers {
     }
 
     private inline fun <reified T> spi(): List<T> = ServiceLoader.load(T::class.java)?.toList().orEmpty()
+
+    private fun classPathCheck(`class`: String): Boolean = runCatching { Class.forName(`class`) }.isSuccess
 }
