@@ -42,7 +42,7 @@ class TikTokSkraper @JvmOverloads constructor(
         val pageJson = getPagePropsJson(path = path)
 
         val rawPosts = pageJson
-            ?.get("items")
+            ?.get("ItemModule")
             ?.toList()
             .orEmpty()
 
@@ -75,19 +75,22 @@ class TikTokSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
-        val userJson = getPagePropsJson(path = path)?.get("userInfo")
+        val userModuleJson = getPagePropsJson(path = path)?.get("UserModule")
+
+        val userJson = userModuleJson?.get("users")?.firstOrNull()
+        val statsJson = userModuleJson?.get("stats")?.firstOrNull()
 
         return userJson?.run {
             PageInfo(
-                name = getString("user.uniqueId"),
-                nick = getString("user.nickname").orEmpty(),
-                description = getString("user.signature"),
+                name = getString("uniqueId"),
+                nick = getString("nickname").orEmpty(),
+                description = getString("signature"),
                 statistics = PageStatistics(
-                    posts = getInt("stats.videoCount"),
-                    followers = getInt("stats.followerCount"),
-                    following = getInt("stats.followingCount"),
+                    posts = statsJson?.getInt("videoCount"),
+                    followers = statsJson?.getInt("followerCount"),
+                    following = statsJson?.getInt("followingCount"),
                 ),
-                avatar = getFirstByPath("user.avatarLarger", "user.avatarMedium", "user.avatarThumb")?.asText()?.toImage()
+                avatar = getFirstByPath("avatarLarger", "avatarMedium", "avatarThumb")?.asText()?.toImage()
             )
         }
     }
@@ -111,12 +114,12 @@ class TikTokSkraper @JvmOverloads constructor(
             )
         )
 
-        val json = document
-            ?.getElementById("__NEXT_DATA__")
+        return document
+            ?.getElementById("sigi-persisted-data")
             ?.html()
+            ?.substringAfter("window['SIGI_STATE']=")
+            ?.substringBefore(";window['SIGI_RETRY']")
             ?.readJsonNodes()
-
-        return json?.getByPath("props.pageProps")
     }
 
     companion object {
