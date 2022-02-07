@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.8.3](https://github.com/sokomishalov/skraper/tree/0.8.3) (2022-02-07)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.2...0.8.3)
+
+**Merged pull requests:**
+
+- Bump telegrambots-spring-boot-starter from 5.6.0 to 5.7.1 [\#248](https://github.com/sokomishalov/skraper/pull/248) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.6.2 to 2.6.3 [\#247](https://github.com/sokomishalov/skraper/pull/247) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.14 to 5.3.15 [\#246](https://github.com/sokomishalov/skraper/pull/246) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.14 to 1.0.15 [\#245](https://github.com/sokomishalov/skraper/pull/245) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 5.5.0 to 5.6.0 [\#244](https://github.com/sokomishalov/skraper/pull/244) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.6.0 to 1.6.10 [\#243](https://github.com/sokomishalov/skraper/pull/243) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.2.9 to 1.2.10 [\#242](https://github.com/sokomishalov/skraper/pull/242) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlinx-coroutines-reactive from 1.5.2 to 1.6.0 [\#241](https://github.com/sokomishalov/skraper/pull/241) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.6.1 to 2.6.2 [\#240](https://github.com/sokomishalov/skraper/pull/240) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.8.2](https://github.com/sokomishalov/skraper/tree/0.8.2) (2021-12-21)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.1...0.8.2)
