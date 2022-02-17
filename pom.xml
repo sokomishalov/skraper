@@ -28,12 +28,6 @@
         <dokka-plugin.version>1.6.10</dokka-plugin.version>
     </properties>
 
-    <modules>
-        <module>skrapers</module>
-        <module>cli</module>
-        <module>telegram-bot</module>
-    </modules>
-
     <name>Skraper</name>
     <description>Kotlin/Java library and cli tool for scraping posts and media from various sources with neither authorization nor full page rendering</description>
     <url>https://github.com/sokomishalov/skraper/</url>
@@ -108,7 +102,21 @@
 
     <profiles>
         <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>skrapers</module>
+                <module>cli</module>
+                <module>telegram-bot</module>
+            </modules>
+        </profile>
+        <profile>
             <id>jitpack</id>
+            <modules>
+                <module>skrapers</module>
+            </modules>
             <repositories>
                 <repository>
                     <id>jitpack.io</id>
@@ -118,6 +126,9 @@
         </profile>
         <profile>
             <id>ossrh</id>
+            <modules>
+                <module>skrapers</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
