@@ -29,6 +29,7 @@ import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.net.host
+import ru.sokomishalov.skraper.internal.string.unescapeHtml
 import ru.sokomishalov.skraper.model.*
 import java.time.Instant
 import java.time.LocalDate
@@ -45,26 +46,35 @@ open class VkSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getUserPage(path = path)
+        var nextPage = path
+        while (true) {
+            val page = getUserPage(path = nextPage)
 
-        val rawPosts = page
-            ?.getElementsByClass("wall_item")
-            ?.toList()
-            .orEmpty()
+            val rawPosts = page
+                ?.getElementsByClass("wall_item")
+                ?.toList()
+                .orEmpty()
 
-        emitBatch(rawPosts) {
-            Post(
-                id = extractPostId(),
-                text = extractPostCaption(),
-                publishedAt = extractPostPublishedDate(),
-                statistics = PostStatistics(
-                    likes = extractPostLikesCount(),
-                    reposts = extractPostsRepostsCount(),
-                    comments = extractPostCommentsCount(),
-                    views = extractPostsViewsCount(),
-                ),
-                media = extractPostMediaItems()
-            )
+            emitBatch(rawPosts) {
+                Post(
+                    id = extractPostId(),
+                    text = extractPostCaption(),
+                    publishedAt = extractPostPublishedDate(),
+                    statistics = PostStatistics(
+                        likes = extractPostLikesCount(),
+                        reposts = extractPostsRepostsCount(),
+                        comments = extractPostCommentsCount(),
+                        views = extractPostsViewsCount(),
+                    ),
+                    media = extractPostMediaItems()
+                )
+            }
+
+            nextPage = page
+                ?.getElementsByClass("show_more")
+                ?.attr("href")
+                ?.unescapeHtml()
+                ?: break
         }
     }
 
@@ -145,9 +155,11 @@ open class VkSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractPostId(): String {
-        return getElementsByAttribute("data-post-id")
-            .attr("data-post-id")
-            .substringAfter("_")
+        return getFirstElementByClass("wi_info")
+            ?.getFirstElementByClass("wi_date")
+            ?.attr("href")
+            ?.substringAfter("_")
+            .orEmpty()
     }
 
     private fun Element.extractPostCaption(): String? {
@@ -200,28 +212,31 @@ open class VkSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractPostLikesCount(): Int? {
-        return getFirstElementByClass("item_like")
-            ?.attr("aria-label")
+        return getElementsByClass("visually-hidden")
+            .getOrNull(1)
+            ?.html()
             ?.substringBefore(" ")
             ?.toIntOrNull()
     }
 
     private fun Element.extractPostCommentsCount(): Int? {
-        return getFirstElementByClass("item_replies")
+        return getElementsByClass("PostBottomButton")
+            .getOrNull(1)
             ?.attr("aria-label")
             ?.substringBefore(" ")
             ?.toIntOrNull()
     }
 
     private fun Element.extractPostsRepostsCount(): Int? {
-        return getFirstElementByClass("item_share")
+        return getElementsByClass("PostBottomButton")
+            .getOrNull(2)
             ?.attr("aria-label")
             ?.substringBefore(" ")
             ?.toIntOrNull()
     }
 
     private fun Element.extractPostsViewsCount(): Int? {
-        return getFirstElementByClass("item_views")
+        return getFirstElementByClass("wall_item_views")
             ?.attr("aria-label")
             ?.substringBefore(" ")
             ?.toIntOrNull()
@@ -307,7 +322,7 @@ open class VkSkraper @JvmOverloads constructor(
     }
 
     companion object {
-        const val BASE_URL: String = "https://vk.com"
+        const val BASE_URL: String = "https://m.vk.com"
 
         private val VK_SHORT_TIME_AGO_DATE_FORMATTER = DateTimeFormatterBuilder()
             .appendPattern("h:mm a")
