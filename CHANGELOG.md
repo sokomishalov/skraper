@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.8.4](https://github.com/sokomishalov/skraper/tree/0.8.4) (2022-02-18)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.3...0.8.4)
+
+**Closed issues:**
+
+- Downloading VK limited functionality. [\#249](https://github.com/sokomishalov/skraper/issues/249)
+
+**Merged pull requests:**
+
+- Bump spring-webflux from 5.3.15 to 5.3.16 [\#255](https://github.com/sokomishalov/skraper/pull/255) ([dependabot[bot]](https://github.com/apps/dependabot))
+- VK scraping pagination and extraction issues [\#254](https://github.com/sokomishalov/skraper/pull/254) ([sokomishalov](https://github.com/sokomishalov))
+- Bump reactor-netty from 1.0.15 to 1.0.16 [\#253](https://github.com/sokomishalov/skraper/pull/253) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump nexus-staging-maven-plugin from 1.6.8 to 1.6.11 [\#252](https://github.com/sokomishalov/skraper/pull/252) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump maven-javadoc-plugin from 3.3.1 to 3.3.2 [\#251](https://github.com/sokomishalov/skraper/pull/251) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.8.3](https://github.com/sokomishalov/skraper/tree/0.8.3) (2022-02-07)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.2...0.8.3)
