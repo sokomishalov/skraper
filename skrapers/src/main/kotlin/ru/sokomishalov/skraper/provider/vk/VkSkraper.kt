@@ -96,8 +96,8 @@ open class VkSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(media: Media): Boolean {
-        return "vk.com" in media.url.host
+    override fun supports(url: String): Boolean {
+        return arrayOf("vk.com", "vk.ru").any { it in url.host }
     }
 
     override suspend fun resolve(media: Media): Media {

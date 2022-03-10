@@ -83,8 +83,8 @@ open class IFunnySkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(media: Media): Boolean {
-        return "ifunny.co" in media.url.host
+    override fun supports(url: String): Boolean {
+        return "ifunny.co" in url.host
     }
 
     override suspend fun resolve(media: Media): Media {

@@ -103,8 +103,8 @@ open class RedditSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(media: Media): Boolean {
-        return "reddit.com" in media.url.host
+    override fun supports(url: String): Boolean {
+        return "reddit.com" in url.host
     }
 
     override suspend fun resolve(media: Media): Media {

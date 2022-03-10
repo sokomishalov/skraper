@@ -19,7 +19,7 @@ package ru.sokomishalov.skraper.internal.ffmpeg
 /**
  * @author sokomishalov
  */
-interface FfmpegRunner {
+fun interface FfmpegRunner {
 
     suspend fun run(cmd: String): Int
 
