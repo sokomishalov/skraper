@@ -98,8 +98,8 @@ open class TelegramSkraper @JvmOverloads constructor(
         }
     }
 
-    override fun supports(media: Media): Boolean {
-        return "t.me" in media.url.host
+    override fun supports(url: String): Boolean {
+        return "t.me" in url.host
     }
 
     override suspend fun resolve(media: Media): Media {

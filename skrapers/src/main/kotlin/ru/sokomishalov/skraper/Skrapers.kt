@@ -18,6 +18,8 @@
 
 package ru.sokomishalov.skraper
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.jdk.DefaultBlockingSkraperClient
@@ -60,11 +62,27 @@ object Skrapers {
     }
 
     /**
-     * @param media media item
+     * @param url posts/page/media url
      * @return skraper which supports this url or null if none of skrapers supports it
      */
-    fun findSuitable(media: Media): Skraper? {
-        return providers.find { it.supports(media) }
+    fun findSuitable(url: String): Skraper? {
+        return providers.find { it.supports(url) }
+    }
+
+    /**
+     * @param url posts url
+     * @return flow of posts
+     */
+    fun getPosts(url: String): Flow<Post> {
+        return findSuitable(url)?.getPosts(url.path) ?: emptyFlow()
+    }
+
+    /**
+     * @param url page url
+     * @return page info
+     */
+    suspend fun getPageInfo(url: String): PageInfo? {
+        return findSuitable(url)?.getPageInfo(url.path)
     }
 
     /**
@@ -83,7 +101,7 @@ object Skrapers {
 
             // otherwise
             else -> {
-                findSuitable(media)
+                findSuitable(media.url)
                     ?.resolve(media)
                     ?.run {
                         when {

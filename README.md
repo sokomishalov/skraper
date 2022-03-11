@@ -221,8 +221,9 @@ To scrape the latest posts for specific user, channel or trend use skraper like 
 suspend fun main() {
     val skraper = FacebookSkraper()
     val posts = skraper.getUserPosts(username = "memes").take(2).toList() // extension for getPosts()
-    val serializer = JsonMapper().writerWithDefaultPrettyPrinter()
-    println(serializer.writeValueAsString(posts))
+    // or 
+    val postsDetected = Skrapers.getPosts(url = "https://facebook.com/memes") // aggregating singleton
+    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(posts))
 }
 ```
 
@@ -274,8 +275,9 @@ It is possible to scrape user/channel/trend info for some purposes:
 suspend fun main() {
     val skraper = TwitterSkraper()
     val pageInfo = skraper.getUserInfo(username = "memes") // extension for `getPageInfo()`
-    val serializer = JsonMapper().writerWithDefaultPrettyPrinter()
-    println(serializer.writeValueAsString(pageInfo))
+    // or 
+    val pageInfoDetected = Skrapers.getPageInfo(url = "https://twitter.com/memes") // aggregating singleton
+    println(JsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(pageInfo))
 }
 ```
 

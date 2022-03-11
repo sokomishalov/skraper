@@ -54,11 +54,11 @@ class SkraperBot {
         if (url.isNullOrBlank()) return sendText(message, "URL not found in the message")
 
         // 2. find suitable skraper
-        val supportedSkraper: Skraper? = Skrapers.findSuitable(UnknownMedia(url))
+        val supportedSkraper: Skraper? = Skrapers.findSuitable(url)
         if (supportedSkraper == null) return sendText(message, "Unsupported URL")
 
         // 3. try to either scrape posts and download attachments or just download attachment
-        val latestPost = runCatching {  supportedSkraper.getPosts(path = url.path).firstOrNull() }.getOrNull()
+        val latestPost = runCatching { supportedSkraper.getPosts(path = url.path).firstOrNull() }.getOrNull()
         val tmpDir = createTempDirectory("skraper-bot").toFile()
 
         return runCatching {
