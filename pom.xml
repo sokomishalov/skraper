@@ -19,7 +19,7 @@
         <jackson.version>2.13.1</jackson.version>
         <jsoup.version>1.14.3</jsoup.version>
         <okhttp3.version>4.9.3</okhttp3.version>
-        <spring.version>5.3.16</spring.version>
+        <spring.version>5.3.18</spring.version>
         <ktor.version>1.6.7</ktor.version>
 
         <flatten-plugin.version>1.2.7</flatten-plugin.version>
