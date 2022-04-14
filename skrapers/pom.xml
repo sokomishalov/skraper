@@ -14,7 +14,7 @@
     <version>${revision}</version>
 
     <properties>
-        <reactor-netty.version>1.0.16</reactor-netty.version>
+        <reactor-netty.version>1.0.17</reactor-netty.version>
         <logback.version>1.2.11</logback.version>
     </properties>
 
@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-reactive</artifactId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
             <version>${kotlinx-coroutines.version}</version>
         </dependency>
 
@@ -56,6 +56,13 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
             <version>${spring.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-reactor</artifactId>
+            <version>${kotlinx-coroutines.version}</version>
             <optional>true</optional>
         </dependency>
 

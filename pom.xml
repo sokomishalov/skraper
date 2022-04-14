@@ -13,14 +13,14 @@
         <revision>0.9.0-SNAPSHOT</revision>
 
         <java.version>1.8</java.version>
-        <kotlin.version>1.6.10</kotlin.version>
+        <kotlin.version>1.6.20</kotlin.version>
 
-        <kotlinx-coroutines.version>1.6.0</kotlinx-coroutines.version>
-        <jackson.version>2.13.1</jackson.version>
+        <kotlinx-coroutines.version>1.6.1</kotlinx-coroutines.version>
+        <jackson.version>2.13.2</jackson.version>
         <jsoup.version>1.14.3</jsoup.version>
         <okhttp3.version>4.9.3</okhttp3.version>
-        <spring.version>5.3.16</spring.version>
-        <ktor.version>1.6.7</ktor.version>
+        <spring.version>5.3.19</spring.version>
+        <ktor.version>2.0.0</ktor.version>
 
         <flatten-plugin.version>1.2.7</flatten-plugin.version>
         <license-plugin.version>4.1</license-plugin.version>

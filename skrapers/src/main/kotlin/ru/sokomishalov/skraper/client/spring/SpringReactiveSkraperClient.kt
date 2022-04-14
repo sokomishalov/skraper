@@ -18,10 +18,7 @@ package ru.sokomishalov.skraper.client.spring
 import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.GET
-import org.springframework.web.reactive.function.client.ExchangeStrategies
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToFlow
-import org.springframework.web.reactive.function.client.toEntity
+import org.springframework.web.reactive.function.client.*
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.HttpResponse
 import ru.sokomishalov.skraper.client.SkraperClient
@@ -39,33 +36,28 @@ class SpringReactiveSkraperClient(
 ) : SkraperClient {
 
     override suspend fun request(request: HttpRequest): HttpResponse {
-        return request
-            .exchange()
-            .toEntity<ByteArray>()
-            .awaitFirst()
-            .let {
+        return request.exchange { response ->
+            response.toEntity<ByteArray>().awaitFirst().let {
                 HttpResponse(
                     status = it.statusCodeValue,
                     headers = it.headers.toSingleValueMap(),
                     body = it.body
                 )
             }
+        }
     }
 
     override suspend fun download(request: HttpRequest, destFile: File) {
-        request
-            .exchange()
-            .bodyToFlow<ByteBuffer>()
-            .aWrite(destFile)
+        request.exchange { it.bodyToFlow<ByteBuffer>().aWrite(destFile) }
     }
 
-    private fun HttpRequest.exchange(): WebClient.ResponseSpec {
+    private suspend fun <T : Any> HttpRequest.exchange(responseHandler: suspend (ClientResponse) -> T): T {
         return webClient
             .method(HttpMethod.resolve(method.name) ?: GET)
             .uri(URI(url))
             .headers { headers.forEach { (k, v) -> it[k] = v } }
             .apply { body?.let { bodyValue(it) } }
-            .retrieve()
+            .awaitExchange(responseHandler)
     }
 
     companion object {

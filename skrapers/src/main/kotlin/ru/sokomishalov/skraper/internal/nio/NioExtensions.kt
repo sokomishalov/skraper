@@ -27,6 +27,7 @@ import java.nio.channels.AsynchronousFileChannel
 import java.nio.channels.CompletionHandler
 import java.nio.file.StandardOpenOption.*
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
@@ -62,7 +63,7 @@ private object PositionedCompletionHandler : CompletionHandler<Int, Triple<Atomi
         val (position, mutex, cont) = attachment
         position.addAndGet(bytesWritten.toLong())
         mutex.unlock()
-        cont.resume(bytesWritten) {}
+        cont.resume(bytesWritten)
     }
 
     override fun failed(ex: Throwable, attachment: Triple<AtomicLong, Mutex, CancellableContinuation<Int>>) {

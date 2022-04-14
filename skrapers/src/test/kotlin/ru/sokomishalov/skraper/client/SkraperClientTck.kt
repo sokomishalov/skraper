@@ -55,7 +55,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Fetch document`() = runBlocking {
-        val document = client.fetchDocument(HttpRequest("https://facebook.com"))
+        val document = client.fetchDocument(HttpRequest("https://google.com"))
 
         assertNotNull(document)
         assertTrue { document.body().hasParent() }
@@ -90,9 +90,9 @@ abstract class SkraperClientTck {
         assertTrue { tempFile.exists() }
         assertEquals(0L, tempFile.length())
 
-        client.download(HttpRequest("http://speedtest.tele2.net/1MB.zip"), tempFile)
+        client.download(HttpRequest("http://speedtest.ftp.otenet.gr/files/test10Mb.db"), tempFile)
 
         assertTrue { tempFile.exists() }
-        assertEquals(1L * 1024 * 1024, tempFile.length())
+        assertEquals(10L * 1024 * 1024, tempFile.length())
     }
 }

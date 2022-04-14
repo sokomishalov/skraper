@@ -44,7 +44,7 @@ class KtorSkraperClient(
                 HttpResponse(
                     status = it.status.value,
                     headers = it.headers.toMap().mapValues { (_, v) -> v.toString() },
-                    body = it.content.toByteArray()
+                    body = it.bodyAsChannel().toByteArray()
                 )
             }
     }
@@ -52,7 +52,7 @@ class KtorSkraperClient(
     override suspend fun download(request: HttpRequest, destFile: File) {
         request
             .call()
-            .content
+            .bodyAsChannel()
             .run {
                 flow {
                     consumeEachBufferRange { buf, last ->
@@ -69,10 +69,10 @@ class KtorSkraperClient(
             method = HttpMethod.parse(this@call.method.name)
             this@call.headers.filterKeys { it !in UnsafeHeadersList }.forEach { (k, v) -> header(k, v) }
             this@call.body?.let {
-                body = ByteArrayContent(
+                setBody(ByteArrayContent(
                     bytes = it,
                     contentType = headers[HttpHeaders.ContentType]?.let { t -> ContentType.parse(t) }
-                )
+                ))
             }
         }
     }
