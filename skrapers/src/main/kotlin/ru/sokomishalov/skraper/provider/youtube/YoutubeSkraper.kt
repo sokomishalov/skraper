@@ -97,7 +97,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
 
     override suspend fun resolve(media: Media): Media {
         return when (media) {
-            is Video -> runCatching { YoutubeVideoResolver(client = client, baseUrl = BASE_URL).getVideo(media) }.getOrNull() ?: media
+            is Video -> runCatching { YoutubeVideoResolver(client = client).getVideo(media) }.getOrNull() ?: media
             else -> media
         }
     }

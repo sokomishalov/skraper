@@ -45,6 +45,6 @@ class TwitterSkraperTest : SkraperTck() {
 
     @Test
     fun `Check media downloading`() {
-        assertMediaDownloaded(Video("https://t.co/E0SdEOGktn"))
+        assertMediaDownloaded(Video("https://twitter.com/i/status/1514695752953520144"))
     }
 }

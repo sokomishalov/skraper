@@ -26,21 +26,21 @@ import ru.sokomishalov.skraper.internal.serialization.getString
 import ru.sokomishalov.skraper.internal.serialization.readJsonNodes
 import ru.sokomishalov.skraper.internal.string.unescapeUrl
 import ru.sokomishalov.skraper.model.Video
+import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper.Companion.BASE_URL
 import java.util.regex.Pattern.DOTALL
 
 
 /**
- * A reduced version of this library
+ * Reduced version of this library
  * @see <a href="https://github.com/sealedtx/java-youtube-downloader">sealedtx/java-youtube-downloader</a>
  */
 internal class YoutubeVideoResolver(
-    private val baseUrl: String,
     private val client: SkraperClient
 ) {
 
     suspend fun getVideo(video: Video): Video? {
         val url = when {
-            "/embed/" in video.url -> "${baseUrl}/watch?v=${video.url.substringAfter("/embed/").substringBefore("?")}"
+            "/embed/" in video.url -> "${BASE_URL}/watch?v=${video.url.substringAfter("/embed/").substringBefore("?")}"
             else -> video.url
         }
 
@@ -48,8 +48,7 @@ internal class YoutubeVideoResolver(
 
         return page?.let { p ->
             YT_PLAYER_CONFIG_REGEXES
-                .mapNotNull { r -> r.find(p)?.groupValues?.getOrNull(1) }
-                .firstOrNull()
+                .firstNotNullOfOrNull { r -> r.find(p)?.groupValues?.getOrNull(1) }
                 ?.readJsonNodes()
                 ?.firstAudioAndVideo()
         }
@@ -94,21 +93,20 @@ internal class YoutubeVideoResolver(
                         val jsPath = getString("assets.js")
                             ?: run {
                                 val videoId = getString("videoDetails.videoId")
-                                val embedVideoUrl = "${baseUrl}/embed/$videoId"
+                                val embedVideoUrl = "${BASE_URL}/embed/$videoId"
 
                                 val page = client.fetchString(HttpRequest(url = embedVideoUrl))
 
                                 page?.let { p ->
                                     POSSIBLE_JS_URL_REGEXES
-                                        .mapNotNull { r -> r.find(p)?.groupValues?.getOrNull(1) }
-                                        .firstOrNull()
+                                        .firstNotNullOfOrNull { r -> r.find(p)?.groupValues?.getOrNull(1) }
                                         ?.replace("\\", "")
                                 }
                             }
                             ?: return null
 
                         val signature = getSignature(
-                            jsUrl = "${baseUrl}${jsPath}",
+                            jsUrl = "${BASE_URL}${jsPath}",
                             s = jsonCipher["s"]?.unescapeUrl().orEmpty()
                         )
 
@@ -196,7 +194,7 @@ internal class YoutubeVideoResolver(
             .toRegex()
             .find(this)
             ?.run { groupValues[1] to groupValues[2] }
-            ?: "" to ""
+            ?: ("" to "")
     }
 
     companion object {
@@ -227,10 +225,10 @@ internal class YoutubeVideoResolver(
             "\\bc\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(".toRegex()
         )
         private val FUNCTIONS_EQUIVALENT_MAP: Map<Regex, CipherFunction> = mapOf(
-            "\\{\\w\\.reverse\\(\\)\\}".toRegex() to ReverseFunction(),
-            "\\{\\w\\.splice\\(0,\\w\\)\\}".toRegex() to SpliceFunction(),
-            "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w]=\\w\\}".toRegex() to SwapFunctionV1(),
-            "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w%\\w.length]=\\w\\}".toRegex() to SwapFunctionV2()
+            "\\{\\w\\.reverse\\(\\)\\}".toRegex() to ReverseFunction,
+            "\\{\\w\\.splice\\(0,\\w\\)\\}".toRegex() to SpliceFunction,
+            "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w]=\\w\\}".toRegex() to SwapFunctionV1,
+            "\\{var\\s\\w=\\w\\[0];\\w\\[0]=\\w\\[\\w%\\w.length];\\w\\[\\w%\\w.length]=\\w\\}".toRegex() to SwapFunctionV2
         )
     }
 }
@@ -241,17 +239,17 @@ private data class JsFunction(
     val argument: String?
 )
 
-private interface CipherFunction {
+private fun interface CipherFunction {
     fun apply(array: CharArray?, argument: String?): CharArray?
 }
 
-private class ReverseFunction : CipherFunction {
+private object ReverseFunction : CipherFunction {
     override fun apply(array: CharArray?, argument: String?): CharArray? {
         return array?.reversed()?.toCharArray()
     }
 }
 
-private class SpliceFunction : CipherFunction {
+private object SpliceFunction : CipherFunction {
     override fun apply(array: CharArray?, argument: String?): CharArray? {
         val deleteCount = argument!!.toInt()
         val spliced = CharArray(array!!.size - deleteCount)
@@ -261,7 +259,7 @@ private class SpliceFunction : CipherFunction {
     }
 }
 
-private class SwapFunctionV1 : CipherFunction {
+private object SwapFunctionV1 : CipherFunction {
     override fun apply(array: CharArray?, argument: String?): CharArray? {
         val position = argument!!.toInt()
         val c = array!![0]
@@ -271,7 +269,7 @@ private class SwapFunctionV1 : CipherFunction {
     }
 }
 
-private class SwapFunctionV2 : CipherFunction {
+private object  SwapFunctionV2 : CipherFunction {
     override fun apply(array: CharArray?, argument: String?): CharArray? {
         val position = argument!!.toInt()
         val c = array!![0]

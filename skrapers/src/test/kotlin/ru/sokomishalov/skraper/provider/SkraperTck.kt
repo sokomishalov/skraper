@@ -95,54 +95,57 @@ abstract class SkraperTck {
     }
 
     protected fun assertPosts(action: Skraper.() -> Flow<Post>) = runBlocking {
-        val posts = logAction { skraper.action().take(50).toList() }
+        val posts = log { skraper.action().take(50).toList() }
 
-        assertTrue { posts.isNotEmpty() }
+        assertNotNull(posts)
+        assertTrue("Posts are empty") { posts.isNotEmpty() }
         posts.forEach {
-            assertNotNull(it.id)
+            assertTrue("Post id cannot be blank") { it.id.isNotBlank() }
             it.media.forEach { a ->
-                assertTrue(a.url.isNotBlank())
+                assertTrue("Media URL cannot be blank") { a.url.isNotBlank() }
             }
         }
     }
 
     protected fun assertPageInfo(action: suspend Skraper.() -> PageInfo?) = runBlocking {
-        val pageInfo = logAction { skraper.action() }
+        val pageInfo = log { action() }
 
-        assertNotNull(pageInfo)
-        assertNotNull(pageInfo.nick)
-        assertFalse { pageInfo.avatar?.url.isNullOrBlank() }
+        assertNotNull(pageInfo, "Page info cannot be null")
+        assertFalse("Page nick cannot be blank") { pageInfo.nick.isNullOrBlank() }
+        assertFalse("Page avatar cannot be blank") { pageInfo.avatar?.url.isNullOrBlank() }
     }
 
     protected fun assertMediaResolved(media: Media) = runBlocking {
         val canResolve = skraper.supports(media.url)
         assertTrue { canResolve }
 
-        val resolved = logAction { skraper.resolve(media) }
+        val resolved = log { resolve(media) }
 
-        assertNotNull(resolved)
-        assertNotNull(resolved.url)
-        assertNotEquals(media.url, resolved.url)
+        assertNotNull(resolved, "Resolved media cannot be null")
+        assertNotEquals(media.url, resolved.url, "Resolved media url cannot be equal to the original media url")
     }
 
     protected fun assertMediaDownloaded(media: Media) = runBlocking {
         val tmpDir = Files.createTempDirectory("skraper").toFile()
-        val downloaded = runCatching { logAction {
-            Skrapers.download(
-                media = media,
-                destDir = tmpDir,
-                filename = UUID.randomUUID().toString()
-            )
-        } }.getOrNull()
+        val downloaded = runCatching {
+            log {
+                Skrapers.download(
+                    media = media,
+                    destDir = tmpDir,
+                    filename = UUID.randomUUID().toString()
+                )
+            }
+        }.getOrNull()
 
         assertNotNull(downloaded)
         assertTrue { downloaded.exists() }
         assertTrue { downloaded.length() > 0 }
     }
 
-    protected suspend fun <T> logAction(action: suspend Skraper.() -> T): T {
-        return skraper.action().also {
-            log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(it))
-        }
+    protected suspend fun <T> log(action: suspend Skraper.() -> T): T? {
+        return runCatching { skraper.action() }
+            .onSuccess { log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(it)) }
+            .onFailure { throw AssertionError("Exception occured", it) }
+            .getOrNull()
     }
 }

@@ -31,36 +31,34 @@ import kotlin.text.Charsets.UTF_8
  */
 
 suspend fun SkraperClient.fetchBytes(request: HttpRequest): ByteArray? {
-    return runCatching { request(request).body }.getOrNull()
+    return request(request).body
 }
 
 suspend fun SkraperClient.fetchString(request: HttpRequest): String? {
-    return runCatching { request(request).body?.toString(UTF_8) }.getOrNull()
+    return request(request).body?.toString(UTF_8)
 }
 
 suspend fun SkraperClient.fetchJson(request: HttpRequest): JsonNode? {
-    return runCatching { request(request).body?.readJsonNodes() }.getOrNull()
+    return request(request).body?.readJsonNodes()
 }
 
 suspend fun SkraperClient.fetchDocument(request: HttpRequest, charset: Charset = UTF_8): Document? {
-    return runCatching {
-        request(request).body?.run {
-            val document = Jsoup.parse(toString(charset))
+    return request(request).body?.run {
+        val document = Jsoup.parse(toString(charset))
 
-            val htmlRedirectUrl = document
-                .head()
-                .getFirstElementByAttributeValue("http-equiv", "refresh")
-                ?.attr("content")
-                ?.substringAfter("URL=")
+        val htmlRedirectUrl = document
+            .head()
+            .getFirstElementByAttributeValue("http-equiv", "refresh")
+            ?.attr("content")
+            ?.substringAfter("URL=")
 
-            when {
-                htmlRedirectUrl != null
-                        && htmlRedirectUrl != request.url
-                        && htmlRedirectUrl.startsWith("http") -> fetchDocument(request.copy(url = htmlRedirectUrl), charset)
-                else -> document
-            }
+        when {
+            htmlRedirectUrl != null
+                    && htmlRedirectUrl != request.url
+                    && htmlRedirectUrl.startsWith("http") -> fetchDocument(request.copy(url = htmlRedirectUrl), charset)
+            else -> document
         }
-    }.getOrNull()
+    }
 }
 
 /**

@@ -215,7 +215,7 @@ object Skrapers {
             spiClient != null -> spiClient
             classPathCheck("io.ktor.client.HttpClient") -> KtorSkraperClient()
             classPathCheck("okhttp3.OkHttpClient") -> OkHttpSkraperClient()
-            classPathCheck("org.springframework.web.reactive.function.client.WebClient") -> SpringReactiveSkraperClient()
+            classPathCheck("org.springframework.web.reactive.function.client.WebClient", "kotlinx.coroutines.reactor.ReactorContext") -> SpringReactiveSkraperClient()
             else -> DefaultBlockingSkraperClient
         }
     }
@@ -227,5 +227,5 @@ object Skrapers {
 
     private inline fun <reified T> spi(): List<T> = ServiceLoader.load(T::class.java)?.toList().orEmpty()
 
-    private fun classPathCheck(`class`: String): Boolean = runCatching { Class.forName(`class`) }.isSuccess
+    private fun classPathCheck(vararg classes: String): Boolean = runCatching { classes.forEach { Class.forName(it) } }.isSuccess
 }
