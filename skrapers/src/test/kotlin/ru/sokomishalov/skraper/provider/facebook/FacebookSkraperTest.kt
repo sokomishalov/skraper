@@ -16,7 +16,6 @@
 package ru.sokomishalov.skraper.provider.facebook
 
 import org.junit.jupiter.api.Test
-import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 

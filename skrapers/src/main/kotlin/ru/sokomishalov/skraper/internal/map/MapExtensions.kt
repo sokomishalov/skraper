@@ -22,5 +22,5 @@ package ru.sokomishalov.skraper.internal.map
  */
 
 internal inline fun <K, V : Any> Map<K, V>.firstNotNull(vararg keys: K): V? {
-    return keys.mapNotNull { this[it] }.firstOrNull()
+    return keys.firstNotNullOfOrNull { this[it] }
 }

@@ -175,7 +175,7 @@ val skraper = InstagramSkraper(client = OkHttpSkraperClient())
 **Important moment:** it is highly recommended to not
 use [DefaultBlockingSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/jdk/DefaultBlockingSkraperClient.kt)
 . There are some more efficient, non-blocking and resource-friendly implementations
-for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/SkraperClient.kt). To use them you just have to put
+for [SkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/SkraperClient.kt). To use them you just have to put
 required dependencies in the classpath.
 
 Current http-client implementation list:

@@ -250,7 +250,7 @@ private object ReverseFunction : CipherFunction {
 }
 
 private object SpliceFunction : CipherFunction {
-    override fun apply(array: CharArray?, argument: String?): CharArray? {
+    override fun apply(array: CharArray?, argument: String?): CharArray {
         val deleteCount = argument!!.toInt()
         val spliced = CharArray(array!!.size - deleteCount)
         System.arraycopy(array, 0, spliced, 0, deleteCount)
@@ -260,7 +260,7 @@ private object SpliceFunction : CipherFunction {
 }
 
 private object SwapFunctionV1 : CipherFunction {
-    override fun apply(array: CharArray?, argument: String?): CharArray? {
+    override fun apply(array: CharArray?, argument: String?): CharArray {
         val position = argument!!.toInt()
         val c = array!![0]
         array[0] = array[position % array.size]
@@ -270,7 +270,7 @@ private object SwapFunctionV1 : CipherFunction {
 }
 
 private object  SwapFunctionV2 : CipherFunction {
-    override fun apply(array: CharArray?, argument: String?): CharArray? {
+    override fun apply(array: CharArray?, argument: String?): CharArray {
         val position = argument!!.toInt()
         val c = array!![0]
         array[0] = array[position % array.size]

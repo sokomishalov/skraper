@@ -50,7 +50,7 @@ open class PikabuSkraper @JvmOverloads constructor(
                 ?.getElementsByTag("article")
                 .orEmpty()
 
-            if (rawPosts.isEmpty()) break;
+            if (rawPosts.isEmpty()) break
 
             emitBatch(rawPosts) {
                 val storyBlocks = getElementsByClass("story-block")

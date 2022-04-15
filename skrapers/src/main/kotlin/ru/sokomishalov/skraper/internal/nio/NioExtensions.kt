@@ -17,7 +17,6 @@ package ru.sokomishalov.skraper.internal.nio
 
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import java.io.File

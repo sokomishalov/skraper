@@ -110,7 +110,7 @@ open class TumblrSkraper @JvmOverloads constructor(
             .ifBlank { attr("id") }
     }
 
-    private fun Element.extractPostText(): String? {
+    private fun Element.extractPostText(): String {
         return getElementsByTag("figcaption")
             .joinToString("\n") { it.wholeText().orEmpty() }
             .substringAfter(":")
@@ -138,7 +138,7 @@ open class TumblrSkraper @JvmOverloads constructor(
         }
     }
 
-    private fun Element.extractPostNotes(): Int? {
+    private fun Element.extractPostNotes(): Int {
         val notesNode = getFirstElementByClass("post-notes")
             ?: getFirstElementByClass("note-count")
 

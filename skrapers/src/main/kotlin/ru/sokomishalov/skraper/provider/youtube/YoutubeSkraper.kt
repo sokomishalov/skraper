@@ -170,7 +170,6 @@ open class YoutubeSkraper @JvmOverloads constructor(
         }
         val millisAgo = when (temporalAmount) {
             is Duration -> temporalAmount.toMillis()
-            is Period -> Duration.ofDays(temporalAmount.get(DAYS)).toMillis()
             is ChronoPeriod -> Duration.ofDays(temporalAmount.get(DAYS)).toMillis()
             else -> 0
         }

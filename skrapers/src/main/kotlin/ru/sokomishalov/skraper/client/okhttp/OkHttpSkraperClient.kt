@@ -104,7 +104,7 @@ class OkHttpSkraperClient(
         }
     }
 
-    private fun ByteArray.createRequest(contentType: String?): RequestBody? {
+    private fun ByteArray.createRequest(contentType: String?): RequestBody {
         return object : RequestBody() {
             override fun contentType(): MediaType? = contentType?.toMediaType()
             override fun contentLength(): Long = this@createRequest.size.toLong()
