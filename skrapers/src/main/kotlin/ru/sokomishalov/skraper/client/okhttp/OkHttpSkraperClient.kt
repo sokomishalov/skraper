@@ -34,6 +34,7 @@ import ru.sokomishalov.skraper.client.HttpResponse
 import ru.sokomishalov.skraper.client.SkraperClient
 import java.io.File
 import java.io.IOException
+import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 
@@ -94,12 +95,12 @@ class OkHttpSkraperClient(
     private suspend fun Call.await(): Response {
         return suspendCancellableCoroutine { continuation ->
             enqueue(object : Callback {
-                override fun onResponse(call: Call, response: Response) = continuation.resume(response) { }
+                override fun onResponse(call: Call, response: Response) = continuation.resume(response)
                 override fun onFailure(call: Call, e: IOException) = if (continuation.isCancelled.not()) continuation.resumeWithException(e) else Unit
             })
 
             continuation.invokeOnCancellation {
-                runCatching { cancel() }.getOrNull()
+                runCatching { cancel() }
             }
         }
     }
