@@ -10,7 +10,7 @@ Skraper
 # Overview
 
 Kotlin/Java library and cli tool which allows scraping and downloading posts, attachments, other meta from more than 10
-sources without any authorization or full page rendering. Based on jsoup and coroutines.
+sources without any authorization or full page rendering. Based on jsoup, jackson and kotlin-coroutines.
 
 Repository contains:
 
