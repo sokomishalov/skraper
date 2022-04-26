@@ -25,7 +25,7 @@
         <flatten-plugin.version>1.2.7</flatten-plugin.version>
         <license-plugin.version>4.1</license-plugin.version>
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
-        <dokka-plugin.version>1.6.20</dokka-plugin.version>
+        <dokka-plugin.version>1.6.21</dokka-plugin.version>
     </properties>
 
     <name>Skraper</name>
