@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.9.1](https://github.com/sokomishalov/skraper/tree/0.9.1) (2022-05-26)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.9.0...0.9.1)
+
+**Closed issues:**
+
+- Pulling Twitter profile doesn't seem to work [\#281](https://github.com/sokomishalov/skraper/issues/281)
+
+## [0.9.0](https://github.com/sokomishalov/skraper/tree/0.9.0) (2022-04-15)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.4...0.9.0)
+
+**Merged pull requests:**
+
+- `Skrapers` singleton improvement [\#260](https://github.com/sokomishalov/skraper/pull/260) ([sokomishalov](https://github.com/sokomishalov))
+- Bump logback-classic from 1.2.10 to 1.2.11 [\#259](https://github.com/sokomishalov/skraper/pull/259) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.6.3 to 2.6.4 [\#258](https://github.com/sokomishalov/skraper/pull/258) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump nexus-staging-maven-plugin from 1.6.8 to 1.6.12 [\#257](https://github.com/sokomishalov/skraper/pull/257) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.8.4](https://github.com/sokomishalov/skraper/tree/0.8.4) (2022-02-18)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.8.3...0.8.4)
