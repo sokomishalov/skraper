@@ -16,10 +16,10 @@
         <kotlin.version>1.6.21</kotlin.version>
 
         <kotlinx-coroutines.version>1.6.1</kotlinx-coroutines.version>
-        <jackson.version>2.13.2</jackson.version>
-        <jsoup.version>1.14.3</jsoup.version>
+        <jackson.version>2.13.3</jackson.version>
+        <jsoup.version>1.15.1</jsoup.version>
         <okhttp3.version>4.9.3</okhttp3.version>
-        <spring.version>5.3.19</spring.version>
+        <spring.version>5.3.20</spring.version>
         <ktor.version>2.0.1</ktor.version>
 
         <flatten-plugin.version>1.2.7</flatten-plugin.version>

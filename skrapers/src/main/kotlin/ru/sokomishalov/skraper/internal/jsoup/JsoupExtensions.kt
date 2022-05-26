@@ -46,6 +46,7 @@ internal inline fun Element.getFirstElementByAttributeValueContaining(name: Stri
 internal fun Document?.getMetaPropertyMap(): Map<String, String> {
     return this
         ?.getElementsByTag("meta")
+        ?.toList()
         ?.filter { it.hasAttr("property") }
         ?.associate { it.attr("property") to it.attr("content") }
         .orEmpty()

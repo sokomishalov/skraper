@@ -220,6 +220,7 @@ open class TwitterSkraper @JvmOverloads constructor(
         return getFirstElementByClass("tweet-text")
             ?.apply {
                 allElements
+                    .toList()
                     .filter { it.tag().name == "a" && it.attr("href").startsWith("/").not() }
                     .forEach { it.remove() }
             }

@@ -23,8 +23,8 @@ import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.internal.serialization.getString
 import java.nio.file.Files
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.text.Charsets.UTF_8
 
@@ -79,8 +79,10 @@ abstract class SkraperClientTck {
     }
 
     @Test
-    fun `Bad url`() = runBlocking {
-        assertNull(client.fetchBytes(HttpRequest("https://very-badurl.badurl")))
+    fun `Bad url`() = runBlocking<Unit> {
+        assertFails {
+            client.fetchBytes(HttpRequest("https://very-badurl.badurl"))
+        }
     }
 
     @Test

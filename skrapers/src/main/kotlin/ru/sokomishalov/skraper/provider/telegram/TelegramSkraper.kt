@@ -55,6 +55,7 @@ open class TelegramSkraper @JvmOverloads constructor(
             val postsNodes = document
                 ?.getFirstElementByTag("main")
                 ?.getElementsByClass("tgme_widget_message")
+                ?.toList()
                 ?.filter {
                     val id = it.extractId().substringAfterLast("/").toLongOrNull()
                     if (id != null && cursorId != null) cursorId >= id else true
