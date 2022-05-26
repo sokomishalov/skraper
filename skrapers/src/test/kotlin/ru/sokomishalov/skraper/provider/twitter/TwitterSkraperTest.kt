@@ -47,4 +47,14 @@ class TwitterSkraperTest : SkraperTck() {
     fun `Check media downloading`() {
         assertMediaDownloaded(Video("https://twitter.com/i/status/1514695752953520144"))
     }
+
+    @Test
+    fun `GH-281 posts`() {
+        assertPosts { skraper.getUserPosts(username = "ElonMusk") }
+    }
+
+    @Test
+    fun `GH-281 info`() {
+        assertPageInfo { skraper.getUserInfo(username = "ElonMusk") }
+    }
 }

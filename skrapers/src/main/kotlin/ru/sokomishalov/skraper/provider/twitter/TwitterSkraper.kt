@@ -26,6 +26,7 @@ import ru.sokomishalov.skraper.client.*
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
 import ru.sokomishalov.skraper.internal.jsoup.getStyle
@@ -46,25 +47,43 @@ open class TwitterSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val page = getUserPage(path = path)
 
-        val rawPosts = page
-            ?.body()
-            ?.getElementById("stream-items-id")
-            ?.getElementsByClass("stream-item")
-            ?.mapNotNull { it.getFirstElementByClass("tweet") }
-            .orEmpty()
+        val nonObfuscatedPostItems = page?.body()?.getElementById("stream-items-id")
+        if (nonObfuscatedPostItems != null) {
+            val rawPosts = nonObfuscatedPostItems
+                .getElementsByClass("stream-item")
+                .mapNotNull { it.getFirstElementByClass("tweet") }
 
-        emitBatch(rawPosts) {
-            Post(
-                id = extractTweetId(),
-                text = extractTweetText(),
-                statistics = PostStatistics(
-                    likes = extractLikesCount(),
-                    reposts = extractRepostsCount(),
-                    comments = extractCommentsCount(),
-                ),
-                publishedAt = extractTweetPublishDate(),
-                media = extractTweetMediaItems()
-            )
+            emitBatch(rawPosts) {
+                Post(
+                    id = extractTweetId(),
+                    text = extractTweetText(),
+                    statistics = PostStatistics(
+                        likes = extractLikesCount(),
+                        reposts = extractRepostsCount(),
+                        comments = extractCommentsCount(),
+                    ),
+                    publishedAt = extractTweetPublishDate(),
+                    media = extractTweetMediaItems()
+                )
+            }
+        } else {
+            val rawPosts = page
+                ?.getElementsByAttributeValue("itemprop", "hasPart")
+                ?.mapNotNull { it.parent() }
+                .orEmpty()
+
+            emitBatch(rawPosts) {
+                Post(
+                    id = getFirstElementByAttributeValue("itemprop", "identifier")?.attr("content").orEmpty(),
+                    text = getFirstElementByAttributeValue("itemprop", "articleBody")?.text(),
+                    statistics = PostStatistics(
+                        likes = getFirstElementByAttributeValue("content", "Likes")?.parent()?.getFirstElementByAttributeValue("itemprop", "userInteractionCount")?.attr("content")?.toIntOrNull(),
+                        reposts = getFirstElementByAttributeValue("content", "Retweets")?.parent()?.getFirstElementByAttributeValue("itemprop", "userInteractionCount")?.attr("content")?.toIntOrNull(),
+                        comments = getFirstElementByAttributeValue("content", "Replies")?.parent()?.getFirstElementByAttributeValue("itemprop", "userInteractionCount")?.attr("content")?.toIntOrNull(),
+                    ),
+                    media = getElementsByAttributeValue("itemprop", "image").mapNotNull { it.getFirstElementByAttributeValue("itemprop", "contentUrl")?.attr("content")?.toImage() }
+                )
+            }
         }
     }
 
@@ -75,19 +94,44 @@ open class TwitterSkraper @JvmOverloads constructor(
             ?.extractJsonData()
             ?.get("profile_user")
 
-        return userJson?.run {
-            PageInfo(
-                nick = getString("screen_name"),
-                name = getString("name"),
-                description = getString("description"),
-                statistics = PageStatistics(
-                    posts = getInt("statuses_count"),
-                    followers = getInt("followers_count"),
-                    following = getInt("friends_count"),
-                ),
-                avatar = getFirstByPath("profile_image_url_https", "profile_image_url")?.asText()?.toImage(),
-                cover = getFirstByPath("profile_background_image_url_https", "profile_background_image_url")?.asText()?.toImage()
-            )
+        if (userJson != null) {
+            return with(userJson) {
+                PageInfo(
+                    nick = getString("screen_name"),
+                    name = getString("name"),
+                    description = getString("description"),
+                    statistics = PageStatistics(
+                        posts = getInt("statuses_count"),
+                        followers = getInt("followers_count"),
+                        following = getInt("friends_count"),
+                    ),
+                    avatar = getFirstByPath("profile_image_url_https", "profile_image_url")?.asText()?.toImage(),
+                    cover = getFirstByPath(
+                        "profile_background_image_url_https",
+                        "profile_background_image_url"
+                    )?.asText()?.toImage()
+                )
+            }
+        } else {
+            val userFallbackJson = page
+                ?.getElementsByAttributeValue("data-rh", "true")
+                ?.find { it.tagName() == "script" }
+                ?.html()
+                ?.readJsonNodes()
+
+            return userFallbackJson?.run {
+                PageInfo(
+                    nick = getString("author.additionalName"),
+                    name = getString("author.givenName"),
+                    description = getString("author.description"),
+                    statistics = PageStatistics(
+                        posts = getInt("author.interactionStatistic.2.userInteractionCount"),
+                        followers = getInt("author.interactionStatistic.0.userInteractionCount"),
+                        following = getInt("author.interactionStatistic.1.userInteractionCount"),
+                    ),
+                    avatar = getString("author.image.contentUrl")?.toImage(),
+                )
+            }
         }
     }
 
