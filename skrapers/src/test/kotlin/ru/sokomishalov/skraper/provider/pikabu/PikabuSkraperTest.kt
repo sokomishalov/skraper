@@ -26,7 +26,6 @@ class PikabuSkraperTest : SkraperTck() {
     private val username: String = "admin"
     private val community: String = "pikabu"
 
-
     @Test
     fun `Check hot posts`() {
         assertPosts { skraper.getHotPosts() }

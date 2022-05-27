@@ -54,25 +54,28 @@ open class PikabuSkraper @JvmOverloads constructor(
 
             emitBatch(rawPosts) {
                 val storyBlocks = getElementsByClass("story-block")
+                val id = extractPostId()
 
-                val title = extractPostTitle()
-                val text = storyBlocks.parseText()
+                id.takeIf { it.isNotEmpty() }?.let {
+                    val title = extractPostTitle()
+                    val text = storyBlocks.parseText()
 
-                val caption = when {
-                    text.isBlank() -> title
-                    else -> "${title}\n\n${text}"
+                    val caption = when {
+                        text.isBlank() -> title
+                        else -> "${title}\n\n${text}"
+                    }
+
+                    Post(
+                        id = id,
+                        text = caption.toByteArray(UTF_8).toString(UTF_8),
+                        publishedAt = extractPostPublishDate(),
+                        statistics = PostStatistics(
+                            likes = extractPostLikes(),
+                            comments = extractPostCommentsCount(),
+                        ),
+                        media = storyBlocks.extractPostMediaItems()
+                    )
                 }
-
-                Post(
-                    id = extractPostId(),
-                    text = String(caption.toByteArray(UTF_8)),
-                    publishedAt = extractPostPublishDate(),
-                    statistics = PostStatistics(
-                        likes = extractPostLikes(),
-                        comments = extractPostCommentsCount(),
-                    ),
-                    media = storyBlocks.extractPostMediaItems()
-                )
             }
         }
     }
