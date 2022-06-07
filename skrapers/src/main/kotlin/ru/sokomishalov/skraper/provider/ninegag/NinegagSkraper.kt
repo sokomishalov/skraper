@@ -74,12 +74,11 @@ open class NinegagSkraper @JvmOverloads constructor(
         val page = getUserPage(path = path)
         val dataJson = page.extractJsonData()
 
-        return dataJson?.getByPath("data.group")?.run {
+        return dataJson?.getByPath("data.posts.0.postSection")?.run {
             PageInfo(
-                nick = getString("url"),
+                nick = getString("url")?.substringAfterLast("/"),
                 name = getString("name"),
-                description = getString("description"),
-                avatar = getString("ogImageUrl")?.toImage()
+                avatar = getString("imageUrl")?.toImage()
             )
         }
     }
