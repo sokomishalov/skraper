@@ -62,7 +62,7 @@ open class FacebookSkraper @JvmOverloads constructor(
                 val dataFt = attr("data-ft").readJsonNodes()
 
                 Post(
-                    id = dataFt.extractPostId(),
+                    id = dataFt.extractPostId() ?: extractFallbackPostId(),
                     text = extractPostText(),
                     publishedAt = dataFt.extractPostPublishedAt(),
                     statistics = PostStatistics(
@@ -147,8 +147,17 @@ open class FacebookSkraper @JvmOverloads constructor(
         }
     }
 
-    private fun JsonNode?.extractPostId(): String {
-        return this?.getString("top_level_post_id").orEmpty()
+    private fun JsonNode?.extractPostId(): String? {
+        return this?.getString("top_level_post_id")
+    }
+
+    private fun Element.extractFallbackPostId(): String {
+        return getElementsByTag("a")
+            .mapNotNull { it.attr("href") }
+            .find { it.startsWith("/story.php") }
+            ?.substringAfter("story.php?story_fbid=")
+            ?.substringBefore("&")
+            .orEmpty()
     }
 
     private fun Element.extractPostText(): String {

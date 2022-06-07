@@ -26,7 +26,7 @@ class FacebookSkraperTest : SkraperTck() {
     override val skraper: FacebookSkraper = FacebookSkraper(client = client)
     override val path: String = "/memes"
     private val community: String = "vovideo.cc"
-    private val username: String = "DonaldTrump"
+    private val username: String = "zuck"
 
     @Test
     fun `Check community posts`() {
