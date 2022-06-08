@@ -28,6 +28,7 @@ import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.jsoup.getMetaPropertyMap
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.getDouble
@@ -81,27 +82,14 @@ open class FacebookSkraper @JvmOverloads constructor(
         val page = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = aboutPath)))
 
         return page?.run {
-            val isCommunity = getFirstElementByAttributeValue("data-key", "tab_community") != null
+            val metadata = getMetaPropertyMap()
 
-            when {
-                isCommunity -> {
-                    val serverJsonData = extractJsonData()
-                    PageInfo(
-                        nick = path.removePrefix("/").removePrefix("pg/").substringBefore("/"),
-                        name = serverJsonData?.extractCommunityName(),
-                        description = extractCommunityDescription(),
-                        avatar = extractCommunityAvatar()?.toImage(),
-                        cover = serverJsonData?.extractCommunityCover()?.toImage()
-                    )
-                }
-                else -> PageInfo(
-                    nick = path.removePrefix("/").substringBefore("/"),
-                    name = extractUserName(),
-                    description = extractUserDescription(),
-                    avatar = extractUserAvatar()?.toImage(),
-                    cover = extractUserCover()?.toImage()
-                )
-            }
+            PageInfo(
+                nick = metadata["og:url"]?.removeSuffix("/")?.substringAfterLast("/"),
+                name = metadata["og:title"],
+                description = metadata["og:description"]?.split(".")?.lastOrNull()?.removePrefix(" ")?.takeIf { it.isNotBlank() },
+                avatar = metadata["og:image"]?.toImage()
+            )
         }
     }
 
@@ -208,64 +196,6 @@ open class FacebookSkraper @JvmOverloads constructor(
                 }
             }
         }
-    }
-
-    private fun Document?.extractJsonData(): JsonNode? {
-        val infoJsonPrefix = "new (require(\"ServerJS\"))().handle("
-        val infoJsonSuffix = ");"
-
-        return this
-            ?.getElementsByTag("script")
-            ?.mapNotNull { it.html() }
-            ?.find { s -> s.startsWith(infoJsonPrefix) }
-            ?.removePrefix(infoJsonPrefix)
-            ?.removeSuffix(infoJsonSuffix)
-            ?.readJsonNodes()
-    }
-
-    private fun JsonNode.extractCommunityCover(): String? {
-        return findPath("coverPhotoData")
-            ?.getString("uri")
-    }
-
-    private fun Document.extractCommunityAvatar(): String? {
-        return getFirstElementByAttributeValue("property", "og:image")
-            ?.attr("content")
-    }
-
-    private fun Element.extractCommunityDescription(): String? {
-        return getFirstElementByAttributeValue("property", "og:description")
-            ?.attr("content")
-            ?.split("[0-9]+. ".toRegex())
-            ?.lastOrNull()
-    }
-
-    private fun JsonNode.extractCommunityName(): String? {
-        return findPath("pageName")?.asText()
-    }
-
-    private fun Element.extractUserDescription(): String? {
-        return getElementsByClass("experience")
-            .getOrNull(1)
-            ?.allElements
-            ?.lastOrNull()
-            ?.wholeText()
-    }
-
-    private fun Element.extractUserName(): String? {
-        return getFirstElementByAttributeValue("data-testid", "profile_name_in_profile_page")
-            ?.wholeText()
-    }
-
-    private fun Element.extractUserAvatar(): String? {
-        return getFirstElementByClass("profilePicThumb")
-            ?.getFirstElementByTag("img")
-            ?.attr("src")
-    }
-
-    private fun Element.extractUserCover(): String? {
-        return getFirstElementByClass("coverPhotoImg")
-            ?.attr("src")
     }
 
     companion object {
