@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.2](https://github.com/sokomishalov/skraper/tree/0.9.2) (2022-06-12)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.9.1...0.9.2)
+
+**Merged pull requests:**
+
+- Bump kotlin.version from 1.6.21 to 1.7.0 [\#290](https://github.com/sokomishalov/skraper/pull/290) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.0.1 to 2.0.2 [\#289](https://github.com/sokomishalov/skraper/pull/289) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlinx-coroutines.version from 1.6.1 to 1.6.2 [\#288](https://github.com/sokomishalov/skraper/pull/288) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.9.1](https://github.com/sokomishalov/skraper/tree/0.9.1) (2022-05-26)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.9.0...0.9.1)
@@ -7,6 +17,18 @@
 **Closed issues:**
 
 - Pulling Twitter profile doesn't seem to work [\#281](https://github.com/sokomishalov/skraper/issues/281)
+
+**Merged pull requests:**
+
+- Fixes \#281 [\#287](https://github.com/sokomishalov/skraper/pull/287) ([sokomishalov](https://github.com/sokomishalov))
+- Bump ktor.version from 2.0.0 to 2.0.1 [\#280](https://github.com/sokomishalov/skraper/pull/280) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.6.20 to 1.6.21 [\#279](https://github.com/sokomishalov/skraper/pull/279) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump nexus-staging-maven-plugin from 1.6.12 to 1.6.13 [\#278](https://github.com/sokomishalov/skraper/pull/278) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.6.6 to 2.6.7 [\#277](https://github.com/sokomishalov/skraper/pull/277) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump maven-javadoc-plugin from 3.3.2 to 3.4.0 [\#276](https://github.com/sokomishalov/skraper/pull/276) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.6.20 to 1.6.21 [\#275](https://github.com/sokomishalov/skraper/pull/275) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 5.7.1 to 6.0.1 [\#274](https://github.com/sokomishalov/skraper/pull/274) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.6.10 to 1.6.20 [\#273](https://github.com/sokomishalov/skraper/pull/273) ([dependabot[bot]](https://github.com/apps/dependabot))
 
 ## [0.9.0](https://github.com/sokomishalov/skraper/tree/0.9.0) (2022-04-15)
 
