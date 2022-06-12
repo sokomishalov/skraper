@@ -16,10 +16,13 @@
 package ru.sokomishalov.skraper.provider.tiktok
 
 import org.junit.jupiter.api.Test
+import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.client.okhttp.OkHttpSkraperClient
 import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.SkraperTck
 
 class TikTokSkraperTest : SkraperTck() {
+    override val client: SkraperClient = OkHttpSkraperClient()
     override val skraper: TikTokSkraper = TikTokSkraper(client = client)
     override val path: String = "/@meme"
     private val username: String = "memes"

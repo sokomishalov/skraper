@@ -24,7 +24,6 @@ import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
-import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
@@ -107,23 +106,15 @@ class TikTokSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getPagePropsJson(path: String): JsonNode? {
-        val document = client.fetchDocument(
-            HttpRequest(
-                url = "${BASE_URL}${path}",
-                headers = mapOf(USER_AGENT_HEADER to USER_AGENT)
-            )
-        )
+        val document = client.fetchDocument(HttpRequest(url = "${BASE_URL}${path}"))
 
         return document
-            ?.getElementById("sigi-persisted-data")
+            ?.getElementById("SIGI_STATE")
             ?.html()
-            ?.substringAfter("window['SIGI_STATE']=")
-            ?.substringBefore(";window['SIGI_RETRY']")
             ?.readJsonNodes()
     }
 
     companion object {
         const val BASE_URL: String = "https://tiktok.com"
-        const val USER_AGENT: String = "Slurp"
     }
 }
