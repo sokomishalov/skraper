@@ -16,6 +16,7 @@
 package ru.sokomishalov.skraper.provider.youtube
 
 import kotlinx.coroutines.flow.Flow
+import ru.sokomishalov.skraper.model.Comment
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
 
@@ -30,6 +31,10 @@ fun YoutubeSkraper.getUserPosts(username: String): Flow<Post> {
 
 fun YoutubeSkraper.getSearchPosts(keyword: String): Flow<Post> {
     return getPosts(path = "/results?search_query=${keyword.replace(" ", "+")}")
+}
+
+fun YoutubeSkraper.getPostComments(postId: String): Flow<Comment> {
+    return getComments(path = "/watch?v=${postId}")
 }
 
 suspend fun YoutubeSkraper.getUserInfo(username: String): PageInfo? {

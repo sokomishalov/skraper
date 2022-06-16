@@ -31,6 +31,11 @@ class YoutubeSkraperTest : SkraperTck() {
     }
 
     @Test
+    fun `Check post comments`() {
+        assertComments { skraper.getPostComments(postId = "9bZkp7q19f0") }
+    }
+
+    @Test
     fun `Check user info`() {
         assertPageInfo { skraper.getUserInfo(username = username) }
     }

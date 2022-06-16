@@ -31,7 +31,13 @@ internal fun String.buildFullURL(path: String, queryParams: Map<String, Any?> = 
         .filter { it.value != null }
         .map { "${it.key}=${it.value.toString().escapeUrl()}" }
         .foldIndexed(initial = "", operation = { i, acc, s -> if (i == 0) s else "$acc&$s" })
-        .let { if (it.isNotEmpty()) "?${it}" else it }
+        .let {
+            when {
+                pathString.contains("?") -> "&${it}"
+                it.isNotEmpty() -> "?${it}"
+                else -> it
+            }
+        }
 
     return baseUrlString + pathString + queryParamsString
 }

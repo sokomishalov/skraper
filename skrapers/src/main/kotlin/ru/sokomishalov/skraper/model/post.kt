@@ -30,7 +30,7 @@ data class Post(
     val text: String? = "",
     val publishedAt: Instant? = null,
     val statistics: PostStatistics = PostStatistics(),
-    val media: List<Media> = emptyList()
+    val media: List<Media> = emptyList(),
 )
 
 

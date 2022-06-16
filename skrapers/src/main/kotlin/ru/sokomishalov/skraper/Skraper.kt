@@ -16,7 +16,9 @@
 package ru.sokomishalov.skraper
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.model.Comment
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
@@ -36,6 +38,12 @@ interface Skraper {
      * @return flow of posts
      */
     fun getPosts(path: String): Flow<Post>
+
+    /**
+     * @param path page specific url path (should start with "/")
+     * @return flow of comments
+     */
+    fun getComments(path: String): Flow<Comment> = emptyFlow()
 
     /**
      * @param path page specific url path (should start with "/")

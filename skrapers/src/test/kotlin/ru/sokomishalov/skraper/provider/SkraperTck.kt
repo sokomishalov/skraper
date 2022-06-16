@@ -37,6 +37,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.ktor.KtorSkraperClient
+import ru.sokomishalov.skraper.model.Comment
 import ru.sokomishalov.skraper.model.Media
 import ru.sokomishalov.skraper.model.PageInfo
 import ru.sokomishalov.skraper.model.Post
@@ -104,6 +105,17 @@ abstract class SkraperTck {
             it.media.forEach { a ->
                 assertTrue("Media URL cannot be blank") { a.url.isNotBlank() }
             }
+        }
+    }
+
+    protected fun assertComments(action: Skraper.() -> Flow<Comment>) = runBlocking {
+        val comments = log { skraper.action().take(50).toList() }
+
+        assertNotNull(comments)
+        assertTrue("Comments are empty") { comments.isNotEmpty() }
+        comments.forEach {
+            assertTrue("Comment author cannot be null") { it.author != null }
+            assertTrue(("Comment text cannot be null")) { it.comment.isNotEmpty() }
         }
     }
 

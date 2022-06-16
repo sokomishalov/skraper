@@ -49,7 +49,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getUserPage(path = path)
+        val page = getPage(path = path)
 
         val jsonMetadata = page?.readJsonMetadata()
 
@@ -73,8 +73,13 @@ open class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
+    override fun getComments(path: String): Flow<Comment> = flow {
+        val page = getPage(path = path)
+
+    }
+
     override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getUserPage(path = path)
+        val page = getPage(path = path)
         val jsonMetadata = page?.readJsonMetadata()
 
         return jsonMetadata?.run {
@@ -102,7 +107,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
         }
     }
 
-    private suspend fun getUserPage(path: String): Document? {
+    private suspend fun getPage(path: String): Document? {
         return client.fetchDocument(
             HttpRequest(
                 url = BASE_URL.buildFullURL(
