@@ -13,7 +13,7 @@
         <revision>0.9.3-SNAPSHOT</revision>
 
         <java.version>1.8</java.version>
-        <kotlin.version>1.7.0</kotlin.version>
+        <kotlin.version>1.7.10</kotlin.version>
 
         <kotlinx-coroutines.version>1.6.2</kotlinx-coroutines.version>
         <jackson.version>2.13.3</jackson.version>
