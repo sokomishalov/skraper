@@ -90,30 +90,6 @@ positional arguments:
                                             flickr, tumblr, ifunny, vk, pikabu]
 
   PATH                                      path to user/community/channel/topic/trend
-usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT] [-m]
-       [--parallel-downloads PARALLEL_DOWNLOADS]
-
-optional arguments:
-  -h, --help                                show this help message and exit
-
-  -n LIMIT, --limit LIMIT                   posts limit (50 by default)
-
-  -t TYPE, --type TYPE                      output type, options: [log, csv, json, xml, yaml]
-
-  -o OUTPUT, --output OUTPUT                output path
-
-  -m, --media-only                          scrape media only
-
-  --parallel-downloads PARALLEL_DOWNLOADS   amount of parallel downloads for media items if
-                                            enabled flag --media-only (4 by default)
-
-
-positional arguments:
-  PROVIDER                                  skraper provider, options: [facebook, instagram,
-                                            twitter, youtube, twitch, reddit, ninegag, pinterest,
-                                            flickr, tumblr, ifunny, vk, pikabu]
-
-  PATH                                      path to user/community/channel/topic/trend
 ```
 
 Examples:
