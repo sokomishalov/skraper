@@ -127,15 +127,13 @@ abstract class SkraperTck {
 
     protected fun assertMediaDownloaded(media: Media) = runBlocking {
         val tmpDir = Files.createTempDirectory("skraper").toFile()
-        val downloaded = runCatching {
-            log {
-                Skrapers.download(
-                    media = media,
-                    destDir = tmpDir,
-                    filename = UUID.randomUUID().toString()
-                )
-            }
-        }.getOrNull()
+        val downloaded = log {
+            Skrapers.download(
+                media = media,
+                destDir = tmpDir,
+                filename = UUID.randomUUID().toString()
+            )
+        }
 
         assertNotNull(downloaded)
         assertTrue { downloaded.exists() }
@@ -145,7 +143,7 @@ abstract class SkraperTck {
     protected suspend fun <T> log(action: suspend Skraper.() -> T): T? {
         return runCatching { skraper.action() }
             .onSuccess { log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(it)) }
-            .onFailure { throw AssertionError("Exception occured", it) }
+            .onFailure { throw AssertionError("Exception occurred", it) }
             .getOrNull()
     }
 }

@@ -23,6 +23,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import ru.sokomishalov.skraper.client.HttpMethodType
 import ru.sokomishalov.skraper.client.HttpMethodType.GET
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_CONNECTION_TIMEOUT
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_READ_TIMEOUT
 import java.io.DataOutputStream
 import java.net.HttpURLConnection
 import java.net.HttpURLConnection.*
@@ -75,6 +77,6 @@ private fun HttpURLConnection.applyData(
         doOutput = true
         DataOutputStream(outputStream).use { wr -> wr.write(it) }
     }
-    connectTimeout = 5_000
-    readTimeout = 5_000
+    connectTimeout = DEFAULT_CONNECTION_TIMEOUT.toMillis().toInt()
+    readTimeout = DEFAULT_READ_TIMEOUT.toMillis().toInt()
 }
