@@ -72,9 +72,9 @@ usage: [-h] PROVIDER PATH [-n LIMIT] [-t TYPE] [-o OUTPUT] [-m]
 optional arguments:
   -h, --help                                show this help message and exit
 
-  -n LIMIT, --limit LIMIT                   posts limit (50 by default)
+  -n LIMIT, -l LIMIT, --limit LIMIT         posts limit (50 by default)
 
-  -t TYPE, --type TYPE                      output type, options: [log, csv, json, xml, yaml]
+  -t TYPE, --type TYPE                      output type, options: log, json, xml, yaml, csv
 
   -o OUTPUT, --output OUTPUT                output path
 
@@ -85,9 +85,10 @@ optional arguments:
 
 
 positional arguments:
-  PROVIDER                                  skraper provider, options: [facebook, instagram,
-                                            twitter, youtube, twitch, reddit, 9gag, pinterest,
-                                            flickr, tumblr, ifunny, vk, pikabu]
+  PROVIDER                                  skraper provider, options: facebook, instagram,
+                                            twitter, youtube, tiktok, telegram, twitch, reddit,
+                                            9gag, pinterest, flickr, tumblr, ifunny, vk, pikabu,
+                                            vimeo
 
   PATH                                      path to user/community/channel/topic/trend
 ```
