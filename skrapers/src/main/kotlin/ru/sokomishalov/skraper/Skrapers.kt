@@ -43,6 +43,7 @@ import ru.sokomishalov.skraper.provider.tiktok.TikTokSkraper
 import ru.sokomishalov.skraper.provider.tumblr.TumblrSkraper
 import ru.sokomishalov.skraper.provider.twitch.TwitchSkraper
 import ru.sokomishalov.skraper.provider.twitter.TwitterSkraper
+import ru.sokomishalov.skraper.provider.vimeo.VimeoSkraper
 import ru.sokomishalov.skraper.provider.vk.VkSkraper
 import ru.sokomishalov.skraper.provider.youtube.YoutubeSkraper
 import java.io.File
@@ -160,7 +161,7 @@ object Skrapers {
 
             // otherwise try to download as is
             else -> {
-                providers.random().client.download(HttpRequest(url = resolved.url), destFile = destFile)
+                client.download(HttpRequest(url = resolved.url), destFile = destFile)
                 destFile
             }
         }
@@ -202,7 +203,8 @@ object Skrapers {
             TumblrSkraper(),
             IFunnySkraper(),
             VkSkraper(),
-            PikabuSkraper()
+            PikabuSkraper(),
+            VimeoSkraper(),
         )
 
         return spiSkrapers + knownSkrapers

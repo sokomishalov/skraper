@@ -30,7 +30,7 @@
 
     <name>Skraper</name>
     <description>Kotlin/Java library and cli tool for scraping posts and media from various sources with neither authorization nor full page rendering</description>
-    <url>https://github.com/sokomishalov/skraper/</url>
+    <url>https://github.com/sokomishalov/skraper</url>
 
     <developers>
         <developer>

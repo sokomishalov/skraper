@@ -16,6 +16,7 @@
 package ru.sokomishalov.skraper.client.ktor
 
 import io.ktor.client.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.ContentType
@@ -29,6 +30,8 @@ import kotlinx.coroutines.flow.flow
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.HttpResponse
 import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_CONNECTION_TIMEOUT
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_READ_TIMEOUT
 import ru.sokomishalov.skraper.internal.nio.aWrite
 import java.io.File
 import io.ktor.client.statement.HttpResponse as KtorHttpResponse
@@ -82,6 +85,10 @@ class KtorSkraperClient(
         @JvmStatic
         val DEFAULT_CLIENT: HttpClient = HttpClient {
             followRedirects = true
+            install(HttpTimeout) {
+                requestTimeoutMillis = DEFAULT_READ_TIMEOUT.toMillis()
+                connectTimeoutMillis = DEFAULT_CONNECTION_TIMEOUT.toMillis()
+            }
         }
     }
 }

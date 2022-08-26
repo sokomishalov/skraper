@@ -32,6 +32,8 @@ import okio.sink
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.HttpResponse
 import ru.sokomishalov.skraper.client.SkraperClient
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_CONNECTION_TIMEOUT
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_READ_TIMEOUT
 import java.io.File
 import java.io.IOException
 import kotlin.coroutines.resume
@@ -119,6 +121,8 @@ class OkHttpSkraperClient(
             .Builder()
             .followRedirects(true)
             .followSslRedirects(true)
+            .connectTimeout(DEFAULT_CONNECTION_TIMEOUT)
+            .readTimeout(DEFAULT_READ_TIMEOUT)
             .build()
     }
 }
