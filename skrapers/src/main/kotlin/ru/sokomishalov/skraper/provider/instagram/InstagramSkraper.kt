@@ -152,7 +152,7 @@ open class InstagramSkraper @JvmOverloads constructor(
     }
 
     companion object {
-        const val BASE_URL: String = "https://m.instagram.com"
+        const val BASE_URL: String = "https://instagram.com"
         const val INFO_BASE_URL: String = "https://i.instagram.com"
         const val APP_ID: String = "936619743392459"
     }
