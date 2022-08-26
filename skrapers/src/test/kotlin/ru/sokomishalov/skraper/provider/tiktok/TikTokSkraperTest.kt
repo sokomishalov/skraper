@@ -24,7 +24,7 @@ import ru.sokomishalov.skraper.provider.SkraperTck
 class TikTokSkraperTest : SkraperTck() {
     override val client: SkraperClient = OkHttpSkraperClient()
     override val skraper: TikTokSkraper = TikTokSkraper(client = client)
-    override val path: String = "/@meme"
+    override val path: String = "/@memes"
     private val username: String = "memes"
 
     @Test
