@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.10.0](https://github.com/sokomishalov/skraper/tree/0.10.0) (2022-08-26)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.9.2...0.10.0)
+
+**Closed issues:**
+
+- Implement Vimeo [\#314](https://github.com/sokomishalov/skraper/issues/314)
+- Scrape single post from instagram [\#307](https://github.com/sokomishalov/skraper/issues/307)
+
+**Merged pull requests:**
+
+- Fix instagram scraping [\#318](https://github.com/sokomishalov/skraper/pull/318) ([sokomishalov](https://github.com/sokomishalov))
+- run skraper tests in parallel [\#317](https://github.com/sokomishalov/skraper/pull/317) ([sokomishalov](https://github.com/sokomishalov))
+- flickr fixes [\#316](https://github.com/sokomishalov/skraper/pull/316) ([sokomishalov](https://github.com/sokomishalov))
+- Vimeo implemented \(\#314\) [\#315](https://github.com/sokomishalov/skraper/pull/315) ([sokomishalov](https://github.com/sokomishalov))
+- Bump jsoup from 1.15.2 to 1.15.3 [\#313](https://github.com/sokomishalov/skraper/pull/313) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.7.2 to 2.7.3 [\#312](https://github.com/sokomishalov/skraper/pull/312) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump flatten-maven-plugin from 1.2.7 to 1.3.0 [\#311](https://github.com/sokomishalov/skraper/pull/311) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump maven-javadoc-plugin from 3.4.0 to 3.4.1 [\#310](https://github.com/sokomishalov/skraper/pull/310) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.0.3 to 2.1.0 [\#309](https://github.com/sokomishalov/skraper/pull/309) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.21 to 1.0.22 [\#308](https://github.com/sokomishalov/skraper/pull/308) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Remove duplicate usage description. [\#306](https://github.com/sokomishalov/skraper/pull/306) ([zainulhassan815](https://github.com/zainulhassan815))
+- Bump spring-boot.version from 2.7.1 to 2.7.2 [\#305](https://github.com/sokomishalov/skraper/pull/305) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.21 to 5.3.22 [\#304](https://github.com/sokomishalov/skraper/pull/304) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlinx-coroutines.version from 1.6.2 to 1.6.4 [\#303](https://github.com/sokomishalov/skraper/pull/303) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.6.21 to 1.7.10 [\#302](https://github.com/sokomishalov/skraper/pull/302) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.20 to 1.0.21 [\#301](https://github.com/sokomishalov/skraper/pull/301) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.7.0 to 1.7.10 [\#300](https://github.com/sokomishalov/skraper/pull/300) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jsoup from 1.15.1 to 1.15.2 [\#299](https://github.com/sokomishalov/skraper/pull/299) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.0.2 to 2.0.3 [\#298](https://github.com/sokomishalov/skraper/pull/298) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.7.0 to 2.7.1 [\#297](https://github.com/sokomishalov/skraper/pull/297) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 6.0.1 to 6.1.0 [\#296](https://github.com/sokomishalov/skraper/pull/296) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.20 to 5.3.21 [\#293](https://github.com/sokomishalov/skraper/pull/293) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.19 to 1.0.20 [\#292](https://github.com/sokomishalov/skraper/pull/292) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump okhttp from 4.9.3 to 4.10.0 [\#291](https://github.com/sokomishalov/skraper/pull/291) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.9.2](https://github.com/sokomishalov/skraper/tree/0.9.2) (2022-06-12)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.9.1...0.9.2)
