@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
@@ -28,9 +27,7 @@ import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
-import ru.sokomishalov.skraper.internal.jsoup.getBackgroundImageUrl
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
-import ru.sokomishalov.skraper.internal.jsoup.getStyle
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.internal.serialization.*
@@ -50,61 +47,29 @@ open class FlickrSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val page = getPage(path = path)
 
-        val rawPosts = page
-            ?.getElementsByClass("photo-list-photo-view")
-            .orEmpty()
-
         val jsonPosts = page
             .parseModelJson()
             ?.findPath("_data")
-            ?.associate { it.getString("id").orEmpty() to it }
+            ?.toList()
             .orEmpty()
 
-        when {
-            rawPosts.isNotEmpty() -> emitBatch(rawPosts) {
-                val url = getBackgroundImage().orEmpty()
-                val id = url.substringAfterLast("/").substringBefore("_")
-
-                val jsonPost = jsonPosts[id]
-
-                Post(
-                    id = id,
-                    text = jsonPost?.extractPostText(),
-                    publishedAt = jsonPost?.extractPostPublishDate(),
-                    statistics = PostStatistics(
-                        likes = jsonPost?.extractPostLikes(),
-                        comments = jsonPost?.extractPostCommentsCount(),
-                        views = jsonPost?.extractPostViewsCount(),
-                    ),
-                    media = listOf(
-                        Image(
-                            url = url,
-                            aspectRatio = extractPostAspectRatio()
-                        )
+        emitBatch(jsonPosts) {
+            Post(
+                id = getString("id").orEmpty(),
+                text = extractPostText(),
+                publishedAt = extractPostPublishDate(),
+                statistics = PostStatistics(
+                    likes = extractPostLikes(),
+                    comments = extractPostCommentsCount(),
+                    views = extractPostViewsCount(),
+                ),
+                media = listOf(
+                    Image(
+                        url = extractPostAttachmentUrl(),
+                        aspectRatio = extractPostAspectRatio()
                     )
                 )
-            }
-
-            jsonPosts.isNotEmpty() -> jsonPosts.forEach { (key, value) ->
-                emit(
-                    Post(
-                        id = key,
-                        text = value?.extractPostText(),
-                        publishedAt = value?.extractPostPublishDate(),
-                        statistics = PostStatistics(
-                            likes = value?.extractPostLikes(),
-                            comments = value?.extractPostCommentsCount(),
-                            views = value?.extractPostViewsCount(),
-                        ),
-                        media = listOf(
-                            Image(
-                                url = value.extractPostAttachmentUrl(),
-                                aspectRatio = value.extractPostAspectRatio()
-                            )
-                        )
-                    )
-                )
-            }
+            )
         }
     }
 
@@ -158,24 +123,6 @@ open class FlickrSkraper @JvmOverloads constructor(
                 ?.readJsonNodes()
                 ?.getByPath("modelExport.main")
         }.getOrNull()
-    }
-
-    private fun Element?.getBackgroundImage(): String? {
-        return this
-            ?.getBackgroundImageUrl()
-            ?.let { "https:$it" }
-    }
-
-    private fun Element?.extractPostAspectRatio(): Double? {
-        return getDimension("width") / getDimension("height")
-    }
-
-    private fun Element?.getDimension(styleName: String): Double? {
-        return this
-            ?.getStyle(styleName)
-            ?.trim()
-            ?.removeSuffix("px")
-            ?.toDoubleOrNull()
     }
 
     private fun JsonNode.extractPostText(): String {
