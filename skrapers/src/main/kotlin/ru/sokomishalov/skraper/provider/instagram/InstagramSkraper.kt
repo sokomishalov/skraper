@@ -22,7 +22,7 @@ import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
-import ru.sokomishalov.skraper.client.fetchDocument
+import ru.sokomishalov.skraper.client.fetchJson
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.net.host
@@ -43,8 +43,8 @@ open class InstagramSkraper @JvmOverloads constructor(
         val nodes = fetchJsonNodes(path)
 
         val postNodes = when {
-            path.isTagPath() -> nodes?.getByPath("entry_data.TagPage.0.graphql.hashtag.edge_hashtag_to_media.edges")
-            else -> nodes?.getByPath("entry_data.ProfilePage.0.graphql.user.edge_owner_to_timeline_media.edges")
+            path.isTagPath() -> nodes?.getByPath("data.hashtag.edge_hashtag_to_media.edges")
+            else -> nodes?.getByPath("data.user.edge_owner_to_timeline_media.edges")
         }
 
         val rawPosts = postNodes?.map { it["node"] }.orEmpty()
@@ -68,8 +68,8 @@ open class InstagramSkraper @JvmOverloads constructor(
         val nodes = fetchJsonNodes(path)
 
         val infoNodes = when {
-            path.isTagPath() -> nodes?.getByPath("entry_data.TagPage.0.graphql.hashtag")
-            else -> nodes?.getByPath("entry_data.ProfilePage.0.graphql.user")
+            path.isTagPath() -> nodes?.getByPath("data.hashtag")
+            else -> nodes?.getByPath("data.user")
         }
 
         return infoNodes?.run {
@@ -123,17 +123,37 @@ open class InstagramSkraper @JvmOverloads constructor(
     }
 
     private suspend fun fetchJsonNodes(path: String): JsonNode? {
-        val document = client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path)))
-        return document
-            ?.getElementsByTag("script")
-            ?.map { it.html() }
-            ?.find { it.startsWith("window._sharedData") }
-            ?.substringAfter("= ")
-            ?.substringBeforeLast(";")
-            .readJsonNodes()
+        val request = when {
+            path.isTagPath() -> {
+                val tag = path.substringAfter("/explore/tags/").substringBefore("/")
+
+                HttpRequest(
+                    url = INFO_BASE_URL.buildFullURL(
+                        path = "api/v1/tags/logged_out_web_info/",
+                        queryParams = mapOf("tag_name" to tag)
+                    ),
+                    headers = mapOf("x-ig-app-id" to APP_ID)
+                )
+            }
+            else -> {
+                val username = path.removePrefix("/").substringBefore("/")
+
+                HttpRequest(
+                    url = INFO_BASE_URL.buildFullURL(
+                        path = "api/v1/users/web_profile_info/",
+                        queryParams = mapOf("username" to username)
+                    ),
+                    headers = mapOf("x-ig-app-id" to APP_ID)
+                )
+            }
+        }
+
+        return client.fetchJson(request)
     }
 
     companion object {
-        const val BASE_URL: String = "https://instagram.com"
+        const val BASE_URL: String = "https://m.instagram.com"
+        const val INFO_BASE_URL: String = "https://i.instagram.com"
+        const val APP_ID: String = "936619743392459"
     }
 }
