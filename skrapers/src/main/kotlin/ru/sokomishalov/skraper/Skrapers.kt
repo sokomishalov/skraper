@@ -38,6 +38,7 @@ import ru.sokomishalov.skraper.provider.ninegag.NinegagSkraper
 import ru.sokomishalov.skraper.provider.pikabu.PikabuSkraper
 import ru.sokomishalov.skraper.provider.pinterest.PinterestSkraper
 import ru.sokomishalov.skraper.provider.reddit.RedditSkraper
+import ru.sokomishalov.skraper.provider.spotify.SpotifySkraper
 import ru.sokomishalov.skraper.provider.telegram.TelegramSkraper
 import ru.sokomishalov.skraper.provider.tiktok.TikTokSkraper
 import ru.sokomishalov.skraper.provider.tumblr.TumblrSkraper
@@ -189,22 +190,23 @@ object Skrapers {
         val spiSkrapers = spi<Skraper>()
 
         val knownSkrapers = listOf(
-            FacebookSkraper(),
-            InstagramSkraper(),
-            TwitterSkraper(),
-            YoutubeSkraper(),
-            TikTokSkraper(),
-            TelegramSkraper(),
-            TwitchSkraper(),
-            RedditSkraper(),
-            NinegagSkraper(),
-            PinterestSkraper(),
-            FlickrSkraper(),
-            TumblrSkraper(),
-            IFunnySkraper(),
-            VkSkraper(),
-            PikabuSkraper(),
-            VimeoSkraper(),
+            FacebookSkraper(client),
+            InstagramSkraper(client),
+            TwitterSkraper(client),
+            YoutubeSkraper(client),
+            TikTokSkraper(client),
+            TelegramSkraper(client),
+            TwitchSkraper(client),
+            RedditSkraper(client),
+            NinegagSkraper(client),
+            PinterestSkraper(client),
+            FlickrSkraper(client),
+            TumblrSkraper(client),
+            IFunnySkraper(client),
+            VkSkraper(client),
+            PikabuSkraper(client),
+            VimeoSkraper(client),
+            SpotifySkraper(client),
         )
 
         return spiSkrapers + knownSkrapers
