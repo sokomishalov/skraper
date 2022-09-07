@@ -35,6 +35,7 @@ Current list of implemented sources:
 - [Vimeo](https://vimeo.com)
 - [IFunny](https://ifunny.co)
 - [VK](https://vk.com)
+- [Odnoklassniki](https://ok.ru)
 - [Pikabu](https://pikabu.ru)
 
 # Bugs
@@ -86,9 +87,10 @@ optional arguments:
 
 
 positional arguments:
-  PROVIDER                                  skraper provider, options: [facebook, instagram,
-                                            twitter, youtube, twitch, reddit, 9gag, pinterest,
-                                            flickr, tumblr, ifunny, vk, pikabu]
+  PROVIDER                                  skraper provider, options: facebook, instagram,
+                                            twitter, youtube, tiktok, telegram, twitch, reddit,
+                                            9gag, pinterest, flickr, tumblr, ifunny, vk, pikabu,
+                                            vimeo, odnoklassniki
 
   PATH                                      path to user/community/channel/topic/trend
 ```
@@ -142,6 +144,7 @@ As mentioned before, the provider implementation list is:
 - [VimeoSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/vimeo/VimeoSkraper.kt)
 - [IFunnySkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ifunny/IFunnySkraper.kt)
 - [VkSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/vk/VkSkraper.kt)
+- [OdnoklassnikiSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/odnoklassniki/OdnoklassnikiSkraper.kt)
 - [PikabuSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pikabu/PikabuSkraper.kt)
 
 After that usage as simple as is:
