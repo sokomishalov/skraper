@@ -43,7 +43,7 @@ abstract class SkraperClientTck {
         assertEquals(200, resp.status)
         assertTrue { resp.headers.isNotEmpty() }
         assertNotNull(resp.body)
-        assertTrue { resp.body.isNotEmpty() }
+        assertTrue { resp.body!!.isNotEmpty() }
     }
 
     @Test
@@ -53,7 +53,7 @@ abstract class SkraperClientTck {
         assertNotNull(resp)
         assertEquals(200, resp.status)
         assertNotNull(resp.body)
-        assertTrue { resp.body.isNotEmpty() }
+        assertTrue { resp.body!!.isNotEmpty() }
     }
 
     @Test
