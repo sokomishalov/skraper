@@ -19,6 +19,8 @@ package ru.sokomishalov.skraper.client
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.internal.serialization.getString
 import java.nio.file.Files
@@ -28,6 +30,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.text.Charsets.UTF_8
 
+@Execution(ExecutionMode.CONCURRENT)
 abstract class SkraperClientTck {
 
     protected abstract val client: SkraperClient
@@ -40,7 +43,7 @@ abstract class SkraperClientTck {
         assertEquals(200, resp.status)
         assertTrue { resp.headers.isNotEmpty() }
         assertNotNull(resp.body)
-        assertTrue { resp.body!!.isNotEmpty() }
+        assertTrue { resp.body.isNotEmpty() }
     }
 
     @Test
@@ -50,7 +53,7 @@ abstract class SkraperClientTck {
         assertNotNull(resp)
         assertEquals(200, resp.status)
         assertNotNull(resp.body)
-        assertTrue { resp.body!!.isNotEmpty() }
+        assertTrue { resp.body.isNotEmpty() }
     }
 
     @Test
