@@ -29,7 +29,8 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import ru.sokomishalov.skraper.model.Post
-import java.time.format.DateTimeFormatter.ISO_DATE_TIME
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter.ISO_INSTANT
 
 /**
  * @author sokomishalov
@@ -69,7 +70,7 @@ enum class Serialization(val extension: String) {
                             writeStartObject()
                             writeStringField("ID", item.id)
                             writeStringField("Text", item.text)
-                            writeStringField("Published at", item.publishedAt?.let { ISO_DATE_TIME.format(it) })
+                            writeStringField("Published at", item.publishedAt?.let { ISO_INSTANT.withZone(ZoneId.systemDefault()).format(it) })
                             writeStringField("Rating", item.statistics.likes?.toString(10).orEmpty())
                             writeStringField("Comments count", item.statistics.comments?.toString(10).orEmpty())
                             writeStringField("Views count", item.statistics.views?.toString(10).orEmpty())
