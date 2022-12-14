@@ -14,7 +14,7 @@
     <version>${revision}</version>
 
     <properties>
-        <reactor-netty.version>1.1.0</reactor-netty.version>
+        <reactor-netty.version>1.1.1</reactor-netty.version>
         <logback.version>1.4.5</logback.version>
     </properties>
 
