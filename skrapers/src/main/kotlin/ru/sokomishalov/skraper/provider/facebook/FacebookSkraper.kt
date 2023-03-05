@@ -24,6 +24,8 @@ import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.*
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
+import ru.sokomishalov.skraper.internal.consts.USER_AGENT_HEADER
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
 import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
@@ -48,16 +50,18 @@ open class FacebookSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val postsPath = path.substringBefore("/posts") + "/posts"
-        var nextPath = postsPath
+        var nextPath = path
         while (true) {
-            val fetchResult = client.fetchString(HttpRequest(url = MOBILE_BASE_URL.buildFullURL(path = nextPath)))
+            val fetchResult = client.fetchString(
+                HttpRequest(
+                    url = MOBILE_BASE_URL.buildFullURL(path = nextPath),
+                    headers = DEFAULT_HEADERS.plus(USER_AGENT_HEADER to USER_AGENT)
+                )
+            ) ?: break
 
-            val (document, nextPage) = fetchResult?.extractDocumentAndNextPage() ?: break
-            nextPath = nextPage ?: break
-
-            val rawPosts = document?.getElementsByTag("article")
-            if (rawPosts.isNullOrEmpty()) break
+            val (document, nextPage) = fetchResult.extractDocumentAndNextPage()
+            val rawPosts = document?.getElementsByTag("article").orEmpty()
+            if (rawPosts.isEmpty() && nextPage.isNullOrBlank()) break
 
             emitBatch(rawPosts) {
                 val dataFt = attr("data-ft").readJsonNodes()
@@ -73,6 +77,8 @@ open class FacebookSkraper @JvmOverloads constructor(
                     media = extractPostMedia()
                 )
             }
+
+            nextPath = nextPage ?: break
         }
     }
 
@@ -199,7 +205,8 @@ open class FacebookSkraper @JvmOverloads constructor(
     }
 
     companion object {
-        const val BASE_URL: String = "https://facebook.com"
-        const val MOBILE_BASE_URL: String = "https://m.facebook.com"
+        const val BASE_URL = "https://facebook.com"
+        const val MOBILE_BASE_URL = "https://m.facebook.com"
+        const val USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15"
     }
 }
