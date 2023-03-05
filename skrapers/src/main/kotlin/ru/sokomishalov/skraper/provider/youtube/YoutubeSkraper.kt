@@ -52,13 +52,12 @@ open class YoutubeSkraper @JvmOverloads constructor(
         val page = getUserPage(path = path)
 
         val jsonMetadata = page?.readJsonMetadata()
-
-        val fieldName = if (path.startsWith("/results")) "videoRenderer" else "gridVideoRenderer"
-
-        val rawPosts = jsonMetadata
-            ?.findParents(fieldName)
-            ?.map { it[fieldName] }
-            .orEmpty()
+        val rawPosts = listOf(
+            "videoRenderer",
+            "gridVideoRenderer"
+        ).flatMap { field ->
+            jsonMetadata?.findParents(field)?.map { it[field] }.orEmpty()
+        }
 
         emitBatch(rawPosts) {
             Post(
