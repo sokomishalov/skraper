@@ -16,6 +16,7 @@
     <properties>
         <reactor-netty.version>1.1.4</reactor-netty.version>
         <logback.version>1.4.5</logback.version>
+        <sl4j.version>1.7.32</sl4j.version>
     </properties>
 
     <dependencies>
@@ -85,6 +86,13 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-test</artifactId>
             <version>${kotlinx-coroutines.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${sl4j.version}</version>
             <scope>test</scope>
         </dependency>
 

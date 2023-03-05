@@ -55,18 +55,31 @@ open class FlickrSkraper @JvmOverloads constructor(
 
         emitBatch(jsonPosts) {
             Post(
-                id = getString("id").orEmpty(),
-                text = extractPostText(),
-                publishedAt = extractPostPublishDate(),
+                id = getString("data.id").orEmpty(),
+                text = run {
+                    val title = getByPath("data.title").unescapeNode()
+                    val description = getByPath("data.description").unescapeNode()
+
+                    "${title}\n\n${description}"
+                },
+                publishedAt = getLong("data.stats.data.datePosted")?.let { Instant.ofEpochSecond(it) },
                 statistics = PostStatistics(
-                    likes = extractPostLikes(),
-                    comments = extractPostCommentsCount(),
-                    views = extractPostViewsCount(),
+                    likes = getByPath("data.engagement.data.faveCount")?.asInt(),
+                    comments = getByPath("data.engagement.data.commentCount")?.asInt(),
+                    views = getByPath("data.engagement.data.viewCount")?.asInt(),
                 ),
                 media = listOf(
                     Image(
-                        url = extractPostAttachmentUrl(),
-                        aspectRatio = extractPostAspectRatio()
+                        url = getFirstByPath(
+                            "data.sizes.data.l.data",
+                            "data.sizes.data.m.data",
+                            "data.sizes.data.s.data",
+                        )?.getString("url")?.toURL().orEmpty(),
+                        aspectRatio = getFirstByPath(
+                            "data.sizes.data.l.data",
+                            "data.sizes.data.m.data",
+                            "sizes.data.s.data",
+                        )?.run { getDouble("width") / getDouble("height") }
                     )
                 )
             )
@@ -79,16 +92,35 @@ open class FlickrSkraper @JvmOverloads constructor(
 
         return json?.run {
             PageInfo(
-                nick = extractPageNick(),
-                name = extractPageName(),
-                description = extractPageDescription(),
+                nick = getFirstByPath(
+                    "photostream-models.0.data.owner.data.pathAlias",
+                    "person-models.0.data.pathAlias"
+                )?.unescapeNode(),
+                name = getFirstByPath(
+                    "photostream-models.0.data.owner.data.username",
+                    "person-models.0.data.username"
+                )?.unescapeNode(),
+                description = getByPath("person-public-profile-models.0.data.profileDescriptionExpanded")
+                    ?.unescapeNode()
+                    ?.let { Jsoup.parse(it).wholeText() },
                 statistics = PageStatistics(
-                    followers = extractFollowersCount(),
-                    following = extractFollowingCount(),
-                    posts = extractPostsCount(),
+                    followers = getInt("person-contacts-count-models.0.data.followerCount"),
+                    following = getInt("person-contacts-count-models.0.data.followingCount"),
+                    posts = getInt("person-profile-models.0.data.photoCount"),
                 ),
-                avatar = extractPageLogo(),
-                cover = extractPageCover()
+                avatar = getFirstByPath(
+                    "photostream-models.0.data.owner.data.buddyicon.data",
+                    "person-models.0.data.buddyicon.data"
+                )
+                    ?.getFirstByPath("large", "medium", "small", "default")
+                    ?.asText()
+                    ?.toURL()
+                    ?.toImage(),
+                cover = getByPath("person-profile-models.0.data.coverPhotoUrls.data")
+                    ?.getFirstByPath("h", "l", "s")
+                    ?.asText()
+                    ?.toURL()
+                    ?.toImage()
             )
         }
     }
@@ -125,91 +157,7 @@ open class FlickrSkraper @JvmOverloads constructor(
         }.getOrNull()
     }
 
-    private fun JsonNode.extractPostText(): String {
-        val title = get("title").unescapeNode()
-        val description = get("description").unescapeNode()
-
-        return "${title}\n\n${description}"
-    }
-
-    private fun JsonNode.extractPostPublishDate(): Instant? {
-        return getLong("stats.datePosted")
-            ?.let { Instant.ofEpochSecond(it) }
-    }
-
-    private fun JsonNode.extractPostLikes(): Int? {
-        return getFirstByPath("engagement.faveCount", "faveCount")
-            ?.asInt()
-    }
-
-    private fun JsonNode.extractPostCommentsCount(): Int? {
-        return getFirstByPath("engagement.commentCount", "commentCount")
-            ?.asInt()
-    }
-
-    private fun JsonNode.extractPostViewsCount(): Int? {
-        return getFirstByPath("engagement.viewCount", "viewCount")
-            ?.asInt()
-    }
-
-    private fun JsonNode.extractPostAttachmentUrl(): String {
-        return getFirstByPath("sizes.l", "sizes.m", "sizes.s")
-            ?.getString("url")
-            ?.let { "https:${it}" }
-            .orEmpty()
-    }
-
-    private fun JsonNode.extractPostAspectRatio(): Double? {
-        return getFirstByPath("sizes.l", "sizes.m", "sizes.s")
-            ?.run { getDouble("width") / getDouble("height") }
-    }
-
-    private fun JsonNode.extractPageDescription(): String? {
-        return this
-            .get("person-public-profile-models.0.profileDescriptionExpanded")
-            ?.unescapeNode()
-            ?.let { Jsoup.parse(it).wholeText() }
-    }
-
-    private fun JsonNode.extractPageNick(): String? {
-        return getFirstByPath("photostream-models.0.owner.pathAlias", "person-models.0.pathAlias")
-            ?.unescapeNode()
-    }
-
-    private fun JsonNode.extractPageName(): String? {
-        return getFirstByPath("photostream-models.0.owner.username", "person-models.0.username")
-            ?.unescapeNode()
-    }
-
-    private fun JsonNode.extractFollowersCount(): Int? {
-        return getInt("person-contacts-count-models.0.followerCount")
-    }
-
-    private fun JsonNode.extractFollowingCount(): Int? {
-        return getInt("person-contacts-count-models.0.followingCount")
-    }
-
-    private fun JsonNode.extractPostsCount(): Int? {
-        return getInt("person-profile-models.0.photoCount")
-    }
-
-    private fun JsonNode.extractPageCover(): Image? {
-        return getByPath("person-profile-models.0.coverPhotoUrls")
-            ?.getFirstByPath("h", "l", "s")
-            ?.asText()
-            ?.convertToImage()
-    }
-
-    private fun JsonNode.extractPageLogo(): Image? {
-        return getFirstByPath("photostream-models.0.owner.buddyicon", "person-models.0.buddyicon")
-            ?.getFirstByPath("large", "medium", "small", "default")
-            ?.asText()
-            ?.convertToImage()
-    }
-
-    private fun String?.convertToImage(): Image {
-        return this?.let { "https:${it}" }.orEmpty().toImage()
-    }
+    private fun String.toURL(): String = let { "https:${it}" }
 
     private fun JsonNode?.unescapeNode(): String {
         return runCatching {
