@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.11.1](https://github.com/sokomishalov/skraper/tree/0.11.1) (2023-03-05)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.11.0...0.11.1)
+
+**Closed issues:**
+
+- Issue when scraping from VK Channels / Groups [\#340](https://github.com/sokomishalov/skraper/issues/340)
+
+## [0.11.0](https://github.com/sokomishalov/skraper/tree/0.11.0) (2022-09-07)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.10.0...0.11.0)
+
+**Merged pull requests:**
+
+- odnoklassniki implemented [\#322](https://github.com/sokomishalov/skraper/pull/322) ([sokomishalov](https://github.com/sokomishalov))
+- Bump ktor.version from 2.1.0 to 2.1.1 [\#321](https://github.com/sokomishalov/skraper/pull/321) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jackson.version from 2.13.3 to 2.13.4 [\#320](https://github.com/sokomishalov/skraper/pull/320) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.2.11 to 1.4.0 [\#319](https://github.com/sokomishalov/skraper/pull/319) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.10.0](https://github.com/sokomishalov/skraper/tree/0.10.0) (2022-08-26)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.9.2...0.10.0)
