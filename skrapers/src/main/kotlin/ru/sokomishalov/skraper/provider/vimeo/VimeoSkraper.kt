@@ -59,11 +59,10 @@ open class VimeoSkraper @JvmOverloads constructor(
             }
         }
 
-        while (true) {
-            var page = 1
+        (1..Int.MAX_VALUE).forEach { page ->
             val rawPosts = fetcher(page)
 
-            if (rawPosts.isEmpty()) break
+            if (rawPosts.isEmpty()) return@flow
 
             emitBatch(rawPosts) {
                 Post(
@@ -78,8 +77,6 @@ open class VimeoSkraper @JvmOverloads constructor(
                     ))
                 )
             }
-
-            ++page
         }
     }
 

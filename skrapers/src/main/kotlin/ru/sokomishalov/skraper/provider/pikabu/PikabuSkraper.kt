@@ -42,15 +42,14 @@ open class PikabuSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        var page = 0
-        while (true) {
-            val document = getPage(path = path, page = ++page)
+        (1..Int.MAX_VALUE).forEach { page ->
+            val document = getPage(path = path, page = page)
 
             val rawPosts = document
                 ?.getElementsByTag("article")
                 .orEmpty()
 
-            if (rawPosts.isEmpty()) break
+            if (rawPosts.isEmpty()) return@flow
 
             emitBatch(rawPosts) {
                 val storyBlocks = getElementsByClass("story-block")
