@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.12.0](https://github.com/sokomishalov/skraper/tree/0.12.0) (2023-07-16)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.11.1...0.12.0)
+
+**Closed issues:**
+
+- Twitter scraper [\#400](https://github.com/sokomishalov/skraper/issues/400)
+- TwitterSkraper returns HTTP response code: 403 [\#378](https://github.com/sokomishalov/skraper/issues/378)
+
 ## [0.11.1](https://github.com/sokomishalov/skraper/tree/0.11.1) (2023-03-05)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.11.0...0.11.1)
@@ -7,6 +16,40 @@
 **Closed issues:**
 
 - Issue when scraping from VK Channels / Groups [\#340](https://github.com/sokomishalov/skraper/issues/340)
+
+**Merged pull requests:**
+
+- Bump reactor-netty from 1.1.1 to 1.1.4 [\#371](https://github.com/sokomishalov/skraper/pull/371) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logbook-spring-boot-webflux-autoconfigure from 2.14.0 to 2.15.0 [\#369](https://github.com/sokomishalov/skraper/pull/369) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jsoup from 1.15.3 to 1.15.4 [\#367](https://github.com/sokomishalov/skraper/pull/367) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump maven-javadoc-plugin from 3.4.1 to 3.5.0 [\#366](https://github.com/sokomishalov/skraper/pull/366) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 6.4.0 to 6.5.0 [\#362](https://github.com/sokomishalov/skraper/pull/362) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.8.0 to 1.8.10 [\#361](https://github.com/sokomishalov/skraper/pull/361) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.2.1 to 2.2.3 [\#360](https://github.com/sokomishalov/skraper/pull/360) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jackson.version from 2.14.1 to 2.14.2 [\#359](https://github.com/sokomishalov/skraper/pull/359) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 6.3.0 to 6.4.0 [\#354](https://github.com/sokomishalov/skraper/pull/354) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.7.22 to 1.8.0 [\#353](https://github.com/sokomishalov/skraper/pull/353) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.1.0 to 1.1.1 [\#350](https://github.com/sokomishalov/skraper/pull/350) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.1.3 to 2.2.1 [\#349](https://github.com/sokomishalov/skraper/pull/349) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.7.21 to 1.7.22 [\#347](https://github.com/sokomishalov/skraper/pull/347) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jackson.version from 2.14.0 to 2.14.1 [\#342](https://github.com/sokomishalov/skraper/pull/342) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.4.4 to 1.4.5 [\#341](https://github.com/sokomishalov/skraper/pull/341) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 6.1.0 to 6.3.0 [\#338](https://github.com/sokomishalov/skraper/pull/338) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.7.20 to 1.7.21 [\#337](https://github.com/sokomishalov/skraper/pull/337) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.24 to 1.1.0 [\#336](https://github.com/sokomishalov/skraper/pull/336) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jackson.version from 2.13.4 to 2.14.0 [\#335](https://github.com/sokomishalov/skraper/pull/335) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.1.2 to 2.1.3 [\#334](https://github.com/sokomishalov/skraper/pull/334) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.7.4 to 2.7.5 [\#333](https://github.com/sokomishalov/skraper/pull/333) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.23 to 1.0.24 [\#332](https://github.com/sokomishalov/skraper/pull/332) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.7.10 to 1.7.20 [\#331](https://github.com/sokomishalov/skraper/pull/331) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.4.3 to 1.4.4 [\#330](https://github.com/sokomishalov/skraper/pull/330) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.4.1 to 1.4.3 [\#329](https://github.com/sokomishalov/skraper/pull/329) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.1.1 to 2.1.2 [\#328](https://github.com/sokomishalov/skraper/pull/328) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.7.10 to 1.7.20 [\#327](https://github.com/sokomishalov/skraper/pull/327) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.7.3 to 2.7.4 [\#326](https://github.com/sokomishalov/skraper/pull/326) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-webflux from 5.3.22 to 5.3.23 [\#325](https://github.com/sokomishalov/skraper/pull/325) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump logback-classic from 1.4.0 to 1.4.1 [\#324](https://github.com/sokomishalov/skraper/pull/324) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump reactor-netty from 1.0.22 to 1.0.23 [\#323](https://github.com/sokomishalov/skraper/pull/323) ([dependabot[bot]](https://github.com/apps/dependabot))
 
 ## [0.11.0](https://github.com/sokomishalov/skraper/tree/0.11.0) (2022-09-07)
 
