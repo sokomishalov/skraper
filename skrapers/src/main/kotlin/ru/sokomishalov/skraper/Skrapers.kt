@@ -30,6 +30,7 @@ import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegCliRunner
 import ru.sokomishalov.skraper.internal.ffmpeg.FfmpegRunner
 import ru.sokomishalov.skraper.internal.net.path
 import ru.sokomishalov.skraper.model.*
+import ru.sokomishalov.skraper.provider.coub.CoubSkraper
 import ru.sokomishalov.skraper.provider.facebook.FacebookSkraper
 import ru.sokomishalov.skraper.provider.flickr.FlickrSkraper
 import ru.sokomishalov.skraper.provider.ifunny.IFunnySkraper
@@ -207,6 +208,7 @@ object Skrapers {
             PikabuSkraper(client),
             VimeoSkraper(client),
             OdnoklassnikiSkraper(client),
+            CoubSkraper(client),
         )
 
         return spiSkrapers + knownSkrapers

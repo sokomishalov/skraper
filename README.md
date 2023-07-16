@@ -34,6 +34,7 @@ Current list of implemented sources:
 - [Tumblr](https://tumblr.com)
 - [Vimeo](https://vimeo.com)
 - [IFunny](https://ifunny.co)
+- [Coub](https://coub.com)
 - [VK](https://vk.com)
 - [Odnoklassniki](https://ok.ru)
 - [Pikabu](https://pikabu.ru)
@@ -90,7 +91,7 @@ positional arguments:
   PROVIDER                                  skraper provider, options: facebook, instagram,
                                             twitter, youtube, tiktok, telegram, twitch, reddit,
                                             9gag, pinterest, flickr, tumblr, ifunny, vk, pikabu,
-                                            vimeo, odnoklassniki
+                                            vimeo, odnoklassniki, coub
 
   PATH                                      path to user/community/channel/topic/trend
 ```
@@ -143,6 +144,7 @@ As mentioned before, the provider implementation list is:
 - [TumblrSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/tumblr/TumblrSkraper.kt)
 - [VimeoSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/vimeo/VimeoSkraper.kt)
 - [IFunnySkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/ifunny/IFunnySkraper.kt)
+- [CoubSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/coub/CoubSkraper.kt)
 - [VkSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/vk/VkSkraper.kt)
 - [OdnoklassnikiSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/odnoklassniki/OdnoklassnikiSkraper.kt)
 - [PikabuSkraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/provider/pikabu/PikabuSkraper.kt)
