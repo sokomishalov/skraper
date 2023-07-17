@@ -16,7 +16,7 @@
     <properties>
         <spring-boot.version>2.7.9</spring-boot.version>
         <telegram-bots.version>6.5.0</telegram-bots.version>
-        <logbook.version>2.16.0</logbook.version>
+        <logbook.version>3.1.0</logbook.version>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
