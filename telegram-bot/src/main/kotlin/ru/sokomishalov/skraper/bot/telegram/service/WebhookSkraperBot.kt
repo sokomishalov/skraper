@@ -33,9 +33,8 @@ import ru.sokomishalov.skraper.bot.telegram.web.WebhookController
 @ConditionalOnProperty("skraper.bot.mode", havingValue = "WEBHOOK", matchIfMissing = false)
 class WebhookSkraperBot(
     private val botProperties: BotProperties
-) : SpringWebhookBot(SetWebhook.builder().url(botProperties.webhookUrl).build()) {
+) : SpringWebhookBot(SetWebhook.builder().url(botProperties.webhookUrl).build(), botProperties.token) {
     override fun getBotUsername(): String = botProperties.username
-    override fun getBotToken(): String = botProperties.token
     override fun getBotPath(): String = "/webhook"
 
     /**

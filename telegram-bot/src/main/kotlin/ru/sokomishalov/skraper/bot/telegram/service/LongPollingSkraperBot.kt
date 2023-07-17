@@ -37,8 +37,7 @@ import ru.sokomishalov.skraper.bot.telegram.autoconfigure.BotProperties
 class LongPollingSkraperBot(
     private val bot: SkraperBot,
     private val botProperties: BotProperties
-) : TelegramLongPollingBot() {
+) : TelegramLongPollingBot(botProperties.token) {
     override fun getBotUsername(): String = botProperties.username
-    override fun getBotToken(): String = botProperties.token
     override fun onUpdateReceived(update: Update): Unit = GlobalScope.launch(IO) { with(bot) { receive(update) }.also { send(it) } }.let { }
 }
