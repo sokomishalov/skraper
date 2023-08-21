@@ -17,18 +17,25 @@
 
 package ru.sokomishalov.skraper.provider.vk
 
+import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
+import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
+import ru.sokomishalov.skraper.internal.consts.WIN_1251_ENCODING
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
-import ru.sokomishalov.skraper.internal.jsoup.*
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByAttributeValue
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByClass
+import ru.sokomishalov.skraper.internal.jsoup.getFirstElementByTag
+import ru.sokomishalov.skraper.internal.jsoup.getMetaPropertyMap
 import ru.sokomishalov.skraper.internal.net.host
+import ru.sokomishalov.skraper.internal.number.div
+import ru.sokomishalov.skraper.internal.serialization.*
 import ru.sokomishalov.skraper.internal.string.unescapeHtml
 import ru.sokomishalov.skraper.model.*
 import java.time.Instant
@@ -36,7 +43,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatterBuilder
-import java.util.Locale.ENGLISH
+import java.util.Locale.US
 
 /**
  * @author sokomishalov
@@ -46,54 +53,81 @@ open class VkSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        var nextPage = path
-        while (true) {
-            val page = getUserPage(path = nextPage)
+        val page = getUserPage(path = path)
 
-            val rawPosts = page
-                ?.getElementsByClass("wall_item")
-                ?.toList()
-                .orEmpty()
+        val rawPosts = page
+            ?.getElementsByClass("post")
+            ?.toList()
+            .orEmpty()
 
-            emitBatch(rawPosts) {
-                Post(
-                    id = extractPostId(),
-                    text = extractPostCaption(),
-                    publishedAt = extractPostPublishedDate(),
-                    statistics = PostStatistics(
-                        likes = extractPostLikesCount(),
-                        reposts = extractPostsRepostsCount(),
-                        comments = extractPostCommentsCount(),
-                        views = extractPostsViewsCount(),
-                    ),
-                    media = extractPostMediaItems()
-                )
-            }
-
-            nextPage = page
-                ?.getElementsByClass("show_more")
-                ?.attr("href")
-                ?.unescapeHtml()
-                ?: break
+        emitBatch(rawPosts) {
+            Post(
+                id = extractPostId(),
+                text = extractPostText(),
+                publishedAt = extractPostPublishedDate(),
+                statistics = PostStatistics(
+                    likes = extractPostLikesCount(),
+                    reposts = extractPostsRepostsCount(),
+                    views = extractPostsViewsCount(),
+                ),
+                media = extractPostMediaItems()
+            )
         }
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
         val page = getUserPage(path = path)
+        val metadata = page.getMetaPropertyMap()
 
-        return page?.run {
-            PageInfo(
-                nick = extractPageNick(),
-                name = extractPageName(),
-                description = extractDescription(),
-                statistics = PageStatistics(
-                    followers = extractFollowersCount(),
-                    posts = extractPostsCount(),
-                ),
-                avatar = extractPageAvatar(),
-                cover = extractPageCover()
-            )
+        return when {
+            "og:url" in metadata -> {
+                PageInfo(
+                    nick = metadata["og:url"]?.removeSuffix("/")?.substringAfterLast("/"),
+                    name = metadata["og:title"],
+                    description = metadata["og:description"],
+                    avatar = metadata["og:image"]?.let {
+                        Image(
+                            url = metadata["og:image"].orEmpty(),
+                            aspectRatio = metadata["og:image:width"]?.toIntOrNull() / metadata["og:image:height"]?.toIntOrNull()
+                        )
+                    }
+                )
+            }
+            else -> {
+                val prefetchInfo = page.extractPrefetchMethodToDataInfo()
+                prefetchInfo?.get("users.get")?.firstOrNull()?.run {
+                    PageInfo(
+                        nick = getString("domain") ?: getString("id")?.let { "id$it" },
+                        name = "${getString("first_name").orEmpty()} ${getString("last_name").orEmpty()}",
+                        description = getString("status")?.unescapeHtml(),
+                        statistics = PageStatistics(
+                            followers = getInt("counters.followers"),
+                            following = getInt("counters.subscriptions"),
+                        ),
+                        avatar = getFirstByPath("photo_max", "photo_400", "photo_200")?.asText()?.toImage(),
+                        cover = getByPath("cover.images")?.maxByOrNull { it.getInt("1920") ?: 0 }?.let {
+                            Image(
+                                url = it.getString("url").orEmpty(),
+                                aspectRatio = it.getDouble("width") / (it.getDouble("height")),
+                            )
+                        }
+                    )
+                }
+            }
         }
+    }
+
+    private fun Element?.extractPrefetchMethodToDataInfo(): Map<String, JsonNode?>? {
+        return this
+            ?.getElementsByTag("script")
+            ?.toList()
+            ?.flatMap { it.toString().lines() }
+            ?.find { "apiPrefetchCache" in it }
+            ?.substringAfter(", ")
+            ?.let { runCatching { it.readJsonNodes() }.getOrNull() }
+            ?.get("apiPrefetchCache")
+            ?.groupBy({ it.get("method").asText() }, { it.get("response") })
+            ?.mapValues { it.value.firstOrNull { !it.isEmpty } }
     }
 
     override fun supports(url: String): Boolean {
@@ -145,31 +179,26 @@ open class VkSkraper @JvmOverloads constructor(
 
     }
 
-    private suspend fun getUserPage(path: String): Document? {
-        return client.fetchDocument(
+    private suspend fun getUserPage(path: String) =
+        client.fetchDocument(
             HttpRequest(
                 url = BASE_URL.buildFullURL(path = path),
-                headers = mapOf("Accept-Language" to "en-US")
-            )
+                headers = DEFAULT_HEADERS,
+            ),
+            charset = WIN_1251_ENCODING,
         )
-    }
 
     private fun Element.extractPostId(): String {
-        return getFirstElementByClass("wi_info")
-            ?.getFirstElementByClass("wi_date")
-            ?.attr("href")
-            ?.substringAfter("_")
-            .orEmpty()
+        return getFirstElementByClass("PostHeaderSubtitle__link")?.attr("href")?.removePrefix("/").orEmpty()
     }
 
-    private fun Element.extractPostCaption(): String? {
-        return getFirstElementByClass("pi_text")
-            ?.wholeText()
+    private fun Element.extractPostText(): String? {
+        return getFirstElementByClass("wall_post_text")?.wholeText()
     }
 
     private fun Element.extractPostPublishedDate(): Instant? {
-        return getFirstElementByClass("wi_date")
-            ?.wholeText()
+        return getFirstElementByTag("time")
+            ?.ownText()
             ?.run {
                 val localDate = runCatching {
                     when {
@@ -212,126 +241,55 @@ open class VkSkraper @JvmOverloads constructor(
     }
 
     private fun Element.extractPostLikesCount(): Int? {
-        return getElementsByClass("visually-hidden")
-            .getOrNull(1)
-            ?.html()
+        return getFirstElementByAttributeValue("data-section-ref", "reactions-button-screen-reader-counter")
+            ?.ownText()
             ?.substringBefore(" ")
-            ?.toIntOrNull()
-    }
-
-    private fun Element.extractPostCommentsCount(): Int? {
-        return getElementsByClass("PostBottomButton")
-            .getOrNull(1)
-            ?.attr("aria-label")
-            ?.substringBefore(" ")
+            ?.trim()
             ?.toIntOrNull()
     }
 
     private fun Element.extractPostsRepostsCount(): Int? {
-        return getElementsByClass("PostBottomButton")
-            .getOrNull(2)
+        return getFirstElementByClass("share")
             ?.attr("aria-label")
             ?.substringBefore(" ")
+            ?.trim()
             ?.toIntOrNull()
     }
 
     private fun Element.extractPostsViewsCount(): Int? {
-        return getFirstElementByClass("wall_item_views")
-            ?.attr("aria-label")
+        return getFirstElementByClass("like_views")
+            ?.attr("title")
             ?.substringBefore(" ")
             ?.toIntOrNull()
     }
 
     private fun Element.extractPostMediaItems(): List<Media> {
-        val thumbElement = getFirstElementByClass("thumbs_map_helper")
-
-        val aspectRatio = thumbElement
-            ?.getStyle("padding-top")
-            ?.removeSuffix("%")
-            ?.toDoubleOrNull()
-            ?.let { 100 / it }
-
-        return thumbElement
+        return getFirstElementByClass("wall_text")
             ?.getElementsByTag("a")
-            ?.map {
-                val isVideo = it.attr("href").startsWith("/video")
-                val hrefLink = "${BASE_URL}${it.attr("href")}"
+            ?.mapNotNull {
+                val href = it.attr("href")
+                val hrefLink = "$BASE_URL$href"
 
                 when {
-                    isVideo -> Video(
-                        url = hrefLink,
-                        aspectRatio = aspectRatio
-                    )
-                    else -> Image(
-                        url = it.getFirstElementByClass("thumb_map_img")?.getBackgroundImageUrl() ?: hrefLink,
-                        aspectRatio = aspectRatio
-                    )
+                    href.startsWith("/video") -> hrefLink.toVideo()
+                    href.startsWith("/photo") -> hrefLink.toImage()
+                    else -> null
                 }
             }
             .orEmpty()
     }
 
-    private fun Document.extractPageNick(): String? {
-        return getFirstElementByAttributeValue("rel", "canonical")
-            ?.attr("href")
-            ?.substringAfterLast("/")
-    }
-
-    private fun Document.extractPageName(): String? {
-        return getFirstElementByClass("op_header")
-            ?.wholeText()
-    }
-
-    private fun Document.extractDescription(): String? {
-        return getFirstElementByClass("pp_status")
-            ?.wholeText()
-    }
-
-    private fun Document.extractFollowersCount(): Int? {
-        return getElementsByClass("pm_item")
-            .map { it.wholeText() }
-            .find { "Followers" in it }
-            ?.replace("Followers", "")
-            ?.replace(",", "")
-            ?.trim()
-            ?.toIntOrNull()
-    }
-
-    private fun Document.extractPostsCount(): Int? {
-        return getFirstElementByClass("slim_header_label")
-            ?.wholeText()
-            ?.replace("posts", "")
-            ?.replace(",", "")
-            ?.trim()
-            ?.toIntOrNull()
-    }
-
-    private fun Document.extractPageCover(): Image? {
-        return this
-            .getFirstElementByClass("groupCover__image")
-            ?.getBackgroundImageUrl()
-            ?.toImage()
-    }
-
-    private fun Document.extractPageAvatar(): Image? {
-        return this
-            .getFirstElementByClass("profile_panel")
-            ?.getFirstElementByClass("Avatar__image")
-            ?.getBackgroundImageUrl()
-            ?.toImage()
-    }
-
     companion object {
-        const val BASE_URL: String = "https://m.vk.com"
+        const val BASE_URL = "https://vk.com"
 
         private val VK_SHORT_TIME_AGO_DATE_FORMATTER = DateTimeFormatterBuilder()
             .appendPattern("h:mm a")
             .parseLenient()
-            .toFormatter(ENGLISH)
+            .toFormatter(US)
 
         private val VK_LONG_TIME_AGO_DATE_FORMATTER = DateTimeFormatterBuilder()
             .appendPattern("d MMM yyyy")
             .parseLenient()
-            .toFormatter(ENGLISH)
+            .toFormatter(US)
     }
 }

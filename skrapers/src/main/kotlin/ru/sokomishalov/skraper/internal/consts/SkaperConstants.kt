@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.internal.consts
 
+import java.nio.charset.Charset
 import java.time.Duration
 
 internal const val USER_AGENT_HEADER = "User-Agent"
@@ -29,3 +30,5 @@ internal const val DEFAULT_POSTS_BATCH = 50
 
 internal val DEFAULT_CONNECTION_TIMEOUT = Duration.ofSeconds(5)
 internal val DEFAULT_READ_TIMEOUT = Duration.ofMinutes(1)
+
+internal val WIN_1251_ENCODING = Charset.forName("windows-1251")

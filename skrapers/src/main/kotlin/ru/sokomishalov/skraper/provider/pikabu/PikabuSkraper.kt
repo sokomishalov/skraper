@@ -26,12 +26,12 @@ import ru.sokomishalov.skraper.client.HttpRequest
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.fetchDocument
 import ru.sokomishalov.skraper.client.fetchOpenGraphMedia
+import ru.sokomishalov.skraper.internal.consts.WIN_1251_ENCODING
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.*
 import ru.sokomishalov.skraper.internal.net.host
 import ru.sokomishalov.skraper.internal.number.div
 import ru.sokomishalov.skraper.model.*
-import java.nio.charset.Charset
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
@@ -118,7 +118,7 @@ open class PikabuSkraper @JvmOverloads constructor(
             is Video -> {
                 val page = client.fetchDocument(
                     request = HttpRequest(url = media.url),
-                    charset = Charset.forName("windows-1251")
+                    charset = WIN_1251_ENCODING,
                 )
                 return page
                     ?.getFirstElementByClass("player")
@@ -132,7 +132,7 @@ open class PikabuSkraper @JvmOverloads constructor(
     private suspend fun getPage(path: String, page: Int = 1): Document? {
         return client.fetchDocument(
             request = HttpRequest(url = BASE_URL.buildFullURL(path = path, queryParams = mapOf("page" to page))),
-            charset = Charset.forName("windows-1251")
+            charset = WIN_1251_ENCODING,
         )
     }
 

@@ -69,7 +69,7 @@ internal fun String.unescapeHtml(): String {
 
 @PublishedApi
 internal fun String.unescapeUrl(): String {
-    return URLDecoder.decode(this.replace("%u2026", "..."), UTF_8.name())
+    return URLDecoder.decode(replace("%u2026", "..."), UTF_8.name())
 }
 
 @PublishedApi

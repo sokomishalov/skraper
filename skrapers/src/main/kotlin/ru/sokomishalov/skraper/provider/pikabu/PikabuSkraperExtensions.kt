@@ -37,33 +37,33 @@ fun PikabuSkraper.getNewPosts(): Flow<Post> {
 }
 
 fun PikabuSkraper.getCommunityHotPosts(community: String): Flow<Post> {
-    return getPosts(path = "/community/${community}/${""}")
+    return getPosts(path = "/community/${community}/")
 }
 
 fun PikabuSkraper.getCommunityBestPosts(community: String): Flow<Post> {
-    return getPosts(path = "/community/${community}/${"best"}")
+    return getPosts(path = "/community/${community}/best")
 }
 
 fun PikabuSkraper.getCommunityNewPosts(community: String): Flow<Post> {
-    return getPosts(path = "/community/${community}/${"new"}")
+    return getPosts(path = "/community/${community}/new")
 }
 
 fun PikabuSkraper.getUserLatestPosts(username: String): Flow<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${""}")
+    return getPosts(path = "/@${username.removePrefix("@")}/")
 }
 
 fun PikabuSkraper.getUserBestPosts(username: String): Flow<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${"rating"}")
+    return getPosts(path = "/@${username.removePrefix("@")}/rating")
 }
 
 fun PikabuSkraper.getUserOwnPosts(username: String): Flow<Post> {
-    return getPosts(path = "/@${username.removePrefix("@")}/${"mine"}")
+    return getPosts(path = "/@${username.removePrefix("@")}/mine")
 }
 
 suspend fun PikabuSkraper.getUserInfo(username: String): PageInfo? {
-    return getPageInfo(path = "/@${username.removePrefix("@")}/${""}")
+    return getPageInfo(path = "/@${username.removePrefix("@")}/")
 }
 
 suspend fun PikabuSkraper.getCommunityInfo(community: String): PageInfo? {
-    return getPageInfo(path = "/community/${community}/${""}")
+    return getPageInfo(path = "/community/${community}/")
 }
