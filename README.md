@@ -99,8 +99,11 @@ positional arguments:
 Examples:
 
 ```bash
-./skraper ninegag /hot 
+./skraper 9gag /hot 
 ./skraper reddit /r/memes -n 5 -t csv -o ./reddit/posts
+./skraper instagram /explore/tags/memes -t json
+./skraper flickr /photos/harrythehawk -t yaml
+./skraper pinterest /levato/meme -t xml
 ./skraper youtube /user/JetBrainsTV/videos --media-only -n 2
 ```
 

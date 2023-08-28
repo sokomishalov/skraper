@@ -16,6 +16,7 @@
     <properties>
         <mordant.version>1.2.1</mordant.version>
         <argparser.version>2.0.7</argparser.version>
+        <progressbar.version>0.9.5</progressbar.version>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
@@ -34,6 +35,11 @@
             <groupId>com.github.ajalt</groupId>
             <artifactId>mordant</artifactId>
             <version>${mordant.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+            <version>${progressbar.version}</version>
         </dependency>
         <dependency>
             <groupId>io.ktor</groupId>
@@ -69,6 +75,12 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${sl4j.version}</version>
         </dependency>
     </dependencies>
 

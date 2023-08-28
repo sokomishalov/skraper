@@ -23,9 +23,11 @@ import com.xenomachina.argparser.mainBody
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import me.tongfei.progressbar.ProgressBar
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.model.Post
 import java.io.File
@@ -39,20 +41,25 @@ import kotlin.text.Charsets.UTF_8
 fun main(args: Array<String>) = mainBody(columns = 100) {
     val parsedArgs = ArgParser(args = args.ifEmpty { arrayOf("--help") }).parseInto(::Args)
 
-    with(t) { println("${green("Skraper")} ${extractCurrentVersion()?.let { magenta(it) }} started") }
+    log { "$toolName started" }
 
     val posts = runBlocking {
-        parsedArgs
-            .skraper
-            .getPosts("/${parsedArgs.path.removePrefix("/")}")
-            .take(parsedArgs.limit)
-            .toList()
+        ProgressBar(with(t) { yellow("Fetching posts") }, parsedArgs.limit.toLong()).use { pb ->
+            parsedArgs
+                .skraper
+                .getPosts("/${parsedArgs.path.removePrefix("/")}")
+                .take(parsedArgs.limit)
+                .onEach { pb.step() }
+                .toList()
+        }
     }
 
     when {
         parsedArgs.onlyMedia -> posts.persistMedia(parsedArgs)
         else -> posts.persistMeta(parsedArgs)
     }
+
+    log { "$toolName finished" }
 }
 
 private fun List<Post>.persistMedia(parsedArgs: Args) {
@@ -64,27 +71,30 @@ private fun List<Post>.persistMedia(parsedArgs: Args) {
     }
     val targetDir = File("${root}/${provider}/${requestedPath}").apply { mkdirs() }
 
-    runBlocking(context = Executors.newFixedThreadPool(parsedArgs.threads).asCoroutineDispatcher()) {
-        flatMap { post ->
-            post.media.mapIndexed { index, media ->
-                async {
-                    runCatching {
-                        Skrapers.download(
-                            media = media,
-                            destDir = targetDir,
-                            filename = when (post.media.size) {
-                                1 -> post.id
-                                else -> "${post.id}_${index + 1}"
-                            }
-                        )
-                    }.onSuccess { path ->
-                        println(path)
-                    }.onFailure { thr ->
-                        with(t) { println("Cannot download ${media.url} , Reason: ${red(thr.toString())}") }
+    ProgressBar(with(t) { yellow("Fetching media") }, size.toLong()).use { pb ->
+        runBlocking(context = Executors.newFixedThreadPool(parsedArgs.threads).asCoroutineDispatcher()) {
+            flatMap { post ->
+                post.media.mapIndexed { index, media ->
+                    async {
+                        runCatching {
+                            Skrapers.download(
+                                media = media,
+                                destDir = targetDir,
+                                filename = when (post.media.size) {
+                                    1 -> post.id
+                                    else -> "${post.id}_${index + 1}"
+                                }
+                            )
+                        }.onSuccess { path ->
+                            log { "${media.url} data has been written to ${cyan(path.absolutePath)}" }
+                            pb.step()
+                        }.onFailure { thr ->
+                            log { "Cannot download ${media.url} , Reason: ${red(thr.toString())}" }
+                        }
                     }
-                }
+                }.awaitAll()
             }
-        }.awaitAll()
+        }
     }
 
     exitProcess(1)
@@ -111,7 +121,7 @@ private fun List<Post>.persistMeta(parsedArgs: Args) {
         .apply { parentFile.mkdirs() }
         .writeText(text = content, charset = UTF_8)
 
-    with(t) { println(cyan(fileToWrite.path)) }
+    log { "Data has been written to ${cyan(fileToWrite.path)}" }
 }
 
 private fun extractCurrentVersion(): String? {
@@ -120,6 +130,14 @@ private fun extractCurrentVersion(): String? {
             .apply { load(ClassLoader.getSystemResourceAsStream("git.properties")) }
             .getProperty("git.build.version")
     }.getOrNull()
+}
+
+private val toolName get() = with(t) {
+    "${green("Skraper")}${extractCurrentVersion()?.let { " ${magenta(it)}" }.orEmpty()}"
+}
+
+private inline fun log(msg: TermColors.() -> String) = with(t) {
+    println(msg())
 }
 
 @JvmField
