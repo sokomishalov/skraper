@@ -17,11 +17,10 @@ package ru.sokomishalov.skraper.provider.vimeo
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
-class VimeoSkraperTest : SkraperTck() {
-    override val skraper: VimeoSkraper = VimeoSkraper(client = client)
-    override val path: String = "/funny"
+class VimeoSkraperTest : AbstractSkraperTest() {
+    override val skraper = VimeoSkraper(client = client)
     private val username: String = "scoutdogs"
     private val category: String = "comedy"
     private val subCategory: String = "comicnarrative"

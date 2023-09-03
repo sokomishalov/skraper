@@ -18,11 +18,10 @@ package ru.sokomishalov.skraper.provider.pikabu
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
-class PikabuSkraperTest : SkraperTck() {
-    override val skraper: PikabuSkraper = PikabuSkraper(client = client)
-    override val path: String = "/@admin"
+class PikabuSkraperTest : AbstractSkraperTest() {
+    override val skraper = PikabuSkraper(client = client)
     private val username: String = "admin"
     private val community: String = "pikabu"
 

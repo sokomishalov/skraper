@@ -18,11 +18,10 @@ package ru.sokomishalov.skraper.provider.tumblr
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
-class TumblrSkraperTest : SkraperTck() {
-    override val skraper: TumblrSkraper = TumblrSkraper(client = client)
-    override val path: String = "/blog/view/thedankest"
+class TumblrSkraperTest : AbstractSkraperTest() {
+    override val skraper = TumblrSkraper(client = client)
     private val username: String = "thedankest"
 
     @Test

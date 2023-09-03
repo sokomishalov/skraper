@@ -17,14 +17,13 @@ package ru.sokomishalov.skraper.provider.flickr
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class FlickrSkraperTest : SkraperTck() {
-    override val skraper: FlickrSkraper = FlickrSkraper(client = client)
-    override val path: String = "/photos/harrythehawk"
+class FlickrSkraperTest : AbstractSkraperTest() {
+    override val skraper = FlickrSkraper(client = client)
     private val username = "harrythehawk"
     private val tag = "fun"
 
@@ -46,5 +45,10 @@ class FlickrSkraperTest : SkraperTck() {
     @Test
     fun `Check media resolving`() {
         assertMediaResolved(Image("https://www.flickr.com/photos/harrythehawk/49711484733/"))
+    }
+
+    @Test
+    fun `Check media dowloading`() {
+        assertMediaDownloaded(Image("https://www.flickr.com/photos/harrythehawk/49711484733/"))
     }
 }

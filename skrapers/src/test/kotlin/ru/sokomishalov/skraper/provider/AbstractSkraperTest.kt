@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.slf4j.Logger
@@ -57,11 +56,11 @@ import kotlin.test.assertTrue
  * @author sokomishalov
  */
 @Execution(ExecutionMode.CONCURRENT)
-abstract class SkraperTck {
+abstract class AbstractSkraperTest {
 
     companion object {
         @JvmStatic
-        private val log: Logger = LoggerFactory.getLogger(SkraperTck::class.java)
+        private val log: Logger = LoggerFactory.getLogger(AbstractSkraperTest::class.java)
 
         @JvmStatic
         private val mapper: ObjectMapper = JsonMapper().apply {
@@ -78,23 +77,12 @@ abstract class SkraperTck {
     }
 
     protected abstract val skraper: Skraper
-    protected abstract val path: String
 
     protected open val client: SkraperClient = KtorSkraperClient()
 
     @BeforeEach
     internal fun setUp() {
         Skrapers.client = client
-    }
-
-    @Test
-    open fun `Check posts`() {
-        assertPosts { getPosts(path = path) }
-    }
-
-    @Test
-    open fun `Check page info`() {
-        assertPageInfo { getPageInfo(path = path) }
     }
 
     protected fun assertPosts(action: Skraper.() -> Flow<Post>) = runBlocking {

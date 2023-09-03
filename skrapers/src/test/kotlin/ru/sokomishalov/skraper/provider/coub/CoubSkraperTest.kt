@@ -17,11 +17,10 @@ package ru.sokomishalov.skraper.provider.coub
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
-class CoubSkraperTest : SkraperTck() {
-    override val skraper: CoubSkraper = CoubSkraper(client = client)
-    override val path: String = "/haladdin"
+class CoubSkraperTest : AbstractSkraperTest() {
+    override val skraper = CoubSkraper(client = client)
     private val username = "haladdin"
 
     @Test

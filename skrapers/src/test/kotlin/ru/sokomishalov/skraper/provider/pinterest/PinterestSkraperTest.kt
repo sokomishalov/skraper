@@ -17,21 +17,15 @@ package ru.sokomishalov.skraper.provider.pinterest
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class PinterestSkraperTest : SkraperTck() {
-    override val skraper: PinterestSkraper = PinterestSkraper(client = client)
-    override val path: String = "/levato"
+class PinterestSkraperTest : AbstractSkraperTest() {
+    override val skraper = PinterestSkraper(client = client)
     private val username: String = "levato"
     private val topic: String = "meme"
-
-    @Test
-    override fun `Check posts`() {
-        assertPosts { getPosts(path = "${path}/${topic}") }
-    }
 
     @Test
     fun `Check user posts`() {
@@ -45,6 +39,11 @@ class PinterestSkraperTest : SkraperTck() {
 
     @Test
     fun `Check media resolving`() {
+        assertMediaResolved(Image("https://www.pinterest.ru/pin/89509111320495523/"))
+    }
+
+    @Test
+    fun `Check media downloading`() {
         assertMediaResolved(Image("https://www.pinterest.ru/pin/89509111320495523/"))
     }
 }

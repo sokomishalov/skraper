@@ -18,11 +18,10 @@ package ru.sokomishalov.skraper.provider.odnoklassniki
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
-class OdnoklassnikiSkraperTest : SkraperTck() {
-    override val skraper: OdnoklassnikiSkraper = OdnoklassnikiSkraper(client = client)
-    override val path: String = "/milota"
+class OdnoklassnikiSkraperTest : AbstractSkraperTest() {
+    override val skraper = OdnoklassnikiSkraper(client = client)
     private val community: String = "milota"
 
     @Test

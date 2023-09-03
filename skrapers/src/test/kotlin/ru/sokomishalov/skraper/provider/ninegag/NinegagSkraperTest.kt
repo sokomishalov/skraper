@@ -18,14 +18,13 @@ package ru.sokomishalov.skraper.provider.ninegag
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class NinegagSkraperTest : SkraperTck() {
-    override val skraper: NinegagSkraper = NinegagSkraper(client = client)
-    override val path: String = "/meme"
+class NinegagSkraperTest : AbstractSkraperTest() {
+    override val skraper = NinegagSkraper(client = client)
     private val topic: String = "meme"
     private val tag: String = "dank-meme"
 

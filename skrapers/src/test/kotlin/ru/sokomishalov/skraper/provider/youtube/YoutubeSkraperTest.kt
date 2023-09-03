@@ -17,12 +17,11 @@ package ru.sokomishalov.skraper.provider.youtube
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
-class YoutubeSkraperTest : SkraperTck() {
-    override val skraper: YoutubeSkraper = YoutubeSkraper(client = client)
-    override val path: String = "/user/VineAholic"
-    private val username: String = "Miffffanya"
+class YoutubeSkraperTest : AbstractSkraperTest() {
+    override val skraper = YoutubeSkraper(client = client)
+    private val username: String = "VineAholic"
 
 
     @Test

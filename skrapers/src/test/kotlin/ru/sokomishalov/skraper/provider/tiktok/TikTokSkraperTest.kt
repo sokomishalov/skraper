@@ -19,12 +19,11 @@ import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.client.SkraperClient
 import ru.sokomishalov.skraper.client.okhttp.OkHttpSkraperClient
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
-class TikTokSkraperTest : SkraperTck() {
+class TikTokSkraperTest : AbstractSkraperTest() {
     override val client: SkraperClient = OkHttpSkraperClient()
-    override val skraper: TikTokSkraper = TikTokSkraper(client = client)
-    override val path: String = "/@memes"
+    override val skraper = TikTokSkraper(client = client)
     private val username: String = "memes"
 
     @Test

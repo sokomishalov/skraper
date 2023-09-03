@@ -18,15 +18,14 @@ package ru.sokomishalov.skraper.provider.ifunny
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 
 /**
  * @author sokomishalov
  */
-class IFunnySkraperTest : SkraperTck() {
-    override val skraper: IFunnySkraper = IFunnySkraper(client = client)
-    override val path: String = "/user/memes"
+class IFunnySkraperTest : AbstractSkraperTest() {
+    override val skraper = IFunnySkraper(client = client)
     private val username: String = "memes"
     private val catalog: String = "memes"
 

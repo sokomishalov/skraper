@@ -18,14 +18,13 @@ package ru.sokomishalov.skraper.provider.telegram
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class TelegramSkraperTest : SkraperTck() {
-    override val skraper: TelegramSkraper = TelegramSkraper(client = client)
-    override val path: String = "/memes"
+class TelegramSkraperTest : AbstractSkraperTest() {
+    override val skraper = TelegramSkraper(client = client)
     private val channel: String = "meduzalive"
     private val username: String = "sokomishalov"
 

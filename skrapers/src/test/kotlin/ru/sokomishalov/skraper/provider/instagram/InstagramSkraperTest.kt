@@ -18,14 +18,13 @@ package ru.sokomishalov.skraper.provider.instagram
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class InstagramSkraperTest : SkraperTck() {
-    override val skraper: InstagramSkraper = InstagramSkraper(client = client)
-    override val path: String = "/memes"
+class InstagramSkraperTest : AbstractSkraperTest() {
+    override val skraper = InstagramSkraper(client = client)
     private val username: String = "memes.video"
     private val tag: String = "memes"
 

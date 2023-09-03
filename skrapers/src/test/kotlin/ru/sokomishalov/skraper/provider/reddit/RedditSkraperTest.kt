@@ -18,14 +18,13 @@ package ru.sokomishalov.skraper.provider.reddit
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class RedditSkraperTest : SkraperTck() {
-    override val skraper: RedditSkraper = RedditSkraper(client = client)
-    override val path: String = "/r/memes"
+class RedditSkraperTest : AbstractSkraperTest() {
+    override val skraper = RedditSkraper(client = client)
     private val community: String = "r/videos"
     private val username: String = "u/ShittyMorph"
 

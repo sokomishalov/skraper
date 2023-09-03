@@ -17,14 +17,13 @@ package ru.sokomishalov.skraper.provider.facebook
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class FacebookSkraperTest : SkraperTck() {
-    override val skraper: FacebookSkraper = FacebookSkraper(client = client)
-    override val path: String = "/memes"
+class FacebookSkraperTest : AbstractSkraperTest() {
+    override val skraper = FacebookSkraper(client = client)
     private val community: String = "NintendoAmerica"
     private val username: String = "zuck"
 

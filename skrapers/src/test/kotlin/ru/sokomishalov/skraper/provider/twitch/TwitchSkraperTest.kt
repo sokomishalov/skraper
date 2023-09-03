@@ -17,14 +17,13 @@ package ru.sokomishalov.skraper.provider.twitch
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
-import ru.sokomishalov.skraper.provider.SkraperTck
+import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
  * @author sokomishalov
  */
-class TwitchSkraperTest : SkraperTck() {
-    override val skraper: TwitchSkraper = TwitchSkraper(client = client)
-    override val path: String = "/realmadrid/videos"
+class TwitchSkraperTest : AbstractSkraperTest() {
+    override val skraper = TwitchSkraper(client = client)
     private val username: String = "realmadrid"
     private val game: String = "Grand Theft Auto V"
 
