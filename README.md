@@ -124,7 +124,7 @@ Maven:
 Gradle kotlin dsl:
 
 ```kotlin
-implementation("ru.sokomishalov.skraper:skrapers:x.y.z)
+implementation("ru.sokomishalov.skraper:skrapers:x.y.z")
 ```
 
 ## Usage
