@@ -14,7 +14,7 @@
     <version>${revision}</version>
 
     <properties>
-        <spring-boot.version>2.7.16</spring-boot.version>
+        <spring-boot.version>2.7.17</spring-boot.version>
         <telegram-bots.version>6.8.0</telegram-bots.version>
         <logbook.version>2.16.0</logbook.version>
         <maven.deploy.skip>true</maven.deploy.skip>
