@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.13.0](https://github.com/sokomishalov/skraper/tree/0.13.0) (2023-12-15)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.12.1...0.13.0)
+
+**Closed issues:**
+
+- how to use this library in java? and thow use proxy [\#457](https://github.com/sokomishalov/skraper/issues/457)
+- The getUserPosts from InstagramSkrapper  [\#437](https://github.com/sokomishalov/skraper/issues/437)
+
+## [0.12.1](https://github.com/sokomishalov/skraper/tree/0.12.1) (2023-08-21)
+
+[Full Changelog](https://github.com/sokomishalov/skraper/compare/0.12.0...0.12.1)
+
+**Closed issues:**
+
+- InstagramSkraper [\#428](https://github.com/sokomishalov/skraper/issues/428)
+
+**Merged pull requests:**
+
+- Bump org.telegram:telegrambots-spring-boot-starter from 6.7.0 to 6.8.0 [\#427](https://github.com/sokomishalov/skraper/pull/427) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump io.projectreactor.netty:reactor-netty from 1.1.9 to 1.1.10 [\#426](https://github.com/sokomishalov/skraper/pull/426) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ch.qos.logback:logback-classic from 1.4.9 to 1.4.11 [\#425](https://github.com/sokomishalov/skraper/pull/425) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ch.qos.logback:logback-classic from 1.4.8 to 1.4.9 [\#423](https://github.com/sokomishalov/skraper/pull/423) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump ktor.version from 2.3.2 to 2.3.3 [\#422](https://github.com/sokomishalov/skraper/pull/422) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlinx-coroutines.version from 1.7.2 to 1.7.3 [\#421](https://github.com/sokomishalov/skraper/pull/421) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.7.13 to 2.7.14 [\#420](https://github.com/sokomishalov/skraper/pull/420) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump telegrambots-spring-boot-starter from 6.5.0 to 6.7.0 [\#418](https://github.com/sokomishalov/skraper/pull/418) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump spring-boot.version from 2.7.9 to 2.7.13 [\#417](https://github.com/sokomishalov/skraper/pull/417) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump kotlin.version from 1.8.22 to 1.9.0 [\#416](https://github.com/sokomishalov/skraper/pull/416) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump dokka-maven-plugin from 1.8.10 to 1.8.20 [\#415](https://github.com/sokomishalov/skraper/pull/415) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump jsoup from 1.15.4 to 1.16.1 [\#414](https://github.com/sokomishalov/skraper/pull/414) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.12.0](https://github.com/sokomishalov/skraper/tree/0.12.0) (2023-07-16)
 
 [Full Changelog](https://github.com/sokomishalov/skraper/compare/0.11.1...0.12.0)
