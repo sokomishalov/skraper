@@ -194,10 +194,16 @@ Also, there are some provider-specific kotlin extensions for implementations. Yo
 implementation package.
 
 ### Usage from plain Java
-
-Kotlin coroutines is a [CPS](https://en.wikipedia.org/wiki/Continuation-passing_style) implementation (aka callbacks).
-Here is a quite good [java side example](https://stackoverflow.com/a/54033955/5843129) of how to call kotlin `suspend`
-functions from plain Java.
+There is an out-of-box java interop utility class `ru.sokomishalov.skraper.util.JavaInterop`:
+```java
+class Example {
+    public static void main(String[] args) {
+      Skraper skraper = new InstagramSkraper();
+      List<Post> posts = JavaInterop.limitedFlow(skraper.getPosts("/memes.video"), 10);
+      PageInfo info = JavaInterop.callBlocking(cont -> skraper.getPageInfo("/memes.video", cont));
+    }
+}
+```
 
 ### Scrape user/community/channel/topic/trend posts
 
