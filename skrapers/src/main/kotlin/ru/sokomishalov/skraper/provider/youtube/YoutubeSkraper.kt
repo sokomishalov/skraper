@@ -82,7 +82,7 @@ open class YoutubeSkraper @JvmOverloads constructor(
                 name = getString("metadata.channelMetadataRenderer.title"),
                 description = getString("metadata.channelMetadataRenderer.description"),
                 statistics = PageStatistics(
-                    followers = getString("header.c4TabbedHeaderRenderer.subscriberCountText.runs.0.text")?.extractAmount(),
+                    followers = getString("header.c4TabbedHeaderRenderer.subscriberCountText.simpleText")?.extractAmount(),
                 ),
                 avatar = getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails").extractImage(),
                 cover = getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails").extractImage()
@@ -196,12 +196,12 @@ open class YoutubeSkraper @JvmOverloads constructor(
             .trim()
             .run {
                 when {
-                    endsWith("K", ignoreCase = true) -> replace("K", "").substringBeforeLast(".").toIntOrNull()?.times(1_000)
-                    endsWith("M", ignoreCase = true) -> replace("M", "").substringBeforeLast(".").toIntOrNull()?.times(1_000_000)
-                    endsWith("B", ignoreCase = true) -> replace("B", "").substringBeforeLast(".").toIntOrNull()?.times(1_000_000_000)
-                    else -> substringBeforeLast(".").toIntOrNull()
+                    endsWith("K", ignoreCase = true) -> replace("K", "").toFloatOrNull()?.times(1_000)
+                    endsWith("M", ignoreCase = true) -> replace("M", "").toFloatOrNull()?.times(1_000_000)
+                    endsWith("B", ignoreCase = true) -> replace("B", "").toFloatOrNull()?.times(1_000_000_000)
+                    else -> toFloatOrNull()
                 }
-            }
+            }?.toInt()
     }
 
     companion object {
