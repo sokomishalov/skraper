@@ -16,7 +16,7 @@
         <kotlin.version>1.9.22</kotlin.version>
 
         <kotlinx-coroutines.version>1.8.0</kotlinx-coroutines.version>
-        <jackson.version>2.16.2</jackson.version>
+        <jackson.version>2.17.0</jackson.version>
         <jsoup.version>1.17.2</jsoup.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <spring.version>5.3.32</spring.version>
