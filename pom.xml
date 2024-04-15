@@ -22,7 +22,7 @@
         <spring.version>5.3.33</spring.version>
         <ktor.version>2.3.8</ktor.version>
         <sl4j.version>1.7.32</sl4j.version>
-        <logback.version>1.4.14</logback.version>
+        <logback.version>1.5.5</logback.version>
 
         <flatten-plugin.version>1.6.0</flatten-plugin.version>
         <license-plugin.version>4.3</license-plugin.version>
