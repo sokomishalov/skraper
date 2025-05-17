@@ -26,3 +26,17 @@ jobs:
           key: maven_deps
       - name: Build and test
         run: mvn clean test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push Docker image (CI)
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false # Set to true to push the image to a registry
+          tags: sokomishalov:skraper
+          # You might need to add a 'file' input if your Dockerfile is not named Dockerfile
+          # file: ./path/to/Dockerfile
+          # Add login step here if pushing
+          # login_server: docker.io
+          # username: ${{ secrets.DOCKER_USERNAME }}
+          # password: ${{ secrets.DOCKER_PASSWORD }}
