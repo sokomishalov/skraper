@@ -14,7 +14,7 @@
     <version>${revision}</version>
 
     <properties>
-        <reactor-netty.version>1.1.20</reactor-netty.version>
+        <reactor-netty.version>1.1.29</reactor-netty.version>
     </properties>
 
     <dependencies>
@@ -141,7 +141,7 @@
                 <configuration>
                     <jvmTarget>${java.version}</jvmTarget>
                     <args>
-                        <arg>-Xopt-in=kotlinx.coroutines.DelicateCoroutinesApi</arg>
+                        <arg>-opt-in=kotlinx.coroutines.DelicateCoroutinesApi</arg>
                     </args>
                 </configuration>
                 <executions>

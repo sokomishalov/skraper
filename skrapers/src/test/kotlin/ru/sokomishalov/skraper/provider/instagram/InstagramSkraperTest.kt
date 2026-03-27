@@ -25,8 +25,8 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
  */
 class InstagramSkraperTest : AbstractSkraperTest() {
     override val skraper = InstagramSkraper(client = client)
-    private val username: String = "memes.video"
-    private val tag: String = "memes"
+    private val username: String = "instagram"
+    private val tag: String = "photography"
 
     @Test
     fun `Check user posts`() {

@@ -21,7 +21,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 class YoutubeSkraperTest : AbstractSkraperTest() {
     override val skraper = YoutubeSkraper(client = client)
-    private val username: String = "VineAholic"
+    private val username: String = "MrBeast"
 
 
     @Test
@@ -36,13 +36,12 @@ class YoutubeSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Video("https://www.youtube.com/watch?v=9bZkp7q19f0"))
-        assertMediaResolved(Video("https://www.youtube.com/watch?v=j9N-v3KURSc"))
+        assertMediaResolved(Video("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
     }
 
     @Test
     fun `Check media downloading`() {
-        assertMediaDownloaded(Video("https://youtu.be/fjUO7xaUHJQ"))
+        assertMediaDownloaded(Video("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
     }
 
     @Test

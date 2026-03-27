@@ -24,8 +24,8 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
  */
 class FlickrSkraperTest : AbstractSkraperTest() {
     override val skraper = FlickrSkraper(client = client)
-    private val username = "harrythehawk"
-    private val tag = "fun"
+    private val username = "nasahqphoto"
+    private val tag = "nature"
 
     @Test
     fun `Check tag posts`() {
@@ -44,11 +44,11 @@ class FlickrSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Image("https://www.flickr.com/photos/harrythehawk/49711484733/"))
+        assertMediaResolved(Image("https://www.flickr.com/photos/nasahqphoto/53512180974/"))
     }
 
     @Test
     fun `Check media dowloading`() {
-        assertMediaDownloaded(Image("https://www.flickr.com/photos/harrythehawk/49711484733/"))
+        assertMediaDownloaded(Image("https://www.flickr.com/photos/nasahqphoto/53512180974/"))
     }
 }

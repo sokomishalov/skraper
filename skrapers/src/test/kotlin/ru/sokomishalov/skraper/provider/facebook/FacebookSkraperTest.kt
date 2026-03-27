@@ -24,7 +24,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
  */
 class FacebookSkraperTest : AbstractSkraperTest() {
     override val skraper = FacebookSkraper(client = client)
-    private val community: String = "NintendoAmerica"
+    private val community: String = "NASA"
     private val username: String = "zuck"
 
     @Test

@@ -24,7 +24,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 class TikTokSkraperTest : AbstractSkraperTest() {
     override val client: SkraperClient = OkHttpSkraperClient()
     override val skraper = TikTokSkraper(client = client)
-    private val username: String = "memes"
+    private val username: String = "khaby.lame"
 
     @Test
     fun `Check user posts`() {
@@ -38,11 +38,11 @@ class TikTokSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Video("https://www.tiktok.com/@memes/video/6912531581743762694"))
+        assertMediaResolved(Video("https://www.tiktok.com/@khaby.lame/video/7106204104237829382"))
     }
 
     @Test
     fun `Check media downloading`() {
-        assertMediaDownloaded(Video("https://www.tiktok.com/@memes/video/6912531581743762694"))
+        assertMediaDownloaded(Video("https://www.tiktok.com/@khaby.lame/video/7106204104237829382"))
     }
 }

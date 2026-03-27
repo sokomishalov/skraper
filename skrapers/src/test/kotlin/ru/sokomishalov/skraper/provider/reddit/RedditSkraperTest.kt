@@ -17,7 +17,6 @@ package ru.sokomishalov.skraper.provider.reddit
 
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
-import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 /**
@@ -25,8 +24,8 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
  */
 class RedditSkraperTest : AbstractSkraperTest() {
     override val skraper = RedditSkraper(client = client)
-    private val community: String = "r/videos"
-    private val username: String = "u/ShittyMorph"
+    private val community: String = "r/memes"
+    private val username: String = "u/GallowBoob"
 
 
     @Test
@@ -71,6 +70,6 @@ class RedditSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media downloading`() {
-        assertMediaDownloaded(Video("https://www.reddit.com/r/videos/comments/geditz/frankie_macdonald_declares_2021_to_be_the_year_of/"))
+        assertMediaDownloaded(Image("https://www.reddit.com/r/memes/comments/fu78mt/assuming_birds_are_real/"))
     }
 }

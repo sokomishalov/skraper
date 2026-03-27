@@ -24,8 +24,8 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
  */
 class PinterestSkraperTest : AbstractSkraperTest() {
     override val skraper = PinterestSkraper(client = client)
-    private val username: String = "levato"
-    private val topic: String = "meme"
+    private val username: String = "pinterest"
+    private val topic: String = "design"
 
     @Test
     fun `Check user posts`() {

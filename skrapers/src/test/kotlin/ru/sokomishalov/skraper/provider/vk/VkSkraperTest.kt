@@ -27,7 +27,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 class VkSkraperTest : AbstractSkraperTest() {
     override val skraper = VkSkraper(client = client)
     private val username: String = "durov"
-    private val community: String = "komment"
+    private val community: String = "mdk"
 
     @Test
     fun `Check user posts`() {

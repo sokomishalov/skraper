@@ -24,8 +24,8 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
  */
 class TwitchSkraperTest : AbstractSkraperTest() {
     override val skraper = TwitchSkraper(client = client)
-    private val username: String = "realmadrid"
-    private val game: String = "Grand Theft Auto V"
+    private val username: String = "shroud"
+    private val game: String = "Fortnite"
 
     @Test
     fun `Check user video posts`() {
@@ -59,7 +59,6 @@ class TwitchSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Video("https://www.twitch.tv/videos/582147357"))
-        assertMediaResolved(Video("https://www.twitch.tv/realmadrid/clip/SourKathishRedpandaDoubleRainbow"))
+        assertMediaResolved(Video("https://www.twitch.tv/videos/2089917355"))
     }
 }

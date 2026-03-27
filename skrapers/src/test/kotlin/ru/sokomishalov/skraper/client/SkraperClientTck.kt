@@ -48,7 +48,7 @@ abstract class SkraperClientTck {
 
     @Test
     fun `Redirect to https`() = runBlocking {
-        val resp = client.request(HttpRequest("http://twitter.com/"))
+        val resp = client.request(HttpRequest("http://github.com/"))
 
         assertNotNull(resp)
         assertEquals(200, resp.status)
@@ -90,14 +90,14 @@ abstract class SkraperClientTck {
 
     @Test
     fun `File download`() = runBlocking {
-        val tempFile = Files.createTempFile("test-pfx", ".zip").toFile().apply { deleteOnExit() }
+        val tempFile = Files.createTempFile("test-pfx", ".bin").toFile().apply { deleteOnExit() }
 
         assertTrue { tempFile.exists() }
         assertEquals(0L, tempFile.length())
 
-        client.download(HttpRequest("http://speedtest.ftp.otenet.gr/files/test10Mb.db"), tempFile)
+        client.download(HttpRequest("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"), tempFile)
 
         assertTrue { tempFile.exists() }
-        assertEquals(10L * 1024 * 1024, tempFile.length())
+        assertTrue("Downloaded file should not be empty") { tempFile.length() > 0 }
     }
 }

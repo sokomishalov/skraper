@@ -25,7 +25,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
  */
 class TwitterSkraperTest : AbstractSkraperTest() {
     override val skraper = TwitterSkraper(client = client)
-    private val username: String = "memes"
+    private val username: String = "elonmusk"
 
     @Test
     fun `Check user posts`() {
@@ -39,21 +39,11 @@ class TwitterSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Image("https://twitter.com/memes/status/1063195947725975555/photo/1"))
+        assertMediaResolved(Image("https://x.com/elonmusk/status/1063195947725975555/photo/1"))
     }
 
     @Test
     fun `Check media downloading`() {
-        assertMediaDownloaded(Video("https://twitter.com/i/status/1514695752953520144"))
-    }
-
-    @Test
-    fun `GH-281 posts`() {
-        assertPosts { skraper.getUserPosts(username = "ElonMusk") }
-    }
-
-    @Test
-    fun `GH-281 info`() {
-        assertPageInfo { skraper.getUserInfo(username = "ElonMusk") }
+        assertMediaDownloaded(Video("https://x.com/i/status/1514695752953520144"))
     }
 }

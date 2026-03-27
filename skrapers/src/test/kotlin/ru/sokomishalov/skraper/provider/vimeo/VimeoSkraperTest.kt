@@ -21,10 +21,10 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 
 class VimeoSkraperTest : AbstractSkraperTest() {
     override val skraper = VimeoSkraper(client = client)
-    private val username: String = "scoutdogs"
+    private val username: String = "staffpicks"
     private val category: String = "comedy"
     private val subCategory: String = "comicnarrative"
-    private val mediaUrl = "https://vimeo.com/605345638"
+    private val mediaUrl = "https://vimeo.com/259411563"
 
     @Test
     fun `Check user posts`() {

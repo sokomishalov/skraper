@@ -204,6 +204,8 @@ internal class YoutubeVideoResolver(
             ";ytplayer\\.config = (\\{.*?\\})\\;ytplayer".toRegex(),
             ";ytplayer\\.config = (\\{.*?\\})\\;".toRegex(),
             "ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\})\\;var meta".toRegex(),
+            "ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\})\\s*;\\s*(?:var|let|const)".toRegex(),
+            "ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\})\\s*;".toRegex(),
         )
 
         private val POSSIBLE_JS_URL_REGEXES = listOf(
