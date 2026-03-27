@@ -19,7 +19,7 @@
         <jackson.version>2.18.3</jackson.version>
         <jsoup.version>1.18.3</jsoup.version>
         <okhttp3.version>4.12.0</okhttp3.version>
-        <spring.version>5.3.39</spring.version>
+        <spring.version>7.0.6</spring.version>
         <ktor.version>2.3.13</ktor.version>
         <sl4j.version>2.0.16</sl4j.version>
         <logback.version>1.5.16</logback.version>
