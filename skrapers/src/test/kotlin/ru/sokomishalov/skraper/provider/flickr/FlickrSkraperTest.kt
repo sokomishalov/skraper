@@ -44,11 +44,11 @@ class FlickrSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Image("https://www.flickr.com/photos/nasahqphoto/53512180974/"))
+        assertMediaResolved(Image("https://www.flickr.com/photos/nasahqphoto/55203439643/"))
     }
 
     @Test
     fun `Check media dowloading`() {
-        assertMediaDownloaded(Image("https://www.flickr.com/photos/nasahqphoto/53512180974/"))
+        assertMediaDownloaded(Image("https://www.flickr.com/photos/nasahqphoto/55203439643/"))
     }
 }

@@ -82,10 +82,14 @@ open class YoutubeSkraper @JvmOverloads constructor(
                 name = getString("metadata.channelMetadataRenderer.title"),
                 description = getString("metadata.channelMetadataRenderer.description"),
                 statistics = PageStatistics(
-                    followers = getString("header.c4TabbedHeaderRenderer.subscriberCountText.simpleText")?.extractAmount(),
+                    followers = (getString("header.c4TabbedHeaderRenderer.subscriberCountText.simpleText")
+                        ?: getString("header.pageHeaderRenderer.content.pageHeaderViewModel.metadata.contentMetadataViewModel.metadataRows.1.metadataParts.0.text.content"))
+                        ?.extractAmount(),
                 ),
-                avatar = getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails").extractImage(),
-                cover = getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails").extractImage()
+                avatar = (getByPath("header.c4TabbedHeaderRenderer.avatar.thumbnails")
+                    ?: getByPath("metadata.channelMetadataRenderer.avatar.thumbnails")).extractImage(),
+                cover = (getByPath("header.c4TabbedHeaderRenderer.banner.thumbnails")
+                    ?: getByPath("header.pageHeaderRenderer.content.pageHeaderViewModel.banner.imageBannerViewModel.image.sources")).extractImage()
             )
         }
     }

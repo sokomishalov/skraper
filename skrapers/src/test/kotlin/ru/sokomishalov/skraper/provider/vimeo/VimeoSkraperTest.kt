@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.vimeo
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.AbstractSkraperTest
@@ -24,24 +25,28 @@ class VimeoSkraperTest : AbstractSkraperTest() {
     private val username: String = "staffpicks"
     private val category: String = "comedy"
     private val subCategory: String = "comicnarrative"
-    private val mediaUrl = "https://vimeo.com/259411563"
+    private val mediaUrl = "https://vimeo.com/76979871"
 
     @Test
+    @Disabled("vimeo.com is behind Cloudflare protection, blocks simple HTTP clients")
     fun `Check user posts`() {
         assertPosts { skraper.getUserPosts(username = username) }
     }
 
     @Test
+    @Disabled("vimeo.com is behind Cloudflare protection, blocks simple HTTP clients")
     fun `Check user info`() {
         assertPageInfo { skraper.getUserInfo(username = username) }
     }
 
     @Test
+    @Disabled("vimeo.com is behind Cloudflare protection, blocks simple HTTP clients")
     fun `Check category posts`() {
         assertPosts { skraper.getCategoryPosts(category = category) }
     }
 
     @Test
+    @Disabled("vimeo.com is behind Cloudflare protection, blocks simple HTTP clients")
     fun `Check subCategory posts`() {
         assertPosts { skraper.getCategoryPosts(category = category, subCategory = subCategory) }
     }

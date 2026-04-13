@@ -132,7 +132,7 @@ open class InstagramSkraper @JvmOverloads constructor(
                         path = "api/v1/tags/logged_out_web_info/",
                         queryParams = mapOf("tag_name" to tag)
                     ),
-                    headers = mapOf("x-ig-app-id" to APP_ID)
+                    headers = API_HEADERS
                 )
             }
             else -> {
@@ -143,7 +143,7 @@ open class InstagramSkraper @JvmOverloads constructor(
                         path = "api/v1/users/web_profile_info/",
                         queryParams = mapOf("username" to username)
                     ),
-                    headers = mapOf("x-ig-app-id" to APP_ID)
+                    headers = API_HEADERS
                 )
             }
         }
@@ -155,5 +155,15 @@ open class InstagramSkraper @JvmOverloads constructor(
         const val BASE_URL: String = "https://instagram.com"
         const val INFO_BASE_URL: String = "https://i.instagram.com"
         const val APP_ID: String = "936619743392459"
+        private val API_HEADERS = mapOf(
+            "x-ig-app-id" to APP_ID,
+            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept" to "*/*",
+            "Accept-Language" to "en-US,en;q=0.9",
+            "Sec-Fetch-Dest" to "empty",
+            "Sec-Fetch-Mode" to "cors",
+            "Sec-Fetch-Site" to "same-site",
+            "Referer" to "https://www.instagram.com/",
+        )
     }
 }

@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.facebook
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.AbstractSkraperTest
@@ -22,6 +23,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 /**
  * @author sokomishalov
  */
+@Disabled("Facebook requires authentication, serves login wall to bots")
 class FacebookSkraperTest : AbstractSkraperTest() {
     override val skraper = FacebookSkraper(client = client)
     private val community: String = "NASA"

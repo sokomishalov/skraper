@@ -95,7 +95,7 @@ abstract class SkraperClientTck {
         assertTrue { tempFile.exists() }
         assertEquals(0L, tempFile.length())
 
-        client.download(HttpRequest("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"), tempFile)
+        client.download(HttpRequest("https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"), tempFile)
 
         assertTrue { tempFile.exists() }
         assertTrue("Downloaded file should not be empty") { tempFile.length() > 0 }

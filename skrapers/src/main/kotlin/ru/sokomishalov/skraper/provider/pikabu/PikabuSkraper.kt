@@ -171,21 +171,26 @@ open class PikabuSkraper @JvmOverloads constructor(
         return mapNotNull { b ->
             when {
                 "story-block_type_image" in b.classNames() -> {
-                    Image(
-                        url = b
-                            .getFirstElementByTag("img")
-                            ?.getFirstAttr("data-src", "src")
-                            .orEmpty(),
-                        aspectRatio = b
-                            .getFirstElementByTag("rect")
-                            ?.run {
-                                attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
-                            }
-                    )
+                    val url = b
+                        .getFirstElementByTag("img")
+                        ?.getFirstAttr("data-src", "src")
+                        .orEmpty()
+
+                    url.takeIf { it.isNotBlank() }?.let {
+                        Image(
+                            url = it,
+                            aspectRatio = b
+                                .getFirstElementByTag("rect")
+                                ?.run {
+                                    attr("width").toDoubleOrNull() / attr("height").toDoubleOrNull()
+                                }
+                        )
+                    }
                 }
                 "story-block_type_video" in b.classNames() -> b
                     .getFirstElementByAttributeValueContaining("data-type", "video")
                     ?.extractVideoInfo()
+                    ?.takeIf { it.url.isNotBlank() }
 
                 else -> null
             }
@@ -210,7 +215,6 @@ open class PikabuSkraper @JvmOverloads constructor(
 
     private fun Document?.extractUserAvatar(): String? {
         return this
-            ?.getFirstElementByClass("main")
             ?.getFirstElementByClass("avatar")
             ?.getFirstElementByTag("img")
             ?.run { attr("src").ifEmpty { attr("data-src") } }
@@ -234,7 +238,7 @@ open class PikabuSkraper @JvmOverloads constructor(
         return this
             ?.getFirstElementByClass("community-header__controls")
             ?.getFirstElementByTag("span")
-            ?.attr("data-link-name")
+            ?.attr("data-link")
     }
 
     private fun Document?.extractCommunityName(): String {

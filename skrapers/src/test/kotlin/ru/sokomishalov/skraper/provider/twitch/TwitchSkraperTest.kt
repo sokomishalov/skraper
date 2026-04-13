@@ -59,6 +59,6 @@ class TwitchSkraperTest : AbstractSkraperTest() {
 
     @Test
     fun `Check media resolving`() {
-        assertMediaResolved(Video("https://www.twitch.tv/videos/2089917355"))
+        assertMediaResolved(Video("https://www.twitch.tv/videos/2743870556"))
     }
 }
