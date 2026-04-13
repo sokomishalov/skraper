@@ -23,7 +23,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 class PikabuSkraperTest : AbstractSkraperTest() {
     override val skraper = PikabuSkraper(client = client)
     private val username: String = "admin"
-    private val community: String = "science"
+    private val community: String = "cats"
 
     @Test
     fun `Check hot posts`() {

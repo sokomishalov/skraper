@@ -22,7 +22,6 @@ import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.*
-import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_BATCH
 import ru.sokomishalov.skraper.internal.iterable.emitBatch
 import ru.sokomishalov.skraper.internal.jsoup.getMetaPropertyMap
@@ -44,7 +43,7 @@ open class VimeoSkraper @JvmOverloads constructor(
     override fun getPosts(path: String): Flow<Post> = flow {
         val document = getPage(path)
 
-        val jwt = acquireJwt() ?: return@flow
+        val jwt = extractJwt(document) ?: return@flow
 
         val fetcher: suspend (Int) -> List<JsonNode> = { page ->
             if (path.removePrefix("/").startsWith("categories")) {
@@ -99,8 +98,8 @@ open class VimeoSkraper @JvmOverloads constructor(
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Video -> {
-                val openGraphMedia = client.fetchOpenGraphMedia(media)
-                val videoConfigUrl = openGraphMedia.url.substringBeforeLast("?") + "/config?default_to_hd=1"
+                val videoId = media.url.substringAfterLast("/").substringBefore("?")
+                val videoConfigUrl = "$PLAYER_BASE_URL/video/$videoId/config"
                 val configJson = client.fetchJson(HttpRequest(videoConfigUrl)) ?: return media
 
                 with(configJson) {
@@ -121,14 +120,9 @@ open class VimeoSkraper @JvmOverloads constructor(
         request = HttpRequest(url = BASE_URL.buildFullURL(path = path))
     )
 
-    private suspend fun acquireJwt(): String? {
-        return client.fetchJson(HttpRequest(
-            url = BASE_URL.buildFullURL(path = "/_next/jwt"),
-            headers = DEFAULT_HEADERS + mapOf(
-                "Connection" to "keep-alive",
-                "x-requested-with" to "XMLHttpRequest",
-            )
-        ))?.getString("token")
+    private fun extractJwt(document: Document?): String? {
+        val html = document?.html().orEmpty()
+        return "\"jwt\"\\s*:\\s*\"([^\"]+)\"".toRegex().find(html)?.groupValues?.get(1)
     }
 
     private suspend fun fetchDefaultSectionUri(userId: String, jwt: String): String? {
@@ -182,5 +176,6 @@ open class VimeoSkraper @JvmOverloads constructor(
     companion object {
         const val BASE_URL: String = "https://vimeo.com"
         const val API_BASE_URL: String = "https://api.vimeo.com/"
+        const val PLAYER_BASE_URL: String = "https://player.vimeo.com"
     }
 }

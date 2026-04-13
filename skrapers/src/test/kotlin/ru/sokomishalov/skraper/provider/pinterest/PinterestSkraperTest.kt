@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.pinterest
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.provider.AbstractSkraperTest
@@ -22,6 +23,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 /**
  * @author sokomishalov
  */
+@Disabled("Pinterest is fully client-rendered, no server-side state available")
 class PinterestSkraperTest : AbstractSkraperTest() {
     override val skraper = PinterestSkraper(client = client)
     private val username: String = "pinterest"

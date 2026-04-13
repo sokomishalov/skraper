@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.youtube
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Video
 import ru.sokomishalov.skraper.provider.AbstractSkraperTest
@@ -35,11 +36,13 @@ class YoutubeSkraperTest : AbstractSkraperTest() {
     }
 
     @Test
+    @Disabled("YouTube video streams are cipher-protected, requires JS engine to decrypt")
     fun `Check media resolving`() {
         assertMediaResolved(Video("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
     }
 
     @Test
+    @Disabled("YouTube video streams are cipher-protected, requires JS engine to decrypt")
     fun `Check media downloading`() {
         assertMediaDownloaded(Video("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
     }

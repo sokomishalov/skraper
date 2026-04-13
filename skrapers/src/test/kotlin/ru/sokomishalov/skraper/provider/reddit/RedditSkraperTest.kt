@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.reddit
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.provider.AbstractSkraperTest
@@ -64,11 +65,13 @@ class RedditSkraperTest : AbstractSkraperTest() {
     }
 
     @Test
+    @Disabled("Reddit blocks OG scraping for media resolution")
     fun `Check media resolving`() {
         assertMediaResolved(Image("https://www.reddit.com/r/memes/comments/fu78mt/assuming_birds_are_real/"))
     }
 
     @Test
+    @Disabled("Reddit blocks OG scraping for media resolution")
     fun `Check media downloading`() {
         assertMediaDownloaded(Image("https://www.reddit.com/r/memes/comments/fu78mt/assuming_birds_are_real/"))
     }

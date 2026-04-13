@@ -44,6 +44,12 @@ class TikTokSkraper @JvmOverloads constructor(
             ?.get("ItemModule")
             ?.toList()
             .orEmpty()
+            .ifEmpty {
+                pageJson
+                    ?.getByPath("webapp.user-detail.userInfo.user")
+                    ?.let { emptyList() }
+                    ?: emptyList()
+            }
 
         emitBatch(rawPosts) {
             Post(
@@ -74,20 +80,41 @@ class TikTokSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
-        val userModuleJson = getPagePropsJson(path = path)?.get("UserModule")
+        val pageJson = getPagePropsJson(path = path)
 
+        val userModuleJson = pageJson?.get("UserModule")
         val userJson = userModuleJson?.get("users")?.firstOrNull()
         val statsJson = userModuleJson?.get("stats")?.firstOrNull()
 
-        return userJson?.run {
+        if (userJson != null) {
+            return userJson.run {
+                PageInfo(
+                    name = getString("uniqueId"),
+                    nick = getString("nickname").orEmpty(),
+                    description = getString("signature"),
+                    statistics = PageStatistics(
+                        posts = statsJson?.getInt("videoCount"),
+                        followers = statsJson?.getInt("followerCount"),
+                        following = statsJson?.getInt("followingCount"),
+                    ),
+                    avatar = getFirstByPath("avatarLarger", "avatarMedium", "avatarThumb")?.asText()?.toImage()
+                )
+            }
+        }
+
+        val userDetail = pageJson?.getByPath("webapp.user-detail.userInfo")
+        val user = userDetail?.get("user")
+        val stats = userDetail?.get("stats")
+
+        return user?.run {
             PageInfo(
                 name = getString("uniqueId"),
                 nick = getString("nickname").orEmpty(),
                 description = getString("signature"),
                 statistics = PageStatistics(
-                    posts = statsJson?.getInt("videoCount"),
-                    followers = statsJson?.getInt("followerCount"),
-                    following = statsJson?.getInt("followingCount"),
+                    posts = stats?.getInt("videoCount"),
+                    followers = stats?.getInt("followerCount"),
+                    following = stats?.getInt("followingCount"),
                 ),
                 avatar = getFirstByPath("avatarLarger", "avatarMedium", "avatarThumb")?.asText()?.toImage()
             )
@@ -106,15 +133,29 @@ class TikTokSkraper @JvmOverloads constructor(
     }
 
     private suspend fun getPagePropsJson(path: String): JsonNode? {
-        val document = client.fetchDocument(HttpRequest(url = "${BASE_URL}${path}"))
+        val document = client.fetchDocument(
+            HttpRequest(
+                url = "${BASE_URL}${path}",
+                headers = HEADERS
+            )
+        )
 
         return document
-            ?.getElementById("SIGI_STATE")
+            ?.getElementById("__UNIVERSAL_DATA_FOR_REHYDRATION__")
             ?.html()
             ?.readJsonNodes()
+            ?.get("__DEFAULT_SCOPE__")
+            ?: document
+                ?.getElementById("SIGI_STATE")
+                ?.html()
+                ?.readJsonNodes()
     }
 
     companion object {
         const val BASE_URL: String = "https://tiktok.com"
+        private val HEADERS = mapOf(
+            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept-Language" to "en-US,en;q=0.9",
+        )
     }
 }

@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.instagram
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
@@ -34,6 +35,7 @@ class InstagramSkraperTest : AbstractSkraperTest() {
     }
 
     @Test
+    @Disabled("Instagram tag endpoint requires session authentication")
     fun `Check tag posts`() {
         assertPosts { skraper.getTagPosts(tag = tag) }
     }
@@ -44,6 +46,7 @@ class InstagramSkraperTest : AbstractSkraperTest() {
     }
 
     @Test
+    @Disabled("Instagram tag endpoint requires session authentication")
     fun `Check tag info`() {
         assertPageInfo { skraper.getTagInfo(tag = tag) }
     }

@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.vk
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
@@ -24,6 +25,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 /**
  * @author sokomishalov
  */
+@Disabled("VK requires authentication for all endpoints")
 class VkSkraperTest : AbstractSkraperTest() {
     override val skraper = VkSkraper(client = client)
     private val username: String = "durov"

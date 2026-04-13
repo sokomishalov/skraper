@@ -21,11 +21,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import org.jsoup.nodes.Document
 import ru.sokomishalov.skraper.Skraper
 import ru.sokomishalov.skraper.Skrapers
 import ru.sokomishalov.skraper.client.*
-import ru.sokomishalov.skraper.client.HttpMethodType.GET
 import ru.sokomishalov.skraper.client.HttpMethodType.POST
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_HEADERS
 import ru.sokomishalov.skraper.internal.consts.DEFAULT_POSTS_BATCH
@@ -47,9 +45,7 @@ open class TwitchSkraper @JvmOverloads constructor(
 ) : Skraper {
 
     override fun getPosts(path: String): Flow<Post> = flow {
-        val page = getPage(path)
-
-        val clientId = page.extractClientId()
+        val clientId = CLIENT_ID
 
         val isGamePath = path.removePrefix("/").startsWith("directory/game")
         val isClipsPath = "/clips" in path
@@ -123,9 +119,7 @@ open class TwitchSkraper @JvmOverloads constructor(
     }
 
     override suspend fun getPageInfo(path: String): PageInfo? {
-        val page = getPage(path)
-
-        val clientId = page.extractClientId()
+        val clientId = CLIENT_ID
 
         val isGamePath = path.removePrefix("/").startsWith("directory/game")
         return when {
@@ -178,8 +172,7 @@ open class TwitchSkraper @JvmOverloads constructor(
     override suspend fun resolve(media: Media): Media {
         return when (media) {
             is Video -> {
-                val page = client.fetchDocument(HttpRequest(media.url))
-                val clientId = page?.extractClientId().orEmpty()
+                val clientId = CLIENT_ID
 
                 val isClipPath = "/clip/" in media.url
                 val isVideoPath = "/videos/" in media.url
@@ -203,21 +196,21 @@ open class TwitchSkraper @JvmOverloads constructor(
                     isVideoPath -> {
                         val videoId = media.url.extractVideoIdFromPath()
 
-                        val token = client.fetchJson(
-                            HttpRequest(
-                                url = REST_BASE_URL.buildFullURL(path = "/vods/${videoId}/access_token"),
-                                method = GET,
-                                headers = DEFAULT_HEADERS + mapOf("Client-ID" to clientId)
-                            )
+                        val tokenJson = graphRequest(
+                            clientId = clientId,
+                            query = videoAccessTokenRequest(videoId.toString())
                         )
+
+                        val tokenValue = tokenJson?.getString("data.videoPlaybackAccessToken.value")
+                        val tokenSig = tokenJson?.getString("data.videoPlaybackAccessToken.signature")
 
                         val videoMeta = client.fetchString(
                             HttpRequest(
                                 url = USHER_BASE_URL.buildFullURL(
                                     path = "/${videoId}.m3u8",
                                     queryParams = mapOf(
-                                        "nauth" to token?.getString("token"),
-                                        "nauthsig" to token?.getString("sig"),
+                                        "nauth" to tokenValue,
+                                        "nauthsig" to tokenSig,
                                         "allow_source" to "true"
                                     )
                                 )
@@ -227,9 +220,10 @@ open class TwitchSkraper @JvmOverloads constructor(
                         val m3u8urls = videoMeta
                             ?.lines()
                             ?.filterNot { it.startsWith("#") }
+                            ?.filter { it.isNotBlank() }
 
                         media.copy(
-                            url = m3u8urls?.getOrNull(m3u8urls.size - 2) ?: media.url
+                            url = m3u8urls?.lastOrNull() ?: media.url
                         )
                     }
 
@@ -238,22 +232,6 @@ open class TwitchSkraper @JvmOverloads constructor(
             }
             else -> media
         }
-    }
-
-    private suspend fun getPage(path: String): Document? {
-        return client.fetchDocument(HttpRequest(url = BASE_URL.buildFullURL(path = path)))
-    }
-
-    private fun Document?.extractClientId(): String {
-        return this
-            ?.html()
-            ?.let {
-                "(?<=(clientId=\"))(.*?)(?=\")"
-                    .toRegex()
-                    .find(it)
-                    ?.value
-            }
-            .orEmpty()
     }
 
     private fun String.extractChannelFromPath(): String {
@@ -268,10 +246,10 @@ open class TwitchSkraper @JvmOverloads constructor(
             .unescapeUrl()
     }
 
-    private fun String.extractVideoIdFromPath(): Int? {
+    private fun String.extractVideoIdFromPath(): Long? {
         return substringAfterLast("/")
             .substringBefore("?")
-            .toIntOrNull()
+            .toLongOrNull()
     }
 
     private fun String.extractClipSlugFromPath(): String {
@@ -413,19 +391,32 @@ open class TwitchSkraper @JvmOverloads constructor(
     """
 
     private fun clipRequest(slug: String) = """
-       query { 
-         clip(slug: "$slug") { 
-           videoQualities { 
-             sourceURL 
-           } 
-         } 
-       } 
+       query {
+         clip(slug: "$slug") {
+           videoQualities {
+             sourceURL
+           }
+         }
+       }
+    """
+
+    private fun videoAccessTokenRequest(videoId: String) = """
+        query {
+          videoPlaybackAccessToken(id: "$videoId", params: {
+            platform: "web",
+            playerBackend: "mediaplayer",
+            playerType: "site"
+          }) {
+            signature
+            value
+          }
+        }
     """
 
     companion object {
         const val BASE_URL: String = "https://twitch.tv"
         const val GRAPH_BASE_URL: String = "https://gql.twitch.tv/gql"
-        const val REST_BASE_URL: String = "https://api.twitch.tv/api"
         const val USHER_BASE_URL: String = "https://usher.ttvnw.net/vod"
+        const val CLIENT_ID: String = "kimne78kx3ncx6brgo4mv6wki5h1ko"
     }
 }

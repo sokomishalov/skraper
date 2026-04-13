@@ -15,6 +15,7 @@
  */
 package ru.sokomishalov.skraper.provider.twitter
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.sokomishalov.skraper.model.Image
 import ru.sokomishalov.skraper.model.Video
@@ -23,6 +24,7 @@ import ru.sokomishalov.skraper.provider.AbstractSkraperTest
 /**
  * @author sokomishalov
  */
+@Disabled("Twitter/X requires OAuth authentication for all endpoints")
 class TwitterSkraperTest : AbstractSkraperTest() {
     override val skraper = TwitterSkraper(client = client)
     private val username: String = "elonmusk"

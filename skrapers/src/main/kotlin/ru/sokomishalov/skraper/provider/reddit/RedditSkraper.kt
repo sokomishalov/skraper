@@ -49,7 +49,8 @@ open class RedditSkraper @JvmOverloads constructor(
                     url = BASE_URL.buildFullURL(
                         path = "${path.removeSuffix("/")}.json",
                         queryParams = mapOf("limit" to DEFAULT_POSTS_BATCH, "after" to nextPage)
-                    )
+                    ),
+                    headers = HEADERS
                 )
             )
 
@@ -78,7 +79,10 @@ open class RedditSkraper @JvmOverloads constructor(
 
     override suspend fun getPageInfo(path: String): PageInfo? {
         val response = client.fetchJson(
-            HttpRequest(url = BASE_URL.buildFullURL(path = "${path.removeSuffix("/")}/about.json"))
+            HttpRequest(
+                url = BASE_URL.buildFullURL(path = "${path.removeSuffix("/")}/about.json"),
+                headers = HEADERS
+            )
         )
 
         val isUser = path.removePrefix("/").startsWith("u")
@@ -155,5 +159,8 @@ open class RedditSkraper @JvmOverloads constructor(
 
     companion object {
         const val BASE_URL: String = "https://reddit.com"
+        private val HEADERS = mapOf(
+            "User-Agent" to "skraper:skraper:v0.13 (by /u/sokomishalov)"
+        )
     }
 }
