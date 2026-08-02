@@ -9,7 +9,7 @@ Skraper
 
 # Overview
 
-Kotlin/Java library and cli tool which allows scraping and downloading posts, attachments, other meta from more than 10
+Kotlin/Java library and cli tool which allows scraping and downloading posts, attachments, other meta from more than 15
 sources without any authorization or full page rendering. Based on jsoup, jackson and kotlin-coroutines.
 
 Repository contains:
@@ -38,6 +38,16 @@ Current list of implemented sources:
 - [VK](https://vk.com)
 - [Odnoklassniki](https://ok.ru)
 - [Pikabu](https://pikabu.ru)
+
+# A note on proxies
+
+Most social networks and content platforms are quite aggressive towards scraping: they rate-limit, captcha-wall and
+ban IP addresses which produce suspicious traffic. A high-quality proxy (especially a mobile one — platforms are very
+reluctant to ban mobile carrier IP ranges since thousands of real users share the same address) is essential for any
+serious scraping workload, otherwise sooner or later your requests will start failing.
+
+I highly recommend [mobileproxy.space](https://mobileproxy.space/?p=269737) for this purpose — reliable mobile proxies
+with rotating IPs, wide geo coverage and a convenient API, they work great in tandem with skraper.
 
 # Bugs
 
@@ -175,6 +185,22 @@ Current http-client implementation list:
 - [KtorSkraperClient](skrapers/src/main/kotlin/ru/sokomishalov/skraper/client/ktor/KtorSkraperClient.kt): [ktor-client-jvm](https://mvnrepository.com/artifact/io.ktor/ktor-client-core-jvm)
   implementation
 
+If no client is passed explicitly, [Skrapers](skrapers/src/main/kotlin/ru/sokomishalov/skraper/Skrapers.kt) singleton
+detects the most suitable implementation by classpath automatically.
+
+Each client implementation accepts a pre-configured underlying http client, which is the right place to set up a proxy.
+As mentioned [above](#a-note-on-proxies), a decent proxy (e.g. [mobileproxy.space](https://mobileproxy.space/?p=269737))
+makes scraping a lot more reliable:
+
+```kotlin
+val skraperClient = OkHttpSkraperClient(
+    client = OkHttpClient.Builder()
+        .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress("proxy.mobileproxy.space", 8080)))
+        .build()
+)
+Skrapers.client = skraperClient
+```
+
 ### Available methods
 
 Each scraper is a class which implements [Skraper](skrapers/src/main/kotlin/ru/sokomishalov/skraper/Skraper.kt)
@@ -182,10 +208,10 @@ interface:
 
 ```kotlin
 interface Skraper {
-    val client: SkraperClient
+    val client: SkraperClient get() = Skrapers.client
     fun getPosts(path: String): Flow<Post>
     suspend fun getPageInfo(path: String): PageInfo?
-    fun supports(media: Media): Boolean
+    fun supports(url: String): Boolean
     suspend fun resolve(media: Media): Media
 }
 ```

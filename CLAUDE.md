@@ -8,7 +8,7 @@ Kotlin/Java library and CLI tool for scraping posts and media from various socia
 
 - **Maven** multi-module project (NOT Gradle)
 - Modules: `skrapers` (core library), `cli` (CLI tool), `telegram-bot` (Telegram bot)
-- Java 8+ target, Kotlin 1.9.22
+- Java 8+ target, Kotlin 2.4.x (version property in root `pom.xml`)
 - CI: GitHub Actions on JDK 8
 
 ### Key Commands

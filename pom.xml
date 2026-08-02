@@ -13,21 +13,21 @@
         <revision>0.13.1-SNAPSHOT</revision>
 
         <java.version>1.8</java.version>
-        <kotlin.version>2.1.20</kotlin.version>
+        <kotlin.version>2.4.10</kotlin.version>
 
-        <kotlinx-coroutines.version>1.10.2</kotlinx-coroutines.version>
-        <jackson.version>2.18.3</jackson.version>
-        <jsoup.version>1.18.3</jsoup.version>
+        <kotlinx-coroutines.version>1.11.0</kotlinx-coroutines.version>
+        <jackson.version>2.22.1</jackson.version>
+        <jsoup.version>1.23.1</jsoup.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <spring.version>5.3.39</spring.version>
         <ktor.version>2.3.13</ktor.version>
-        <sl4j.version>2.0.16</sl4j.version>
-        <logback.version>1.5.16</logback.version>
+        <sl4j.version>2.0.17</sl4j.version>
+        <logback.version>1.6.1</logback.version>
 
-        <flatten-plugin.version>1.6.0</flatten-plugin.version>
-        <license-plugin.version>4.3</license-plugin.version>
+        <flatten-plugin.version>1.8.0</flatten-plugin.version>
+        <license-plugin.version>4.6</license-plugin.version>
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
-        <dokka-plugin.version>1.9.10</dokka-plugin.version>
+        <dokka-plugin.version>1.9.20</dokka-plugin.version>
     </properties>
 
     <name>Skraper</name>
