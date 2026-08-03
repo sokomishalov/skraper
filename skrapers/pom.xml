@@ -13,6 +13,8 @@
     <artifactId>skrapers</artifactId>
     <version>${revision}</version>
 
+    <name>skrapers</name>
+
     <properties>
         <reactor-netty.version>1.1.31</reactor-netty.version>
     </properties>
